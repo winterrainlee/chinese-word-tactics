@@ -89,6 +89,10 @@
   background-image: url("../icons/world/world-hero.svg");
 }
 
+.hero[data-mood="panic"] {
+  background-image: url("../icons/world/world-hero-panic.svg");
+}
+
 .wolf {
   background-image: url("../icons/world/world-wolf.svg");
 }

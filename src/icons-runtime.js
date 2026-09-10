@@ -6,6 +6,11 @@
     '↑': '-90deg'
   };
 
+  const HERO_REACTION_MS = 450;
+  let heroReactionKind = null;
+  let heroReactionUntil = 0;
+  let heroReactionTimer = null;
+
   function syncMoveArrows(root = document) {
     root.querySelectorAll('.move-arrow:not([data-icon="move"])').forEach((el) => {
       const direction = el.textContent.trim();
@@ -31,10 +36,44 @@
     });
   }
 
+  function reactionIsActive() {
+    return heroReactionKind && performance.now() < heroReactionUntil;
+  }
+
+  function syncHeroReaction(root = document) {
+    const active = reactionIsActive();
+    root.querySelectorAll('.hero').forEach((hero) => {
+      if (active) hero.dataset.mood = heroReactionKind;
+      else hero.removeAttribute('data-mood');
+    });
+  }
+
+  function finishHeroReactionWhenDue() {
+    clearTimeout(heroReactionTimer);
+    const remaining = heroReactionUntil - performance.now();
+    if (remaining > 0) {
+      heroReactionTimer = setTimeout(finishHeroReactionWhenDue, remaining + 16);
+      return;
+    }
+    heroReactionKind = null;
+    heroReactionUntil = 0;
+    heroReactionTimer = null;
+    syncHeroReaction(document);
+  }
+
+  window.flashHeroReaction = (kind = 'panic') => {
+    if (kind !== 'panic') return;
+    heroReactionKind = kind;
+    heroReactionUntil = performance.now() + HERO_REACTION_MS;
+    syncHeroReaction(document);
+    finishHeroReactionWhenDue();
+  };
+
   function sync(root = document) {
     syncMoveArrows(root);
     syncInspectButton();
     syncSheetButtons(root);
+    syncHeroReaction(root);
   }
 
   const observer = new MutationObserver((mutations) => {
