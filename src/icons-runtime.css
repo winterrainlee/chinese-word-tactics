@@ -74,8 +74,11 @@
 /* Tactical world objects */
 .hero,
 .wolf {
+  left: 50%;
+  top: 50%;
   width: 88%;
   height: 88%;
+  transform: translate(-50%, -50%);
   font-size: 0;
   background-repeat: no-repeat;
   background-position: center;
@@ -179,12 +182,14 @@
 
 /* Direction marker: status-move.svg points right by default. */
 .move-arrow[data-icon="move"] {
+  left: 50%;
+  top: 50%;
   width: 21px;
   height: 21px;
   font-size: 0;
   background-color: var(--accent);
   filter: drop-shadow(0 1px 0 rgba(255,255,255,.78));
-  transform: rotate(var(--move-rotate, 0deg));
+  transform: translate(-50%, -50%) rotate(var(--move-rotate, 0deg));
   -webkit-mask: url("../icons/status/status-move.svg") center / contain no-repeat;
   mask: url("../icons/status/status-move.svg") center / contain no-repeat;
 }
