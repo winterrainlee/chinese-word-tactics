@@ -24,13 +24,19 @@
   <main id="worldView" class="worldShell appView" hidden aria-live="polite">
     <div class="worldTopbar">
       <button class="iconbtn" id="worldBackBtn" aria-label="튜토리얼로 돌아가기">←</button>
-      <div class="worldHeading"><div class="stagekicker">出發 이후</div><h1>어디로 갈까?</h1></div>
+      <div class="worldHeading"><div class="stagekicker">출발 마을 이후</div><h1>어디로 갈까?</h1></div>
       <div class="worldCompass" aria-hidden="true">⌖</div>
     </div>
 
-    <section class="worldOrigin" aria-label="현재 위치 出發">
-      <span>현재 위치</span>
-      <strong>出發</strong>
+    <section class="worldOrigin" aria-label="현재 위치 출발 마을, 出發">
+      <span class="worldOriginLabel">현재 위치</span>
+      <div class="worldOriginHead">
+        <img class="worldOriginIcon" src="./icons/world/regions/region-origin.svg" alt="" aria-hidden="true">
+        <span class="worldOriginNames">
+          <strong>출발 마을</strong>
+          <small class="worldOriginZh">出發</small>
+        </span>
+      </div>
       <small>숲을 빠져나오자 세 갈래 길이 보인다.</small>
     </section>
 
@@ -42,5 +48,6 @@
 <script src="./src/content.js"></script>
 <script src="./src/app.js"></script>
 <script src="./src/icons-runtime.js"></script>
+<script src="./src/world-runtime.js"></script>
 </body>
 </html>
