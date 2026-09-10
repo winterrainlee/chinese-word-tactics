@@ -3,6 +3,24 @@
   const KEY = 'chinese-word-tactics-journey-v1';
   const strings = value => Array.isArray(value) ? [...new Set(value.filter(x => typeof x === 'string'))] : [];
   const copy = value => JSON.parse(JSON.stringify(value));
+  const cleanOutcome = value => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const result = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (typeof item === 'string' || typeof item === 'boolean' || Number.isFinite(item)) result[key] = item;
+      else if (Array.isArray(item)) result[key] = strings(item);
+    }
+    return Object.keys(result).length ? result : null;
+  };
+  const cleanOutcomes = value => {
+    const result = {};
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return result;
+    for (const [stageId, outcome] of Object.entries(value)) {
+      const clean = cleanOutcome(outcome);
+      if (clean) result[stageId] = clean;
+    }
+    return result;
+  };
   const nodeId = node => `${node.type}:${node.id}`;
   const nodes = () => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections.flatMap(section =>
     section.sequence.map(node => ({ ...node, nodeId: nodeId(node), chapterId: chapter.id, sectionId: section.id }))));
@@ -13,7 +31,7 @@
     const validLocation = location && (location.view === 'world' ||
       (['story', 'tactical'].includes(location.view) && getNode(location.nodeId)?.type === (location.view === 'story' ? 'story' : 'stage')));
     return { seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
-      acknowledgedNodes: strings(raw.acknowledgedNodes), lastLocation: validLocation ? {
+      acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes), lastLocation: validLocation ? {
         view: location.view, ...(location.view !== 'world' ? { nodeId: location.nodeId,
           beat: Number.isInteger(location.beat) && location.beat >= 0 ? location.beat : 0 } : {})
       } : null };
@@ -69,15 +87,26 @@
     const legacy = read('chufa-tutorial-v03');
     progress.completedStages = strings([...progress.completedStages,
       ...strings(legacy?.completed).filter(id => /^stage-[0-5]$/.test(id))]);
+    // G3 existed briefly before stage outcomes. Recover the chosen post from the tactical save when possible.
+    if (!progress.stageOutcomes['gate-stage-3'] && progress.completedStages.includes('gate-stage-3')) {
+      const viaIds = strings(legacy?.state?.viaIds).filter(id => ['west-post', 'east-post'].includes(id));
+      if (viaIds.length) progress.stageOutcomes['gate-stage-3'] = {
+        viaIds, routeChoices: strings(legacy?.state?.routeChoices).filter(id => ['west', 'east'].includes(id))
+      };
+    }
     const persist = () => { try { storage.setItem(KEY, JSON.stringify(progress)); } catch { onError(); } };
     persist();
     return Object.freeze({
       get: () => copy(progress),
-      complete(node, mode = 'first-play') {
+      complete(node, mode = 'first-play', outcome = null) {
         if (mode !== 'first-play' || !getNode(nodeId(node))) return;
         const field = node.type === 'story' ? 'seenStories' : 'completedStages';
         progress[field] = strings([...progress[field], node.id]);
         progress.acknowledgedNodes = strings([...progress.acknowledgedNodes, nodeId(node)]);
+        if (node.type === 'stage' && !progress.stageOutcomes[node.id]) {
+          const clean = cleanOutcome(outcome);
+          if (clean) progress.stageOutcomes[node.id] = clean;
+        }
         persist();
       },
       locate(location, mode = 'first-play') {
