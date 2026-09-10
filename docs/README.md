@@ -1,3 +1,10 @@
-# Documentation
+# 문서 색인
 
-Project design and development documents live in this directory.
+`chinese-word-tactics`의 기획·디자인·개발 운영 문서를 모아둔다.
+
+- [디자인 원칙 v0.1](DESIGN-PRINCIPLES-v0.1.md) — 화면·전술판·단어·월드맵의 공통 시각/상호작용 판단 기준
+- [개발 상황판](DEVELOPMENT-STATUS.md) — 기획 / 구현 / 실기기 검수 상태
+- [월드맵 v0.5](WORLD-v0.5.md) — 현재 월드 구조와 지역 배치
+- [이전 계획 v0.1](MIGRATION-PLAN-v0.1.md) — 독립 저장소 이전 계획 기록
+
+새로운 공통 규칙은 기능 코드보다 먼저 해당 문서에 기록하고, 구현 뒤에는 개발 상황판의 상태를 갱신한다.
