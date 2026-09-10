@@ -18,22 +18,30 @@
 .worldTopbar h1{font-size:25px;line-height:1.05;white-space:nowrap}
 .worldCompass{font-size:26px}
 
-/* 出發 is a map node, not a large information card. */
+/* 출발 마을 is the root map node. Stack its icon and name so the Korean label never squeezes. */
 .worldOrigin{
-  width:142px;
-  min-height:84px;
+  width:154px;
+  min-height:104px;
   align-self:center;
   position:relative;
   z-index:2;
   text-align:center;
   justify-items:center;
-  padding:10px 12px;
+  padding:9px 11px;
   border-radius:18px;
   box-shadow:0 3px 12px rgba(55,45,30,.06);
 }
+.worldOriginHead{
+  display:grid;
+  justify-items:center;
+  gap:1px;
+  width:100%;
+}
+.worldOriginIcon{width:38px;height:38px;flex:none}
+.worldOriginNames{align-items:center;min-width:0}
 .worldOrigin span{font-size:11px}
-.worldOrigin strong{font-size:23px;line-height:1.1}
-.worldOrigin small{font-size:11px;line-height:1.25;color:var(--muted)}
+.worldOrigin strong{font-size:20px;line-height:1.08;white-space:nowrap}
+.worldOrigin small{font-size:11px;line-height:1.2;color:var(--muted)}
 .worldOrigin::after{
   content:"";
   position:absolute;
@@ -44,12 +52,12 @@
   background:#b9b0a3;
 }
 
-/* Three branches: 關口→邊境 / 工坊→研究 / 市集→議會. */
+/* Three branches: 관문→변경 / 공방→연구 / 시장→의회. */
 .worldRegions{
   position:relative;
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  grid-template-rows:repeat(2,minmax(94px,auto));
+  grid-template-rows:repeat(2,minmax(118px,auto));
   gap:30px 8px;
   padding:30px 0 0;
   margin:0;
@@ -73,13 +81,14 @@
   background:#b9b0a3;
 }
 
+/* A world-map node is deliberately denser than a normal card. Icon, title and subtitle stack vertically. */
 .regionCard{
   min-width:0;
-  min-height:94px;
-  padding:9px 6px;
+  min-height:118px;
+  padding:8px 5px;
   border-radius:16px;
   text-align:center;
-  align-content:center;
+  align-content:start;
   justify-items:center;
   gap:3px;
   position:relative;
@@ -105,21 +114,53 @@
 .regionCard:nth-child(-n+3)::before{top:-16px;height:16px}
 .regionCard:nth-child(n+4)::before{top:-31px;height:31px}
 
+.regionHead{
+  display:grid;
+  grid-template-columns:1fr;
+  justify-items:center;
+  align-items:start;
+  gap:2px;
+  width:100%;
+  min-width:0;
+}
+.regionIcon{
+  width:40px;
+  height:40px;
+  flex:none;
+  margin:0 auto;
+}
+.regionNames{
+  display:grid;
+  justify-items:center;
+  gap:1px;
+  width:100%;
+  min-width:0;
+  text-align:center;
+}
 .regionCard strong{
   display:block;
-  font-size:18px;
-  line-height:1.15;
+  max-width:100%;
+  font-size:16px;
+  line-height:1.12;
   white-space:nowrap;
 }
 .regionCard small{
   display:block;
-  font-size:11px;
-  line-height:1.25;
+  max-width:100%;
+  font-size:10.5px;
+  line-height:1.22;
   color:var(--muted);
-  min-height:2.5em;
+  min-height:2.44em;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+}
+.regionNameZh{
+  min-height:0!important;
+  font-size:10.5px!important;
+  line-height:1.1!important;
 }
 .regionNote{display:none}
-.regionState{font-size:0;line-height:1}
+.regionState{font-size:0;line-height:1;min-height:12px;text-align:center}
 .regionState::after{font-size:10px;font-weight:800;letter-spacing:.01em}
 .regionCard.available .regionState::after{content:"이동 가능";color:var(--accent)}
 .regionCard.recommended .regionState::after{content:"◇ 권장";color:#75664e}
@@ -137,22 +178,40 @@
   line-height:1.45;
 }
 
+/* iPhone mini-class widths: keep the three-branch map, but trim node chrome rather than text. */
+@media(max-width:390px){
+  #app>.worldShell{gap:11px}
+  .worldOrigin{width:146px;min-height:98px;padding:8px 9px}
+  .worldOriginIcon{width:35px;height:35px}
+  .worldOrigin strong{font-size:19px}
+  .worldRegions{gap:26px 6px;padding-top:27px;grid-template-rows:repeat(2,minmax(112px,auto))}
+  .regionCard{min-height:112px;padding:7px 4px;gap:2px}
+  .regionIcon{width:36px;height:36px}
+  .regionCard strong{font-size:15px}
+  .regionCard small{font-size:10px;line-height:1.2}
+  .regionNameZh{font-size:10px!important}
+  .regionState::after{font-size:9.5px}
+}
+
 @media(max-width:360px){
-  #app>.worldShell{gap:10px}
-  .worldOrigin{width:132px;min-height:78px}
-  .worldRegions{gap:24px 6px;padding-top:26px}
-  .regionCard{min-height:88px;padding:7px 4px}
-  .regionCard strong{font-size:16px}
-  .regionCard small{font-size:10px}
+  #app>.worldShell{gap:9px}
+  .worldOrigin{width:138px;min-height:92px}
+  .worldRegions{gap:22px 5px;padding-top:25px;grid-template-rows:repeat(2,minmax(106px,auto))}
+  .regionCard{min-height:106px;padding:6px 3px}
+  .regionIcon{width:33px;height:33px}
+  .regionCard strong{font-size:14px}
+  .regionCard small{font-size:9.5px}
 }
 
 @media(max-height:650px){
   #app>.worldShell{gap:7px}
   .worldTopbar{min-height:46px}
-  .worldOrigin{min-height:70px;padding:7px 10px}
-  .worldOrigin small{display:none}
-  .worldRegions{grid-template-rows:repeat(2,minmax(76px,auto));gap:20px 7px;padding-top:22px}
-  .regionCard{min-height:76px;padding:6px 5px}
-  .regionCard small{min-height:0}
+  .worldOrigin{min-height:78px;padding:6px 9px}
+  .worldOriginIcon{width:32px;height:32px}
+  .worldOrigin>small{display:none}
+  .worldRegions{grid-template-rows:repeat(2,minmax(94px,auto));gap:18px 6px;padding-top:20px}
+  .regionCard{min-height:94px;padding:5px 4px}
+  .regionIcon{width:31px;height:31px}
+  .regionCard small{min-height:0;font-size:9.5px}
   .worldHint{padding:7px 10px}
 }
