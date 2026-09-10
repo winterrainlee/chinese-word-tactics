@@ -25,8 +25,8 @@ const WORLD={
     {id:'gate-town',name:'關口鎮',nameKo:'길목',icon:'region-gate-town',subtitle:'길을 읽는 마을',status:'available',note:'경로·범위·순서·위치를 다룬다.',targets:['進入','退出','距離','範圍','路線','經由']},
     {id:'workshop-town',name:'工坊村',nameKo:'장인골',icon:'region-workshop-town',subtitle:'상태를 바꾸는 마을',status:'available',note:'장치의 상태와 조건을 조작한다.',targets:['改變','保持','增加','減少','條件','允許']},
     {id:'market-town',name:'市集鎮',nameKo:'장터',icon:'region-market-town',subtitle:'자원을 고르는 마을',status:'available',note:'교환·선택·부족·가치를 다룬다.',targets:['需求','足夠','缺少','交換','價值','費用']},
-    {id:'border-village',name:'邊境村',nameKo:'끝마을',icon:'region-border-village',subtitle:'위험과 손실을 다루는 마을',status:'recommended',recommendedAfter:'gate-town',note:'바로 갈 수 있지만 관문 마을을 먼저 여행하면 길을 읽기 쉽다.',targets:['危機','風險','警告','損失']},
-    {id:'council-town',name:'議會鎮',nameKo:'회의소',icon:'region-council-town',subtitle:'의견과 관계를 조정하는 마을',status:'recommended',recommendedAfter:'market-town',note:'바로 갈 수 있지만 시장 마을을 먼저 경험하면 선택과 배분을 이해하기 쉽다.',targets:['接受','拒絕','支持','反對','公平']},
-    {id:'research-city',name:'研究城',nameKo:'학술도시',icon:'region-research-city',subtitle:'생각을 조합하는 도시',status:'locked',requires:'workshop-core',note:'공방 마을의 핵심 시험을 완료하면 열린다.',targets:['分析','資訊','證明','關鍵','符合']}
+    {id:'border-village',name:'邊境村',nameKo:'끝마을',icon:'region-border-village',subtitle:'위험과 손실을 다루는 마을',status:'recommended',recommendedAfter:'gate-town',note:'바로 갈 수 있지만 길목을 먼저 여행하면 길을 읽기 쉽다.',targets:['危機','風險','警告','損失']},
+    {id:'council-town',name:'議會鎮',nameKo:'회의소',icon:'region-council-town',subtitle:'의견과 관계를 조정하는 마을',status:'recommended',recommendedAfter:'market-town',note:'바로 갈 수 있지만 장터를 먼저 경험하면 선택과 배분을 이해하기 쉽다.',targets:['接受','拒絕','支持','反對','公平']},
+    {id:'research-city',name:'研究城',nameKo:'학술도시',icon:'region-research-city',subtitle:'생각을 조합하는 도시',status:'locked',requires:'workshop-core',note:'장인골의 핵심 시험을 완료하면 열린다.',targets:['分析','資訊','證明','關鍵','符合']}
   ]
 };
