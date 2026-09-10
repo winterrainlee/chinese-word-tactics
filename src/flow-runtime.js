@@ -1,6 +1,7 @@
 /* The only coordinator between story/journey renderers and the tactical adapter. */
 (() => {
   const P = JourneyProgress, $ = id => document.getElementById(id);
+  const RESET_KEYS = [P.KEY, 'chufa-tutorial-v03', 'chinese-word-tactics-world-v1'];
   const store = P.createStore({ getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) }, () => {
     $('flowNotice').hidden = false;
     $('flowNotice').textContent = '진행 기록을 읽거나 저장하지 못했어. 이 탭에서는 계속할 수 있지만, 새로고침하면 기록을 잃을 수 있어.';
@@ -90,6 +91,20 @@
     }
     $('flowWordsClose').onclick = () => TacticalGame.closeSheet();
   }
+  function resetJourney() {
+    TacticalGame.openSheet('<h2>여정 초기화</h2><p class="resetWarning">이 브라우저에 저장된 이야기, 튜토리얼 스테이지, 월드 진행을 모두 지우고 <strong>고향을 떠나다</strong>부터 다시 시작해.</p><p class="flowNote">게임의 단어와 콘텐츠 자체는 지워지지 않아.</p><div class="sheetactions"><button id="flowResetCancel" class="secondary">취소</button><button id="flowResetConfirm" class="dangerAction">처음부터 시작</button></div>');
+    $('flowResetCancel').onclick = () => TacticalGame.closeSheet();
+    $('flowResetConfirm').onclick = () => {
+      try {
+        RESET_KEYS.forEach(key => localStorage.removeItem(key));
+        location.reload();
+      } catch {
+        TacticalGame.closeSheet();
+        $('flowNotice').hidden = false;
+        $('flowNotice').textContent = '진행 기록을 초기화하지 못했어. 브라우저의 사이트 데이터 저장 권한을 확인해줘.';
+      }
+    };
+  }
   function showMenu() {
     TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button></div><div class="sheetactions"><button id="flowMenuClose">닫기</button></div>');
     $('flowResume').onclick = () => resume();
@@ -99,8 +114,9 @@
     $('flowWords').onclick = showWords; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
   }
   globalThis.GameFlow = Object.freeze({ showWorld, showJourney, playStory, playStage, continueFromNode,
-    resume, showMenu, showWords, recordStageComplete, showStageComplete, progress: () => store.get() });
+    resume, showMenu, showWords, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
   document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
+  $('journeyReset')?.addEventListener('click', resetJourney);
   $('worldContinue').onclick = resume;
   $('worldBackBtn').onclick = showJourney; $('worldBackBtn').setAttribute('aria-label', '여정으로');
   const progress = store.get();

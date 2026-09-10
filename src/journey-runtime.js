@@ -47,6 +47,8 @@
       }
       root.append(article);
     }
+    const reset = make('button', 'journeyReset', '여정 초기화');
+    reset.id = 'journeyReset'; reset.type = 'button'; reset.onclick = () => GameFlow.resetJourney(); root.append(reset);
   }
   document.querySelectorAll('[data-journey-filter]').forEach(button => {
     button.onclick = () => { filter = button.dataset.journeyFilter; render(); };
