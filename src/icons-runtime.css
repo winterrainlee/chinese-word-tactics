@@ -1,0 +1,218 @@
+/* v0.5 icon asset rollout. Loaded after existing view styles. */
+
+/* Shared icon primitives */
+#menuBtn,
+#resetBtn,
+#worldBackBtn {
+  font-size: 0;
+}
+
+#menuBtn::before,
+#resetBtn::before,
+#worldBackBtn::before,
+#waitBtn::before,
+#undoBtn::before,
+#inspectBtn[data-icon="inspect"]::before,
+.sheetactions button[data-icon="close"]::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+#menuBtn::before {
+  -webkit-mask-image: url("../icons/ui/ui-menu.svg");
+  mask-image: url("../icons/ui/ui-menu.svg");
+}
+
+#resetBtn::before {
+  -webkit-mask-image: url("../icons/ui/ui-restart.svg");
+  mask-image: url("../icons/ui/ui-restart.svg");
+}
+
+#worldBackBtn::before {
+  -webkit-mask-image: url("../icons/ui/ui-back.svg");
+  mask-image: url("../icons/ui/ui-back.svg");
+}
+
+#waitBtn::before {
+  -webkit-mask-image: url("../icons/ui/ui-wait-turn.svg");
+  mask-image: url("../icons/ui/ui-wait-turn.svg");
+}
+
+#undoBtn::before {
+  -webkit-mask-image: url("../icons/ui/ui-undo.svg");
+  mask-image: url("../icons/ui/ui-undo.svg");
+}
+
+#inspectBtn[data-icon="inspect"]::before {
+  -webkit-mask-image: url("../icons/ui/ui-inspect.svg");
+  mask-image: url("../icons/ui/ui-inspect.svg");
+}
+
+.sheetactions button[data-icon="close"]::before {
+  -webkit-mask-image: url("../icons/ui/ui-close.svg");
+  mask-image: url("../icons/ui/ui-close.svg");
+}
+
+.controls .control,
+.sheetactions button[data-icon="close"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Tactical world objects */
+.hero,
+.wolf {
+  width: 88%;
+  height: 88%;
+  font-size: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.hero {
+  background-image: url("../icons/world/world-hero.svg");
+}
+
+.wolf {
+  background-image: url("../icons/world/world-wolf.svg");
+}
+
+.cell.exit::before,
+.cell.stone::before,
+.cell.gate::before,
+.cell.ruin::before,
+.cell.hazard::before {
+  content: "";
+  position: absolute;
+  display: block;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  box-shadow: none;
+  color: transparent;
+  pointer-events: none;
+}
+
+.cell.exit::before {
+  width: 76%;
+  height: 74%;
+  top: 3%;
+  left: 12%;
+  background-image: url("../icons/world/world-exit.svg");
+}
+
+.cell.exit::after {
+  z-index: 2;
+  bottom: 2px;
+}
+
+.cell.stone::before {
+  width: 82%;
+  height: 84%;
+  top: 8%;
+  left: 9%;
+  background-image: url("../icons/world/world-stele.svg");
+}
+
+.cell.stone.active::before {
+  box-shadow: none;
+  filter: drop-shadow(0 0 3px rgba(218, 160, 23, .85)) drop-shadow(0 0 7px rgba(218, 160, 23, .45));
+}
+
+.cell.stone.active::after {
+  content: "✦";
+  position: absolute;
+  z-index: 3;
+  right: 3px;
+  top: 1px;
+  color: #b77f08;
+  font-size: 13px;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(218,160,23,.5);
+  pointer-events: none;
+}
+
+.cell.gate::before {
+  width: 92%;
+  height: 92%;
+  top: 4%;
+  left: 4%;
+  background-image: url("../icons/world/world-gate-closed.svg");
+}
+
+.cell.gate.open::before {
+  background-image: url("../icons/world/world-gate-open.svg");
+}
+
+.cell.ruin::before {
+  width: 88%;
+  height: 78%;
+  left: 6%;
+  top: 11%;
+  background-image: url("../icons/world/world-ruin.svg");
+}
+
+.cell.hazard::before {
+  width: 78%;
+  height: 78%;
+  left: 11%;
+  top: 11%;
+  background-image: url("../icons/world/world-thorns.svg");
+  transform: none;
+}
+
+/* Direction marker: status-move.svg points right by default. */
+.move-arrow[data-icon="move"] {
+  width: 21px;
+  height: 21px;
+  font-size: 0;
+  background-color: var(--accent);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.78));
+  transform: rotate(var(--move-rotate, 0deg));
+  -webkit-mask: url("../icons/status/status-move.svg") center / contain no-repeat;
+  mask: url("../icons/status/status-move.svg") center / contain no-repeat;
+}
+
+/* Keep game-state borders visible beneath the new art. */
+.cell.moveable {
+  box-shadow: inset 0 0 0 3px rgba(45,98,72,.30);
+}
+
+.cell.inspectable {
+  box-shadow: inset 0 0 0 3px rgba(68,102,138,.28);
+}
+
+/* Prevent the old text-glyph object artwork from resurfacing. */
+.cell.gate.open::before,
+.cell.gate::before,
+.cell.ruin::before,
+.cell.hazard::before,
+.cell.stone::before {
+  font-size: 0;
+}
+
+@media (max-height: 650px) {
+  #waitBtn::before,
+  #undoBtn::before,
+  #inspectBtn[data-icon="inspect"]::before {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+  }
+}
