@@ -3,6 +3,7 @@
 `chinese-word-tactics`의 기획·디자인·개발 운영 문서를 모아둔다.
 
 - [디자인 원칙 v0.1](DESIGN-PRINCIPLES-v0.1.md) — 화면·전술판·단어·월드맵의 공통 시각/상호작용 판단 기준
+- [아이콘 시스템 v0.1](ICON-SYSTEM-v0.1.md) — 실제 코드의 아이콘 목록, 역할·의미·추천 형태, 첫 시안 15종과 교체·검수 기준
 - [개발 상황판](DEVELOPMENT-STATUS.md) — 기획 / 구현 / 실기기 검수 상태
 - [월드맵 v0.5](WORLD-v0.5.md) — 현재 월드 구조와 지역 배치
 - [이전 계획 v0.1](MIGRATION-PLAN-v0.1.md) — 독립 저장소 이전 계획 기록
