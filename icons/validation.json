@@ -1,0 +1,59 @@
+{
+  "date": "2026-09-10",
+  "svg_structure": "passed",
+  "preview_js_syntax": "passed",
+  "render_engine": "Chromium",
+  "render_source": "Portable preview with the same inline SVG symbols; not the external HTTP sprite",
+  "viewports": [
+    {
+      "width": 375,
+      "height": 660,
+      "horizontal_overflow": false,
+      "all_buttons_min_44px": true,
+      "toggle_controls": "passed",
+      "inline_symbol_count": 16
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "horizontal_overflow": false,
+      "all_buttons_min_44px": true,
+      "toggle_controls": "passed",
+      "inline_symbol_count": 16
+    },
+    {
+      "width": 1100,
+      "height": 900,
+      "horizontal_overflow": false,
+      "all_buttons_min_44px": true,
+      "toggle_controls": "passed",
+      "inline_symbol_count": 16
+    }
+  ],
+  "png_alpha_checks": [
+    {"id":"world-hero","width":128,"height":128,"transparent_margin":true},
+    {"id":"world-wolf","width":128,"height":128,"transparent_margin":true},
+    {"id":"world-exit","width":128,"height":128,"transparent_margin":true},
+    {"id":"world-stele","width":128,"height":128,"transparent_margin":true},
+    {"id":"world-gate-closed","width":128,"height":128,"transparent_margin":true},
+    {"id":"world-gate-open","width":128,"height":128,"transparent_margin":true},
+    {"id":"world-ruin","width":128,"height":128,"transparent_margin":true},
+    {"id":"world-thorns","width":128,"height":128,"transparent_margin":true},
+    {"id":"ui-menu","width":80,"height":80,"transparent_margin":true},
+    {"id":"ui-back","width":80,"height":80,"transparent_margin":true},
+    {"id":"ui-restart","width":80,"height":80,"transparent_margin":true},
+    {"id":"ui-undo","width":80,"height":80,"transparent_margin":true},
+    {"id":"ui-wait-turn","width":80,"height":80,"transparent_margin":true},
+    {"id":"ui-inspect","width":80,"height":80,"transparent_margin":true},
+    {"id":"ui-close","width":80,"height":80,"transparent_margin":true},
+    {"id":"status-move","width":88,"height":88,"transparent_margin":true}
+  ],
+  "not_tested": [
+    "User visual approval",
+    "External sprite loading over HTTP/GitHub Pages",
+    "iPhone 13 mini Safari",
+    "Runtime integration and gameplay regression"
+  ],
+  "javascript_errors": [],
+  "gate_centre_alpha": {"open":0,"closed":255}
+}

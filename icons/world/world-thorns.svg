@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+<g stroke="#352e27" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
+
+<path d="M2.7 27.7Q14.5 25.6 29.1 27.6L27.2 29.4H5Z" fill="#ba9c70" stroke-width="0.7"/>
+<path d="M3.5 27.3 7 8.4 12.5 27.7Q8.5 29.4 3.5 27.3Z" fill="#9e774a"/>
+<path d="M11 27.6 16.3 3.5 21.4 27.7Q16.5 30.2 11 27.6Z" fill="#bc9258"/>
+<path d="M21.4 27.7 25.2 10.8 28.8 27.4Q25.2 29.3 21.4 27.7Z" fill="#9e774a"/>
+<path d="M7.1 12.1 6.1 26.9M16.3 7.9 14.7 27.4M25.2 14.7 24.1 26.8" stroke="#debb7c" stroke-width="0.85"/>
+
+</g>
+</svg>
