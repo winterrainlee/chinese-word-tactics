@@ -41,7 +41,7 @@
     active = context; TacticalGame.showView('story');
     const next = P.nextNode(node.nodeId, { ...progress, seenStories: [...progress.seenStories, id] });
     const endLabel = context.mode === 'replay' ? (context.returnTo === 'world' ? '월드맵으로' : '여정으로') :
-      next?.type === 'stage' ? '스테이지 시작' : next?.type === 'story' ? '이야기 계속' : '월드맵으로';
+      node.returnToWorldAfter ? '월드맵으로' : next?.type === 'stage' ? '스테이지 시작' : next?.type === 'story' ? '이야기 계속' : '월드맵으로';
     StoryRuntime.play(story, { ...context, seen: progress.seenStories.includes(id), beat: options.beat || 0, endLabel,
       onPosition(beat) { store.locate({ view: 'story', nodeId: node.nodeId, beat }, context.mode); },
       onFinish() {
