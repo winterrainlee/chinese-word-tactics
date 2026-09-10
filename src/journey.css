@@ -15,6 +15,7 @@
 .journeyNode[data-state="locked"]{background:var(--bg);border-style:dashed;color:var(--muted)}
 .journeyRegion{padding:12px 14px;margin:8px 0;border:1px dashed var(--line);border-radius:14px}
 .journeyRegion p{font-size:12px;color:var(--muted);margin:6px 0 0}
+.journeyRegion+.journeyTimeline{margin-top:8px}
 .journeyReset{min-height:48px;min-width:0;padding:8px 6px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--danger);font-size:13px;font-weight:750;white-space:nowrap;word-break:keep-all}
 .journeyReset:active{background:var(--danger-soft);border-color:var(--danger)}
 .resetWarning{font-size:15px;line-height:1.6;margin:12px 0;color:var(--ink)}

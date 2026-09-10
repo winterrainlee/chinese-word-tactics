@@ -9,6 +9,7 @@
   let active = null;
   const validOptions = options => ({ mode: options.mode === 'replay' ? 'replay' : 'first-play', returnTo: options.returnTo === 'world' ? 'world' : 'journey' });
   const canVisitWorld = () => store.get().completedStages.includes('stage-5');
+  const nodeRegionId = node => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(section => section.id === node?.sectionId)?.regionId || null;
   function showJourney() {
     active = null; StoryRuntime.stop(); TacticalGame.showView('journey'); JourneyRuntime.render();
     document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
@@ -18,7 +19,7 @@
     if (!canVisitWorld()) { showJourney(); return false; }
     active = null; StoryRuntime.stop(); TacticalGame.showWorld();
     const next = P.recommendedNode(store.get());
-    $('worldContinue').hidden = !next;
+    $('worldContinue').hidden = !next || !!nodeRegionId(next);
     window.scrollTo(0, 0); return true;
   }
   function returnFromReplay(options) { options.returnTo === 'world' ? showWorld() : showJourney(); }
@@ -57,11 +58,20 @@
     window.scrollTo(0, 0); return true;
   }
   function playNode(node) { return node.type === 'story' ? playStory(node.id) : playStage(node.id); }
+  function enterRegion(regionId) {
+    const section = JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(item => item.regionId === regionId);
+    if (!section) return false;
+    const progress = store.get();
+    const node = section.sequence.map(item => P.getNode(P.nodeId(item))).find(item => item && P.isAvailable(item, progress) && !P.isComplete(item, progress));
+    if (!node) return false;
+    return playNode(node);
+  }
   function resume() {
     const progress = store.get(), location = progress.lastLocation, node = P.recommendedNode(progress);
     const saved = P.getNode(location?.nodeId);
     if (saved && P.isComplete(saved, progress)) return continueFromNode(saved.nodeId);
     if (!node) return showWorld();
+    if (nodeRegionId(node) && location?.nodeId !== node.nodeId) return showWorld();
     if (node.type === 'story') return playStory(node.id, { beat: location?.nodeId === node.nodeId ? location.beat : 0 });
     const context = { mode: 'first-play', returnTo: 'journey', nodeId: node.nodeId, type: 'stage' };
     if (TacticalGame.resumeStage(node.id, context)) {
@@ -113,7 +123,7 @@
     $('flowWorld').onclick = showWorld; $('flowJourney').onclick = showJourney;
     $('flowWords').onclick = showWords; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
   }
-  globalThis.GameFlow = Object.freeze({ showWorld, showJourney, playStory, playStage, continueFromNode,
+  globalThis.GameFlow = Object.freeze({ showWorld, showJourney, playStory, playStage, continueFromNode, enterRegion,
     resume, showMenu, showWords, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
   document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
   $('journeyReset')?.addEventListener('click', resetJourney);
