@@ -7,6 +7,9 @@
   };
 
   const HERO_REACTION_MS = 450;
+  const heroPanicPreload = new Image();
+  heroPanicPreload.decoding = 'async';
+  heroPanicPreload.src = new URL('./icons/world/world-hero-panic.svg', document.baseURI).href;
   let heroReactionKind = null;
   let heroReactionUntil = 0;
   let heroReactionTimer = null;
