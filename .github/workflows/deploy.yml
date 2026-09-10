@@ -29,6 +29,7 @@ jobs:
           node --check src/content.js
           node --check src/app.js
           node --check src/icons-runtime.js
+          node --check src/world-runtime.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
