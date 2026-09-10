@@ -1,7 +1,8 @@
 .journeyShell{width:min(100%,430px);min-height:calc(100svh - 24px);display:flex;flex-direction:column;gap:14px}
 .journeyHeader h1{font-size:26px;margin:4px 0 6px}
 .journeyHeader p{font-size:14px;color:var(--muted);margin:0}
-.journeyContinue{min-height:48px;padding:10px;border:0;border-radius:14px;background:var(--accent);color:var(--paper);font-weight:800}
+.journeyActions{display:grid;grid-template-columns:minmax(0,7fr) minmax(96px,3fr);gap:8px}
+.journeyContinue{min-height:48px;padding:10px;border:0;border-radius:14px;background:var(--accent);color:var(--paper);font-weight:800;min-width:0}
 .journeyFilters{display:flex;gap:8px}
 .journeyFilters button{flex:1;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
 .journeyFilters button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
@@ -14,8 +15,8 @@
 .journeyNode[data-state="locked"]{background:var(--bg);border-style:dashed;color:var(--muted)}
 .journeyRegion{padding:12px 14px;margin:8px 0;border:1px dashed var(--line);border-radius:14px}
 .journeyRegion p{font-size:12px;color:var(--muted);margin:6px 0 0}
-.journeyReset{min-height:44px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--muted);font-size:13px}
-.journeyReset:active{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+.journeyReset{min-height:48px;min-width:0;padding:8px 6px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--danger);font-size:13px;font-weight:750;white-space:nowrap;word-break:keep-all}
+.journeyReset:active{background:var(--danger-soft);border-color:var(--danger)}
 .resetWarning{font-size:15px;line-height:1.6;margin:12px 0;color:var(--ink)}
 .sheetactions button.dangerAction{background:var(--danger)}
 .flowNav{display:flex;gap:8px;margin-top:auto;padding-top:8px;flex:none}

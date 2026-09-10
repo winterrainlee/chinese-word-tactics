@@ -6,7 +6,22 @@
     if (text !== undefined) el.textContent = text;
     return el;
   };
+  function ensureActions() {
+    const continueButton = $('journeyContinue');
+    let actions = $('journeyActions');
+    if (!actions) {
+      actions = make('div', 'journeyActions'); actions.id = 'journeyActions';
+      continueButton.before(actions); actions.append(continueButton);
+    }
+    let reset = $('journeyReset');
+    if (!reset) {
+      reset = make('button', 'journeyReset', '여정 초기화');
+      reset.id = 'journeyReset'; reset.type = 'button'; reset.onclick = () => GameFlow.resetJourney();
+    }
+    if (reset.parentElement !== actions) actions.append(reset);
+  }
   function render() {
+    ensureActions();
     const progress = GameFlow.progress(), root = $('journeyList'); root.replaceChildren();
     const allNodes = JourneyProgress.nodes();
     const recommended = JourneyProgress.recommendedNode(progress);
@@ -47,8 +62,6 @@
       }
       root.append(article);
     }
-    const reset = make('button', 'journeyReset', '여정 초기화');
-    reset.id = 'journeyReset'; reset.type = 'button'; reset.onclick = () => GameFlow.resetJourney(); root.append(reset);
   }
   document.querySelectorAll('[data-journey-filter]').forEach(button => {
     button.onclick = () => { filter = button.dataset.journeyFilter; render(); };
