@@ -1,0 +1,25 @@
+/* Story uses an independently scrolling reading area and a reachable action row. */
+.storyShell{width:min(100%,430px);height:calc(100svh - max(10px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));height:calc(100dvh - max(10px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));min-height:360px;display:flex;flex-direction:column;gap:10px}
+.storyShell [hidden]{display:none!important}
+.storyTopbar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;flex:none;min-height:44px}
+.storyTopbar h1{font-size:18px;text-align:center;margin:0;line-height:1.35}
+.storyScene{flex:none;min-height:94px;height:22%;max-height:165px;border:1px solid var(--line);border-radius:20px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.storyScene[data-place="forest"]{background:#e0e6db}
+.storyScene[data-place="roadside"]{background:#eee3cb}
+.storyBackdrop{width:105px;height:105px;max-height:80%;object-fit:contain}
+.storyPlace{position:absolute;bottom:8px;right:12px;font-size:12px;color:var(--muted);background:var(--paper);border-radius:8px;padding:3px 7px}
+.storyReading{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:18px}
+.storySpeakerRow{display:flex;align-items:center;gap:9px;min-height:36px;margin-bottom:10px}
+.storyPortrait{width:40px;height:40px}
+.storySpeaker{font-weight:800;color:var(--accent);font-size:16px}
+.storyZh{font-size:22px;line-height:1.65;margin:0 0 12px;overflow-wrap:anywhere}
+.storyTranslate{min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:14px}
+.storyKo{font-size:16px;line-height:1.6;border-top:1px solid var(--line);padding-top:12px;margin-bottom:0;word-break:keep-all;overflow-wrap:anywhere}
+.storyActions{flex:none;display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.storyActions button{min-height:48px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-weight:750}
+.storyActions button:last-child{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.storyActions button:disabled{opacity:.4}
+.storySkip{flex:none;align-self:center;min-height:44px;border:0;background:none;color:var(--muted)}
+.storyCount{font-size:12px;text-align:center;color:var(--muted)}
+@media(max-height:650px){.storyShell{gap:7px}.storyScene{height:17%;min-height:76px}.storyReading{padding:12px}.storyZh{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.storyShell *{scroll-behavior:auto}}
