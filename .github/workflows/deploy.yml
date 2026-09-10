@@ -24,8 +24,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Validate tutorial JavaScript
-        run: node --check src/app.js
+      - name: Validate JavaScript
+        run: |
+          node --check src/content.js
+          node --check src/app.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
