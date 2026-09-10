@@ -4,10 +4,14 @@
 
 ## 현재 상태
 
-- 기준 버전: v0.3 튜토리얼 「出發」 이전 중
+- 기준 버전: **v0.5 월드맵**
 - 목표 기기: iPhone 13 mini Safari 세로 화면
-- 배포: GitHub Pages 예정
-- 개발 브랜치: `bootstrap-v0.4`
+- 배포: GitHub Pages
+- 현재 구현: 튜토리얼 `出發` 6판 + 월드맵 + 자유/권장/잠금 지역 상태
+- 다음 개발 목표: **v0.6 關口鎮 1차 묶음**
+- 바로 다음 판: `進入 / 退出`
+
+진행 상황은 [`docs/DEVELOPMENT-STATUS.md`](./docs/DEVELOPMENT-STATUS.md)에서 관리한다.
 
 ## 핵심 원칙
 
@@ -16,20 +20,26 @@
 - 시간 제한, 목숨, 별점, 반복 파밍을 두지 않는다.
 - 하나의 정답 경로보다 여러 해결법을 허용한다.
 - 튜토리얼 이후에는 월드맵에서 마을 진행 순서를 직접 고른다.
+- 추천 경로와 실제 잠금 조건을 구분한다.
 
-## 현재 디렉터리
+## 현재 구조
 
-- `index.html` — 이전 중인 게임 진입점
-- `legacy/tutorial-v03.html` — 기존 튜토리얼 보존본
-- `docs/` — 게임·진행·구현 기획
-- `data/` — 어휘·월드·스테이지 원자료
-- `.github/workflows/deploy.yml` — GitHub Pages 배포
+- `index.html` — 게임 진입점과 전술/월드 화면 셸
+- `src/app.js` — 튜토리얼 진행, 월드 상태, 화면 전환
+- `src/content.js` — 현재 런타임 단어·스테이지·월드 메타데이터
+- `src/styles.css` — 전술 화면 스타일
+- `src/world.css`, `src/view.css` — 월드 화면과 뷰 전환 스타일
+- `legacy/tutorial-v03.html` — 기존 튜토리얼 기준선 보존본
+- `docs/` — 진행·구현·상황판 문서
+- `data/` — 앞으로 옮길 어휘·월드·스테이지 원자료 위치
+- `.github/workflows/deploy.yml` — GitHub Pages 배포 및 JavaScript 문법 검사
 
-## 이전 목표 v0.4
+## 완료된 기반 작업
 
-1. 기존 튜토리얼 6판의 동작을 독립 저장소에서 보존한다.
-2. GitHub Pages에서 직접 실행한다.
-3. iframe 보정 구조를 제거하고 코드 책임을 분리한다.
-4. 이후 월드맵과 關口鎮 구현으로 확장한다.
+1. 기존 튜토리얼 6판을 독립 저장소로 이전했다.
+2. GitHub Pages에서 iPhone Safari 직접 플레이를 확인했다.
+3. iframe 보정 구조를 제거하고 런타임을 분리했다.
+4. 튜토리얼 완료 뒤 월드맵을 연결했다.
+5. `關口鎮 / 工坊村 / 市集鎮` 자유 지역, `邊境村 / 議會鎮` 권장 지역, `研究城` 잠금 지역을 표시한다.
 
 기존 실험판은 `winterrainlee.github.io/word-game/`에 당분간 보존한다.
