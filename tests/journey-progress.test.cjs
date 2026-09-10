@@ -86,3 +86,24 @@ test('parallel region sections never automatically advance to another region', (
   try { assert.equal(P.nextNode('story:gate-test', P.normalize({ seenStories: ['gate-test'] })), null); }
   finally { gate.sequence.pop(); workshop.sequence.pop(); }
 });
+
+test('gate-town G1 opens only after the shared intro and chains story → stage → story', () => {
+  const base = P.normalize({ seenStories: ['prologue-departure', 'prologue-forest-edge'] });
+  const arrival = P.getNode('story:gate-arrival');
+  assert.equal(P.isAvailable(arrival, base), false);
+  base.seenStories.push('chapter1-roadside-merchant');
+  assert.equal(P.isAvailable(arrival, base), true);
+  base.seenStories.push('gate-arrival');
+  assert.equal(P.nextNode('story:gate-arrival', base).id, 'gate-stage-1');
+  base.completedStages.push('gate-stage-1');
+  assert.equal(P.nextNode('stage:gate-stage-1', base).id, 'gate-after-entry');
+  base.seenStories.push('gate-after-entry');
+  assert.equal(P.nextNode('story:gate-after-entry', base), null);
+});
+
+test('every journey stage node resolves to an implemented tactical stage', () => {
+  const source = require('node:fs').readFileSync(require('node:path').join(__dirname, '../src/content.js'), 'utf8');
+  for (const node of P.nodes().filter(node => node.type === 'stage')) {
+    assert.ok(source.includes(`id:'${node.id}'`), `missing tactical stage ${node.id}`);
+  }
+});

@@ -9,6 +9,7 @@
 - [1차 지역 스토리라인 v0.1](TIER1-STORYLINE-v0.1.md) — 튜토리얼 이후 `세 갈래 길` 도입과 길목·장인골·장터의 사건 흐름, 스테이지 가제와 다음 지역 연결
 - [스토리 모드와 여정 시스템 v0.1](STORY-JOURNEY-SYSTEM-v0.1.md) — `월드맵 / 여정 / 단어장` 구조, story/stage/sequence, 튜토리얼의 프롤로그 편입과 다시 보기/다시 플레이 기준
 - [v0.6 스토리·여정 구현 기획](V0.6-STORY-JOURNEY-IMPLEMENTATION-PLAN.md) — 현재 코드에 storyView·journeyView·진행 저장·기존 튜토리얼 호환을 연결하는 구현 순서와 `소년 → 용사 → 대용사` 성장 기준
+- [길목 G1 `문 안쪽` 설계 v0.1](GATE-TOWN-G1-DESIGN-v0.1.md) — `進入 / 退出`, 길표지 살펴보기, 전후 이야기와 판정 규칙
 - [월드맵 v0.5](WORLD-v0.5.md) — 현재 구현된 월드 구조와 v0.6 스토리/여정 연결 기준
 - [v0.6 실행 계획과 검증](V0.6-EXECUTION-PLAN.md) — 작업 브랜치의 0A~0D/1 구현 내역, 파일 책임과 자동 검사/실기기 검증 경계
 - [개발 상황판](DEVELOPMENT-STATUS.md) — 기획 / 구현 / 실기기 검수 상태와 다음 개발 순서

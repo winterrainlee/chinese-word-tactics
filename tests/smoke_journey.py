@@ -167,8 +167,8 @@ try:
         passed('fresh story, translation reset, previous beat and refresh resume')
         page.locator('#storyMenu').click(); page.locator('#flowJourney').click(); assert_view(page,'journey')
         assert page.locator('[data-node-id="stage:stage-1"]').is_disabled()
-        page.locator('[data-journey-filter="stage"]').click(); assert page.locator('.journeyNode').count()==6
-        page.locator('[data-journey-filter="story"]').click(); assert page.locator('.journeyNode').count()==3
+        page.locator('[data-journey-filter="stage"]').click(); assert page.locator('.journeyNode').count()==7
+        page.locator('[data-journey-filter="story"]').click(); assert page.locator('.journeyNode').count()==5
         page.locator('#journeyContinue').click(); assert page.locator('#storyCount').inner_text()=='2 / 4'
         finish_story(page); assert_view(page,'tutorial')
         passed('journey filters, future locks, story exit and continuation')
@@ -184,6 +184,29 @@ try:
         assert page.evaluate('GameFlow.progress().seenStories.length')==3
         passed(f'first-play: departure → six solved stages {paths} → two stories → world')
         page.screenshot(path=str(OUT/'world-375.png'))
+        assert page.locator('#worldContinue').is_hidden()
+        page.locator('[data-region-id="gate-town"]').click()
+        assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='관문에 도착하다'
+        finish_story(page); assert_view(page,'tutorial'); assert page.evaluate('current().id')=='gate-stage-1'
+        page.screenshot(path=str(OUT/'gate-g1-375.png'))
+        cols=page.evaluate('current().grid[0].length')
+        for idx in [27,22,17,22,27]: page.locator('#grid .cell').nth(idx).click()
+        assert page.evaluate('state.entered') and not page.evaluate('state.exited')
+        assert '路標還沒看' in page.locator('#status').inner_text()
+        for idx in [22,17,18,13]: page.locator('#grid .cell').nth(idx).click()
+        page.locator('#inspectBtn').click(); page.locator('#grid .cell').nth(8).click()
+        assert page.evaluate('state.inspected'); assert '北門' in page.locator('#sheet').inner_text()
+        page.locator('#sheet button').click(); page.locator('#inspectBtn').click()
+        for idx in [18,17,22,27]: page.locator('#grid .cell').nth(idx).click()
+        page.locator('#flowNext').wait_for(state='visible'); assert page.evaluate('state.exited')
+        page.locator('#flowNext').click(); assert page.locator('#storyTitle').inner_text()=='안팎은 잘 보네'
+        finish_story(page); assert_view(page,'world')
+        assert page.evaluate('GameFlow.progress().completedStages.length')==7
+        assert page.evaluate('GameFlow.progress().seenStories.length')==5
+        page.evaluate('GameFlow.showJourney()')
+        assert '스테이지 1/7 · 이야기 2/2' in page.locator('.journeyRegion').filter(has_text='길목').inner_text()
+        page.evaluate('GameFlow.showWorld()')
+        passed('gate-town G1: region choice → story → enter/inspect/exit → story → world')
         before=page.evaluate('localStorage.getItem("'+KEY+'")'); legacy_before=page.evaluate('localStorage.getItem("'+LEGACY+'")')
         page.evaluate('GameFlow.showJourney()'); page.locator('[data-journey-filter="all"]').click()
         page.screenshot(path=str(OUT/'journey-375.png'),full_page=True)
@@ -258,6 +281,20 @@ try:
         assert page.locator('#storyCount').inner_text()=='15 / 15'
         assert page.evaluate('GameFlow.progress().seenStories.length')==0
         passed('15-beat long-text fixture stays operable and is not marked seen merely on its last beat')
+        page.evaluate('GameFlow.showJourney()')
+        page.locator('#journeyReset').click()
+        assert '튜토리얼 스테이지' in page.locator('#sheet').inner_text()
+        assert page.locator('#flowResetConfirm').inner_text()=='처음부터 시작'
+        page.locator('#flowResetCancel').click(); assert not page.locator('#scrim').is_visible()
+        passed('journey reset has an explicit destructive confirmation and cancel path')
+        if not MEMORY:
+            page.locator('#journeyReset').click(); page.locator('#flowResetConfirm').click()
+            page.wait_for_function('!!window.GameFlow')
+            assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='고향을 떠나다'
+            assert page.evaluate('GameFlow.progress().completedStages.length')==0
+            assert page.evaluate('localStorage.getItem("chufa-tutorial-v03")') is None
+            assert page.evaluate('localStorage.getItem("chinese-word-tactics-world-v1")') is None
+            passed('journey reset clears all campaign saves and restarts at P-01')
         page.evaluate("""() => {
           Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem(){throw Error('denied')},setItem(){throw Error('full')}}});
           GameFlow.playStory('prologue-departure');
