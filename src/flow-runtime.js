@@ -24,6 +24,11 @@
   }
   function returnFromReplay(options) { options.returnTo === 'world' ? showWorld() : showJourney(); }
   function continueFromNode(id) {
+    const finished = P.getNode(id);
+    if (finished?.returnToWorldAfter && canVisitWorld()) {
+      store.locate({ view: 'world' });
+      return showWorld();
+    }
     const node = P.nextNode(id, store.get());
     if (node) return playNode(node);
     if (canVisitWorld()) { store.locate({ view: 'world' }); return showWorld(); }
