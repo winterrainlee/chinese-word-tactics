@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f1e8">
+<title>出發 — 단어 전술게임 튜토리얼</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f5f1e8}
+iframe{display:block;width:100%;height:100%;border:0;background:#f5f1e8}
+</style>
+</head>
+<body>
+<iframe id="game" src="./legacy/tutorial-v03.html" title="出發 단어 전술게임"></iframe>
+<script>
+const frame=document.getElementById('game');
+frame.addEventListener('load',()=>{
+  const d=frame.contentDocument;
+  const patch=d.createElement('script');
+  patch.textContent=`
+    WORDS['接近'].p='ㄐㄧㄝ ㄐㄧㄣˋ';
+    WORDS['遠離'].p='ㄩㄢˇ ㄌㄧˊ';
+    WORDS['通過'].p='ㄊㄨㄥ ㄍㄨㄛˋ';
+    WORDS['到達'].p='ㄉㄠˋ ㄉㄚˊ';
+    WORDS['避開'].p='ㄅㄧˋ ㄎㄞ';
+
+    const patchStyle=document.createElement('style');
+    patchStyle.textContent='.move-arrow{position:absolute;z-index:3;font-size:21px;font-weight:900;color:var(--accent);line-height:1;filter:drop-shadow(0 1px 0 rgba(255,255,255,.8));pointer-events:none}';
+    document.head.appendChild(patchStyle);
+
+    function acceptedMove(pos){
+      let st=current(),ch=tileAt(pos);
+      if(!ch||dist(state.hero,pos)!==1||ch==='#'||ch==='K'||ch==='X'||(ch==='G'&&!state.stone))return false;
+      if(st.wolf){
+        let cur=wolfPos(st,state),n=st.wolf.cycle[nextPhase(st,state)];
+        if(dist(pos,cur)<=st.wolf.radius||dist(pos,n)<=st.wolf.radius)return false;
+      }
+      return true;
+    }
+    function arrowFor(pos){
+      let dr=pos[0]-state.hero[0],dc=pos[1]-state.hero[1];
+      return dr===-1?'↑':dr===1?'↓':dc===-1?'←':'→';
+    }
+    function enhance(){
+      const st=current(),cells=[...document.querySelectorAll('.cell')],cols=st.grid[0].length;
+      cells.forEach((cell,i)=>{
+        cell.querySelectorAll('.move-arrow').forEach(x=>x.remove());
+        cell.classList.remove('moveable');
+        const pos=[Math.floor(i/cols),i%cols];
+        if(selected&&!inspect&&acceptedMove(pos)){
+          cell.classList.add('moveable');
+          const a=document.createElement('span');
+          a.className='move-arrow';a.textContent=arrowFor(pos);a.setAttribute('aria-hidden','true');
+          cell.insertBefore(a,cell.firstChild);
+        }
+      });
+      const wait=document.getElementById('waitBtn'),controls=document.querySelector('.controls');
+      wait.hidden=stageIndex!==5;
+      wait.textContent='1턴 기다리기';
+      wait.setAttribute('aria-label','제자리에서 한 턴 기다리기');
+      wait.title='용사는 움직이지 않고, 늑대의 순찰만 한 턴 진행해.';
+      controls.style.gridTemplateColumns=stageIndex===5?'1.25fr 1fr 1fr':'1fr 1fr';
+    }
+
+    const originalRender=render;
+    render=function(){originalRender();enhance();};
+    const originalReset=resetStage;
+    resetStage=function(quiet=false){
+      originalReset(quiet);
+      if(stageIndex===0&&!selected&&!quiet)setStatus('용사를 누르고, 화살표가 보이는 옆 칸을 눌러봐.','info');
+      if(stageIndex===5&&!quiet)setStatus('늑대는 행동할 때마다 움직여. 1턴 기다리기는 제자리에 머물며 늑대의 순찰만 진행시켜.','info');
+      enhance();
+    };
+    enhance();
+    if(stageIndex===0&&!selected)setStatus('용사를 누르고, 화살표가 보이는 옆 칸을 눌러봐.','info');
+    else if(stageIndex===5)setStatus('늑대는 행동할 때마다 움직여. 1턴 기다리기는 제자리에 머물며 늑대의 순찰만 진행시켜.','info');
+  `;
+  d.body.appendChild(patch);
+});
+</script>
+</body>
+</html>
