@@ -4,8 +4,21 @@
   const routeForPosition = (position, routes = []) => routes.find(route =>
     Array.isArray(route.cells) && route.cells.some(cell => samePosition(position, cell))) || null;
   const waypointForTile = (tile, waypoints = {}) => waypoints?.[tile] || null;
+  const passForWaypoint = waypoint => waypoint ? {
+    nameZh: waypoint.passNameZh || `${waypoint.nameZh.replace(/站$/, '')}通行牌`,
+    nameKo: waypoint.passNameKo || `${waypoint.nameKo} 통행패`
+  } : null;
+  const currentOutcome = stageId => {
+    if (typeof current !== 'function' || typeof state === 'undefined') return null;
+    const st = current();
+    if (st?.id !== stageId || !st.route) return null;
+    return {
+      routeChoices: Array.isArray(state.routeChoices) ? [...state.routeChoices] : [],
+      viaIds: Array.isArray(state.viaIds) ? [...state.viaIds] : []
+    };
+  };
 
-  globalThis.RouteMechanic = Object.freeze({ samePosition, routeForPosition, waypointForTile });
+  globalThis.RouteMechanic = Object.freeze({ samePosition, routeForPosition, waypointForTile, passForWaypoint, currentOutcome });
 
   // Unit tests can load the pure helpers without the browser tactical runtime.
   if (typeof current !== 'function' || typeof render !== 'function' || typeof attemptMove !== 'function') return;
@@ -78,7 +91,8 @@
     const ch = tileAt(pos), waypoint = waypointForTile(ch, cfg.waypoints);
     const coordinate = `${String.fromCharCode(65 + pos[1])}${pos[0] + 1}`;
     if (waypoint) {
-      openSheet(`<h2>${waypoint.nameKo}</h2><div class="pinyin">${waypoint.nameZh} · ${coordinate}</div><div class="gamerule">북쪽 출구로 가는 중간 초소야.<br>이곳에 실제로 들르면 <b>經由</b>가 성립해.</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
+      const pass = passForWaypoint(waypoint), received = state.viaIds?.includes(waypoint.id);
+      openSheet(`<h2>${waypoint.nameKo}</h2><div class="pinyin">${waypoint.nameZh} · ${coordinate}</div><div class="gamerule">북쪽 출구로 가는 중간 초소야.<br>이곳에 실제로 들르면 <b>經由</b>가 성립해.${received ? `<br>여기서 <b>${pass.nameZh}</b>를 받았어.` : ''}</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
       return;
     }
     const route = routeForPosition(pos, cfg.routes);
@@ -111,8 +125,12 @@
     if (waypoint) {
       state.routeObserved = true;
       state.via = true;
-      if (!state.viaIds.includes(waypoint.id)) state.viaIds.push(waypoint.id);
-      message = `已經由${waypoint.nameZh}。 ${waypoint.nameKo}에 들렀어.`;
+      const firstVisit = !state.viaIds.includes(waypoint.id);
+      if (firstVisit) state.viaIds.push(waypoint.id);
+      const pass = passForWaypoint(waypoint);
+      message = firstVisit
+        ? `已經由${waypoint.nameZh}。收到「${pass.nameZh}」。 ${waypoint.nameKo}를 경유하고 통행패를 받았어.`
+        : `已經由${waypoint.nameZh}。 ${waypoint.nameKo}에 다시 들렀어.`;
     }
 
     save(); render();
