@@ -1,0 +1,25 @@
+.journeyShell{width:min(100%,430px);min-height:calc(100svh - 24px);display:flex;flex-direction:column;gap:14px}
+.journeyHeader h1{font-size:26px;margin:4px 0 6px}
+.journeyHeader p{font-size:14px;color:var(--muted);margin:0}
+.journeyContinue{min-height:48px;padding:10px;border:0;border-radius:14px;background:var(--accent);color:var(--paper);font-weight:800}
+.journeyFilters{display:flex;gap:8px}
+.journeyFilters button{flex:1;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.journeyFilters button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
+.journeyChapter h2{font-size:18px;margin:14px 0 10px}
+.journeyTimeline{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.journeyNode{display:grid;grid-template-columns:1fr;gap:5px;text-align:left;width:100%;min-height:88px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--paper)}
+.journeyNodeTitle{font-size:16px;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere}
+.journeyType,.journeyNodeState{font-size:12px;color:var(--muted)}
+.journeyNode[data-state="complete"] .journeyNodeState{color:var(--accent)}
+.journeyNode[data-state="locked"]{background:var(--bg);border-style:dashed;color:var(--muted)}
+.journeyRegion{padding:12px 14px;margin:8px 0;border:1px dashed var(--line);border-radius:14px}
+.journeyRegion p{font-size:12px;color:var(--muted);margin:6px 0 0}
+.flowNav{display:flex;gap:8px;margin-top:auto;padding-top:8px;flex:none}
+.flowNav button{flex:1;min-height:48px;padding:8px 4px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-size:14px}
+.flowNav button[aria-current="page"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
+.flowNote{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
+.flowNotice{padding:10px 16px;background:var(--danger-soft);color:var(--danger);font-size:14px}
+.flowNotice[hidden]{display:none!important}
+.flowMenu{display:grid;gap:8px}.flowMenu button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);text-align:left;padding:10px 14px}
+.flowMenu button:disabled{color:var(--muted)}
+.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
