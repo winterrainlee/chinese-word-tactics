@@ -54,6 +54,26 @@
         { speaker: 'narrator', zh: '這時，塔上的鐘響了。幾個人抬頭看向遠處。', ko: '그때 감시탑의 종이 울렸다. 몇 사람이 고개를 들어 먼 곳을 바라봤다.' },
         { speaker: 'gatekeeper', zh: '正好。下一件事，跟鐘聲能傳多遠有關。', ko: '잘됐네. 다음 일은 종소리가 어디까지 닿는지와 관계가 있어.' }
       ]
+    },
+    'gate-bell-task': {
+      id: 'gate-bell-task', chapterId: 'chapter-1-three-roads', titleKo: '종소리를 확인해 줘',
+      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      beats: [
+        { speaker: 'gatekeeper', zh: '北邊新開的路上，鐘聲到底能傳到哪裡，我們還不確定。', ko: '북쪽에 새로 난 길까지 종소리가 정확히 어디까지 닿는지 아직 확실하지 않아.' },
+        { speaker: 'gatekeeper', zh: '我在路上插了幾個標記。站到標記上，就能比較跟鐘樓的距離。', ko: '길에 확인 표식을 몇 개 꽂아뒀어. 표식에 서면 종탑과 얼마나 떨어져 있는지 비교할 수 있지.' },
+        { speaker: 'gatekeeper', zh: '請找出還聽得到鐘聲、而且離鐘樓最遠的標記。', ko: '종소리가 아직 들리면서 종탑에서 가장 먼 표식을 찾아줘.' },
+        { speaker: 'boy', zh: '好。我一路聽聽看。', ko: '좋아요. 움직이면서 들어볼게요.' }
+      ]
+    },
+    'gate-after-bell': {
+      id: 'gate-after-bell', chapterId: 'chapter-1-three-roads', titleKo: '종소리의 가장자리',
+      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      beats: [
+        { speaker: 'boy', zh: '找到了。再往外一點，就聽不到了。', ko: '찾았어요. 여기서 조금만 더 멀어지면 들리지 않아요.' },
+        { speaker: 'gatekeeper', zh: '那裡就是鐘聲能到的範圍邊緣。', ko: '그곳이 종소리가 닿는 범위의 가장자리구나.' },
+        { speaker: 'boy', zh: '每個標記跟鐘樓的距離不一樣。把聽得到的地方放在一起，就看得出鐘聲的範圍了。', ko: '표식마다 종탑과의 거리는 달랐어요. 들리는 곳들을 함께 보면 종소리의 범위가 보이네요.' },
+        { speaker: 'gatekeeper', zh: '很好。接下來得看看北邊的兩條路，哪一條比較合適。', ko: '좋아. 다음에는 북쪽의 두 길 중 어느 쪽이 더 알맞은지 봐야겠군.' }
+      ]
     }
   };
   const JOURNEY = [
@@ -71,7 +91,10 @@
       { id: 'gate-town', regionId: 'gate-town', plannedStageCount: 7, sequence: [
         { type: 'story', id: 'gate-arrival', requires: ['story:chapter1-roadside-merchant'] },
         { type: 'stage', id: 'gate-stage-1', requires: ['story:gate-arrival'] },
-        { type: 'story', id: 'gate-after-entry', requires: ['stage:gate-stage-1'] }
+        { type: 'story', id: 'gate-after-entry', requires: ['stage:gate-stage-1'], returnToWorldAfter: true },
+        { type: 'story', id: 'gate-bell-task', requires: ['story:gate-after-entry'] },
+        { type: 'stage', id: 'gate-stage-2', requires: ['story:gate-bell-task'] },
+        { type: 'story', id: 'gate-after-bell', requires: ['stage:gate-stage-2'], returnToWorldAfter: true }
       ] },
       ...['workshop-town', 'market-town'].map(regionId => ({ id: regionId, regionId, plannedStageCount: 7, sequence: [] }))
     ] }
