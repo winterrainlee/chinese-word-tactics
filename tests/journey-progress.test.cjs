@@ -87,18 +87,30 @@ test('parallel region sections never automatically advance to another region', (
   finally { gate.sequence.pop(); workshop.sequence.pop(); }
 });
 
-test('gate-town G1 opens only after the shared intro and chains story → stage → story', () => {
+test('gate-town G1 and G2 unlock in order with world pauses after each job story', () => {
   const base = P.normalize({ seenStories: ['prologue-departure', 'prologue-forest-edge'] });
   const arrival = P.getNode('story:gate-arrival');
   assert.equal(P.isAvailable(arrival, base), false);
   base.seenStories.push('chapter1-roadside-merchant');
   assert.equal(P.isAvailable(arrival, base), true);
+
   base.seenStories.push('gate-arrival');
   assert.equal(P.nextNode('story:gate-arrival', base).id, 'gate-stage-1');
   base.completedStages.push('gate-stage-1');
   assert.equal(P.nextNode('stage:gate-stage-1', base).id, 'gate-after-entry');
+
   base.seenStories.push('gate-after-entry');
-  assert.equal(P.nextNode('story:gate-after-entry', base), null);
+  const afterEntry = P.getNode('story:gate-after-entry');
+  assert.equal(afterEntry.returnToWorldAfter, true);
+  assert.equal(P.nextNode(afterEntry.nodeId, base).id, 'gate-bell-task');
+
+  base.seenStories.push('gate-bell-task');
+  assert.equal(P.nextNode('story:gate-bell-task', base).id, 'gate-stage-2');
+  base.completedStages.push('gate-stage-2');
+  assert.equal(P.nextNode('stage:gate-stage-2', base).id, 'gate-after-bell');
+  base.seenStories.push('gate-after-bell');
+  assert.equal(P.getNode('story:gate-after-bell').returnToWorldAfter, true);
+  assert.equal(P.nextNode('story:gate-after-bell', base), null);
 });
 
 test('every journey stage node resolves to an implemented tactical stage', () => {
