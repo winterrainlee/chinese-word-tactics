@@ -35,7 +35,8 @@
     return showJourney();
   }
   function playStory(id, options = {}) {
-    const story = JourneyContent.STORIES[id], node = P.getNode(`story:${id}`), progress = store.get();
+    const baseStory = JourneyContent.STORIES[id], node = P.getNode(`story:${id}`), progress = store.get();
+    const story = globalThis.StoryOutcomeContent?.resolve(baseStory, progress) || baseStory;
     if (!story || !node || !P.isAvailable(node, progress)) return false;
     const context = { ...validOptions(options), nodeId: node.nodeId, type: 'story' };
     active = context; TacticalGame.showView('story');
@@ -86,7 +87,8 @@
   }
   function recordStageComplete(id, context) {
     const node = P.getNode(`stage:${id}`);
-    if (node) store.complete(node, context.mode);
+    const outcome = globalThis.RouteMechanic?.currentOutcome?.(id) || null;
+    if (node) store.complete(node, context.mode, outcome);
   }
   function showStageComplete(id, context) {
     const replay = context.mode === 'replay', stage = STAGES.find(s => s.id === id);
