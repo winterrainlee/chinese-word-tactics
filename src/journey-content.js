@@ -74,6 +74,26 @@
         { speaker: 'boy', zh: '每個標記跟鐘樓的距離不一樣。把聽得到的地方放在一起，就看得出鐘聲的範圍了。', ko: '표식마다 종탑과의 거리는 달랐어요. 들리는 곳들을 함께 보면 종소리의 범위가 보이네요.' },
         { speaker: 'gatekeeper', zh: '很好。接下來得看看北邊的兩條路，哪一條比較合適。', ko: '좋아. 다음에는 북쪽의 두 길 중 어느 쪽이 더 알맞은지 봐야겠군.' }
       ]
+    },
+    'gate-route-task': {
+      id: 'gate-route-task', chapterId: 'chapter-1-three-roads', titleKo: '두 길 중 하나로',
+      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      beats: [
+        { speaker: 'gatekeeper', zh: '北口前面的路分成兩條，西路和東路最後都能到北口。', ko: '북쪽 출구 앞에서 길이 둘로 갈라져. 서쪽 길과 동쪽 길 모두 결국 북쪽 출구로 이어져.' },
+        { speaker: 'gatekeeper', zh: '鐘聲的結果也得告訴哨站。你選一條路線，經由一個哨站再往北走吧。', ko: '종소리 조사 결과도 초소에 알려야 해. 네가 경로 하나를 골라 초소 한 곳을 거쳐 북쪽으로 가줘.' },
+        { speaker: 'gatekeeper', zh: '不用特地走哪一邊。哪條路順手，就走哪條。', ko: '어느 쪽으로 가야 하는 건 아니야. 네가 가기 편한 길을 택하면 돼.' },
+        { speaker: 'boy', zh: '明白了。我會先經過哨站。', ko: '알겠어요. 초소를 거쳐서 갈게요.' }
+      ]
+    },
+    'gate-after-route': {
+      id: 'gate-after-route', chapterId: 'chapter-1-three-roads', titleKo: '길은 다시 만난다',
+      background: 'gate', placeZh: '北口', placeKo: '북쪽 출구',
+      beats: [
+        { speaker: 'narrator', zh: '少年經過哨站，從自己選的路線來到了北口。', ko: '소년은 초소를 거쳐 자신이 고른 길을 따라 북쪽 출구에 도착했다.' },
+        { speaker: 'boy', zh: '走哪一條路都能到這裡。重要的是路上要經過哪裡。', ko: '어느 길로 와도 여기에 도착할 수 있네. 중요한 건 가는 동안 어디를 거치느냐구나.' },
+        { speaker: 'narrator', zh: '前方不遠處，一輛貨車停在路邊，車夫正繞著車子查看。', ko: '조금 앞쪽 길가에는 짐수레 한 대가 멈춰 있었고, 마부가 수레 주위를 돌며 살펴보고 있었다.' },
+        { speaker: 'boy', zh: '那輛車……是不是又卡住了？', ko: '저 수레…… 또 어디 걸린 건가?' }
+      ]
     }
   };
   const JOURNEY = [
@@ -94,7 +114,10 @@
         { type: 'story', id: 'gate-after-entry', requires: ['stage:gate-stage-1'], returnToWorldAfter: true },
         { type: 'story', id: 'gate-bell-task', requires: ['story:gate-after-entry'] },
         { type: 'stage', id: 'gate-stage-2', requires: ['story:gate-bell-task'] },
-        { type: 'story', id: 'gate-after-bell', requires: ['stage:gate-stage-2'], returnToWorldAfter: true }
+        { type: 'story', id: 'gate-after-bell', requires: ['stage:gate-stage-2'], returnToWorldAfter: true },
+        { type: 'story', id: 'gate-route-task', requires: ['story:gate-after-bell'] },
+        { type: 'stage', id: 'gate-stage-3', requires: ['story:gate-route-task'] },
+        { type: 'story', id: 'gate-after-route', requires: ['stage:gate-stage-3'], returnToWorldAfter: true }
       ] },
       ...['workshop-town', 'market-town'].map(regionId => ({ id: regionId, regionId, plannedStageCount: 7, sequence: [] }))
     ] }
