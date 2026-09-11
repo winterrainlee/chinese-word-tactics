@@ -55,3 +55,11 @@ test('content.js and workshop-content.js share classic-script lexical state', ()
   assert.match(snapshot.connectWord.rule, /함께 돌아/);
   assert.match(snapshot.separateWord.rule, /더 이상 함께 돌지 않아/);
 });
+
+test('W3 main shaft surface visibly rotates and slows under overload', () => {
+  const css = fs.readFileSync(path.join(__dirname, '../src/workshop-runtime.css'), 'utf8');
+  assert.match(css, /\.workshop-mainshaft b:before\{[^}]*animation:workshop-shaft-roll \.7s linear infinite/);
+  assert.match(css, /\.workshop-coupling-scene\.overloaded \.workshop-mainshaft b:before\{animation-duration:1\.6s\}/);
+  assert.match(css, /@keyframes workshop-shaft-roll\{to\{background-position:0 14px\}\}/);
+  assert.match(css, /prefers-reduced-motion:reduce[^}]*workshop-mainshaft b:before/);
+});
