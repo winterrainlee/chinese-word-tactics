@@ -10,7 +10,12 @@
   };
 
   const progress = () => globalThis.GameFlow?.progress?.() || {};
-  const hasReward = reward => Array.isArray(progress().seenStories) && progress().seenStories.includes(reward.storyId);
+  const hasReward = (reward, progressValue = progress()) =>
+    Array.isArray(progressValue?.seenStories) && progressValue.seenStories.includes(reward.storyId);
+  const earnedRewardsForRegion = (regionId, progressValue = progress()) => {
+    const reward = REWARDS[regionId];
+    return reward && hasReward(reward, progressValue) ? [{ regionId, ...reward }] : [];
+  };
 
   function syncWorldRewards() {
     const map = document.getElementById('worldRegions');
@@ -42,10 +47,78 @@
     });
   }
 
-  const map = document.getElementById('worldRegions');
-  if (map) new MutationObserver(syncWorldRewards).observe(map, { childList: true, subtree: true });
-  window.addEventListener('pageshow', syncWorldRewards);
-  setTimeout(syncWorldRewards, 0);
+  function syncRewardDetails() {
+    const map = document.getElementById('worldRegions');
+    const sheet = document.getElementById('sheet');
+    if (!map || !sheet) return;
 
-  globalThis.WorldRewards = Object.freeze({ REWARDS, syncWorldRewards });
+    const existing = sheet.querySelector('.worldRewardDetail');
+    const isRegionSheet = !!sheet.querySelector('.regionSheetNameZh');
+    if (!isRegionSheet) {
+      existing?.remove();
+      return;
+    }
+
+    const selected = map.querySelector('.regionCard.selected');
+    const rewards = earnedRewardsForRegion(selected?.dataset.regionId || '');
+    if (!rewards.length) {
+      existing?.remove();
+      return;
+    }
+
+    const detail = existing || document.createElement('div');
+    detail.className = 'worldRewardDetail';
+    detail.setAttribute('aria-label', '받은 증표');
+    detail.replaceChildren();
+
+    const heading = document.createElement('strong');
+    heading.className = 'worldRewardDetailTitle';
+    heading.textContent = '받은 증표';
+    detail.appendChild(heading);
+
+    rewards.forEach(reward => {
+      const item = document.createElement('div');
+      item.className = 'worldRewardDetailItem';
+
+      const symbol = document.createElement('span');
+      symbol.className = 'worldRewardDetailSymbol';
+      symbol.textContent = reward.symbol;
+      symbol.setAttribute('aria-hidden', 'true');
+
+      const names = document.createElement('span');
+      names.className = 'worldRewardDetailNames';
+      const zh = document.createElement('b');
+      zh.lang = 'zh-Hant';
+      zh.textContent = reward.nameZh;
+      const ko = document.createElement('small');
+      ko.textContent = `${reward.nameKo}를 받았어.`;
+      names.append(zh, ko);
+      item.append(symbol, names);
+      detail.appendChild(item);
+    });
+
+    const actions = sheet.querySelector('.sheetactions');
+    if (!existing) {
+      if (actions) sheet.insertBefore(detail, actions);
+      else sheet.appendChild(detail);
+    }
+  }
+
+  const map = document.getElementById('worldRegions');
+  const sheet = document.getElementById('sheet');
+  if (map) new MutationObserver(() => {
+    syncWorldRewards();
+    syncRewardDetails();
+  }).observe(map, { childList: true, subtree: true });
+  if (sheet) new MutationObserver(syncRewardDetails).observe(sheet, { childList: true });
+  window.addEventListener('pageshow', () => {
+    syncWorldRewards();
+    syncRewardDetails();
+  });
+  setTimeout(() => {
+    syncWorldRewards();
+    syncRewardDetails();
+  }, 0);
+
+  globalThis.WorldRewards = Object.freeze({ REWARDS, hasReward, earnedRewardsForRegion, syncWorldRewards, syncRewardDetails });
 })();
