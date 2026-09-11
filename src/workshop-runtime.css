@@ -62,7 +62,36 @@
 .workshop-forge-result strong{display:block;color:var(--ink);font-size:15px}
 .workshop-metal-bar{width:88px;height:16px;border-radius:5px;background:linear-gradient(90deg,#69645f,#b36d4b,#69645f);box-shadow:0 3px 0 rgba(79,61,48,.22)}
 .workshop-forge-result.balanced .workshop-metal-bar{background:linear-gradient(90deg,#69645f,#cf8758,#69645f)}
+.workshop-coupling-scene{gap:8px}
+.workshop-mainshaft{height:66px;border-radius:15px;background:#c8baa5;display:grid;grid-template-columns:58px 1fr 118px;align-items:center;gap:8px;padding:7px 10px;position:relative;overflow:hidden}
+.workshop-mainshaft b{display:block;height:12px;border-radius:7px;background:#705c43;box-shadow:inset 0 0 0 2px rgba(55,43,31,.18)}
+.workshop-mainshaft div{font-size:11px;line-height:1.25;color:#5d554b}
+.workshop-mainshaft div strong{display:block;font-size:14px;color:var(--ink)}
+.workshop-mainshaft-wheel{width:48px;height:48px;border-radius:50%;border:7px solid #806949;position:relative;display:grid;place-items:center;background:#d8c7a8;animation:workshop-wheel-spin 1.4s linear infinite}
+.workshop-mainshaft-wheel:before,.workshop-mainshaft-wheel:after{content:"";position:absolute;width:6px;height:34px;border-radius:4px;background:#806949}.workshop-mainshaft-wheel:after{transform:rotate(90deg)}
+.workshop-mainshaft-wheel i{width:11px;height:11px;border-radius:50%;background:#665034;z-index:2}
+.workshop-mainshaft-wheel.slow{animation-duration:3.2s}
+.workshop-coupling-branches{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;align-items:start}
+.workshop-coupling-device{min-width:0;text-align:center;padding:6px 4px 7px;border-radius:14px;background:rgba(255,253,247,.42);box-shadow:inset 0 0 0 1px rgba(95,78,57,.1)}
+.workshop-coupling-device .workshop-device-label{min-height:38px;margin-bottom:1px;font-size:13px}.workshop-coupling-device .workshop-device-label small{font-size:10px}
+.workshop-branch-belt{height:34px;position:relative;margin:0 auto;width:18px}
+.workshop-branch-belt:before,.workshop-branch-belt:after{content:"";position:absolute;left:7px;width:4px;border-radius:3px;background:#9b8d79}
+.workshop-branch-belt:before{top:0;height:11px}.workshop-branch-belt:after{bottom:0;height:11px}
+.workshop-branch-belt i{position:absolute;left:7px;top:9px;width:4px;height:16px;border-radius:3px;background:#9b8d79;opacity:0;transition:opacity .18s ease}
+.workshop-branch-belt.connected i{opacity:1}
+.workshop-coupler{width:48px;height:48px;border-radius:50%;border:1px solid #b8a991;background:#f9f5ec;position:relative;padding:0;margin:-4px auto 3px;display:grid;place-items:center;box-shadow:0 2px 6px rgba(70,55,38,.08)}
+.workshop-coupler:before,.workshop-coupler:after{content:"";position:absolute;width:13px;height:24px;border-radius:5px;background:#9a8262;transition:transform .18s ease}
+.workshop-coupler:before{left:7px;transform:translateX(-2px)}.workshop-coupler:after{right:7px;transform:translateX(2px)}
+.workshop-coupler.connected:before{transform:translateX(5px)}.workshop-coupler.connected:after{transform:translateX(-5px)}
+.workshop-coupler span{width:8px;height:8px;border-radius:50%;background:#665034;z-index:2}
+.workshop-coupler:active{background:#e4ece6}
+.workshop-machine-wheel{width:58px;height:58px;margin:0 auto;border-radius:50%;border:7px solid #8a7456;background:#d8c7a8;position:relative;display:grid;place-items:center;opacity:.76}
+.workshop-machine-wheel:before,.workshop-machine-wheel:after{content:"";position:absolute;width:6px;height:40px;border-radius:4px;background:#8a7456}.workshop-machine-wheel:after{transform:rotate(90deg)}
+.workshop-machine-wheel span{width:12px;height:12px;border-radius:50%;background:#665034;z-index:2}
+.workshop-machine-wheel.running{opacity:1;animation:workshop-wheel-spin 1.7s linear infinite}
+.workshop-coupling-scene.overloaded .workshop-machine-wheel.running{animation-duration:3.4s}
+.workshop-link-state{margin-top:4px;font-size:10px;line-height:1.22;color:#6a6258;min-height:38px}.workshop-link-state strong{display:block;font-size:12px;color:var(--ink)}
 @keyframes workshop-wheel-spin{to{transform:rotate(360deg)}}
 @keyframes workshop-water{to{transform:translateX(30px)}}
-@media(prefers-reduced-motion:reduce){.workshop-wheel.running,.workshop-channel:after{animation:none}.workshop-gate-door,.workshop-gate-water,.workshop-flame,.workshop-bellows-body,.workshop-wind-lines i,.workshop-forge-result{transition:none}}
-@media(max-height:650px){.grid.workshop-board{min-height:286px;padding:10px}.workshop-scene{min-height:266px;gap:8px}.workshop-headwater,.workshop-forge-header{height:28px}.workshop-gate-visual,.workshop-fire-visual,.workshop-bellows-visual{height:92px}.workshop-furnace-mouth{height:61px;bottom:9px}.workshop-fire-visual[data-level="2"] .workshop-flame{height:56px}.workshop-wheel-area{min-height:72px}.workshop-wheel{width:66px;height:66px;border-width:7px}.workshop-wheel:before,.workshop-wheel:after{height:50px}.workshop-forge-result{min-height:58px}}
+@media(prefers-reduced-motion:reduce){.workshop-wheel.running,.workshop-channel:after,.workshop-mainshaft-wheel,.workshop-machine-wheel.running{animation:none}.workshop-gate-door,.workshop-gate-water,.workshop-flame,.workshop-bellows-body,.workshop-wind-lines i,.workshop-forge-result,.workshop-branch-belt i,.workshop-coupler:before,.workshop-coupler:after{transition:none}}
+@media(max-height:650px){.grid.workshop-board{min-height:286px;padding:10px}.workshop-scene{min-height:266px;gap:8px}.workshop-headwater,.workshop-forge-header{height:28px}.workshop-gate-visual,.workshop-fire-visual,.workshop-bellows-visual{height:92px}.workshop-furnace-mouth{height:61px;bottom:9px}.workshop-fire-visual[data-level="2"] .workshop-flame{height:56px}.workshop-wheel-area{min-height:72px}.workshop-wheel{width:66px;height:66px;border-width:7px}.workshop-wheel:before,.workshop-wheel:after{height:50px}.workshop-forge-result{min-height:58px}.workshop-mainshaft{height:54px;grid-template-columns:48px 1fr 104px;padding:5px 8px}.workshop-mainshaft-wheel{width:40px;height:40px;border-width:6px}.workshop-coupling-device{padding-top:3px}.workshop-branch-belt{height:25px}.workshop-coupler{width:44px;height:44px}.workshop-machine-wheel{width:48px;height:48px;border-width:6px}.workshop-link-state{min-height:30px}}
