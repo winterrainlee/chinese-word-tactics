@@ -100,7 +100,9 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=20260911-townarrival1/);
   assert.match(html, /world-runtime\.js\?v=20260911-townarrival1/);
-  assert.match(html, /name="cwt-build" content="2026-09-11-townarrival1"/);
+  assert.match(html, /journey\.css\?v=20260911-journeytree1/);
+  assert.match(html, /journey-runtime\.js\?v=20260911-journeytree1/);
+  assert.match(html, /name="cwt-build" content="2026-09-11-journeytree1"/);
 
   const runtime = read('src/world-runtime.js');
   assert.match(runtime, /loadChunkedMap/);
@@ -128,4 +130,22 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(reset, /left:var\(--map-x\)!important/);
   assert.match(reset, /top:var\(--map-y\)!important/);
   assert.match(reset, /regionCard::before/);
+});
+
+test('journey view uses collapsible chapters, collapsible regions, and visible hierarchy indentation', () => {
+  const runtime = read('src/journey-runtime.js');
+  assert.match(runtime, /collapsedChapters/);
+  assert.match(runtime, /collapsedRegions/);
+  assert.match(runtime, /make\('details', 'journeyChapter'\)/);
+  assert.match(runtime, /make\('summary', 'journeyChapterSummary'\)/);
+  assert.match(runtime, /make\('details', 'journeyRegion'\)/);
+  assert.match(runtime, /make\('summary', 'journeyRegionSummary'\)/);
+  assert.match(runtime, /journeyChapterBody/);
+  assert.match(runtime, /journeyRegionBody/);
+
+  const css = read('src/journey.css');
+  assert.match(css, /journeyChapterBody\{[^}]*padding:[^}]*14px[^}]*border-left:2px solid/);
+  assert.match(css, /journeyRegionBody\{[^}]*padding:[^}]*14px[^}]*border-left:1px solid/);
+  assert.match(css, /journeyChapter\[open\]>\.journeyChapterSummary::before/);
+  assert.match(css, /journeyRegion\[open\]>\.journeyRegionSummary::before/);
 });
