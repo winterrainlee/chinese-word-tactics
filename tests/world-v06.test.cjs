@@ -31,7 +31,7 @@ test('v0.6 world keeps stable ids while presenting one Three Streams settlement'
   assert.equal(byId['council-town'].name, '會議所');
   assert.equal(byId['research-city'].name, '學術塔');
   assert.equal(byId['border-village'].map.kind, 'outside');
-  assert.deepEqual(world.regions.slice(0, 3).map(region => region.id), ['gate-town', 'workshop-town', 'market-town']);
+  assert.equal(world.regions.slice(0, 3).map(region => region.id).join(','), 'gate-town,workshop-town,market-town');
 });
 
 test('merchant introduces the small village and Three Streams before the three routes', () => {
