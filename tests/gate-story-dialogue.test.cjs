@@ -11,6 +11,9 @@ const gateStory = [
   read('src/g7-journey-content.js'),
   read('src/g7-story-outcome-content.js')
 ].join('\n');
+require('../src/journey-content.js');
+
+const narrowGateTask = globalThis.JourneyContent.STORIES['gate-narrow-gate-task'].beats;
 
 test('gate story uses the Three Streams settlement rather than three legacy towns', () => {
   assert.match(gateStory, /三條路都通往三溪鎮/);
@@ -38,4 +41,18 @@ test('cart convoy terminology and speaker label stay consistent', () => {
   assert.match(gateStory, /수레 집결지/);
   assert.doesNotMatch(gateStory, /待車場|마부/);
   assert.match(read('src/story-runtime.js'), /driver: \['車夫', '수레꾼'\]/);
+});
+
+test('narrow-gate prompt exposes spatial clues without spelling out the move order', () => {
+  const zh = narrowGateTask.map(beat => beat.zh).join(' ');
+  const ko = narrowGateTask.map(beat => beat.ko).join(' ');
+
+  assert.match(zh, /前進/);
+  assert.match(zh, /後退/);
+  assert.match(zh, /位置/);
+  assert.match(ko, /전진/);
+  assert.match(ko, /후퇴/);
+  assert.match(ko, /위치/);
+  assert.doesNotMatch(zh, /先後退.*門.*(?:打開|開).*往前/s);
+  assert.doesNotMatch(ko, /먼저.*후퇴.*문.*열.*앞/s);
 });

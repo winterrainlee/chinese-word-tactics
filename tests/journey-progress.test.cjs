@@ -8,6 +8,7 @@ const storage = seed => {
   return { getItem: key => data.get(key) || null, setItem: (key, value) => data.set(key, value), data };
 };
 const legacyKey = 'chufa-tutorial-v03';
+const legacyWorldKey = 'chinese-word-tactics-world-v1';
 test('migrates six legacy stage IDs without marking new stories seen or changing old keys', () => {
   const raw = JSON.stringify({ completed: ['stage-0', 'stage-0', 'stage-5', 'unknown', 3] });
   const disk = storage({ [legacyKey]: raw }); const store = P.createStore(disk);
@@ -25,6 +26,17 @@ test('malformed JSON still allows independent legacy migration', () => {
   const store = P.createStore(disk, () => errors++);
   assert.deepEqual(store.get().completedStages, ['stage-2']); assert.ok(errors);
 });
+test('migrates legacy world milestones without changing the old save and merges canonically', () => {
+  const raw = JSON.stringify({ visited: ['gate-town'], completedMilestones: ['gate-core', 'gate-core', 3] });
+  const disk = storage({
+    [P.KEY]: JSON.stringify({ completedMilestones: ['workshop-core'] }),
+    [legacyWorldKey]: raw
+  });
+  const store = P.createStore(disk);
+  assert.deepEqual(store.get().completedMilestones, ['workshop-core', 'gate-core']);
+  assert.equal(disk.getItem(legacyWorldKey), raw);
+  assert.deepEqual(P.createStore(disk).get(), store.get());
+});
 test('blocked storage continues in memory and reports failure', () => {
   let errors = 0; const store = P.createStore({ getItem() { throw Error('denied'); }, setItem() { throw Error('full'); } }, () => errors++);
   store.complete(P.getNode('stage:stage-0'));
@@ -41,9 +53,17 @@ test('replay writes neither completion, acknowledgements nor main checkpoint', (
   store.locate({ view: 'story', nodeId: 'story:prologue-departure', beat: 2 });
   const before = disk.getItem(P.KEY);
   store.complete(P.getNode('story:prologue-departure'), 'replay');
-  store.complete(P.getNode('stage:stage-0'), 'replay');
+  store.complete(P.getNode('stage:stage-0'), 'replay', null, 'gate-core');
   store.locate({ view: 'world' }, 'replay');
   assert.equal(disk.getItem(P.KEY), before);
+});
+test('first-play stage milestone is persisted idempotently in journey progress', () => {
+  const disk = storage(), store = P.createStore(disk);
+  const node = P.getNode('stage:stage-0');
+  store.complete(node, 'first-play', null, 'gate-core');
+  store.complete(node, 'first-play', null, 'gate-core');
+  assert.deepEqual(store.get().completedMilestones, ['gate-core']);
+  assert.deepEqual(JSON.parse(disk.getItem(P.KEY)).completedMilestones, ['gate-core']);
 });
 test('duplicate completion is idempotent and get() cannot mutate the store', () => {
   const store = P.createStore(storage()), node = P.getNode('stage:stage-0');

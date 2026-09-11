@@ -31,6 +31,7 @@
     const validLocation = location && (location.view === 'world' ||
       (['story', 'tactical'].includes(location.view) && getNode(location.nodeId)?.type === (location.view === 'story' ? 'story' : 'stage')));
     return { seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
+      completedMilestones: strings(raw.completedMilestones),
       acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes), lastLocation: validLocation ? {
         view: location.view, ...(location.view !== 'world' ? { nodeId: location.nodeId,
           beat: Number.isInteger(location.beat) && location.beat >= 0 ? location.beat : 0 } : {})
@@ -85,8 +86,12 @@
     };
     let progress = normalize(read(KEY));
     const legacy = read('chufa-tutorial-v03');
+    const legacyWorld = read('chinese-word-tactics-world-v1');
     progress.completedStages = strings([...progress.completedStages,
       ...strings(legacy?.completed).filter(id => /^stage-[0-5]$/.test(id))]);
+    progress.completedMilestones = strings([
+      ...progress.completedMilestones, ...strings(legacyWorld?.completedMilestones)
+    ]);
     // G3 existed briefly before stage outcomes. Recover the chosen post from the tactical save when possible.
     if (!progress.stageOutcomes['gate-stage-3'] && progress.completedStages.includes('gate-stage-3')) {
       const viaIds = strings(legacy?.state?.viaIds).filter(id => ['west-post', 'east-post'].includes(id));
@@ -98,7 +103,7 @@
     persist();
     return Object.freeze({
       get: () => copy(progress),
-      complete(node, mode = 'first-play', outcome = null) {
+      complete(node, mode = 'first-play', outcome = null, milestone = null) {
         if (mode !== 'first-play' || !getNode(nodeId(node))) return;
         const field = node.type === 'story' ? 'seenStories' : 'completedStages';
         progress[field] = strings([...progress[field], node.id]);
@@ -106,6 +111,9 @@
         if (node.type === 'stage' && !progress.stageOutcomes[node.id]) {
           const clean = cleanOutcome(outcome);
           if (clean) progress.stageOutcomes[node.id] = clean;
+        }
+        if (node.type === 'stage' && typeof milestone === 'string') {
+          progress.completedMilestones = strings([...progress.completedMilestones, milestone]);
         }
         persist();
       },

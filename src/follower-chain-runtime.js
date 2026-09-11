@@ -106,10 +106,6 @@
   function finishChainStage(st) {
     if (stageSession.mode !== 'replay') {
       completed.add(st.id);
-      if (st.milestone) {
-        worldState.completedMilestones ||= [];
-        if (!worldState.completedMilestones.includes(st.milestone)) worldState.completedMilestones.push(st.milestone);
-      }
     }
     window.GameFlow?.recordStageComplete(st.id, stageSession);
     save(); render();

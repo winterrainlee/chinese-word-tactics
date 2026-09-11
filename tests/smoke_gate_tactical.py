@@ -114,6 +114,20 @@ try:
         background_asset(page, '.g7-goal', 'world-exit.svg', '::before')
         assert page.locator('.follower-chain-mark').count() == 2
         assert page.locator('.follower-chain-badge').all_text_contents() == ['1', '2']
+        cart_cells = page.locator('.cell.follower-chain-cart')
+        assert cart_cells.count() == 2
+        cart_targets = cart_cells.evaluate_all('''cells => cells.map(cell => {
+          const box = cell.getBoundingClientRect();
+          return {label: cell.getAttribute('aria-label'), width: box.width, height: box.height};
+        })''')
+        assert all(target['width'] >= 44 and target['height'] >= 44 for target in cart_targets), cart_targets
+        assert cart_cells.locator('.follower-chain-badge').all_text_contents() == ['1', '2']
+        action_targets = page.locator('.wordbtn:visible, .control:visible, .iconbtn:visible').evaluate_all('''buttons => buttons.map(button => {
+          const box = button.getBoundingClientRect();
+          return {text: button.textContent.trim(), className: button.className, width: box.width, height: box.height};
+        })''')
+        assert len(action_targets) == 8, action_targets
+        assert all(target['width'] >= 44 and target['height'] >= 44 for target in action_targets), action_targets
         assert page.locator('.route-waypoint-mark').count() == 2
         page.evaluate('attemptMove([4,3],false);attemptMove([3,3],false)')
         first_cart = page.locator('#grid .cell').nth(23).locator('.follower-chain-mark')
@@ -126,6 +140,18 @@ try:
         assert second_cart.evaluate('(node)=>node.classList.contains("follower-chain-moving")')
         assert first_cart.evaluate('(node)=>getComputedStyle(node).animationName') == 'follower-chain-step'
         page.screenshot(path=str(OUT / 'gate-g7-convoy-375.png'))
+        g7_layout = page.evaluate('''() => {
+          const box = selector => document.querySelector(selector).getBoundingClientRect().toJSON();
+          return {
+            viewport: {width: innerWidth, height: innerHeight},
+            document: {width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight},
+            grid: box('#grid'), status: box('#status'), words: box('#words'), controls: box('.controls'),
+          };
+        }''')
+        assert g7_layout['document']['width'] <= g7_layout['viewport']['width']
+        assert g7_layout['document']['height'] <= g7_layout['viewport']['height'], g7_layout
+        assert g7_layout['controls']['y'] + g7_layout['controls']['height'] <= g7_layout['viewport']['height'], g7_layout
+        print('G7_LAYOUT:', g7_layout, 'CART_TARGETS:', cart_targets, 'ACTION_TARGETS:', action_targets, flush=True)
         page.evaluate('state.g7ObstacleCleared=true;render()')
         assert page.locator('.g7-obstacle-mark').count() == 0
 

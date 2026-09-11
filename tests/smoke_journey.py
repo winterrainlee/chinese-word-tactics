@@ -99,19 +99,22 @@ def memory_document(seed):
     for path in (ROOT / 'icons').rglob('*.svg'):
         assets[str(path.relative_to(ROOT))] = 'data:image/svg+xml;base64,' + base64.b64encode(path.read_bytes()).decode()
     html = (ROOT / 'index.html').read_text()
+    def local_path(raw, base=ROOT):
+        return (base / urlparse(raw).path).resolve()
     def stylesheet(match):
-        path = ROOT / match.group(1)
+        path = local_path(match.group(1))
         assert path.is_file(), path
         css = path.read_text()
         def url_rewrite(found):
-            target = (path.parent / found.group(1)).resolve()
+            target = local_path(found.group(1), path.parent)
             assert target.is_relative_to(ROOT) and target.is_file(), target
-            return 'url("data:image/svg+xml;base64,' + base64.b64encode(target.read_bytes()).decode() + '")'
+            mime = mimetypes.guess_type(target.name)[0] or 'application/octet-stream'
+            return f'url("data:{mime};base64,' + base64.b64encode(target.read_bytes()).decode() + '")'
         css = re.sub(r'url\([\"\']?([^\)\"\']+)[\"\']?\)', url_rewrite, css)
         return '<style>' + css + '</style>'
     html = re.sub(r'<link rel="stylesheet" href="([^"]+)">', stylesheet, html)
     def script(match):
-        path = ROOT / match.group(1)
+        path = local_path(match.group(1))
         assert path.is_file(), path
         return '<script>' + path.read_text() + '</script>'
     html = re.sub(r'<script src="([^"]+)"></script>', script, html)
@@ -167,8 +170,10 @@ try:
         passed('fresh story, translation reset, previous beat and refresh resume')
         page.locator('#storyMenu').click(); page.locator('#flowJourney').click(); assert_view(page,'journey')
         assert page.locator('[data-node-id="stage:stage-1"]').is_disabled()
-        page.locator('[data-journey-filter="stage"]').click(); assert page.locator('.journeyNode').count()==7
-        page.locator('[data-journey-filter="story"]').click(); assert page.locator('.journeyNode').count()==5
+        page.locator('[data-journey-filter="stage"]').click()
+        assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes().filter(node => node.type === "stage").length')
+        page.locator('[data-journey-filter="story"]').click()
+        assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes().filter(node => node.type === "story").length')
         page.locator('#journeyContinue').click(); assert page.locator('#storyCount').inner_text()=='2 / 4'
         finish_story(page); assert_view(page,'tutorial')
         passed('journey filters, future locks, story exit and continuation')
@@ -185,7 +190,34 @@ try:
         passed(f'first-play: departure → six solved stages {paths} → two stories → world')
         page.screenshot(path=str(OUT/'world-375.png'))
         assert page.locator('#worldContinue').is_hidden()
+        world_layout = page.evaluate('''() => {
+          const box = element => element.getBoundingClientRect().toJSON();
+          const map = document.querySelector('#worldRegions');
+          const nav = document.querySelector('#worldView .flowNav');
+          const markers = [...map.querySelectorAll('.regionCard')].map(card => ({
+            id: card.dataset.regionId,
+            box: box(card),
+          }));
+          return {
+            viewport: {width: innerWidth, height: innerHeight},
+            document: {width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight},
+            map: box(map), nav: box(nav), markers,
+          };
+        }''')
+        assert world_layout['document']['width'] <= world_layout['viewport']['width']
+        assert world_layout['document']['height'] - world_layout['viewport']['height'] <= 96, world_layout
+        assert world_layout['nav']['height'] >= 44
+        assert len(world_layout['markers']) == len(page.evaluate('WORLD.regions'))
+        for marker in world_layout['markers']:
+            box = marker['box']; map_box = world_layout['map']
+            assert box['width'] >= 44 and box['height'] >= 44, marker
+            assert box['x'] >= map_box['x'] and box['x'] + box['width'] <= map_box['x'] + map_box['width'], marker
+            assert box['y'] >= map_box['y'] and box['y'] + box['height'] <= map_box['y'] + map_box['height'], marker
+        print('WORLD_LAYOUT:', json.dumps(world_layout, ensure_ascii=False), flush=True)
+        passed('375x812 world map keeps every 44px+ place marker in-map and bottom navigation within 96px scroll')
         page.locator('[data-region-id="gate-town"]').click()
+        assert page.locator('#worldPlaceGo').is_visible()
+        page.locator('#worldPlaceGo').click()
         assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='관문에 도착하다'
         finish_story(page); assert_view(page,'tutorial'); assert page.evaluate('current().id')=='gate-stage-1'
         page.screenshot(path=str(OUT/'gate-g1-375.png'))
@@ -194,9 +226,9 @@ try:
         assert page.evaluate('state.entered') and not page.evaluate('state.exited')
         assert '路標還沒看' in page.locator('#status').inner_text()
         for idx in [22,17,18,13]: page.locator('#grid .cell').nth(idx).click()
-        page.locator('#inspectBtn').click(); page.locator('#grid .cell').nth(8).click()
+        page.locator('#inspectBtn').click()
         assert page.evaluate('state.inspected'); assert '北門' in page.locator('#sheet').inner_text()
-        page.locator('#sheet button').click(); page.locator('#inspectBtn').click()
+        page.locator('#sheet button').click()
         for idx in [18,17,22,27]: page.locator('#grid .cell').nth(idx).click()
         page.locator('#flowNext').wait_for(state='visible'); assert page.evaluate('state.exited')
         page.locator('#flowNext').click(); assert page.locator('#storyTitle').inner_text()=='안팎은 잘 보네'
@@ -204,7 +236,9 @@ try:
         assert page.evaluate('GameFlow.progress().completedStages.length')==7
         assert page.evaluate('GameFlow.progress().seenStories.length')==5
         page.evaluate('GameFlow.showJourney()')
-        assert '스테이지 1/7 · 이야기 2/2' in page.locator('.journeyRegion').filter(has_text='길목').inner_text()
+        gate_progress = page.locator('.journeyRegion').filter(has_text='길목').inner_text()
+        gate_story_count = page.evaluate('JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(section => section.id === "gate-town").sequence.filter(node => node.type === "story").length')
+        assert '스테이지 1/7' in gate_progress and f'이야기 2/{gate_story_count}' in gate_progress
         page.evaluate('GameFlow.showWorld()')
         passed('gate-town G1: region choice → story → enter/inspect/exit → story → world')
         before=page.evaluate('localStorage.getItem("'+KEY+'")'); legacy_before=page.evaluate('localStorage.getItem("'+LEGACY+'")')
@@ -292,15 +326,19 @@ try:
             page.wait_for_function('!!window.GameFlow')
             assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='고향을 떠나다'
             assert page.evaluate('GameFlow.progress().completedStages.length')==0
-            assert page.evaluate('localStorage.getItem("chufa-tutorial-v03")') is None
-            assert page.evaluate('localStorage.getItem("chinese-word-tactics-world-v1")') is None
+            reset_tactical = json.loads(page.evaluate('localStorage.getItem("chufa-tutorial-v03")'))
+            reset_world = json.loads(page.evaluate('localStorage.getItem("chinese-word-tactics-world-v1")'))
+            assert reset_tactical['completed'] == []
+            assert reset_world == {'visited': [], 'completedMilestones': []}
             passed('journey reset clears all campaign saves and restarts at P-01')
         page.evaluate("""() => {
           Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem(){throw Error('denied')},setItem(){throw Error('full')}}});
           GameFlow.playStory('prologue-departure');
         }""")
         assert page.locator('#flowNotice').is_visible()
-        page.locator('#storyNext').click(); assert page.locator('#storyCount').inner_text()=='2 / 15'
+        page.locator('#storyNext').click()
+        departure_beats = page.evaluate('JourneyContent.STORIES["prologue-departure"].beats.length')
+        assert page.locator('#storyCount').inner_text() == f'2 / {departure_beats}'
         passed('storage failures are visible and story still advances in memory')
         assert not errors, errors
         assert not missing, missing
