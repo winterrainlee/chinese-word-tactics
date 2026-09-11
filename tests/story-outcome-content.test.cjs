@@ -21,6 +21,17 @@ test('visiting both posts produces the two-pass version regardless of visit orde
   assert.match(text, /東哨通行牌/);
 });
 
+test('G5 after-story reuses the saved pass as a story clue before G6', () => {
+  const story = { id: 'gate-after-narrow-gate', beats: [{ speaker: 'boy', zh: 'fallback', ko: '기본' }] };
+  const west = S.resolve(story, { stageOutcomes: { 'gate-stage-3': { viaIds: ['west-post'] } } });
+  const east = S.resolve(story, { stageOutcomes: { 'gate-stage-3': { viaIds: ['east-post'] } } });
+  const both = S.resolve(story, { stageOutcomes: { 'gate-stage-3': { viaIds: ['east-post','west-post'] } } });
+  assert.match(west.beats.map(beat => beat.zh).join(' '), /西哨通行牌/);
+  assert.match(east.beats.map(beat => beat.zh).join(' '), /東哨通行牌/);
+  assert.match(both.beats.map(beat => beat.zh).join(' '), /兩塊通行牌|西哨和東哨/);
+  assert.match(west.beats.map(beat => beat.zh).join(' '), /我帶你走吧/);
+});
+
 test('missing outcome keeps the original generic story as a safe fallback', () => {
   assert.equal(S.resolve(base, { stageOutcomes: {} }), base);
   assert.equal(S.resolve({ id: 'other-story', beats: [] }, {} ).id, 'other-story');
