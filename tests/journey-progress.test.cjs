@@ -87,7 +87,7 @@ test('parallel region sections never automatically advance to another region', (
   finally { gate.sequence.pop(); workshop.sequence.pop(); }
 });
 
-test('gate-town G1 through G3 unlock in order with world pauses after each job story', () => {
+test('gate-town G1 through G3 unlock in order and hand off to G4 after each world pause', () => {
   const base = P.normalize({ seenStories: ['prologue-departure', 'prologue-forest-edge'] });
   const arrival = P.getNode('story:gate-arrival');
   assert.equal(P.isAvailable(arrival, base), false);
@@ -120,7 +120,7 @@ test('gate-town G1 through G3 unlock in order with world pauses after each job s
   assert.equal(P.nextNode('stage:gate-stage-3', base).id, 'gate-after-route');
   base.seenStories.push('gate-after-route');
   assert.equal(P.getNode('story:gate-after-route').returnToWorldAfter, true);
-  assert.equal(P.nextNode('story:gate-after-route', base), null);
+  assert.equal(P.nextNode('story:gate-after-route', base).id, 'gate-cart-task');
 });
 
 test('every journey stage node resolves to an implemented tactical stage', () => {
