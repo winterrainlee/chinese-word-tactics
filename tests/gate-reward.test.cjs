@@ -18,19 +18,22 @@ test('G7 epilogue awards the cart guide pass with a signpost mark', () => {
   assert.equal(story.beats.filter(beat => beat.zh?.includes('貨車引路牌')).length, 2);
 });
 
-test('world reward badge is tied to finishing the award story and uses the signpost symbol', () => {
+test('world reward badges are tied to finishing each award story and use the signpost symbol', () => {
   const runtime = read('src/world-reward-runtime.js');
   const css = read('src/world-reward.css');
   const html = read('index.html');
-  assert.match(runtime, /storyId: 'gate-after-convoy'/);
-  assert.match(runtime, /symbol: '🪧'/);
+  assert.match(runtime, /'gate-town':\s*{[\s\S]*storyId: 'gate-after-convoy'/);
+  assert.match(runtime, /'workshop-town':\s*{[\s\S]*storyId: 'workshop-finale'/);
+  assert.match(runtime, /nameZh: '修繕牌'/);
+  assert.match(runtime, /nameKo: '수선패'/);
+  assert.equal((runtime.match(/symbol: '🪧'/g) || []).length, 2);
   assert.match(runtime, /seenStories/);
   assert.match(runtime, /regionRewardBadge/);
   assert.match(css, /regionRewardBadge/);
   assert.match(html, /gate-reward-story-content\.js\?v=20260911-gatereward1/);
-  assert.match(html, /world-reward-runtime\.js\?v=20260911-gatereward2/);
+  assert.match(html, /world-reward-runtime\.js\?v=20260911-workshopreward1/);
   assert.match(html, /world-reward\.css\?v=20260911-gatereward2/);
-  assert.ok(html.indexOf('world-runtime.js?v=20260911-townarrival1') < html.indexOf('world-reward-runtime.js?v=20260911-gatereward2'));
+  assert.ok(html.indexOf('world-runtime.js?v=20260911-townarrival1') < html.indexOf('world-reward-runtime.js?v=20260911-workshopreward1'));
 });
 
 test('earned reward also appears inside the selected region detail sheet', () => {
