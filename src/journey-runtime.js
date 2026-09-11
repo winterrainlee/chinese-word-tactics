@@ -20,6 +20,22 @@
     }
     if (reset.parentElement !== actions) actions.append(reset);
   }
+  function chapterDisplay(chapter) {
+    if (chapter.id === 'prologue') {
+      return {
+        title: `프롤로그 · ${WORLD.originNameKo || '작은 마을'}`,
+        meta: `${WORLD.origin || '小村'} · 튜토리얼`
+      };
+    }
+    if (chapter.id === 'chapter-1-three-roads') {
+      const settlement = WORLD.settlement || {};
+      return {
+        title: `1장 · ${settlement.nameKo || WORLD.title || '물길마을'}`,
+        meta: `${settlement.name || '三溪鎮'} · 세 갈래 길`
+      };
+    }
+    return { title: chapter.titleKo, meta: chapter.tag || '' };
+  }
   function appendTimeline(article, section, progress) {
     const list = make('ol', 'journeyTimeline');
     for (const node of section.sequence) {
@@ -55,14 +71,19 @@
     });
     for (const chapter of JourneyContent.JOURNEY) {
       const article = make('section', 'journeyChapter');
-      article.append(make('h2', '', chapter.titleKo));
+      const display = chapterDisplay(chapter);
+      article.append(make('h2', '', display.title));
+      if (display.meta) article.append(make('p', 'journeyChapterMeta', display.meta));
       for (const section of chapter.sections) {
         if (section.regionId) {
           const region = WORLD.regions.find(r => r.id === section.regionId);
           const stageNodes = section.sequence.filter(node => node.type === 'stage');
           const storyNodes = section.sequence.filter(node => node.type === 'story');
           const regionBox = make('div', 'journeyRegion');
-          regionBox.append(make('strong', '', region.nameKo));
+          const regionHead = make('div', 'journeyRegionHead');
+          regionHead.append(make('strong', 'journeyRegionKo', region.nameKo));
+          if (region.name) regionHead.append(make('span', 'journeyRegionZh', region.name));
+          regionBox.append(regionHead);
           if (!section.sequence.length) {
             regionBox.append(make('p', '', `의뢰 준비 중 · 스테이지 ${section.plannedStageCount}판 기획`));
             article.append(regionBox); continue;
