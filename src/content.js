@@ -9,7 +9,10 @@ const WORDS={
   '距離':{p:'ㄐㄩˋ ㄌㄧˊ',k:'거리, 떨어진 정도',ex:'這個標記跟鐘樓的距離比較遠。',rule:'이 판에서는 종탑과 현재 지점 사이가 몇 칸 떨어져 있는지 보여줘. 숫자를 맞히는 문제가 아니라 각 위치의 관계를 비교하는 정보야.'},
   '範圍':{p:'ㄈㄢˋ ㄨㄟˊ',k:'범위, 영향을 미치는 영역',ex:'這裡還在鐘聲的範圍內。',rule:'종소리가 실제로 들리는 모든 칸이 범위야. 클리어 전에는 전체 모양을 보여주지 않아.'},
   '路線':{p:'ㄌㄨˋ ㄒㄧㄢˋ',k:'노선, 경로',ex:'兩條路線都可以到北口。',rule:'출발점에서 목적지까지 이어지는 전체 길을 말해. 이 판에서는 서쪽 길과 동쪽 길 어느 쪽을 택해도 돼.'},
-  '經由':{p:'ㄐㄧㄥ ㄧㄡˊ',k:'경유하다, 거쳐 가다',ex:'我們經由哨站，再到北口。',rule:'목적지로 가는 도중 어떤 장소를 실제 여정에 포함하는 거야. 通過처럼 그 장소를 반대편까지 가로질러야 하는 것은 아니야.'}
+  '經由':{p:'ㄐㄧㄥ ㄧㄡˊ',k:'경유하다, 거쳐 가다',ex:'我們經由哨站，再到北口。',rule:'목적지로 가는 도중 어떤 장소를 실제 여정에 포함하는 거야. 通過처럼 그 장소를 반대편까지 가로질러야 하는 것은 아니야.'},
+  '位置':{p:'ㄨㄟˋ ㄓˋ',k:'위치, 자리',ex:'先看看貨車現在的位置。',rule:'대상이 지금 어디에 놓여 있고 어느 방향을 향하는지 읽는 말이야. 좌표를 외우는 문제가 아니야.'},
+  '周圍':{p:'ㄓㄡ ㄨㄟˊ',k:'주위, 주변',ex:'貨車周圍有箱子和石頭。',rule:'한 칸만 정답으로 고르는 말이 아니라 대상 가까이에 놓인 여러 것들을 함께 보는 관점이야.'},
+  '障礙':{p:'ㄓㄤˋ ㄞˋ',k:'장애물, 방해가 되는 것',ex:'石頭成了貨車前面的障礙。',rule:'주변에 있다고 모두 장애물은 아니야. 실제 이동을 막는 관계인지 확인해야 해.'}
 };
 
 const STAGES=[
@@ -19,9 +22,10 @@ const STAGES=[
   {id:'stage-3',title:'通過・到達',subtitle:'폐허를 지나서',grid:['#..E#','#.#.#','#R#.#','#R#.#','#R#.#','#.#.#','#..S#'],goal:'通過遺跡，然後到達出口。',words:['通過','到達'],win:['crossed','at_exit'],ruin:{portals:[[1,1],[5,1]]},story:'지나가는 것과 도착하는 것.\n비슷해 보여도 길 위에서는 전혀 다른 일이었다.'},
   {id:'stage-4',title:'避開',subtitle:'위험한 길',grid:['##E##','.....','.X.X.','..X..','.X.X.','.....','##S##'],goal:'避開危險，到達出口。',words:['避開','到達'],win:['at_exit'],story:'목적지만큼, 그곳까지 가는 길도 중요했다.'},
   {id:'stage-5',title:'走出森林',subtitle:'숲을 빠져나가라',grid:['....E','.#.#.','.#..W','.##X.','.RRR.','.K##.','S....'],goal:'接近石碑，通過遺跡，到達出口。',rule:'遠離野狼，避開危險。',words:['接近','遠離','通過','到達','避開'],win:['stone','crossed','at_exit'],ruin:{portals:[[4,0],[4,4]]},wolf:{initial:3,cycle:[[2,2],[2,2],[2,3],[2,4],[2,4],[2,3]],radius:1},story:'少年離開了熟悉的村子。\n他第一次發現，這個世界的「話」似乎有一種奇怪的力量。\n\n「救命！」'},
-  {id:'gate-stage-1',title:'進入・退出',subtitle:'문 안쪽',kicker:'1장 · 길목 1/7',grid:['#####','#IIL#','#I#I#','#III#','##D##','.....','..S..'],goal:'進入關口，看路標，再退出。',rule:'길표지는 가까이 가서 살펴봐야 해.',words:['進入','退出'],win:['entered','inspected','exited'],enterExit:{insideChars:['I'],boundary:'D',outsideChars:['.','S'],inspect:'L'},story:'관문 안쪽의 오래된 길표지를 확인했다.'},
+  {id:'gate-stage-1',title:'進入・退出',subtitle:'문 안쪽',kicker:'1장 · 길목 1/7',grid:['#####','#IIL#','#I#I#','#III#','##D##','.....','..S..'],goal:'進入關口，看路標，再退出。',rule:'길표지는 가까이 가서 살펴봐야 해.',words:['進入','退出'],win:['entered','inspected','exited'],enterExit:{insideChars:['I'],boundary:'D',outsideChars:['.','S'],inspect:'L'},contextActions:[{target:'L',label:'길표지 살펴보기',action:'inspect'}],story:'관문 안쪽의 오래된 길표지를 확인했다.'},
   {id:'gate-stage-2',title:'距離・範圍',subtitle:'종소리가 닿는 곳',kicker:'1장 · 길목 2/7',grid:['#####','#.B.#','..P..','.P#P.','.P.P.','.....','..S..'],goal:'找出鐘聲範圍內，距離鐘樓最遠的標記點。',rule:'표식에 서면 종탑까지의 距離와 종소리가 들리는지 확인할 수 있어.',words:['距離','範圍'],win:['range_boundary'],rangeSource:{source:'B',radius:3,pointChar:'P',revealOnFirstClear:true},story:'종소리가 닿는 가장자리를 찾았다.'},
-  {id:'gate-stage-3',title:'路線・經由',subtitle:'두 갈래 길',kicker:'1장 · 길목 3/7',grid:['##E##','#...#','#.#.#','A.#.B','#.#.#','#...#','##S##'],goal:'選一條路線，經由一個哨站，到達北口。',rule:'서쪽과 동쪽 어느 路線도 괜찮아. 가는 길에 초소 한 곳을 실제로 들러야 해.',words:['路線','經由'],win:['via','at_exit'],route:{routes:[{id:'west',nameZh:'西路',nameKo:'서쪽 길',cells:[[5,1],[4,1],[3,1],[2,1],[1,1]]},{id:'east',nameZh:'東路',nameKo:'동쪽 길',cells:[[5,3],[4,3],[3,3],[2,3],[1,3]]}],waypoints:{A:{id:'west-post',nameZh:'西哨站',nameKo:'서쪽 초소'},B:{id:'east-post',nameZh:'東哨站',nameKo:'동쪽 초소'}}},story:'어느 길을 택하든, 필요한 곳을 거쳐 목적지에 닿을 수 있었다.'}
+  {id:'gate-stage-3',title:'路線・經由',subtitle:'두 갈래 길',kicker:'1장 · 길목 3/7',grid:['##E##','#...#','#.#.#','A.#.B','#.#.#','#...#','##S##'],goal:'選一條路線，經由一個哨站，到達北口。',rule:'서쪽과 동쪽 어느 路線도 괜찮아. 가는 길에 초소 한 곳을 실제로 들러야 해.',words:['路線','經由'],win:['via','at_exit'],route:{routes:[{id:'west',nameZh:'西路',nameKo:'서쪽 길',cells:[[5,1],[4,1],[3,1],[2,1],[1,1]]},{id:'east',nameZh:'東路',nameKo:'동쪽 길',cells:[[5,3],[4,3],[3,3],[2,3],[1,3]]}],waypoints:{A:{id:'west-post',nameZh:'西哨站',nameKo:'서쪽 초소'},B:{id:'east-post',nameZh:'東哨站',nameKo:'동쪽 초소'}}},story:'어느 길을 택하든, 필요한 곳을 거쳐 목적지에 닿을 수 있었다.'},
+  {id:'gate-stage-4',title:'位置・周圍・障礙',subtitle:'바퀴가 걸린 자리',kicker:'1장 · 길목 4/7',grid:['.....','.....','..O..','.QCQ.','.....','.....','..S..'],goal:'看看貨車的位置和周圍，找出障礙。',goalAfter:'移開障礙。',rule:'어느 것부터 봐도 괜찮아. 가까이 가서 실제 공간 관계를 확인해.',words:['位置','周圍','障礙'],win:['obstacle_cleared'],investigation:{cartChar:'C',obstacleChar:'O',nearbyChars:['Q']},contextActions:[{target:'C',label:'수레 살펴보기',action:'g4-inspect-cart'},{target:'Q',label:'짐상자 살펴보기',action:'g4-inspect-nearby'},{target:'O',label:'돌 살펴보기',action:'g4-inspect-obstacle',unless:'obstacleIdentified'},{target:'O',label:'돌 치우기',action:'g4-clear-obstacle',requires:'obstacleIdentified',unless:'obstacleCleared'}],story:'수레를 막고 있던 돌을 찾아 치웠다.'}
 ];
 
 const WORLD={
@@ -31,7 +35,7 @@ const WORLD={
   originNameKo:'고향 마을',
   originIcon:'region-origin',
   regions:[
-    {id:'gate-town',name:'關口鎮',nameKo:'길목',icon:'region-gate-town',subtitle:'길을 읽는 마을',status:'available',note:'경로·범위·순서·위치를 다룬다.',targets:['進入','退出','距離','範圍','路線','經由']},
+    {id:'gate-town',name:'關口鎮',nameKo:'길목',icon:'region-gate-town',subtitle:'길을 읽는 마을',status:'available',note:'경로·범위·순서·위치를 다룬다.',targets:['進入','退出','距離','範圍','路線','經由','位置','周圍','障礙']},
     {id:'workshop-town',name:'工坊村',nameKo:'장인골',icon:'region-workshop-town',subtitle:'상태를 바꾸는 마을',status:'available',note:'장치의 상태와 조건을 조작한다.',targets:['改變','保持','增加','減少','條件','允許']},
     {id:'market-town',name:'市集鎮',nameKo:'장터',icon:'region-market-town',subtitle:'자원을 고르는 마을',status:'available',note:'교환·선택·부족·가치를 다룬다.',targets:['需求','足夠','缺少','交換','價值','費用']},
     {id:'border-village',name:'邊境村',nameKo:'끝마을',icon:'region-border-village',subtitle:'위험과 손실을 다루는 마을',status:'recommended',recommendedAfter:'gate-town',note:'바로 갈 수 있지만 길목을 먼저 여행하면 길을 읽기 쉽다.',targets:['危機','風險','警告','損失']},
