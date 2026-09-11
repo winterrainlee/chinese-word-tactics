@@ -65,6 +65,8 @@ try:
         for stage_id, selector, asset, pseudo in stage_checks:
             page.evaluate('(id)=>TacticalGame.playStage(id,{mode:"replay"})', stage_id)
             background_asset(page, selector, asset, pseudo)
+            if stage_id == 'gate-stage-1':
+                background_asset(page, '.cell.checkpoint', 'world-gate-open.svg', '::before')
             page.screenshot(path=str(OUT / f'{stage_id}-375.png'))
 
         page.evaluate('TacticalGame.playStage("gate-stage-4",{mode:"replay"})')
@@ -79,7 +81,10 @@ try:
         assert page.locator('.investigation-rock-mark').count() == 0
 
         page.evaluate('TacticalGame.playStage("gate-stage-5",{mode:"replay"})')
+        background_asset(page, '.movable-door-mark', 'gate-closed.png')
+        page.evaluate('state.doorOpen=true;render()')
         background_asset(page, '.movable-door-mark', 'gate.png')
+        page.evaluate('state.doorOpen=false;render()')
         assert page.locator('#grid .cell').nth(12).locator('.movable-cart-mark').count() == 1
         page.evaluate('state.movablePos=[3,2];render()')
         assert page.locator('#grid .cell').nth(12).locator('.movable-cart-mark').count() == 0
@@ -97,6 +102,7 @@ try:
         page.screenshot(path=str(OUT / 'gate-g6-follower-375.png'))
 
         page.evaluate('TacticalGame.playStage("gate-stage-7",{mode:"replay"})')
+        background_asset(page, '.g7-goal', 'world-exit.svg', '::before')
         assert page.locator('.follower-chain-mark').count() == 2
         assert page.locator('.follower-chain-badge').all_text_contents() == ['1', '2']
         assert page.locator('.route-waypoint-mark').count() == 2

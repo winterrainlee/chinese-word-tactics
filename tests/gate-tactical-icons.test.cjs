@@ -12,7 +12,7 @@ const icons = globalThis.GATE_TACTICAL_ICONS;
 
 test('gate-town tactical asset mapping is complete, relative, optimized, and transparent', () => {
   assert.deepEqual(Object.keys(icons).sort(), [
-    'bellTower', 'cart', 'crate', 'gate', 'narrowPass', 'obstacle', 'outpost', 'signpost'
+    'bellTower', 'cart', 'crate', 'gate', 'gateClosed', 'narrowPass', 'obstacle', 'outpost', 'signpost'
   ]);
   for (const asset of Object.values(icons)) {
     assert.match(asset, /^\.\/icons\/tactical\/gate-town\/[a-z-]+\.png$/);
@@ -26,6 +26,7 @@ test('gate-town tactical asset mapping is complete, relative, optimized, and tra
 
 test('G1-G4 static object marks use the shared tactical assets', () => {
   const css = read('src/icons-runtime.css');
+  assert.match(css, /\.cell\.checkpoint::before[\s\S]*world-gate-open\.svg/);
   assert.match(css, /\.cell\.sign::before[\s\S]*var\(--gate-icon-signpost\)/);
   assert.match(css, /\.range-bell[\s\S]*var\(--gate-icon-bell-tower\)/);
   assert.match(css, /\.route-waypoint-mark[\s\S]*var\(--gate-icon-outpost\)/);
@@ -58,6 +59,8 @@ test('G7 carts follow followerPositions, preserve number badges, and clear the r
   assert.match(chain, /positions\(\)\.forEach\(\(pos, index\)/);
   assert.match(chain, /badge\.textContent = String\(index \+ 1\)/);
   assert.match(g7, /if \(!state\.g7ObstacleCleared && !cell\.querySelector\('\.g7-obstacle-mark'\)\)/);
+  assert.match(g7, /classList\.add\('exit', 'g7-goal'\)/);
+  assert.match(read('src/icons-runtime.css'), /\.cell\.g7-goal::after[\s\S]*content: "北路"/);
   assert.match(read('src/icons-runtime.css'), /\.g7-obstacle-mark[\s\S]*var\(--gate-icon-obstacle\)/);
 });
 
@@ -70,4 +73,12 @@ test('G3 and G7 reuse the same route outpost renderer and asset', () => {
   for (const stage of stages) assert.deepEqual(Object.keys(stage.route.waypoints).sort(), ['A', 'B']);
   assert.match(read('src/route-runtime.js'), /mark\.className = 'route-waypoint-mark'/);
   assert.equal(icons.outpost, './icons/tactical/gate-town/outpost.png');
+});
+
+test('G5 uses distinct supplied-art variants for closed and open gate states', () => {
+  const css = read('src/icons-runtime.css');
+  assert.equal(icons.gate, './icons/tactical/gate-town/gate.png');
+  assert.equal(icons.gateClosed, './icons/tactical/gate-town/gate-closed.png');
+  assert.match(css, /\.movable-door-mark[\s\S]*var\(--gate-icon-gate-closed\)/);
+  assert.match(css, /\.cell\.movable-door-open \.movable-door-mark[\s\S]*var\(--gate-icon-gate\)/);
 });

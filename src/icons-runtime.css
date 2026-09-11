@@ -219,6 +219,7 @@
 .route-waypoint-mark,
 .movable-door-mark,
 .follower-narrow-mark,
+.cell.checkpoint::before,
 .cell.sign::before {
   position: absolute;
   z-index: 2;
@@ -282,7 +283,7 @@
 .movable-door-mark {
   width: 88%;
   height: 88%;
-  background-image: var(--gate-icon-gate);
+  background-image: var(--gate-icon-gate-closed);
 }
 
 .movable-door-mark::after {
@@ -305,8 +306,9 @@
 }
 
 .cell.movable-door-open .movable-door-mark {
-  opacity: .58;
-  transform: rotate(-10deg);
+  background-image: var(--gate-icon-gate);
+  opacity: 1;
+  transform: none;
 }
 
 .cell.movable-door-open .movable-door-mark::after {
@@ -341,6 +343,19 @@
   left: 13%;
   top: 8%;
   background-image: var(--gate-icon-signpost);
+}
+
+.cell.checkpoint::before {
+  content: "";
+  width: 86%;
+  height: 88%;
+  left: 7%;
+  top: 6%;
+  background-image: url("../icons/world/world-gate-open.svg");
+}
+
+.cell.g7-goal::after {
+  content: "北路";
 }
 
 .cell.sign.active::before {

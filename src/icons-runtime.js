@@ -6,6 +6,7 @@
     bellTower: './icons/tactical/gate-town/bell-tower.png',
     outpost: './icons/tactical/gate-town/outpost.png',
     gate: './icons/tactical/gate-town/gate.png',
+    gateClosed: './icons/tactical/gate-town/gate-closed.png',
     signpost: './icons/tactical/gate-town/signpost.png',
     narrowPass: './icons/tactical/gate-town/narrow-pass.png'
   });
@@ -20,6 +21,7 @@
     bellTower: '--gate-icon-bell-tower',
     outpost: '--gate-icon-outpost',
     gate: '--gate-icon-gate',
+    gateClosed: '--gate-icon-gate-closed',
     signpost: '--gate-icon-signpost',
     narrowPass: '--gate-icon-narrow-pass'
   };

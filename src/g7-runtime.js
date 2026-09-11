@@ -41,9 +41,16 @@
   const baseRender = render;
   render = function g7Render() {
     baseRender();
-    const st = current(), cfg = cfgFor(st), pos = obstaclePos(st);
-    if (!cfg || !pos) return;
-    const cols = st.grid[0].length, cell = gridEl.children[pos[0] * cols + pos[1]];
+    const st = current(), cfg = cfgFor(st);
+    if (!cfg) return;
+    const cols = st.grid[0].length;
+    const goalChar = st.followerChain?.leaderGoalChar || 'N';
+    const goalPos = locate(st.grid, goalChar);
+    if (goalPos) gridEl.children[goalPos[0] * cols + goalPos[1]]?.classList.add('exit', 'g7-goal');
+
+    const pos = obstaclePos(st);
+    if (!pos) return;
+    const cell = gridEl.children[pos[0] * cols + pos[1]];
     if (!cell) return;
     cell.classList.add(state.g7ObstacleCleared ? 'g7-obstacle-cleared' : 'g7-obstacle');
     if (!state.g7ObstacleCleared && !cell.querySelector('.g7-obstacle-mark')) {
