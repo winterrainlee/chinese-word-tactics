@@ -18,6 +18,7 @@ test('content.js and workshop-content.js share classic-script lexical state', ()
   assert.equal(snapshot.stage.subtitle, '멈춘 물레방아');
   assert.deepEqual(Array.from(snapshot.stage.words), ['改變', '保持']);
   assert.equal(snapshot.stage.workshop.components[0].initial, 0);
+  assert.equal(snapshot.stage.workshop.components[0].target, 2);
   assert.equal(snapshot.stage.workshop.components[1].trackUntouched, true);
   assert.match(snapshot.changeWord.k, /바꾸다/);
   assert.match(snapshot.keepWord.rule, /건드리지/);
