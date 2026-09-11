@@ -12,6 +12,24 @@
       k: '유지하다, 그대로 두다',
       ex: '右邊保持原樣。',
       rule: '이 판에서는 오른쪽 수문을 처음 상태 그대로 두어야 해. 바꿨다가 되돌리는 것과 처음부터 건드리지 않는 것을 구분해.'
+    },
+    '增加': {
+      p: 'ㄗㄥ ㄐㄧㄚ',
+      k: '늘리다, 증가시키다',
+      ex: '風量增加了一點。',
+      rule: '이 판에서는 바람의 세기를 실제로 한 단계 높이면 增加가 보여.'
+    },
+    '減少': {
+      p: 'ㄐㄧㄢˇ ㄕㄠˇ',
+      k: '줄이다, 감소시키다',
+      ex: '火力減少了一點。',
+      rule: '이 판에서는 너무 센 불을 실제로 한 단계 낮추면 減少가 보여.'
+    },
+    '調整': {
+      p: 'ㄊㄧㄠˊ ㄓㄥˇ',
+      k: '조절하다, 맞추다',
+      ex: '把火力和風量調整好。',
+      rule: '이 판에서는 무조건 크게 만드는 것이 아니라 불과 바람을 목표 상태에 함께 맞췄을 때 調整이 완성돼.'
     }
   });
 
@@ -27,6 +45,8 @@
     win: [],
     story: '필요한 곳만 조금씩 바꾸자 멈췄던 물레방아가 다시 돌기 시작했다.',
     workshop: {
+      scene: 'waterwheel',
+      boardLabel: '물레방아 수문 조절 장치',
       startStatus: '左邊的水還太少，右邊不用動。 왼쪽 수문을 조금씩 움직여 흐름을 보고, 오른쪽은 그대로 둬.',
       components: [
         {
@@ -51,7 +71,108 @@
         { component: 'mainGate', eq: 2 },
         { component: 'balanceGate', eq: 1 },
         { untouched: 'balanceGate', eq: true }
-      ]
+      ],
+      goalMarks: [
+        { word: '改變', conditions: [{ component: 'mainGate', eq: 2 }] },
+        { word: '保持', afterAction: true, conditions: [{ component: 'balanceGate', eq: 1 }, { untouched: 'balanceGate', eq: true }] }
+      ],
+      feedback: {
+        solved: { text: '一個改變了，一個保持原樣。水車開始轉了。 하나는 바꾸고, 하나는 그대로 뒀어. 물레방아가 돌기 시작했어.', type: 'good' },
+        actions: {
+          'balanceGate:step-up': { text: '這邊不用改變，要保持原樣。 이쪽은 바꾸지 않고 그대로 두어야 해. 되돌리면 다시 처음 상태로 돌아갈 수 있어.', type: 'info' },
+          'balanceGate:step-down': { text: '這邊不用改變，要保持原樣。 이쪽은 바꾸지 않고 그대로 두어야 해. 되돌리면 다시 처음 상태로 돌아갈 수 있어.', type: 'info' },
+          'mainGate:step-up': {
+            values: {
+              '1': { text: '水量增加了，但還不夠。 물은 늘었지만 물레방아를 돌리기엔 아직 부족해.', type: 'info' }
+            }
+          },
+          'mainGate:step-down': {
+            values: {
+              '0': { text: '左邊的水還太少。 왼쪽 물이 아직 너무 적어.', type: 'info' },
+              '1': { text: '水量減少了，又不夠了。 물이 줄어서 다시 부족해졌어.', type: 'info' }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  STAGES.push({
+    id: 'workshop-stage-2',
+    title: '增加・減少・調整',
+    subtitle: '불씨 맞추기',
+    kicker: '1장 · 장인골 2/7',
+    grid: ['S'],
+    goal: '減少火力，增加風量，調整到剛剛好。',
+    rule: '火太大了。風太小了。',
+    words: ['增加', '減少', '調整'],
+    win: [],
+    story: '불과 바람을 각각 알맞게 맞추자 화덕이 안정되었다.',
+    workshop: {
+      scene: 'forge',
+      boardLabel: '화덕과 풀무 조절 장치',
+      startStatus: '火太大了，風太小了。 불은 너무 세고 바람은 너무 약해. 하나씩 바꾼 뒤 두 상태를 같이 봐.',
+      components: [
+        {
+          id: 'fire', labelZh: '火力', labelKo: '불의 세기', kind: 'level', initial: 2,
+          target: 1, visual: 'fire', allowLimitPress: true
+        },
+        {
+          id: 'air', labelZh: '風量', labelKo: '바람의 세기', kind: 'level', initial: 0,
+          target: 1, visual: 'bellows', allowLimitPress: true
+        }
+      ],
+      derived: [
+        {
+          id: 'balanced', type: 'all',
+          conditions: [
+            { component: 'fire', eq: 1 },
+            { component: 'air', eq: 1 }
+          ]
+        }
+      ],
+      predicates: [
+        { component: 'fire', eq: 1 },
+        { component: 'air', eq: 1 }
+      ],
+      goalMarks: [
+        { word: '減少', conditions: [{ component: 'fire', eq: 1 }] },
+        { word: '增加', conditions: [{ component: 'air', eq: 1 }] },
+        { word: '調整', conditions: [{ derived: 'balanced', eq: true }] }
+      ],
+      feedback: {
+        solved: { text: '調整好了。火和風現在都剛剛好。 조절이 끝났어. 불과 바람이 이제 둘 다 딱 맞아.', type: 'good' },
+        limit: {
+          'fire:step-up': { text: '火已經太大了，不能再增加。 불은 이미 너무 세. 더 늘릴 필요 없어.', type: 'info' },
+          'air:step-down': { text: '風已經太小了，不能再減少。 바람은 이미 너무 약해. 더 줄일 필요 없어.', type: 'info' }
+        },
+        actions: {
+          'fire:step-down': {
+            values: {
+              '1': { text: '火力減少了。現在火剛剛好。 불의 세기를 줄였어. 지금 불은 알맞아.', type: 'good' },
+              '0': { text: '火力減少太多了。 불을 너무 많이 줄였어.', type: 'info' }
+            }
+          },
+          'fire:step-up': {
+            values: {
+              '1': { text: '火力增加了，回到剛剛好的位置。 불을 늘려서 다시 알맞게 맞췄어.', type: 'good' },
+              '2': { text: '火力又太大了。 불이 다시 너무 세졌어.', type: 'info' }
+            }
+          },
+          'air:step-up': {
+            values: {
+              '1': { text: '風量增加了。現在風剛剛好。 바람을 늘렸어. 지금 바람은 알맞아.', type: 'good' },
+              '2': { text: '風量增加太多了。 바람을 너무 많이 늘렸어.', type: 'info' }
+            }
+          },
+          'air:step-down': {
+            values: {
+              '0': { text: '風量又太小了。 바람이 다시 너무 약해졌어.', type: 'info' },
+              '1': { text: '風量減少了，回到剛剛好的位置。 바람을 줄여서 다시 알맞게 맞췄어.', type: 'good' }
+            }
+          }
+        }
+      }
     }
   });
 })();
