@@ -5,7 +5,7 @@
       p: 'ㄍㄞˇ ㄅㄧㄢˋ',
       k: '바꾸다, 변화시키다',
       ex: '水量改變了。',
-      rule: '이 판에서는 왼쪽 수문의 상태를 실제로 바꾸면 改變이 성립해.'
+      rule: '이 판에서는 왼쪽 수문의 상태를 실제로 바꾸면 改變이 성립해. 한 번 바꾼 뒤에도 결과를 보고 더 조절할 수 있어.'
     },
     '保持': {
       p: 'ㄅㄠˇ ㄔˊ',
@@ -22,16 +22,16 @@
     kicker: '1장 · 장인골 1/7',
     grid: ['S'],
     goal: '改變左邊的水門，右邊保持原樣。',
-    rule: '左邊太低了。右邊不用動。',
+    rule: '左邊的水還太少。右邊不用動。',
     words: ['改變', '保持'],
     win: [],
-    story: '필요한 곳만 손대자 멈췄던 물레방아가 다시 돌기 시작했다.',
+    story: '필요한 곳만 조금씩 바꾸자 멈췄던 물레방아가 다시 돌기 시작했다.',
     workshop: {
-      startStatus: '先別急著修。左邊太低了，右邊不用動。 먼저 상태를 보고 필요한 곳만 바꿔봐.',
+      startStatus: '左邊的水還太少，右邊不用動。 왼쪽 수문을 조금씩 움직여 흐름을 보고, 오른쪽은 그대로 둬.',
       components: [
         {
           id: 'mainGate', labelZh: '左水門', labelKo: '왼쪽 수문', kind: 'level', initial: 0,
-          target: 1, visual: 'gate'
+          target: 2, visual: 'gate'
         },
         {
           id: 'balanceGate', labelZh: '右水門', labelKo: '오른쪽 수문', kind: 'level', initial: 1,
@@ -42,13 +42,13 @@
         {
           id: 'wheelRunning', type: 'all',
           conditions: [
-            { component: 'mainGate', eq: 1 },
+            { component: 'mainGate', eq: 2 },
             { component: 'balanceGate', eq: 1 }
           ]
         }
       ],
       predicates: [
-        { component: 'mainGate', eq: 1 },
+        { component: 'mainGate', eq: 2 },
         { component: 'balanceGate', eq: 1 },
         { untouched: 'balanceGate', eq: true }
       ]
