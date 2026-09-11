@@ -265,10 +265,12 @@
   function feedbackFor(stage, componentId, actionType, value, solved) {
     const feedback = stage.workshop?.feedback || {};
     if (solved && feedback.solved) return feedback.solved;
+    const actionEntry = resolvedFeedback(feedback.actions?.[`${componentId}:${actionType}`], value);
+    const component = componentById(stage.workshop, componentId);
+    if (component?.trackUntouched && actionEntry) return actionEntry;
     const stateEntry = stateFeedback(feedback, state.workshop);
     if (stateEntry) return stateEntry;
-    const entry = resolvedFeedback(feedback.actions?.[`${componentId}:${actionType}`], value);
-    if (entry) return entry;
+    if (actionEntry) return actionEntry;
     return { text: '상태가 달라졌어. 다른 장치도 함께 확인해봐.', type: 'info' };
   }
 
