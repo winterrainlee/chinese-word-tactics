@@ -32,6 +32,7 @@
 .journeyTimeline{list-style:none;padding:0;margin:0;display:grid;gap:8px}
 .journeyNode{display:grid;grid-template-columns:1fr;gap:5px;text-align:left;width:100%;min-height:88px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--paper)}
 .journeyNodeTitle{font-size:16px;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere}
+.journeyNodeTerms{font-size:13px;line-height:1.35;color:#62594d;letter-spacing:.02em;word-break:keep-all}
 .journeyType,.journeyNodeState{font-size:12px;color:var(--muted)}
 .journeyNode[data-state="complete"] .journeyNodeState{color:var(--accent)}
 .journeyNode[data-state="locked"]{background:var(--bg);border-style:dashed;color:var(--muted)}

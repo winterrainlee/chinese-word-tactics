@@ -111,6 +111,7 @@ try:
         page.screenshot(path=str(OUT / 'gate-g6-follower-375.png'))
 
         page.evaluate('TacticalGame.playStage("gate-stage-7",{mode:"replay"})')
+        assert page.locator('#stageTitle').inner_text() == '북쪽으로 가는 행렬'
         background_asset(page, '.g7-goal', 'world-exit.svg', '::before')
         assert page.locator('.follower-chain-mark').count() == 2
         assert page.locator('.follower-chain-badge').all_text_contents() == ['1', '2']

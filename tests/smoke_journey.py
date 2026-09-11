@@ -170,6 +170,10 @@ try:
         passed('fresh story, translation reset, previous beat and refresh resume')
         page.locator('#storyMenu').click(); page.locator('#flowJourney').click(); assert_view(page,'journey')
         assert page.locator('[data-node-id="stage:stage-1"]').is_disabled()
+        first_stage = page.locator('[data-node-id="stage:stage-0"]')
+        assert first_stage.locator('.journeyNodeTitle').inner_text() == '마을 밖으로'
+        assert first_stage.locator('.journeyNodeTerms').inner_text() == '出發'
+        page.screenshot(path=str(OUT/'journey-titles-375.png'))
         page.locator('[data-journey-filter="stage"]').click()
         assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes().filter(node => node.type === "stage").length')
         page.locator('[data-journey-filter="story"]').click()
@@ -231,7 +235,7 @@ try:
         page.locator('#sheet button').click()
         for idx in [18,17,22,27]: page.locator('#grid .cell').nth(idx).click()
         page.locator('#flowNext').wait_for(state='visible'); assert page.evaluate('state.exited')
-        page.locator('#flowNext').click(); assert page.locator('#storyTitle').inner_text()=='안팎은 잘 보네'
+        page.locator('#flowNext').click(); assert page.locator('#storyTitle').inner_text()=='관문에 울린 종소리'
         finish_story(page); assert_view(page,'world')
         assert page.evaluate('GameFlow.progress().completedStages.length')==7
         assert page.evaluate('GameFlow.progress().seenStories.length')==5

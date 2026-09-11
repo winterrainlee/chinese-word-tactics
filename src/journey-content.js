@@ -45,7 +45,7 @@
       ]
     },
     'gate-after-entry': {
-      id: 'gate-after-entry', chapterId: 'chapter-1-three-roads', titleKo: '안팎은 잘 보네',
+      id: 'gate-after-entry', chapterId: 'chapter-1-three-roads', titleKo: '관문에 울린 종소리',
       background: 'gate', placeZh: '關口鎮', placeKo: '길목',
       beats: [
         { speaker: 'gatekeeper', zh: '回來了？裡面的路標怎麼樣？', ko: '돌아왔네. 안쪽 길표지는 어땠어?' },
@@ -56,7 +56,7 @@
       ]
     },
     'gate-bell-task': {
-      id: 'gate-bell-task', chapterId: 'chapter-1-three-roads', titleKo: '종소리를 확인해 줘',
+      id: 'gate-bell-task', chapterId: 'chapter-1-three-roads', titleKo: '종소리는 어디까지 들릴까',
       background: 'gate', placeZh: '關口鎮', placeKo: '길목',
       beats: [
         { speaker: 'gatekeeper', zh: '北邊新開的路上，鐘聲到底能傳到哪裡，我們還不確定。', ko: '북쪽에 새로 난 길에서 종소리가 어디까지 닿는지 아직 확실하지 않아.' },
@@ -76,7 +76,7 @@
       ]
     },
     'gate-route-task': {
-      id: 'gate-route-task', chapterId: 'chapter-1-three-roads', titleKo: '두 길 중 하나로',
+      id: 'gate-route-task', chapterId: 'chapter-1-three-roads', titleKo: '초소를 거쳐 북쪽으로',
       background: 'gate', placeZh: '關口鎮', placeKo: '길목',
       beats: [
         { speaker: 'gatekeeper', zh: '往北口的路分成兩條，西路和東路最後都能到達北口。', ko: '북쪽 출구로 가는 길은 둘로 갈라져 있어. 서쪽 길과 동쪽 길 모두 결국 북쪽 출구로 이어지지.' },
@@ -106,7 +106,7 @@
       ]
     },
     'gate-after-obstacle': {
-      id: 'gate-after-obstacle', chapterId: 'chapter-1-three-roads', titleKo: '다시 움직이는 수레',
+      id: 'gate-after-obstacle', chapterId: 'chapter-1-three-roads', titleKo: '다시 길을 나선 수레',
       background: 'gate', placeZh: '北口外', placeKo: '북쪽 출구 밖',
       beats: [
         { speaker: 'driver', zh: '原來是那塊石頭卡住前輪。難怪一直推不動。', ko: '앞바퀴를 막은 게 그 돌이었구나. 어쩐지 아무리 밀어도 안 되더라.' },
@@ -139,7 +139,7 @@
       ]
     },
     'gate-after-leading': {
-      id: 'gate-after-leading', chapterId: 'chapter-1-three-roads', titleKo: '앞에서 이끄는 길',
+      id: 'gate-after-leading', chapterId: 'chapter-1-three-roads', titleKo: '길잡이가 된 소년',
       background: 'gate', placeZh: '北路', placeKo: '북쪽 길',
       beats: [
         { speaker: 'narrator', zh: '少年走在前面，貨車穩穩地跟在後方，最後一起抵達了北邊的路口。', ko: '소년이 앞장서자 수레는 그 뒤를 차근차근 따라왔고, 마침내 함께 북쪽 갈림길에 도착했다.' },

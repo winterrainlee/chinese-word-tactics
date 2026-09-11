@@ -15,7 +15,7 @@
   };
 
   J.STORIES['gate-after-convoy'] ||= {
-    id: 'gate-after-convoy', chapterId: 'chapter-1-three-roads', titleKo: '북쪽 길에 선 행렬',
+    id: 'gate-after-convoy', chapterId: 'chapter-1-three-roads', titleKo: '북쪽 길에 닿은 행렬',
     background: 'gate', placeZh: '北路', placeKo: '북쪽 길',
     beats: [
       { speaker: 'narrator', zh: '少年走在車隊前方，帶著兩輛貨車經由哨站，平安抵達了北路。', ko: '소년은 행렬 앞에 서서 수레 두 대를 이끌고 초소를 거쳐 북쪽 길에 무사히 도착했다.' },

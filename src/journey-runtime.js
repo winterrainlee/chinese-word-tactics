@@ -58,13 +58,15 @@
       const id = JourneyProgress.nodeId(node);
       const content = node.type === 'story' ? JourneyContent.STORIES[node.id] : STAGES.find(s => s.id === node.id);
       if (!content) continue;
-      const title = node.type === 'story' ? content.titleKo : `${content.title} · ${content.subtitle}`;
+      const title = node.type === 'story' ? content.titleKo : content.subtitle;
       const button = make('button', 'journeyNode');
       button.type = 'button'; button.disabled = !open; button.dataset.nodeId = id;
       button.dataset.state = done ? 'complete' : open ? 'available' : 'locked';
-      button.append(make('span', 'journeyType', node.type === 'story' ? '이야기' : '스테이지'),
-        make('strong', 'journeyNodeTitle', open ? title : '???'),
-        make('span', 'journeyNodeState', done ? '완료 · 다시 보기' : open ? (node.type === 'stage' ? '열림 · 연습하기' : '새 이야기') : '아직 잠김'));
+      const labels = [make('span', 'journeyType', node.type === 'story' ? '이야기' : '스테이지'),
+        make('strong', 'journeyNodeTitle', open ? title : '???')];
+      if (open && node.type === 'stage') labels.push(make('span', 'journeyNodeTerms', content.title.replaceAll('・', ' · ')));
+      labels.push(make('span', 'journeyNodeState', done ? '완료 · 다시 보기' : open ? (node.type === 'stage' ? '열림 · 연습하기' : '새 이야기') : '아직 잠김'));
+      button.append(...labels);
       if (done && node.type === 'stage') button.lastChild.textContent = '완료 · 다시 플레이';
       button.onclick = () => node.type === 'stage' ? GameFlow.playStage(node.id, { mode: 'replay', returnTo: 'journey' }) :
         GameFlow.playStory(node.id, { mode: done ? 'replay' : 'first-play', returnTo: 'journey' });

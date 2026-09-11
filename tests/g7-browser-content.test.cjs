@@ -14,7 +14,7 @@ test('content.js and g7-content.js share classic-script lexical state', () => {
     stage: STAGES.find(stage => stage.id === 'gate-stage-7'),
     gateTargets: WORLD.regions.find(region => region.id === 'gate-town').targets
   })`, context);
-  assert.equal(snapshot.stage.subtitle, '해 지기 전');
+  assert.equal(snapshot.stage.subtitle, '북쪽으로 가는 행렬');
   assert.deepEqual(Array.from(snapshot.stage.followerChain.chars), ['C','c']);
   assert.ok(Array.from(snapshot.gateTargets).includes('跟隨'));
   assert.ok(Array.from(snapshot.gateTargets).includes('帶領'));
