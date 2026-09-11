@@ -13,11 +13,14 @@ test('content.js and workshop-content.js share classic-script lexical state', ()
   const snapshot = vm.runInContext(`({
     w1: STAGES.find(stage => stage.id === 'workshop-stage-1'),
     w2: STAGES.find(stage => stage.id === 'workshop-stage-2'),
+    w3: STAGES.find(stage => stage.id === 'workshop-stage-3'),
     changeWord: WORDS['改變'],
     keepWord: WORDS['保持'],
     increaseWord: WORDS['增加'],
     decreaseWord: WORDS['減少'],
-    adjustWord: WORDS['調整']
+    adjustWord: WORDS['調整'],
+    connectWord: WORDS['連接'],
+    separateWord: WORDS['分開']
   })`, context);
 
   assert.equal(snapshot.w1.subtitle, '멈춘 물레방아');
@@ -26,7 +29,7 @@ test('content.js and workshop-content.js share classic-script lexical state', ()
   assert.equal(snapshot.w1.workshop.components[0].target, 2);
   assert.equal(snapshot.w1.workshop.components[1].trackUntouched, true);
   assert.match(snapshot.changeWord.k, /바꾸다/);
-  assert.match(snapshot.keepWord.rule, /건드리지/);
+  assert.match(snapshot.keepWord.rule, /그대로/);
 
   assert.equal(snapshot.w2.subtitle, '불씨 맞추기');
   assert.deepEqual(Array.from(snapshot.w2.words), ['增加', '減少', '調整']);
@@ -38,4 +41,17 @@ test('content.js and workshop-content.js share classic-script lexical state', ()
   assert.match(snapshot.increaseWord.k, /늘리/);
   assert.match(snapshot.decreaseWord.k, /줄이/);
   assert.match(snapshot.adjustWord.rule, /함께 맞췄을 때/);
+
+  assert.equal(snapshot.w3.subtitle, '함께 도는 도르래');
+  assert.deepEqual(Array.from(snapshot.w3.words), ['連接', '分開', '保持']);
+  assert.equal(snapshot.w3.workshop.scene, 'couplings');
+  const w3ById = Object.fromEntries(Array.from(snapshot.w3.workshop.components, item => [item.id, item]));
+  assert.equal(w3ById.grinderLink.initial, false);
+  assert.equal(w3ById.grinderLink.target, true);
+  assert.equal(w3ById.workLink.initial, true);
+  assert.equal(w3ById.workLink.trackUntouched, true);
+  assert.equal(w3ById.hoistLink.initial, true);
+  assert.equal(w3ById.hoistLink.target, false);
+  assert.match(snapshot.connectWord.rule, /함께 돌아/);
+  assert.match(snapshot.separateWord.rule, /더 이상 함께 돌지 않아/);
 });
