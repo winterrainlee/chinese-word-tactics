@@ -3,6 +3,7 @@
   const regionIconPath = region => `./icons/world/regions/${region.icon}.svg`;
   const chineseNameFromLabel = text => text.replace(/^✓\s*/, '').trim();
   let selectedRegionId = null;
+  let mapObjectUrl = null;
 
   const milestones = () => {
     const values = globalThis.GameFlow?.progress?.()?.completedMilestones;
@@ -41,6 +42,31 @@
     }
   }
 
+  async function loadChunkedMap(image) {
+    const config = WORLD.settlement?.mapAssetChunks;
+    if (!config?.base || !Number.isInteger(config.count) || config.count < 1) return;
+    image.classList.add('loading');
+    try {
+      const urls = Array.from({ length: config.count }, (_, index) => `${config.base}/${String(index).padStart(2, '0')}.txt`);
+      const responses = await Promise.all(urls.map(url => fetch(url)));
+      if (responses.some(response => !response.ok)) throw new Error('map chunk request failed');
+      const parts = await Promise.all(responses.map(response => response.text()));
+      const encoded = parts.join('').replace(/\s+/g, '');
+      const binary = atob(encoded);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: config.type || 'image/webp' });
+      if (mapObjectUrl) URL.revokeObjectURL(mapObjectUrl);
+      mapObjectUrl = URL.createObjectURL(blob);
+      image.onload = () => image.classList.replace('loading', 'loaded');
+      image.src = mapObjectUrl;
+    } catch (error) {
+      image.classList.remove('loading');
+      image.classList.add('failed');
+      console.warn('물길마을 배경 지도를 불러오지 못했어.', error);
+    }
+  }
+
   function ensureMapBackground() {
     const map = document.getElementById('worldRegions');
     if (!map) return;
@@ -54,7 +80,6 @@
 
     const image = document.createElement('img');
     image.className = 'villageMapImage';
-    image.src = WORLD.settlement?.mapAsset || './images/world/three-streams-map.webp';
     image.alt = '';
     image.decoding = 'async';
 
@@ -62,6 +87,7 @@
     wash.className = 'villageMapWash';
     decor.append(image, wash);
     map.prepend(decor);
+    loadChunkedMap(image);
   }
 
   function selectMarker(regionId) {
