@@ -2,6 +2,7 @@
 (() => {
   const manhattan = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
   const list = value => Array.isArray(value) ? value : value ? [value] : [];
+  const priorityOf = action => Number.isFinite(action?.priority) ? action.priority : 0;
   const enabled = (action, s) => list(action.requires).every(flag => !!s?.[flag]) &&
     list(action.unless).every(flag => !s?.[flag]);
   function actionsForPosition(stage, pos, s) {
@@ -9,9 +10,15 @@
     const ch = stage.grid[pos[0]]?.[pos[1]];
     return list(stage.contextActions).filter(action => action?.target === ch && enabled(action, s));
   }
-  const primaryActionForPosition = (stage, pos, s) => actionsForPosition(stage, pos, s)[0] || null;
+  const primaryActionForPosition = (stage, pos, s) => actionsForPosition(stage, pos, s)
+    .sort((a, b) => priorityOf(b) - priorityOf(a))[0] || null;
+  function highestPriorityActions(items = []) {
+    if (!items.length) return [];
+    const top = Math.max(...items.map(item => priorityOf(item.action)));
+    return items.filter(item => priorityOf(item.action) === top);
+  }
 
-  globalThis.ContextActionLogic = Object.freeze({ manhattan, enabled, actionsForPosition, primaryActionForPosition });
+  globalThis.ContextActionLogic = Object.freeze({ manhattan, priorityOf, enabled, actionsForPosition, primaryActionForPosition, highestPriorityActions });
 
   if (typeof document === 'undefined' || typeof render !== 'function') return;
   const button = document.getElementById('inspectBtn');
@@ -31,7 +38,7 @@
     // Compatibility for saves/content created before contextActions was added to G1.
     const ch = current().grid[pos[0]]?.[pos[1]];
     if (ch === 'L' && current().enterExit && dist(state.hero, pos) === 1) {
-      return { label: '길표지 살펴보기', run: () => showInspect(pos) };
+      return { label: '길표지 살펴보기', priority: 0, run: () => showInspect(pos) };
     }
     return null;
   }
@@ -39,9 +46,10 @@
   function nearbyActions() {
     if (!state?.hero) return [];
     const [r, c] = state.hero;
-    return [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]]
+    const candidates = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]]
       .map(pos => ({ pos, action: actionFor(pos) }))
       .filter(item => item.action);
+    return highestPriorityActions(candidates);
   }
 
   function enhance() {
