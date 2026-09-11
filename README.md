@@ -26,7 +26,9 @@
 
 - `index.html` — 게임 진입점과 전술/월드 화면 셸
 - `src/app.js` — 튜토리얼 진행, 월드 상태, 화면 전환
-- `src/content.js` — 현재 런타임 단어·스테이지·월드 메타데이터
+- `src/content.js` — 기존 튜토리얼·길목 단어와 스테이지 데이터
+- `src/workshop-content.js` — 장인골 단어와 스테이지 데이터
+- `src/workshop-runtime.js`, `src/workshop-runtime.css` — 장치를 직접 조작하는 장인골 상태 런타임
 - `src/styles.css` — 전술 화면 스타일
 - `src/world.css`, `src/view.css` — 월드 화면과 뷰 전환 스타일
 - `legacy/tutorial-v03.html` — 기존 튜토리얼 기준선 보존본
