@@ -55,7 +55,7 @@ test('world overlay loads before runtime and map renderer exposes geographic nod
   const runtime = read('src/world-runtime.js');
   assert.match(runtime, /villageMapLines/);
   assert.match(runtime, /mapRiverWest/);
-  assert.match(runtime, /data-region-id/);
+  assert.match(runtime, /dataset\.regionId/);
   assert.match(runtime, /작은 마을/);
 
   const css = read('src/world.css');
