@@ -58,9 +58,15 @@ test('merchant introduces the small village and Three Streams before the three r
   assert.match(stories['gate-arrival'].beats[0].zh, /三溪鎮/);
 });
 
-test('watercolor map runs top to bottom and keeps recommendation text off the markers', () => {
+test('watercolor map runs top to bottom and aligns markers to illustrated landmarks', () => {
   const context = loadWorld();
   const byId = Object.fromEntries(context.__world.regions.map(region => [region.id, region]));
+  assert.deepEqual([byId['research-city'].map.x, byId['research-city'].map.y], [26, 46]);
+  assert.deepEqual([byId['workshop-town'].map.x, byId['workshop-town'].map.y], [18, 58]);
+  assert.deepEqual([byId['council-town'].map.x, byId['council-town'].map.y], [79, 48]);
+  assert.deepEqual([byId['market-town'].map.x, byId['market-town'].map.y], [65, 60]);
+  assert.deepEqual([byId['gate-town'].map.x, byId['gate-town'].map.y], [50, 80]);
+  assert.deepEqual([byId['border-village'].map.x, byId['border-village'].map.y], [50, 91]);
   assert.ok(byId['research-city'].map.y < byId['workshop-town'].map.y);
   assert.ok(byId['council-town'].map.y < byId['market-town'].map.y);
   assert.ok(byId['gate-town'].map.y < byId['border-village'].map.y);
@@ -81,10 +87,10 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   const html = read('index.html');
   assert.ok(html.indexOf('journey-content.js') < html.indexOf('world-v06-content.js'));
   assert.ok(html.indexOf('world-v06-content.js') < html.indexOf('app.js'));
-  assert.match(html, /world\.css\?v=20260911-raster3/);
-  assert.match(html, /world-v06-content\.js\?v=20260911-raster3/);
-  assert.match(html, /world-runtime\.js\?v=20260911-raster3/);
-  assert.match(html, /name="cwt-build" content="2026-09-11-raster3"/);
+  assert.match(html, /world\.css\?v=20260911-mapcoords1/);
+  assert.match(html, /world-v06-content\.js\?v=20260911-mapcoords1/);
+  assert.match(html, /world-runtime\.js\?v=20260911-mapcoords1/);
+  assert.match(html, /name="cwt-build" content="2026-09-11-mapcoords1"/);
 
   const runtime = read('src/world-runtime.js');
   assert.match(runtime, /loadChunkedMap/);
