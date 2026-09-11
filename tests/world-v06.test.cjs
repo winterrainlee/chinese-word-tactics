@@ -81,6 +81,10 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   const html = read('index.html');
   assert.ok(html.indexOf('journey-content.js') < html.indexOf('world-v06-content.js'));
   assert.ok(html.indexOf('world-v06-content.js') < html.indexOf('app.js'));
+  assert.match(html, /world\.css\?v=20260911-raster3/);
+  assert.match(html, /world-v06-content\.js\?v=20260911-raster3/);
+  assert.match(html, /world-runtime\.js\?v=20260911-raster3/);
+  assert.match(html, /name="cwt-build" content="2026-09-11-raster3"/);
 
   const runtime = read('src/world-runtime.js');
   assert.match(runtime, /loadChunkedMap/);
