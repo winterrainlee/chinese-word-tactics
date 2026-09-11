@@ -27,6 +27,28 @@
         { speaker: 'boy', zh: '原來修東西，不是每個地方都要動。', ko: '고친다고 해서 모든 곳을 움직여야 하는 건 아니구나.' },
         { speaker: 'artisan', zh: '我先把這邊的卡榫固定好。工坊裡還有幾處怪怪的，你願意的話，等等再來幫我看看。', ko: '난 우선 이쪽 고정쇠부터 제대로 고쳐 놓을게. 공방 안에 이상한 곳이 몇 군데 더 있으니, 괜찮다면 나중에 다시 와서 좀 봐 줘.' }
       ]
+    },
+    'workshop-w2-setup': {
+      id: 'workshop-w2-setup', chapterId: 'chapter-1-three-roads', titleKo: '불과 바람이 어긋난 화덕',
+      background: 'workshop', placeZh: '工坊谷', placeKo: '장인골',
+      beats: [
+        { speaker: 'narrator', zh: '少年再走進工坊時，總水門的卡榫已經固定好了。那名工匠正站在一座小火爐旁。', ko: '소년이 다시 공방으로 들어오자 큰 수문의 고정쇠는 이미 고쳐져 있었다. 그 장인은 작은 화덕 옆에 서 있었다.' },
+        { speaker: 'artisan', zh: '剛好，你來了。剛才你會先看再動，這個也幫我看一下吧。我就在旁邊。', ko: '마침 잘 왔다. 아까 보니 너는 먼저 보고 나서 움직이더라. 이것도 한번 봐 줄래? 이번엔 나도 바로 옆에 있을게.' },
+        { speaker: 'artisan', zh: '這個爐子怪怪的。火太大了，風反而太小。兩邊都不對。', ko: '이 화덕 상태가 좀 이상해. 불은 너무 센데 바람은 오히려 너무 약해. 양쪽 다 맞지 않아.' },
+        { speaker: 'boy', zh: '所以不能只看一邊。', ko: '그럼 한쪽만 봐서는 안 되겠네요.' },
+        { speaker: 'artisan', zh: '對。火和風一起看。別管哪個先，最後都調到剛剛好就行。', ko: '그래. 불과 바람을 같이 봐. 어느 쪽부터 해도 상관없고, 마지막에 둘 다 딱 맞게 조절하면 돼.' },
+        { speaker: 'boy', zh: '我試試看。', ko: '해볼게요.' }
+      ]
+    },
+    'workshop-after-w2': {
+      id: 'workshop-after-w2', chapterId: 'chapter-1-three-roads', titleKo: '크게가 아니라 알맞게',
+      background: 'workshop', placeZh: '工坊谷', placeKo: '장인골',
+      beats: [
+        { speaker: 'narrator', zh: '少年把太大的火減少，又把太小的風增加。兩邊都到合適的位置後，爐子的聲音穩了下來。', ko: '소년은 너무 센 불을 줄이고 너무 약한 바람을 늘렸다. 두 상태가 모두 알맞은 곳에 오자 화덕 소리가 안정됐다.' },
+        { speaker: 'artisan', zh: '這就叫調整。不是越大越好，也不是越小越好，是要放到對的位置。', ko: '이런 게 조절이야. 무조건 클수록 좋은 것도, 작을수록 좋은 것도 아니고 알맞은 자리에 맞추는 거지.' },
+        { speaker: 'boy', zh: '增加和減少，都是為了最後的狀態。', ko: '늘리는 것과 줄이는 것 모두 마지막 상태를 맞추기 위한 거네요.' },
+        { speaker: 'artisan', zh: '沒錯。你開始會看兩個地方一起變了。下次給你看一個更麻煩的——一邊動，另一邊也會跟著動。', ko: '맞아. 이제 두 곳의 상태를 같이 보기 시작했네. 다음엔 좀 더 골치 아픈 걸 보여주지. 한쪽을 움직이면 다른 쪽도 같이 움직이는 장치야.' }
+      ]
     }
   });
 
@@ -37,6 +59,9 @@
   section.sequence.splice(0, section.sequence.length,
     { type: 'story', id: 'workshop-arrival', requires: ['story:chapter1-roadside-merchant'] },
     { type: 'stage', id: 'workshop-stage-1', requires: ['story:workshop-arrival'] },
-    { type: 'story', id: 'workshop-after-w1', requires: ['stage:workshop-stage-1'], returnToWorldAfter: true }
+    { type: 'story', id: 'workshop-after-w1', requires: ['stage:workshop-stage-1'], returnToWorldAfter: true },
+    { type: 'story', id: 'workshop-w2-setup', requires: ['story:workshop-after-w1'] },
+    { type: 'stage', id: 'workshop-stage-2', requires: ['story:workshop-w2-setup'] },
+    { type: 'story', id: 'workshop-after-w2', requires: ['stage:workshop-stage-2'], returnToWorldAfter: true }
   );
 })();
