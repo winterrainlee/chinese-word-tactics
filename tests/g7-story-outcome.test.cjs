@@ -14,5 +14,5 @@ test('G7 finale reflects west or east first-play route', () => {
 
 test('G7 finale has a both-post fallback for exploratory routes', () => {
   const both = S.resolve(base, { stageOutcomes: { 'gate-stage-7': { viaIds: ['west-post','east-post'] } } });
-  assert.match(both.beats.map(beat => beat.zh).join(' '), /兩個哨站/);
+  assert.match(both.beats.map(beat => beat.zh).join(' '), /兩座哨站/);
 });

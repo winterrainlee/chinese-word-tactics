@@ -29,7 +29,7 @@ test('G5 after-story reuses the saved pass as a story clue before G6', () => {
   assert.match(west.beats.map(beat => beat.zh).join(' '), /西哨通行牌/);
   assert.match(east.beats.map(beat => beat.zh).join(' '), /東哨通行牌/);
   assert.match(both.beats.map(beat => beat.zh).join(' '), /兩塊通行牌|西哨和東哨/);
-  assert.match(west.beats.map(beat => beat.zh).join(' '), /我帶你走吧/);
+  assert.match(west.beats.map(beat => beat.zh).join(' '), /我來帶路吧/);
 });
 
 test('missing outcome keeps the original generic story as a safe fallback', () => {

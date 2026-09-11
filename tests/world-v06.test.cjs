@@ -54,7 +54,7 @@ test('merchant introduces Three Streams and leaves the boy near the market to ch
   assert.match(merchantText, /你從哪裡來/);
   assert.match(merchantText, /一個小村/);
   assert.match(merchantText, /三溪鎮/);
-  assert.match(merchantText, /三條路都通進三溪鎮/);
+  assert.match(merchantText, /三條路都通往三溪鎮/);
   assert.match(merchantText, /我要去市集交貨/);
   assert.match(merchantText, /走過橋/);
   assert.match(merchantText, /我……還沒想好/);
@@ -98,11 +98,11 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.ok(html.indexOf('view.css') < html.indexOf('world-map-reset.css'));
   assert.match(html, /world\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
-  assert.match(html, /world-v06-content\.js\?v=20260911-townarrival1/);
+  assert.match(html, /world-v06-content\.js\?v=20260911-gatestory2/);
   assert.match(html, /world-runtime\.js\?v=20260911-townarrival1/);
   assert.match(html, /journey\.css\?v=20260911-journeytree1/);
   assert.match(html, /journey-runtime\.js\?v=20260911-journeytree1/);
-  assert.match(html, /name="cwt-build" content="2026-09-11-journeytree1"/);
+  assert.match(html, /name="cwt-build" content="2026-09-11-gatestory2"/);
 
   const runtime = read('src/world-runtime.js');
   assert.match(runtime, /loadChunkedMap/);

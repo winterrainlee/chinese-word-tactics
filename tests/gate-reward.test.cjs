@@ -8,7 +8,7 @@ require('../src/story-outcome-content.js');
 require('../src/g7-story-outcome-content.js');
 require('../src/gate-reward-story-content.js');
 const S = globalThis.StoryOutcomeContent;
-const base = { id: 'gate-after-convoy', beats: [{ speaker: 'driver', zh: '有你走在前面，這趟路安心多了。', ko: '안심' }] };
+const base = { id: 'gate-after-convoy', beats: [{ speaker: 'driver', zh: '有你走在前面，這趟路走得安心多了。', ko: '안심' }] };
 
 test('G7 epilogue awards the cart guide pass with a signpost mark', () => {
   const story = S.resolve(base, { stageOutcomes: { 'gate-stage-7': { viaIds: ['west-post'] } } });
