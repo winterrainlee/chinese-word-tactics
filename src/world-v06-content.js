@@ -5,7 +5,11 @@
     nameKo: '물길마을',
     origin: '小村',
     originKo: '작은 마을',
-    mapAsset: './images/world/three-streams-map.webp'
+    mapAssetChunks: {
+      base: './images/world/three-streams-map',
+      count: 8,
+      type: 'image/webp'
+    }
   };
 
   WORLD.title = settlement.nameKo;
