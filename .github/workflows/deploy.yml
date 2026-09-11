@@ -27,15 +27,19 @@ jobs:
       - name: Validate JavaScript
         run: |
           node --check src/content.js
+          node --check src/workshop-content.js
           node --check src/g7-content.js
           node --check src/journey-content.js
           node --check src/g7-journey-content.js
+          node --check src/workshop-journey-content.js
           node --check src/world-v06-content.js
           node --check src/journey-progress.js
           node --check src/story-outcome-content.js
           node --check src/g7-story-outcome-content.js
           node --check src/gate-reward-story-content.js
+          node --check src/story-runtime.js
           node --check src/app.js
+          node --check src/workshop-runtime.js
           node --check src/interaction-runtime.js
           node --check src/range-runtime.js
           node --check src/route-runtime.js
