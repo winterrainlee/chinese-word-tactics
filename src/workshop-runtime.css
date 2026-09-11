@@ -64,7 +64,9 @@
 .workshop-forge-result.balanced .workshop-metal-bar{background:linear-gradient(90deg,#69645f,#cf8758,#69645f)}
 .workshop-coupling-scene{gap:8px}
 .workshop-mainshaft{height:66px;border-radius:15px;background:#c8baa5;display:grid;grid-template-columns:58px 1fr 118px;align-items:center;gap:8px;padding:7px 10px;position:relative;overflow:hidden}
-.workshop-mainshaft b{display:block;height:12px;border-radius:7px;background:#705c43;box-shadow:inset 0 0 0 2px rgba(55,43,31,.18)}
+.workshop-mainshaft b{display:block;height:12px;border-radius:7px;position:relative;overflow:hidden;background:linear-gradient(180deg,#846f53 0%,#5f4b36 45%,#7a654b 100%);box-shadow:inset 0 0 0 2px rgba(55,43,31,.18)}
+.workshop-mainshaft b:before{content:"";position:absolute;inset:-12px 0;background:repeating-linear-gradient(0deg,rgba(255,239,206,0) 0 6px,rgba(255,239,206,.32) 6px 8px,rgba(255,239,206,0) 8px 14px);background-size:100% 14px;animation:workshop-shaft-roll .7s linear infinite}
+.workshop-coupling-scene.overloaded .workshop-mainshaft b:before{animation-duration:1.6s}
 .workshop-mainshaft div{font-size:11px;line-height:1.25;color:#5d554b}
 .workshop-mainshaft div strong{display:block;font-size:14px;color:var(--ink)}
 .workshop-mainshaft-wheel{width:48px;height:48px;border-radius:50%;border:7px solid #806949;position:relative;display:grid;place-items:center;background:#d8c7a8;animation:workshop-wheel-spin 1.4s linear infinite}
@@ -92,6 +94,7 @@
 .workshop-coupling-scene.overloaded .workshop-machine-wheel.running{animation-duration:3.4s}
 .workshop-link-state{margin-top:4px;font-size:10px;line-height:1.22;color:#6a6258;min-height:38px}.workshop-link-state strong{display:block;font-size:12px;color:var(--ink)}
 @keyframes workshop-wheel-spin{to{transform:rotate(360deg)}}
+@keyframes workshop-shaft-roll{to{background-position:0 14px}}
 @keyframes workshop-water{to{transform:translateX(30px)}}
-@media(prefers-reduced-motion:reduce){.workshop-wheel.running,.workshop-channel:after,.workshop-mainshaft-wheel,.workshop-machine-wheel.running{animation:none}.workshop-gate-door,.workshop-gate-water,.workshop-flame,.workshop-bellows-body,.workshop-wind-lines i,.workshop-forge-result,.workshop-branch-belt i,.workshop-coupler:before,.workshop-coupler:after{transition:none}}
+@media(prefers-reduced-motion:reduce){.workshop-wheel.running,.workshop-channel:after,.workshop-mainshaft-wheel,.workshop-mainshaft b:before,.workshop-machine-wheel.running{animation:none}.workshop-gate-door,.workshop-gate-water,.workshop-flame,.workshop-bellows-body,.workshop-wind-lines i,.workshop-forge-result,.workshop-branch-belt i,.workshop-coupler:before,.workshop-coupler:after{transition:none}}
 @media(max-height:650px){.grid.workshop-board{min-height:286px;padding:10px}.workshop-scene{min-height:266px;gap:8px}.workshop-headwater,.workshop-forge-header{height:28px}.workshop-gate-visual,.workshop-fire-visual,.workshop-bellows-visual{height:92px}.workshop-furnace-mouth{height:61px;bottom:9px}.workshop-fire-visual[data-level="2"] .workshop-flame{height:56px}.workshop-wheel-area{min-height:72px}.workshop-wheel{width:66px;height:66px;border-width:7px}.workshop-wheel:before,.workshop-wheel:after{height:50px}.workshop-forge-result{min-height:58px}.workshop-mainshaft{height:54px;grid-template-columns:48px 1fr 104px;padding:5px 8px}.workshop-mainshaft-wheel{width:40px;height:40px;border-width:6px}.workshop-coupling-device{padding-top:3px}.workshop-branch-belt{height:25px}.workshop-coupler{width:44px;height:44px}.workshop-machine-wheel{width:48px;height:48px;border-width:6px}.workshop-link-state{min-height:30px}}
