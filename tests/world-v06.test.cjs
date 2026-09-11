@@ -45,15 +45,23 @@ test('v0.6 world keeps stable ids while presenting one Three Streams settlement'
   assert.equal(world.regions.slice(0, 3).map(region => region.id).join(','), 'gate-town,workshop-town,market-town');
 });
 
-test('merchant introduces the small village and Three Streams before the three routes', () => {
+test('merchant introduces Three Streams and leaves the boy near the market to choose what comes next', () => {
   const context = loadWorld();
   const stories = context.__journey.STORIES;
   assert.equal(stories['prologue-departure'].placeZh, '小村');
-  const merchantText = stories['chapter1-roadside-merchant'].beats.map(beat => beat.zh).join('\n');
+  const merchant = stories['chapter1-roadside-merchant'];
+  const merchantText = merchant.beats.map(beat => beat.zh).join('\n');
   assert.match(merchantText, /你從哪裡來/);
   assert.match(merchantText, /一個小村/);
   assert.match(merchantText, /三溪鎮/);
   assert.match(merchantText, /三條路都通進三溪鎮/);
+  assert.match(merchantText, /我要去市集交貨/);
+  assert.match(merchantText, /走過橋/);
+  assert.match(merchantText, /我……還沒想好/);
+  assert.match(merchantText, /慢慢看看吧/);
+  assert.equal(merchant.beats.at(-1).speaker, 'boy');
+  assert.equal(merchant.beats.at(-1).zh, '接下來……我該做什麼呢？');
+  assert.equal(merchant.beats.at(-1).ko, '이제……뭘 하지?');
   assert.equal(stories['gate-arrival'].placeZh, '關口');
   assert.match(stories['gate-arrival'].beats[0].zh, /三溪鎮/);
 });
@@ -88,11 +96,11 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.ok(html.indexOf('journey-content.js') < html.indexOf('world-v06-content.js'));
   assert.ok(html.indexOf('world-v06-content.js') < html.indexOf('app.js'));
   assert.ok(html.indexOf('view.css') < html.indexOf('world-map-reset.css'));
-  assert.match(html, /world\.css\?v=20260911-mapgridfix1/);
-  assert.match(html, /world-map-reset\.css\?v=20260911-mapgridfix1/);
-  assert.match(html, /world-v06-content\.js\?v=20260911-mapgridfix1/);
-  assert.match(html, /world-runtime\.js\?v=20260911-mapgridfix1/);
-  assert.match(html, /name="cwt-build" content="2026-09-11-mapgridfix1"/);
+  assert.match(html, /world\.css\?v=20260911-townarrival1/);
+  assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
+  assert.match(html, /world-v06-content\.js\?v=20260911-townarrival1/);
+  assert.match(html, /world-runtime\.js\?v=20260911-townarrival1/);
+  assert.match(html, /name="cwt-build" content="2026-09-11-townarrival1"/);
 
   const runtime = read('src/world-runtime.js');
   assert.match(runtime, /loadChunkedMap/);
