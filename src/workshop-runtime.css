@@ -1,0 +1,39 @@
+.grid.workshop-board{display:block;width:min(100%,390px);min-height:330px;padding:14px;background:#e9e1d2;border-color:#cfc6b8;border-radius:20px;overflow:visible}
+.workshop-scene{position:relative;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;user-select:none}
+.workshop-headwater{height:34px;border-radius:16px 16px 10px 10px;background:linear-gradient(180deg,#b8d7df,#94c1cf);position:relative;overflow:hidden}
+.workshop-headwater:after{content:"";position:absolute;inset:auto 0 4px;height:7px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 24px,rgba(255,255,255,0) 24px 48px);opacity:.65}
+.workshop-gates{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.workshop-device{min-width:0;text-align:center;position:relative}
+.workshop-device-label{display:flex;flex-direction:column;align-items:center;gap:1px;margin-bottom:6px;font-weight:800}
+.workshop-device-label small{font-size:11px;color:var(--muted);font-weight:650}
+.workshop-gate-visual{height:112px;border-radius:14px 14px 10px 10px;background:#c8b79e;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(79,65,48,.18)}
+.workshop-gate-door{position:absolute;left:18%;right:18%;top:10px;height:58px;border-radius:7px 7px 4px 4px;background:#876e50;box-shadow:inset 0 0 0 2px rgba(69,49,31,.28);transition:transform .2s ease}
+.workshop-gate-visual[data-level="0"] .workshop-gate-door{transform:translateY(30px)}
+.workshop-gate-visual[data-level="1"] .workshop-gate-door{transform:translateY(15px)}
+.workshop-gate-visual[data-level="2"] .workshop-gate-door{transform:translateY(0)}
+.workshop-gate-water{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#acd2dc,#82b6c5);transition:height .2s ease}
+.workshop-gate-visual[data-level="0"] .workshop-gate-water{height:20%}
+.workshop-gate-visual[data-level="1"] .workshop-gate-water{height:42%}
+.workshop-gate-visual[data-level="2"] .workshop-gate-water{height:66%}
+.workshop-level-dots{position:absolute;right:6px;top:8px;display:grid;gap:4px;z-index:2}
+.workshop-level-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,253,247,.48);box-shadow:0 0 0 1px rgba(52,76,84,.16)}
+.workshop-level-dots i.active{background:#fffdf7;box-shadow:0 0 0 2px rgba(45,98,72,.34)}
+.workshop-device-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.workshop-device-controls button{min-width:44px;height:44px;border:1px solid #c8bca9;border-radius:12px;background:var(--paper);font-size:22px;font-weight:800}
+.workshop-device-controls button:disabled{opacity:.32}
+.workshop-device-controls button:active:not(:disabled){background:#e4ece6}
+.workshop-channel{height:20px;margin:0 28px;border-radius:10px;background:linear-gradient(180deg,#a9d0da,#84b8c7);position:relative;overflow:hidden}
+.workshop-channel:after{content:"";position:absolute;inset:5px 0 auto;height:4px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.48) 0 16px,rgba(255,255,255,0) 16px 30px);animation:workshop-water 1.4s linear infinite}
+.workshop-wheel-area{display:flex;align-items:center;justify-content:center;gap:16px;min-height:92px}
+.workshop-wheel{width:82px;height:82px;border-radius:50%;border:8px solid #806949;position:relative;display:grid;place-items:center;background:#d8c7a8;box-shadow:inset 0 0 0 2px rgba(71,53,31,.18)}
+.workshop-wheel:before,.workshop-wheel:after{content:"";position:absolute;width:8px;height:64px;border-radius:5px;background:#806949}
+.workshop-wheel:after{transform:rotate(90deg)}
+.workshop-wheel span{width:18px;height:18px;border-radius:50%;background:#665034;z-index:2}
+.workshop-wheel.running{animation:workshop-wheel-spin 1.6s linear infinite}
+.workshop-wheel-state{font-size:13px;line-height:1.35;color:#5a5349;max-width:110px}
+.workshop-wheel-state strong{display:block;font-size:15px;color:var(--ink)}
+.workshop-board-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.35}
+@keyframes workshop-wheel-spin{to{transform:rotate(360deg)}}
+@keyframes workshop-water{to{transform:translateX(30px)}}
+@media(prefers-reduced-motion:reduce){.workshop-wheel.running,.workshop-channel:after{animation:none}.workshop-gate-door,.workshop-gate-water{transition:none}}
+@media(max-height:650px){.grid.workshop-board{min-height:286px;padding:10px}.workshop-scene{min-height:266px;gap:8px}.workshop-headwater{height:28px}.workshop-gate-visual{height:92px}.workshop-wheel-area{min-height:72px}.workshop-wheel{width:66px;height:66px;border-width:7px}.workshop-wheel:before,.workshop-wheel:after{height:50px}}
