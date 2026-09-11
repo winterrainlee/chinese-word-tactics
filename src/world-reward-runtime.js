@@ -6,6 +6,12 @@
       symbol: '🪧',
       nameZh: '貨車引路牌',
       nameKo: '짐수레 길잡이패'
+    },
+    'workshop-town': {
+      storyId: 'workshop-finale',
+      symbol: '🪧',
+      nameZh: '修繕牌',
+      nameKo: '수선패'
     }
   };
 
