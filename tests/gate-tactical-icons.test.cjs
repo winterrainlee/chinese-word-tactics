@@ -64,6 +64,16 @@ test('G7 carts follow followerPositions, preserve number badges, and clear the r
   assert.match(read('src/icons-runtime.css'), /\.g7-obstacle-mark[\s\S]*var\(--gate-icon-obstacle\)/);
 });
 
+test('G5 swing space and G7 cart direction cues are visible without relying on color alone', () => {
+  const css = read('src/icons-runtime.css');
+  assert.match(css, /\.movable-door-swing-cue[\s\S]*font-size:/);
+  assert.match(css, /\.follower-chain-direction-east[\s\S]*--cart-rotation:/);
+  assert.match(css, /\.follower-chain-direction-west[\s\S]*--cart-rotation:/);
+  assert.match(css, /\.follower-chain-moving[\s\S]*animation: follower-chain-step/);
+  assert.match(css, /@keyframes follower-chain-step/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+});
+
 test('G3 and G7 reuse the same route outpost renderer and asset', () => {
   const context = vm.createContext({});
   vm.runInContext(read('src/content.js'), context);

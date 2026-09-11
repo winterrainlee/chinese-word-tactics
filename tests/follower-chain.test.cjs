@@ -23,8 +23,15 @@ function walkConvoy(path, { clearObstacleAfterFirstStep = false } = {}) {
 test('two followers advance through the exact previous positions in order', () => {
   const step = C.followerChainStep({ grid, followers: [[5,2],[6,2]], leaderFrom: [4,2], blockedChars: ['#','O'] });
   assert.deepEqual(step.positions, [[4,2],[5,2]]);
+  assert.deepEqual(step.directions, ['north','north']);
   assert.equal(step.allMoved, true);
   assert.equal(step.movedCount, 2);
+});
+
+test('each cart keeps its own movement direction while rounding a corner', () => {
+  const step = C.followerChainStep({ grid, followers: [[4,2],[5,2]], leaderFrom: [4,3], blockedChars: ['#','O'] });
+  assert.deepEqual(step.positions, [[4,3],[4,2]]);
+  assert.deepEqual(step.directions, ['east','north']);
 });
 
 test('if the first cart cannot move, the rest of the convoy waits instead of overlapping', () => {
@@ -32,6 +39,7 @@ test('if the first cart cannot move, the rest of the convoy waits instead of ove
   assert.deepEqual(step.positions, [[4,1],[5,1]]);
   assert.equal(step.allMoved, false);
   assert.equal(step.reason, 'blocked');
+  assert.deepEqual(step.directions, [null,null]);
 });
 
 test('final formation accepts either west or east approach behind the leader', () => {

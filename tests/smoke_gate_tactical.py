@@ -89,8 +89,17 @@ try:
         page.evaluate('state.movablePos=[3,2];render()')
         assert page.locator('#grid .cell').nth(12).locator('.movable-cart-mark').count() == 0
         assert page.locator('#grid .cell').nth(17).locator('.movable-cart-mark').count() == 1
-        page.evaluate('state.movablePos=[2,2];render()')
+        page.evaluate('state.hero=[2,2];state.doorInspected=true;state.doorOpen=false;render()')
+        assert not page.evaluate('state.doorClear')
+        assert page.locator('.movable-door-swing-blocked').count() == 1
+        page.evaluate('ContextActionHandlers["g5-open-door"]([1,2])')
+        assert not page.evaluate('state.doorOpen')
+        page.evaluate('state.hero=[1,1];render()')
+        assert page.evaluate('state.doorClear')
         page.screenshot(path=str(OUT / 'gate-g5-cart-375.png'))
+        page.evaluate('ContextActionHandlers["g5-open-door"]([1,2])')
+        assert page.evaluate('state.doorOpen')
+        assert page.locator('.movable-door-open').count() == 1
 
         page.evaluate('TacticalGame.playStage("gate-stage-6",{mode:"replay"})')
         background_asset(page, '.follower-narrow-mark', 'narrow-pass.png')
@@ -106,10 +115,16 @@ try:
         assert page.locator('.follower-chain-mark').count() == 2
         assert page.locator('.follower-chain-badge').all_text_contents() == ['1', '2']
         assert page.locator('.route-waypoint-mark').count() == 2
-        page.evaluate('state.followerPositions=[[4,2],[5,2]];render()')
-        assert page.locator('#grid .cell').nth(22).locator('.follower-chain-mark').count() == 1
-        assert page.locator('#grid .cell').nth(27).locator('.follower-chain-mark').count() == 1
-        page.evaluate('state.followerPositions=[[5,2],[6,2]];render()')
+        page.evaluate('attemptMove([4,3],false);attemptMove([3,3],false)')
+        first_cart = page.locator('#grid .cell').nth(23).locator('.follower-chain-mark')
+        second_cart = page.locator('#grid .cell').nth(22).locator('.follower-chain-mark')
+        assert first_cart.count() == 1
+        assert second_cart.count() == 1
+        assert first_cart.get_attribute('data-direction') == 'east'
+        assert second_cart.get_attribute('data-direction') == 'north'
+        assert first_cart.evaluate('(node)=>node.classList.contains("follower-chain-moving")')
+        assert second_cart.evaluate('(node)=>node.classList.contains("follower-chain-moving")')
+        assert first_cart.evaluate('(node)=>getComputedStyle(node).animationName') == 'follower-chain-step'
         page.screenshot(path=str(OUT / 'gate-g7-convoy-375.png'))
         page.evaluate('state.g7ObstacleCleared=true;render()')
         assert page.locator('.g7-obstacle-mark').count() == 0

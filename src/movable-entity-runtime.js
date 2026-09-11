@@ -11,6 +11,10 @@
     return null;
   }
   const tileIn = (grid, pos) => grid?.[pos?.[0]]?.[pos?.[1]];
+  function doorSwingIsClear({ swingCell, cart, hero }) {
+    if (!Array.isArray(swingCell)) return true;
+    return !samePosition(cart, swingCell) && !samePosition(hero, swingCell);
+  }
   function movementCheck({ grid, from, to, hero, facing = 'north', blockedChars = ['#'], doorChar = 'D', doorOpen = false }) {
     const direction = directionForStep(from, to, facing);
     if (!direction) return { allowed: false, reason: 'axis', direction: null };
@@ -23,7 +27,7 @@
   }
   const isAtGoal = (pos, grid, goalChar = 'E') => tileIn(grid, pos) === goalChar;
 
-  globalThis.MovableEntityMechanic = Object.freeze({ samePosition, facingDelta, directionForStep, movementCheck, isAtGoal });
+  globalThis.MovableEntityMechanic = Object.freeze({ samePosition, facingDelta, directionForStep, movementCheck, isAtGoal, doorSwingIsClear });
 
   if (typeof current !== 'function' || typeof render !== 'function' || typeof tapCell !== 'function') return;
 
@@ -31,7 +35,16 @@
   const doorPos = (st, cfg) => locate(st.grid, cfg?.door?.char || 'D');
   const currentCart = () => state?.movablePos;
   const cartAtGoal = (st = current(), cfg = cfgFor(st)) => !!cfg && isAtGoal(currentCart(), st.grid, cfg.goalChar || 'E');
-  const doorClearNow = (cfg, pos = currentCart()) => !cfg?.door?.swingCell || !samePosition(pos, cfg.door.swingCell);
+  const doorClearNow = (cfg, cart = currentCart(), hero = state?.hero) => doorSwingIsClear({
+    swingCell: cfg?.door?.swingCell,
+    cart,
+    hero
+  });
+  const doorBlockedBy = (cfg, cart = currentCart(), hero = state?.hero) => {
+    if (samePosition(cart, cfg?.door?.swingCell)) return 'cart';
+    if (samePosition(hero, cfg?.door?.swingCell)) return 'hero';
+    return null;
+  };
 
   const baseInitialState = initialState;
   initialState = function movableInitialState(st) {
@@ -46,7 +59,7 @@
         movableRetreated: false,
         doorInspected: false,
         doorOpen: false,
-        doorClear: doorClearNow(cfg, start)
+        doorClear: doorClearNow(cfg, start, next.hero)
       });
     }
     return next;
@@ -159,6 +172,8 @@
 
   const baseRender = render;
   render = function movableRender() {
+    const beforeStage = current(), beforeCfg = cfgFor(beforeStage);
+    if (beforeCfg) state.doorClear = doorClearNow(beforeCfg);
     baseRender();
     const st = current(), cfg = cfgFor(st);
     if (!cfg || !Array.isArray(currentCart())) return;
@@ -177,6 +192,20 @@
           mark.setAttribute('aria-hidden', 'true');
           cell.appendChild(mark);
         }
+      }
+    }
+
+    const swingPos = cfg.door?.swingCell;
+    if (!state.doorOpen && state.doorInspected && Array.isArray(swingPos)) {
+      const swingCell = gridEl.children[swingPos[0] * cols + swingPos[1]];
+      if (swingCell) {
+        swingCell.classList.add('movable-door-swing');
+        swingCell.classList.add(state.doorClear ? 'movable-door-swing-clear' : 'movable-door-swing-blocked');
+        const cue = document.createElement('span');
+        cue.className = 'movable-door-swing-cue';
+        cue.textContent = '↓';
+        cue.setAttribute('aria-hidden', 'true');
+        swingCell.appendChild(cue);
       }
     }
 
@@ -225,11 +254,10 @@
     state.doorInspected = true;
     state.doorClear = doorClearNow(cfg);
     save(); render();
-    if (state.doorClear) {
-      setStatus('這扇門往裡開。門後的空間現在是空的。 문은 안쪽으로 열리고, 지금은 열 공간이 비어 있어.', 'info');
-    } else {
-      setStatus('這扇門往裡開。貨車正停在開門的位置，所以現在打不開。 문이 열릴 자리를 수레가 막고 있어.', 'info');
-    }
+    const blockedBy = doorBlockedBy(cfg);
+    if (!blockedBy) setStatus('這扇門往裡開。門後的空間現在是空的。 문은 아래쪽 표시 칸으로 열려. 문 옆에서 열면 돼.', 'info');
+    else if (blockedBy === 'hero') setStatus('你站在開門的位置上。先移到門旁。 소년이 문이 열릴 칸에 서 있어. 문 옆으로 비켜야 해.', 'info');
+    else setStatus('這扇門往裡開。貨車正停在開門的位置，所以現在打不開。 문이 열릴 칸을 수레가 막고 있어.', 'info');
   };
   handlers['g5-open-door'] = pos => {
     const st = current(), cfg = cfgFor(st);
@@ -252,7 +280,10 @@
       }
       if (!state.doorInspected) return handlers['g5-inspect-door'](pos);
       if (!state.doorOpen && doorClearNow(cfg)) return handlers['g5-open-door'](pos);
-      setStatus(state.doorOpen ? '문이 열려 있어. 수레가 지나갈 수 있어.' : '문은 안쪽으로 열려. 지금은 수레가 열리는 자리를 막고 있어.', 'info');
+      const blockedBy = doorBlockedBy(cfg);
+      if (state.doorOpen) setStatus('문이 열려 있어. 수레가 지나갈 수 있어.', 'info');
+      else if (blockedBy === 'hero') setStatus('소년이 문이 열릴 칸에 서 있어. 문 옆으로 비켜야 해.', 'info');
+      else setStatus('문은 표시된 칸으로 열려. 지금은 수레가 그 자리를 막고 있어.', 'info');
       return;
     }
     return baseShowInspect(pos);

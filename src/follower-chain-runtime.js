@@ -5,8 +5,18 @@
 
   const samePosition = F.samePosition;
   const tileIn = F.tileIn;
+  function directionFromStep(from, to) {
+    if (!Array.isArray(from) || !Array.isArray(to)) return null;
+    const dr = to[0] - from[0], dc = to[1] - from[1];
+    if (dr === -1 && dc === 0) return 'north';
+    if (dr === 1 && dc === 0) return 'south';
+    if (dr === 0 && dc === -1) return 'west';
+    if (dr === 0 && dc === 1) return 'east';
+    return null;
+  }
   function followerChainStep({ grid, followers = [], leaderFrom, blockedChars = ['#'] }) {
     const next = followers.map(pos => Array.isArray(pos) ? [...pos] : pos);
+    const directions = followers.map(() => null);
     let target = Array.isArray(leaderFrom) ? [...leaderFrom] : leaderFrom;
     let previousMoved = true, movedCount = 0, stopReason = null, stopTile = null;
 
@@ -21,9 +31,10 @@
         continue;
       }
       movedCount++;
+      directions[i] = directionFromStep(followers[i], step.pos);
       target = [...followers[i]];
     }
-    return { positions: next, movedCount, allMoved: movedCount === followers.length, reason: stopReason, tile: stopTile };
+    return { positions: next, directions, movedCount, allMoved: movedCount === followers.length, reason: stopReason, tile: stopTile };
   }
 
   function followerChainAtGoal({ grid, leader, followers = [], leaderGoalChar = 'N', followerGoalCells = [] }) {
@@ -32,11 +43,12 @@
       followerGoalCells[index].some(goal => samePosition(pos, goal)));
   }
 
-  globalThis.FollowerChainMechanic = Object.freeze({ followerChainStep, followerChainAtGoal });
+  globalThis.FollowerChainMechanic = Object.freeze({ directionFromStep, followerChainStep, followerChainAtGoal });
 
   if (typeof current !== 'function' || typeof render !== 'function' || typeof attemptMove !== 'function') return;
 
   const cfgFor = st => st.followerChain || null;
+  let pendingStepDirections = [];
   const positions = () => Array.isArray(state?.followerPositions) ? state.followerPositions : [];
   const atGoal = (st = current(), cfg = cfgFor(st)) => !!cfg && followerChainAtGoal({
     grid: st.grid,
@@ -58,6 +70,7 @@
     const next = baseInitialState(st), cfg = cfgFor(st);
     if (cfg) Object.assign(next, {
       followerPositions: (cfg.chars || []).map(ch => locate(st.grid, ch)),
+      followerDirections: (cfg.chars || []).map(() => 'north'),
       chainFollowed: false,
       chainLed: false,
       chainStuck: false,
@@ -122,6 +135,9 @@
 
     const step = followerChainStep({ grid: st.grid, followers: oldFollowers, leaderFrom: oldHero, blockedChars: blockedNow(cfg) });
     state.followerPositions = clone(step.positions);
+    const oldDirections = Array.isArray(state.followerDirections) ? state.followerDirections : [];
+    state.followerDirections = step.directions.map((direction, index) => direction || oldDirections[index] || 'north');
+    pendingStepDirections = step.directions.map(direction => direction || null);
     state.chainStuck = !step.allMoved;
     state.chainStuckReason = step.reason;
     if (step.movedCount > 0) {
@@ -159,10 +175,15 @@
       cell.classList.add('follower-chain-cart');
       if (state.chainStuck) cell.classList.add('follower-chain-stuck');
       const mark = document.createElement('span');
-      mark.className = 'follower-chain-mark'; mark.textContent = '車'; mark.setAttribute('aria-hidden', 'true'); cell.appendChild(mark);
+      const direction = state.followerDirections?.[index] || 'north';
+      const stepDirection = pendingStepDirections[index];
+      mark.className = `follower-chain-mark follower-chain-direction-${direction}${stepDirection ? ' follower-chain-moving' : ''}`;
+      mark.dataset.direction = direction;
+      mark.textContent = '車'; mark.setAttribute('aria-hidden', 'true'); cell.appendChild(mark);
       const badge = document.createElement('small');
       badge.className = 'follower-chain-badge'; badge.textContent = String(index + 1); badge.setAttribute('aria-hidden', 'true'); cell.appendChild(badge);
     });
+    pendingStepDirections = [];
 
     $('#words').querySelectorAll('.wordbtn').forEach(button => {
       if (button.textContent === '跟隨' && state.chainFollowed) button.classList.add('done');

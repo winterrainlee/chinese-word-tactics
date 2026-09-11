@@ -33,3 +33,9 @@ test('cart cannot move onto the hero and reaches the goal only on E', () => {
   assert.equal(M.isAtGoal([0,2], grid, 'E'), true);
   assert.equal(M.isAtGoal([1,2], grid, 'E'), false);
 });
+
+test('door swing space must be clear of both the cart and the hero', () => {
+  assert.equal(M.doorSwingIsClear({ swingCell:[2,2], cart:[2,2], hero:[3,2] }), false);
+  assert.equal(M.doorSwingIsClear({ swingCell:[2,2], cart:[3,2], hero:[2,2] }), false);
+  assert.equal(M.doorSwingIsClear({ swingCell:[2,2], cart:[3,2], hero:[1,1] }), true);
+});
