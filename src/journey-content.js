@@ -137,6 +137,18 @@
         { speaker: 'driver', zh: '我沒走過這條路。你知道怎麼走嗎？', ko: '난 이 길을 가본 적이 없어. 어떻게 가는지 알아?' },
         { speaker: 'boy', zh: '我剛才走過附近。我走前面，你跟著我吧。', ko: '저는 아까 이 근처를 걸어봤어요. 제가 앞에 갈 테니 따라오세요.' }
       ]
+    },
+    'gate-after-leading': {
+      id: 'gate-after-leading', chapterId: 'chapter-1-three-roads', titleKo: '앞에서 이끄는 길',
+      background: 'gate', placeZh: '北路', placeKo: '북쪽 길',
+      beats: [
+        { speaker: 'narrator', zh: '少年走在前面，貨車一格一格跟在後面，最後一起到了北邊的路口。', ko: '소년이 앞에서 걷자 수레는 한 칸씩 그 뒤를 따라왔고, 마침내 함께 북쪽 길목에 도착했다.' },
+        { speaker: 'driver', zh: '原來跟著你走，就不用一直猜哪條路能過了。', ko: '네 뒤를 따라오니까 어느 길이 지나갈 수 있는지 계속 고민하지 않아도 되는군.' },
+        { speaker: 'boy', zh: '我只是先看貨車也能不能走，再帶你過來。', ko: '저도 수레가 지나갈 수 있는 길인지 먼저 보고 이쪽으로 이끈 것뿐이에요.' },
+        { speaker: 'gatekeeper', zh: '剛才那輛車，你帶得很好。', ko: '방금 그 수레, 잘 데려왔네.' },
+        { speaker: 'narrator', zh: '不遠處，幾輛貨車正在鐘聲能傳到的待車場慢慢集合。', ko: '멀지 않은 곳에서는 몇 대의 수레가 종소리가 닿는 대기장으로 하나둘 모이고 있었다.' },
+        { speaker: 'gatekeeper', zh: '第一隊貨車也快要出發了。', ko: '첫 짐수레 행렬도 곧 출발할 참이야.' }
+      ]
     }
   };
   const JOURNEY = [
@@ -166,7 +178,9 @@
         { type: 'story', id: 'gate-after-obstacle', requires: ['stage:gate-stage-4'], returnToWorldAfter: true },
         { type: 'story', id: 'gate-narrow-gate-task', requires: ['story:gate-after-obstacle'] },
         { type: 'stage', id: 'gate-stage-5', requires: ['story:gate-narrow-gate-task'] },
-        { type: 'story', id: 'gate-after-narrow-gate', requires: ['stage:gate-stage-5'], returnToWorldAfter: true }
+        { type: 'story', id: 'gate-after-narrow-gate', requires: ['stage:gate-stage-5'], returnToWorldAfter: true },
+        { type: 'stage', id: 'gate-stage-6', requires: ['story:gate-after-narrow-gate'] },
+        { type: 'story', id: 'gate-after-leading', requires: ['stage:gate-stage-6'], returnToWorldAfter: true }
       ] },
       ...['workshop-town', 'market-town'].map(regionId => ({ id: regionId, regionId, plannedStageCount: 7, sequence: [] }))
     ] }
