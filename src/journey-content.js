@@ -117,6 +117,26 @@
         { speaker: 'driver', zh: '這扇門往裡開。車停得太近，好像打不開。', ko: '이 문은 안쪽으로 열려. 수레가 너무 가까이 있어서 문을 못 열겠는데.' },
         { speaker: 'boy', zh: '那就先看看，車要怎麼移動。', ko: '그럼 이번엔 수레를 어떻게 움직여야 할지 봐야겠네요.' }
       ]
+    },
+    'gate-narrow-gate-task': {
+      id: 'gate-narrow-gate-task', chapterId: 'chapter-1-three-roads', titleKo: '좁은 문 앞에서',
+      background: 'gate', placeZh: '北門', placeKo: '북쪽 좁은 문',
+      beats: [
+        { speaker: 'narrator', zh: '少年跟著貨車來到狹窄的門前。門板只能往裡打開。', ko: '소년은 수레를 따라 좁은 문 앞에 왔다. 문짝은 안쪽으로만 열린다.' },
+        { speaker: 'driver', zh: '貨車離門太近了。往前推也過不去。', ko: '수레가 문에 너무 가까워. 앞으로 밀어도 지나갈 수가 없어.' },
+        { speaker: 'boy', zh: '貨車朝北，可以前進，也可以後退。我來移動看看。', ko: '수레는 북쪽을 향하고 있으니 앞으로도, 뒤로도 움직일 수 있겠네요. 제가 옮겨볼게요.' }
+      ]
+    },
+    'gate-after-narrow-gate': {
+      id: 'gate-after-narrow-gate', chapterId: 'chapter-1-three-roads', titleKo: '문 너머의 새 길',
+      background: 'gate', placeZh: '北門外', placeKo: '북문 바깥',
+      beats: [
+        { speaker: 'driver', zh: '進去了！剛才先後退，門打開後就能前進了。', ko: '들어왔다! 아까는 먼저 뒤로 물러났다가, 문이 열린 뒤에는 앞으로 갈 수 있었네.' },
+        { speaker: 'boy', zh: '同一輛車，位置變了，能做的事也跟著變了。', ko: '같은 수레라도 위치가 바뀌니까 할 수 있는 일도 달라지네요.' },
+        { speaker: 'narrator', zh: '貨車過了門，前面的舊路卻被封住，只剩一條新開的繞路。', ko: '수레가 문을 지나자 앞쪽의 옛길은 막혀 있었고 새로 난 우회로만 남아 있었다.' },
+        { speaker: 'driver', zh: '我沒走過這條路。你知道怎麼走嗎？', ko: '난 이 길을 가본 적이 없어. 어떻게 가는지 알아?' },
+        { speaker: 'boy', zh: '我剛才走過附近。我走前面，你跟著我吧。', ko: '저는 아까 이 근처를 걸어봤어요. 제가 앞에 갈 테니 따라오세요.' }
+      ]
     }
   };
   const JOURNEY = [
@@ -143,7 +163,10 @@
         { type: 'story', id: 'gate-after-route', requires: ['stage:gate-stage-3'], returnToWorldAfter: true },
         { type: 'story', id: 'gate-cart-task', requires: ['story:gate-after-route'] },
         { type: 'stage', id: 'gate-stage-4', requires: ['story:gate-cart-task'] },
-        { type: 'story', id: 'gate-after-obstacle', requires: ['stage:gate-stage-4'], returnToWorldAfter: true }
+        { type: 'story', id: 'gate-after-obstacle', requires: ['stage:gate-stage-4'], returnToWorldAfter: true },
+        { type: 'story', id: 'gate-narrow-gate-task', requires: ['story:gate-after-obstacle'] },
+        { type: 'stage', id: 'gate-stage-5', requires: ['story:gate-narrow-gate-task'] },
+        { type: 'story', id: 'gate-after-narrow-gate', requires: ['stage:gate-stage-5'], returnToWorldAfter: true }
       ] },
       ...['workshop-town', 'market-town'].map(regionId => ({ id: regionId, regionId, plannedStageCount: 7, sequence: [] }))
     ] }
