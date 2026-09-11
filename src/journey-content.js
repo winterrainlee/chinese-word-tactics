@@ -94,6 +94,27 @@
         { speaker: 'narrator', zh: '前方不遠處，一輛貨車停在路邊，車夫正繞著車子查看。', ko: '조금 앞쪽 길가에는 짐수레 한 대가 멈춰 있었고, 마부가 수레 주위를 돌며 살펴보고 있었다.' },
         { speaker: 'boy', zh: '那輛車……是不是又卡住了？', ko: '저 수레…… 또 어디 걸린 건가?' }
       ]
+    },
+    'gate-cart-task': {
+      id: 'gate-cart-task', chapterId: 'chapter-1-three-roads', titleKo: '바퀴가 걸린 자리',
+      background: 'gate', placeZh: '北口外', placeKo: '북쪽 출구 밖',
+      beats: [
+        { speaker: 'driver', zh: '奇怪，車輪又不動了。怎麼推都推不動。', ko: '이상하네. 바퀴가 또 안 움직여. 아무리 밀어도 꼼짝을 안 해.' },
+        { speaker: 'boy', zh: '先別推。我看看貨車現在的位置和周圍。', ko: '일단 밀지 마세요. 수레가 지금 어디 있는지랑 주변부터 볼게요.' },
+        { speaker: 'driver', zh: '旁邊有箱子，也有石頭。可我看不出是哪一個在礙事。', ko: '옆에는 상자도 있고 돌도 있어. 그런데 뭐가 방해하는 건지는 모르겠어.' },
+        { speaker: 'boy', zh: '一個一個看就知道了。', ko: '하나씩 보면 알 수 있을 거예요.' }
+      ]
+    },
+    'gate-after-obstacle': {
+      id: 'gate-after-obstacle', chapterId: 'chapter-1-three-roads', titleKo: '다시 움직이는 수레',
+      background: 'gate', placeZh: '北口外', placeKo: '북쪽 출구 밖',
+      beats: [
+        { speaker: 'driver', zh: '原來是那塊石頭卡住前輪。難怪一直推不動。', ko: '앞바퀴를 막은 게 그 돌이었구나. 어쩐지 아무리 밀어도 안 되더라.' },
+        { speaker: 'narrator', zh: '障礙移開後，貨車慢慢往前走了。', ko: '장애물을 치우자 수레가 천천히 다시 움직이기 시작했다.' },
+        { speaker: 'narrator', zh: '可是沒走多遠，貨車又停在一扇狹窄的門前。', ko: '하지만 얼마 가지 않아 수레는 좁은 문 앞에서 다시 멈췄다.' },
+        { speaker: 'driver', zh: '這扇門往裡開。車停得太近，好像打不開。', ko: '이 문은 안쪽으로 열려. 수레가 너무 가까이 있어서 문을 못 열겠는데.' },
+        { speaker: 'boy', zh: '那就先看看，車要怎麼移動。', ko: '그럼 이번엔 수레를 어떻게 움직여야 할지 봐야겠네요.' }
+      ]
     }
   };
   const JOURNEY = [
@@ -117,7 +138,10 @@
         { type: 'story', id: 'gate-after-bell', requires: ['stage:gate-stage-2'], returnToWorldAfter: true },
         { type: 'story', id: 'gate-route-task', requires: ['story:gate-after-bell'] },
         { type: 'stage', id: 'gate-stage-3', requires: ['story:gate-route-task'] },
-        { type: 'story', id: 'gate-after-route', requires: ['stage:gate-stage-3'], returnToWorldAfter: true }
+        { type: 'story', id: 'gate-after-route', requires: ['stage:gate-stage-3'], returnToWorldAfter: true },
+        { type: 'story', id: 'gate-cart-task', requires: ['story:gate-after-route'] },
+        { type: 'stage', id: 'gate-stage-4', requires: ['story:gate-cart-task'] },
+        { type: 'story', id: 'gate-after-obstacle', requires: ['stage:gate-stage-4'], returnToWorldAfter: true }
       ] },
       ...['workshop-town', 'market-town'].map(regionId => ({ id: regionId, regionId, plannedStageCount: 7, sequence: [] }))
     ] }
