@@ -16,7 +16,7 @@
       background: 'forest', placeZh: '森林邊', placeKo: '숲 어귀',
       beats: [
         { speaker: 'narrator', zh: '少年走出了森林。前面的路，漸漸寬了起來。', ko: '소년은 숲을 빠져나왔다. 앞에 놓인 길이 조금씩 넓어졌다.' },
-        { speaker: 'boy', zh: '剛才石碑上的字……真的亮了嗎？', ko: '아까 석비의 글자…… 정말 빛났던 걸까?' },
+        { speaker: 'boy', zh: '剛才石碑上的字……真的亮了嗎？', ko: '아까 비석의 글자…… 정말 빛났던 걸까?' },
         { speaker: 'narrator', zh: '他還沒想明白，路旁就傳來一個聲音。', ko: '미처 생각을 정리하기도 전에 길가에서 목소리가 들려왔다.' },
         { speaker: 'unknown', zh: '救命！有人在嗎？', ko: '사람 살려! 누구 없어요?' }
       ]
