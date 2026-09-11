@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 require('../src/journey-content.js');
 require('../src/workshop-journey-content.js');
 
-test('workshop section starts with arrival story, W1, and return story', () => {
+test('workshop section connects W1 and W2 with world pauses', () => {
   const section = globalThis.JourneyContent.JOURNEY
     .flatMap(chapter => chapter.sections)
     .find(item => item.id === 'workshop-town');
@@ -12,9 +12,13 @@ test('workshop section starts with arrival story, W1, and return story', () => {
   assert.deepEqual(section.sequence.map(node => `${node.type}:${node.id}`), [
     'story:workshop-arrival',
     'stage:workshop-stage-1',
-    'story:workshop-after-w1'
+    'story:workshop-after-w1',
+    'story:workshop-w2-setup',
+    'stage:workshop-stage-2',
+    'story:workshop-after-w2'
   ]);
   assert.equal(section.sequence[2].returnToWorldAfter, true);
+  assert.equal(section.sequence[5].returnToWorldAfter, true);
 });
 
 test('workshop W1 story gives the artisan a concrete reason to ask the boy for help', () => {
@@ -30,4 +34,19 @@ test('workshop W1 story gives the artisan a concrete reason to ask the boy for h
   assert.match(ko, /지금은 여기서 움직일 수가 없/);
   assert.match(ko, /원래는 내가/);
   assert.match(after.beats.map(beat => beat.zh).join('\n'), /第二次調整後/);
+});
+
+test('workshop W2 setup teaches target state without fixing an action order', () => {
+  const setup = globalThis.JourneyContent.STORIES['workshop-w2-setup'];
+  const after = globalThis.JourneyContent.STORIES['workshop-after-w2'];
+  assert.ok(setup);
+  assert.ok(after);
+  const setupZh = setup.beats.map(beat => beat.zh).join('\n');
+  const afterZh = after.beats.map(beat => beat.zh).join('\n');
+  assert.match(setupZh, /火太大了/);
+  assert.match(setupZh, /風反而太小/);
+  assert.match(setupZh, /別管哪個先/);
+  assert.match(afterZh, /不是越大越好/);
+  assert.match(afterZh, /增加和減少/);
+  assert.match(after.beats.at(-1).ko, /한쪽을 움직이면 다른 쪽도 같이 움직이는 장치/);
 });
