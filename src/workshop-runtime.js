@@ -88,40 +88,60 @@
     return [0, 1, 2].map(level => `<i class="${level <= value ? 'active' : ''}" aria-hidden="true"></i>`).join('');
   }
 
+  function renderLevelVisual(component, value) {
+    if (component.visual === 'fire') {
+      return `<div class="workshop-fire-visual" data-level="${value}" role="img" aria-label="${component.labelKo}, 3단계 중 ${value + 1}단계">
+        <div class="workshop-furnace-mouth"><span class="workshop-flame"></span></div>
+        <div class="workshop-level-dots">${levelDots(value)}</div>
+      </div>`;
+    }
+    if (component.visual === 'bellows') {
+      return `<div class="workshop-bellows-visual" data-level="${value}" role="img" aria-label="${component.labelKo}, 3단계 중 ${value + 1}단계">
+        <div class="workshop-bellows-body"><span></span></div>
+        <div class="workshop-wind-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="workshop-level-dots">${levelDots(value)}</div>
+      </div>`;
+    }
+    return `<div class="workshop-gate-visual" data-level="${value}" role="img" aria-label="${component.labelKo}, 3단계 중 ${value + 1}단계">
+      <div class="workshop-gate-door"></div><div class="workshop-gate-water"></div><div class="workshop-level-dots">${levelDots(value)}</div>
+    </div>`;
+  }
+
   function renderLevelDevice(component, value) {
-    const canDown = value > 0, canUp = value < 2;
+    const downDisabled = value <= 0 && !component.allowLimitPress;
+    const upDisabled = value >= 2 && !component.allowLimitPress;
     return `<section class="workshop-device" data-component="${component.id}">
       <div class="workshop-device-label"><span lang="zh-Hant">${component.labelZh}</span><small>${component.labelKo}</small></div>
-      <div class="workshop-gate-visual" data-level="${value}" role="img" aria-label="${component.labelKo}, 3단계 중 ${value + 1}단계">
-        <div class="workshop-gate-door"></div><div class="workshop-gate-water"></div><div class="workshop-level-dots">${levelDots(value)}</div>
-      </div>
+      ${renderLevelVisual(component, value)}
       <div class="workshop-device-controls">
-        <button type="button" data-workshop-action="step-down" data-component="${component.id}" aria-label="${component.labelKo} 한 단계 낮추기" ${canDown ? '' : 'disabled'}>−</button>
-        <button type="button" data-workshop-action="step-up" data-component="${component.id}" aria-label="${component.labelKo} 한 단계 높이기" ${canUp ? '' : 'disabled'}>＋</button>
+        <button type="button" data-workshop-action="step-down" data-component="${component.id}" aria-label="${component.labelKo} 한 단계 낮추기" ${downDisabled ? 'disabled' : ''}>−</button>
+        <button type="button" data-workshop-action="step-up" data-component="${component.id}" aria-label="${component.labelKo} 한 단계 높이기" ${upDisabled ? 'disabled' : ''}>＋</button>
       </div>
     </section>`;
   }
 
+  function goalMarkMet(mark, workshopState) {
+    if (!mark) return false;
+    if (mark.afterAction && state.turn < 1) return false;
+    return (mark.conditions || []).every(condition => M.conditionMet(condition, workshopState));
+  }
+
   function renderWorkshopGoal(stage) {
-    const ws = state.workshop;
-    const main = componentById(stage.workshop, 'mainGate');
-    const keep = componentById(stage.workshop, 'balanceGate');
-    const mainDone = !!main && ws.values.mainGate === main.target;
-    const keepDone = !!keep && state.turn > 0 && ws.values.balanceGate === keep.target && ws.untouched.balanceGate === true;
+    const cfg = stage.workshop, ws = state.workshop;
     let goal = stage.goal;
-    goal = markGoal(goal, '改變', mainDone);
-    goal = markGoal(goal, '保持', keepDone);
+    for (const mark of cfg.goalMarks || []) goal = markGoal(goal, mark.word, goalMarkMet(mark, ws));
     $('#goal').innerHTML = goal;
     $('#ruleLine').textContent = stage.rule || '';
   }
 
   function renderWorkshopWords(stage) {
-    const solved = isWin();
+    const cfg = stage.workshop, ws = state.workshop, solved = isWin();
     $('#words').innerHTML = '';
     for (const word of stage.words) {
       const button = document.createElement('button');
       button.className = 'wordbtn';
-      if (solved) button.classList.add('done');
+      const mark = (cfg.goalMarks || []).find(item => item.word === word);
+      if ((mark && goalMarkMet(mark, ws)) || (!mark && solved)) button.classList.add('done');
       button.textContent = word;
       button.onclick = () => showWord(word);
       $('#words').append(button);
@@ -132,6 +152,35 @@
     gridEl.querySelectorAll('[data-workshop-action]').forEach(button => {
       button.addEventListener('click', () => runWorkshopAction(button.dataset.component, button.dataset.workshopAction));
     });
+  }
+
+  function renderWaterwheelScene(cfg) {
+    const devices = cfgComponents(cfg).map(component => renderLevelDevice(component, state.workshop.values[component.id])).join('');
+    const wheelRunning = !!state.workshop.derived.wheelRunning;
+    return `<div class="workshop-scene workshop-waterwheel-scene">
+      <div class="workshop-headwater" aria-hidden="true"></div>
+      <div class="workshop-gates">${devices}</div>
+      <div class="workshop-channel" aria-hidden="true"></div>
+      <div class="workshop-wheel-area">
+        <div class="workshop-wheel ${wheelRunning ? 'running' : ''}" role="img" aria-label="${wheelRunning ? '돌고 있는 물레방아' : '멈춰 있는 물레방아'}"><span></span></div>
+        <div class="workshop-wheel-state"><strong>${wheelRunning ? '水車轉動中' : '水車停止'}</strong>${wheelRunning ? '물이 알맞게 흐르고 있어.' : '물이 모자라 멈춰 있어.'}</div>
+      </div>
+      <div class="workshop-board-note">한 번 움직인 뒤 바로 누르지 말고, 물의 높이와 물레방아가 어떻게 달라졌는지 봐.</div>
+    </div>`;
+  }
+
+  function renderForgeScene(cfg) {
+    const devices = cfgComponents(cfg).map(component => renderLevelDevice(component, state.workshop.values[component.id])).join('');
+    const balanced = !!state.workshop.derived.balanced;
+    return `<div class="workshop-scene workshop-forge-scene">
+      <div class="workshop-forge-header" aria-hidden="true"><span></span><i></i><i></i></div>
+      <div class="workshop-gates workshop-forge-controls">${devices}</div>
+      <div class="workshop-forge-result ${balanced ? 'balanced' : ''}">
+        <span class="workshop-metal-bar" aria-hidden="true"></span>
+        <div><strong>${balanced ? '調整好了' : '還沒調好'}</strong>${balanced ? '불과 바람이 둘 다 알맞아.' : '불과 바람을 함께 보고 맞춰야 해.'}</div>
+      </div>
+      <div class="workshop-board-note">한쪽만 맞아도 끝이 아니야. 불과 바람 두 상태가 함께 맞는지 봐.</div>
+    </div>`;
   }
 
   const baseRender = render;
@@ -154,19 +203,8 @@
     gridEl.style.gridTemplateColumns = '';
     gridEl.className = 'grid workshop-board';
     gridEl.setAttribute('role', 'group');
-    gridEl.setAttribute('aria-label', '물레방아 수문 조절 장치');
-    const devices = cfgComponents(cfg).map(component => renderLevelDevice(component, state.workshop.values[component.id])).join('');
-    const wheelRunning = !!state.workshop.derived.wheelRunning;
-    gridEl.innerHTML = `<div class="workshop-scene">
-      <div class="workshop-headwater" aria-hidden="true"></div>
-      <div class="workshop-gates">${devices}</div>
-      <div class="workshop-channel" aria-hidden="true"></div>
-      <div class="workshop-wheel-area">
-        <div class="workshop-wheel ${wheelRunning ? 'running' : ''}" role="img" aria-label="${wheelRunning ? '돌고 있는 물레방아' : '멈춰 있는 물레방아'}"><span></span></div>
-        <div class="workshop-wheel-state"><strong>${wheelRunning ? '水車轉動中' : '水車停止'}</strong>${wheelRunning ? '물이 알맞게 흐르고 있어.' : '물이 모자라 멈춰 있어.'}</div>
-      </div>
-      <div class="workshop-board-note">한 번 움직인 뒤 바로 누르지 말고, 물의 높이와 물레방아가 어떻게 달라졌는지 봐.</div>
-    </div>`;
+    gridEl.setAttribute('aria-label', cfg.boardLabel || '장인골 장치판');
+    gridEl.innerHTML = cfg.scene === 'forge' ? renderForgeScene(cfg) : renderWaterwheelScene(cfg);
     bindWorkshopActions();
     renderWorkshopWords(stage);
 
@@ -178,24 +216,18 @@
     controls.style.gridTemplateColumns = '1fr';
   };
 
-  function feedbackFor(componentId, value, solved) {
-    if (componentId === 'balanceGate') return {
-      text: '這邊不用改變，要保持原樣。 이쪽은 바꾸지 않고 그대로 두어야 해. 되돌리면 다시 처음 상태로 돌아갈 수 있어.',
-      type: 'info'
-    };
-    if (solved) return {
-      text: '一個改變了，一個保持原樣。水車開始轉了。 하나는 바꾸고, 하나는 그대로 뒀어. 물레방아가 돌기 시작했어.',
-      type: 'good'
-    };
-    const main = componentById(cfgFor(current()), 'mainGate');
-    if (main && value < main.target) return {
-      text: value === 1
-        ? '水量增加了，但還不夠。 물은 늘었지만 물레방아를 돌리기엔 아직 부족해.'
-        : '左邊的水還太少。 왼쪽 물이 아직 너무 적어.',
-      type: 'info'
-    };
-    if (main && value > main.target) return { text: '左邊的水太多了。 왼쪽 물이 너무 많아졌어.', type: 'info' };
-    return { text: '水量改變了。 물의 양이 달라졌어.', type: 'good' };
+  function resolvedFeedback(entry, value) {
+    if (!entry) return null;
+    if (entry.values) return entry.values[String(value)] || entry.default || null;
+    return entry;
+  }
+
+  function feedbackFor(stage, componentId, actionType, value, solved) {
+    const feedback = stage.workshop?.feedback || {};
+    if (solved && feedback.solved) return feedback.solved;
+    const entry = resolvedFeedback(feedback.actions?.[`${componentId}:${actionType}`], value);
+    if (entry) return entry;
+    return { text: '상태가 달라졌어. 다른 장치도 함께 확인해봐.', type: 'info' };
   }
 
   function runWorkshopAction(componentId, actionType) {
@@ -204,7 +236,8 @@
     ensureWorkshopState();
     const result = M.applyAction(cfg, state.workshop, { component: componentId, type: actionType });
     if (!result.changed) {
-      setStatus('이 장치는 그 방향으로 더 움직이지 않아.', 'info');
+      const limit = cfg.feedback?.limit?.[`${componentId}:${actionType}`];
+      setStatus(limit?.text || '이 장치는 그 방향으로 더 움직이지 않아.', limit?.type || 'info');
       return;
     }
 
@@ -214,7 +247,7 @@
     const solved = M.isSolved(cfg, state.workshop);
     save();
     render();
-    const feedback = feedbackFor(componentId, state.workshop.values[componentId], solved);
+    const feedback = feedbackFor(stage, componentId, actionType, state.workshop.values[componentId], solved);
     setStatus(feedback.text, feedback.type);
 
     if (!solved) return;
