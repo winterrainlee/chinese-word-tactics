@@ -29,13 +29,16 @@
         { speaker: 'boy', zh: '別急。我來幫你推。', ko: '잠깐만요. 제가 밀어볼게요.' },
         { speaker: 'narrator', zh: '兩人一起用力，總算把車推回了路上。', ko: '둘이 함께 힘을 쓰자 마침내 수레가 길 위로 올라왔다.' },
         { speaker: 'merchant', zh: '謝謝你！你是第一次來這裡吧？', ko: '고맙구나! 이곳은 처음이지?' },
-        { speaker: 'merchant', zh: '前面的三條路都通往三溪鎮。關口那邊車馬來往多，沿著溪流能到工坊，走大路則會到市集。', ko: '앞의 세 길은 모두 물길마을로 이어져. 관문 쪽은 사람과 수레가 많이 오가고, 물길을 따라가면 공방이, 큰길로 가면 장터가 나오지.' },
+        { speaker: 'merchant', zh: '前面的三條路都能到三溪鎮。', ko: '앞의 세 길은 모두 물길마을로 이어져.' },
+        { speaker: 'merchant', zh: '這邊是關口，平常有很多人和貨車經過。', ko: '이쪽은 길목의 관문이야. 평소에도 사람과 수레가 많이 지나가지.' },
+        { speaker: 'merchant', zh: '走溪邊的路，可以到工坊。', ko: '물가 길을 따라가면 공방들이 있는 장인골로 갈 수 있어.' },
+        { speaker: 'merchant', zh: '走大路，就會到市集。', ko: '큰길로 가면 장터가 나오지.' },
         { speaker: 'merchant', zh: '三條路都走得通。想先看看哪裡，就由你決定吧。', ko: '세 길 모두 갈 수 있어. 어디부터 둘러볼지는 네가 정하렴.' }
       ]
     },
     'gate-arrival': {
       id: 'gate-arrival', chapterId: 'chapter-1-three-roads', titleKo: '관문에 도착하다',
-      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      background: 'gate', placeZh: '關口', placeKo: '길목',
       beats: [
         { speaker: 'narrator', zh: '少年沿著行商指的路，來到了三溪鎮外圍的關口。', ko: '소년은 행상인이 가리킨 길을 따라 물길마을 외곽의 길목에 도착했다.' },
         { speaker: 'gatekeeper', zh: '第一次來嗎？北邊的路最近不太好走。', ko: '처음 왔나? 요즘 북쪽 길이 좀 좋지 않아.' },
@@ -46,7 +49,7 @@
     },
     'gate-after-entry': {
       id: 'gate-after-entry', chapterId: 'chapter-1-three-roads', titleKo: '관문에 울린 종소리',
-      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      background: 'gate', placeZh: '關口', placeKo: '길목',
       beats: [
         { speaker: 'gatekeeper', zh: '回來了？裡面的路標怎麼樣？', ko: '돌아왔네. 안쪽 길표지는 어땠어?' },
         { speaker: 'boy', zh: '字有一點模糊。可是我靠近的時候，好像突然看清楚了。', ko: '글자가 조금 흐렸어요. 그런데 가까이 가니까 갑자기 또렷하게 보인 것 같아요.' },
@@ -57,7 +60,7 @@
     },
     'gate-bell-task': {
       id: 'gate-bell-task', chapterId: 'chapter-1-three-roads', titleKo: '종소리는 어디까지 들릴까',
-      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      background: 'gate', placeZh: '關口', placeKo: '길목',
       beats: [
         { speaker: 'gatekeeper', zh: '北邊新開的路上，鐘聲到底能傳到哪裡，我們還不確定。', ko: '북쪽에 새로 난 길에서 종소리가 어디까지 닿는지 아직 확실하지 않아.' },
         { speaker: 'gatekeeper', zh: '我在路上立了幾支標記牌。走到標記旁，就能比較它和鐘樓的距離。', ko: '길에 표지판을 몇 개 세워 뒀어. 표지판 옆에 서면 종탑과의 거리를 비교할 수 있지.' },
@@ -67,20 +70,20 @@
     },
     'gate-after-bell': {
       id: 'gate-after-bell', chapterId: 'chapter-1-three-roads', titleKo: '종소리의 가장자리',
-      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      background: 'gate', placeZh: '關口', placeKo: '길목',
       beats: [
         { speaker: 'boy', zh: '找到了。再往外一點，就聽不到了。', ko: '찾았어요. 여기서 조금만 더 멀어지면 들리지 않아요.' },
         { speaker: 'gatekeeper', zh: '那裡就是鐘聲能到的範圍邊緣。', ko: '그곳이 종소리가 닿는 범위의 가장자리구나.' },
         { speaker: 'boy', zh: '每個標記和鐘樓的距離都不一樣。把還聽得到鐘聲的地方連起來，就能看出它的範圍了。', ko: '표식마다 종탑과의 거리가 달랐어요. 그래도 종소리가 들리는 곳을 이어 보니 범위가 어디까지인지 알겠어요.' },
-        { speaker: 'gatekeeper', zh: '很好。接下來還得把調查結果送到北邊的哨站。那裡有兩條路可以走。', ko: '좋아. 이제 조사 결과를 북쪽 초소에 전해야겠군. 그곳으로 가는 길은 두 갈래야.' }
+        { speaker: 'gatekeeper', zh: '很好。剛才找到的範圍，也要告訴北邊的哨站。那裡有兩條路可以走。', ko: '좋아. 방금 확인한 범위도 북쪽 초소에 알려줘야 해. 그곳으로 가는 길은 두 갈래야.' }
       ]
     },
     'gate-route-task': {
       id: 'gate-route-task', chapterId: 'chapter-1-three-roads', titleKo: '초소를 거쳐 북쪽으로',
-      background: 'gate', placeZh: '關口鎮', placeKo: '길목',
+      background: 'gate', placeZh: '關口', placeKo: '길목',
       beats: [
         { speaker: 'gatekeeper', zh: '往北口的路分成兩條，西路和東路最後都能到達北口。', ko: '북쪽 출구로 가는 길은 둘로 갈라져 있어. 서쪽 길과 동쪽 길 모두 결국 북쪽 출구로 이어지지.' },
-        { speaker: 'gatekeeper', zh: '剛才調查鐘聲範圍的結果也得回報哨站。你選一條路線，經由一個哨站再往北走吧。', ko: '방금 확인한 종소리 범위도 초소에 알려야 해. 경로를 하나 골라 초소 한 곳을 거쳐 북쪽으로 가 주렴.' },
+        { speaker: 'gatekeeper', zh: '把剛才找到的範圍告訴哨站吧。你選一條路線，經由一個哨站再往北走。', ko: '방금 찾은 범위를 초소에 알려 줘. 경로를 하나 골라 초소 한 곳을 거쳐 북쪽으로 가면 돼.' },
         { speaker: 'gatekeeper', zh: '兩邊都走得通。挑一條你覺得好走的就行。', ko: '어느 쪽으로 가도 괜찮아. 네가 걷기 편한 길을 택하면 돼.' },
         { speaker: 'boy', zh: '明白了。我會先經過哨站。', ko: '알겠어요. 초소를 거쳐서 갈게요.' }
       ]
@@ -115,7 +118,7 @@
         { speaker: 'narrator', zh: '障礙移開後，貨車慢慢往前走了。', ko: '장애물을 치우자 수레가 천천히 다시 움직이기 시작했다.' },
         { speaker: 'narrator', zh: '可是沒走多遠，貨車又在一扇狹窄的門前停了下來。', ko: '하지만 얼마 가지 않아 수레는 좁은 문 앞에서 다시 멈췄다.' },
         { speaker: 'driver', zh: '這扇門是往內開的，可是車停得太近，門推不開。', ko: '이 문은 안쪽으로 열리는데, 수레가 너무 바짝 붙어서 문을 밀 수가 없겠어.' },
-        { speaker: 'boy', zh: '那得先把車挪開，替門騰出位置。', ko: '그럼 먼저 수레를 옮겨서 문이 열릴 자리를 만들어야겠네요.' }
+        { speaker: 'boy', zh: '車離門太近了。得移動貨車，讓門有地方打開。', ko: '수레가 문에 너무 가까워요. 수레를 움직여서 문이 열릴 자리를 만들어야겠네요.' }
       ]
     },
     'gate-narrow-gate-task': {
@@ -123,7 +126,7 @@
       background: 'gate', placeZh: '北門', placeKo: '북쪽 좁은 문',
       beats: [
         { speaker: 'narrator', zh: '少年仔細看了看門板和貨車的位置。', ko: '소년은 문짝과 수레의 위치를 자세히 살펴보았다.' },
-        { speaker: 'driver', zh: '門板往內轉時需要空間。貨車朝北，前進或後退，會停在不同的位置。', ko: '문짝이 안쪽으로 움직이려면 공간이 필요해. 수레는 북쪽을 향하고 있으니, 전진하느냐 후퇴하느냐에 따라 서는 위치가 달라지겠지.' },
+        { speaker: 'driver', zh: '這扇門往裡開，需要一點空間。貨車朝北，前進或後退，會停在不同的位置。', ko: '이 문은 안쪽으로 열려서 공간이 조금 필요해. 수레는 북쪽을 향하고 있으니, 전진하느냐 후퇴하느냐에 따라 서는 위치가 달라지겠지.' },
         { speaker: 'boy', zh: '我先看看車和門的位置，再找出該往哪邊移動。', ko: '수레와 문의 위치부터 살펴보고, 어느 쪽으로 움직여야 할지 찾아볼게요.' }
       ]
     },
