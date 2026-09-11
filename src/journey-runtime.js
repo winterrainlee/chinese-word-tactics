@@ -1,11 +1,23 @@
 (() => {
   const $ = id => document.getElementById(id);
   let filter = 'all';
+  const collapsedChapters = new Set();
+  const collapsedRegions = new Set();
+
   const make = (tag, className, text) => {
     const el = document.createElement(tag); el.className = className;
     if (text !== undefined) el.textContent = text;
     return el;
   };
+
+  function rememberDisclosure(details, key, collapsedSet) {
+    details.open = !collapsedSet.has(key);
+    details.addEventListener('toggle', () => {
+      if (details.open) collapsedSet.delete(key);
+      else collapsedSet.add(key);
+    });
+  }
+
   function ensureActions() {
     const continueButton = $('journeyContinue');
     let actions = $('journeyActions');
@@ -20,6 +32,7 @@
     }
     if (reset.parentElement !== actions) actions.append(reset);
   }
+
   function chapterDisplay(chapter) {
     if (chapter.id === 'prologue') {
       return {
@@ -36,7 +49,8 @@
     }
     return { title: chapter.titleKo, meta: chapter.tag || '' };
   }
-  function appendTimeline(article, section, progress) {
+
+  function appendTimeline(container, section, progress) {
     const list = make('ol', 'journeyTimeline');
     for (const node of section.sequence) {
       if (filter !== 'all' && filter !== node.type) continue;
@@ -56,8 +70,44 @@
         GameFlow.playStory(node.id, { mode: done ? 'replay' : 'first-play', returnTo: 'journey' });
       const item = make('li', ''); item.append(button); list.append(item);
     }
-    if (list.children.length) article.append(list);
+    if (list.children.length) container.append(list);
   }
+
+  function appendRegion(chapterBody, chapter, section, progress) {
+    const region = WORLD.regions.find(r => r.id === section.regionId);
+    if (!region) return;
+
+    const stageNodes = section.sequence.filter(node => node.type === 'stage');
+    const storyNodes = section.sequence.filter(node => node.type === 'story');
+    const doneStages = stageNodes.filter(node => JourneyProgress.isComplete(node, progress)).length;
+    const doneStories = storyNodes.filter(node => JourneyProgress.isComplete(node, progress)).length;
+
+    const regionDetails = make('details', 'journeyRegion');
+    const regionKey = `${chapter.id}:${section.id}`;
+    rememberDisclosure(regionDetails, regionKey, collapsedRegions);
+
+    const summary = make('summary', 'journeyRegionSummary');
+    const names = make('span', 'journeyRegionHead');
+    names.append(make('strong', 'journeyRegionKo', region.nameKo));
+    if (region.name) names.append(make('span', 'journeyRegionZh', region.name));
+    summary.append(names);
+
+    const progressText = !section.sequence.length
+      ? `준비 중 · ${section.plannedStageCount}판`
+      : `스테이지 ${doneStages}/${section.plannedStageCount} · 이야기 ${doneStories}/${storyNodes.length}`;
+    summary.append(make('span', 'journeyRegionProgress', progressText));
+    regionDetails.append(summary);
+
+    const regionBody = make('div', 'journeyRegionBody');
+    if (!section.sequence.length) {
+      regionBody.append(make('p', 'journeyRegionEmpty', '의뢰 준비 중'));
+    } else {
+      appendTimeline(regionBody, section, progress);
+    }
+    regionDetails.append(regionBody);
+    chapterBody.append(regionDetails);
+  }
+
   function render() {
     ensureActions();
     const progress = GameFlow.progress(), root = $('journeyList'); root.replaceChildren();
@@ -69,35 +119,35 @@
     document.querySelectorAll('[data-journey-filter]').forEach(button => {
       button.setAttribute('aria-pressed', String(button.dataset.journeyFilter === filter));
     });
+
     for (const chapter of JourneyContent.JOURNEY) {
-      const article = make('section', 'journeyChapter');
+      const chapterDetails = make('details', 'journeyChapter');
+      chapterDetails.dataset.chapterId = chapter.id;
+      rememberDisclosure(chapterDetails, chapter.id, collapsedChapters);
+
       const display = chapterDisplay(chapter);
-      article.append(make('h2', '', display.title));
-      if (display.meta) article.append(make('p', 'journeyChapterMeta', display.meta));
+      const summary = make('summary', 'journeyChapterSummary');
+      const heading = make('span', 'journeyChapterHeading');
+      heading.append(make('strong', 'journeyChapterTitle', display.title));
+      if (display.meta) heading.append(make('span', 'journeyChapterMeta', display.meta));
+      summary.append(heading);
+      chapterDetails.append(summary);
+
+      const chapterBody = make('div', 'journeyChapterBody');
       for (const section of chapter.sections) {
         if (section.regionId) {
-          const region = WORLD.regions.find(r => r.id === section.regionId);
-          const stageNodes = section.sequence.filter(node => node.type === 'stage');
-          const storyNodes = section.sequence.filter(node => node.type === 'story');
-          const regionBox = make('div', 'journeyRegion');
-          const regionHead = make('div', 'journeyRegionHead');
-          regionHead.append(make('strong', 'journeyRegionKo', region.nameKo));
-          if (region.name) regionHead.append(make('span', 'journeyRegionZh', region.name));
-          regionBox.append(regionHead);
-          if (!section.sequence.length) {
-            regionBox.append(make('p', '', `의뢰 준비 중 · 스테이지 ${section.plannedStageCount}판 기획`));
-            article.append(regionBox); continue;
-          }
-          const doneStages = stageNodes.filter(node => JourneyProgress.isComplete(node, progress)).length;
-          const doneStories = storyNodes.filter(node => JourneyProgress.isComplete(node, progress)).length;
-          regionBox.append(make('p', '', `스테이지 ${doneStages}/${section.plannedStageCount} · 이야기 ${doneStories}/${storyNodes.length}`));
-          article.append(regionBox);
+          appendRegion(chapterBody, chapter, section, progress);
+          continue;
         }
-        appendTimeline(article, section, progress);
+        const directSection = make('div', 'journeySection journeySectionDirect');
+        appendTimeline(directSection, section, progress);
+        if (directSection.children.length) chapterBody.append(directSection);
       }
-      root.append(article);
+      chapterDetails.append(chapterBody);
+      root.append(chapterDetails);
     }
   }
+
   document.querySelectorAll('[data-journey-filter]').forEach(button => {
     button.onclick = () => { filter = button.dataset.journeyFilter; render(); };
   });
