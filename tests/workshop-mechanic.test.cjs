@@ -38,6 +38,32 @@ const w2 = {
   ]
 };
 
+const w3 = {
+  components: [
+    { id: 'grinderLink', kind: 'toggle', initial: false, target: true },
+    { id: 'workLink', kind: 'toggle', initial: true, target: true, trackUntouched: true },
+    { id: 'hoistLink', kind: 'toggle', initial: true, target: false }
+  ],
+  derived: [
+    { id: 'grinderRunning', type: 'all', conditions: [{ component: 'grinderLink', eq: true }] },
+    { id: 'workRunning', type: 'all', conditions: [{ component: 'workLink', eq: true }] },
+    { id: 'hoistRunning', type: 'all', conditions: [{ component: 'hoistLink', eq: true }] },
+    {
+      id: 'overloaded', type: 'all', conditions: [
+        { component: 'grinderLink', eq: true },
+        { component: 'workLink', eq: true },
+        { component: 'hoistLink', eq: true }
+      ]
+    }
+  ],
+  predicates: [
+    { component: 'grinderLink', eq: true },
+    { component: 'workLink', eq: true },
+    { untouched: 'workLink', eq: true },
+    { component: 'hoistLink', eq: false }
+  ]
+};
+
 test('W1 needs two left-gate changes while leaving the right gate untouched', () => {
   const initial = W.createState(w1);
   assert.equal(W.isSolved(w1, initial), false);
@@ -105,4 +131,45 @@ test('W2 does not solve when one setting overshoots and recovers only after read
   const corrected = W.applyAction(w2, airOne, { component: 'fire', type: 'step-up' }).state;
   assert.equal(corrected.values.fire, 1);
   assert.equal(W.isSolved(w2, corrected), true);
+});
+
+test('W3 connecting the needed wheel first visibly overloads the shaft until the unused hoist is separated', () => {
+  const initial = W.createState(w3);
+  assert.equal(initial.derived.grinderRunning, false);
+  assert.equal(initial.derived.workRunning, true);
+  assert.equal(initial.derived.hoistRunning, true);
+  assert.equal(initial.derived.overloaded, false);
+
+  const connected = W.applyAction(w3, initial, { component: 'grinderLink', type: 'toggle' }).state;
+  assert.equal(connected.values.grinderLink, true);
+  assert.equal(connected.derived.grinderRunning, true);
+  assert.equal(connected.derived.overloaded, true);
+  assert.equal(W.isSolved(w3, connected), false);
+
+  const separated = W.applyAction(w3, connected, { component: 'hoistLink', type: 'toggle' }).state;
+  assert.equal(separated.values.hoistLink, false);
+  assert.equal(separated.derived.hoistRunning, false);
+  assert.equal(separated.derived.overloaded, false);
+  assert.equal(separated.untouched.workLink, true);
+  assert.equal(W.isSolved(w3, separated), true);
+});
+
+test('W3 can also separate the unused hoist before connecting the needed wheel', () => {
+  const initial = W.createState(w3);
+  const separated = W.applyAction(w3, initial, { component: 'hoistLink', type: 'toggle' }).state;
+  assert.equal(W.isSolved(w3, separated), false);
+  const connected = W.applyAction(w3, separated, { component: 'grinderLink', type: 'toggle' }).state;
+  assert.equal(connected.derived.overloaded, false);
+  assert.equal(W.isSolved(w3, connected), true);
+});
+
+test('W3 touching the already-correct middle link breaks 保持 even after reconnecting it', () => {
+  const initial = W.createState(w3);
+  const middleOff = W.applyAction(w3, initial, { component: 'workLink', type: 'toggle' }).state;
+  const middleOn = W.applyAction(w3, middleOff, { component: 'workLink', type: 'toggle' }).state;
+  const hoistOff = W.applyAction(w3, middleOn, { component: 'hoistLink', type: 'toggle' }).state;
+  const grinderOn = W.applyAction(w3, hoistOff, { component: 'grinderLink', type: 'toggle' }).state;
+  assert.equal(grinderOn.values.workLink, true);
+  assert.equal(grinderOn.untouched.workLink, false);
+  assert.equal(W.isSolved(w3, grinderOn), false);
 });
