@@ -28,10 +28,12 @@ jobs:
         run: |
           node --check src/content.js
           node --check src/workshop-content.js
+          node --check src/workshop-late-content.js
           node --check src/g7-content.js
           node --check src/journey-content.js
           node --check src/g7-journey-content.js
           node --check src/workshop-journey-content.js
+          node --check src/workshop-late-journey-content.js
           node --check src/world-v06-content.js
           node --check src/journey-progress.js
           node --check src/story-outcome-content.js
@@ -48,6 +50,7 @@ jobs:
           node --check src/follower-runtime.js
           node --check src/g7-runtime.js
           node --check src/follower-chain-runtime.js
+          node --check src/workshop-late-runtime.js
           node --check src/flow-runtime.js
           node --check src/icons-runtime.js
           node --check src/world-runtime.js
