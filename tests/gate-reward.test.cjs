@@ -28,6 +28,19 @@ test('world reward badge is tied to finishing the award story and uses the signp
   assert.match(runtime, /regionRewardBadge/);
   assert.match(css, /regionRewardBadge/);
   assert.match(html, /gate-reward-story-content\.js\?v=20260911-gatereward1/);
-  assert.match(html, /world-reward-runtime\.js\?v=20260911-gatereward1/);
-  assert.ok(html.indexOf('world-runtime.js?v=20260911-townarrival1') < html.indexOf('world-reward-runtime.js?v=20260911-gatereward1'));
+  assert.match(html, /world-reward-runtime\.js\?v=20260911-gatereward2/);
+  assert.match(html, /world-reward\.css\?v=20260911-gatereward2/);
+  assert.ok(html.indexOf('world-runtime.js?v=20260911-townarrival1') < html.indexOf('world-reward-runtime.js?v=20260911-gatereward2'));
+});
+
+test('earned reward also appears inside the selected region detail sheet', () => {
+  const runtime = read('src/world-reward-runtime.js');
+  const css = read('src/world-reward.css');
+  assert.match(runtime, /earnedRewardsForRegion/);
+  assert.match(runtime, /regionSheetNameZh/);
+  assert.match(runtime, /worldRewardDetail/);
+  assert.match(runtime, /받은 증표/);
+  assert.match(runtime, /\$\{reward\.nameKo\}를 받았어\./);
+  assert.match(css, /worldRewardDetailItem/);
+  assert.match(css, /worldRewardDetailSymbol/);
 });
