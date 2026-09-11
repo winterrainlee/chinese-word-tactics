@@ -183,6 +183,37 @@
     </div>`;
   }
 
+  function runningForLink(componentId) {
+    const derivedId = componentId === 'grinderLink' ? 'grinderRunning' : componentId === 'workLink' ? 'workRunning' : 'hoistRunning';
+    return !!state.workshop.derived[derivedId];
+  }
+
+  function renderCouplingDevice(component) {
+    const connected = !!state.workshop.values[component.id];
+    const running = runningForLink(component.id);
+    return `<section class="workshop-coupling-device ${connected ? 'connected' : 'separated'}" data-component="${component.id}">
+      <div class="workshop-device-label"><span lang="zh-Hant">${component.labelZh}</span><small>${component.labelKo}</small></div>
+      <div class="workshop-branch-belt ${connected ? 'connected' : ''}" aria-hidden="true"><i></i></div>
+      <button type="button" class="workshop-coupler ${connected ? 'connected' : ''}" data-workshop-action="toggle" data-component="${component.id}" aria-label="${component.labelKo} 연결쇠 상태 바꾸기"><span></span></button>
+      <div class="workshop-machine-wheel ${running ? 'running' : ''}" role="img" aria-label="${running ? '돌고 있는 ' : '멈춰 있는 '}${component.labelKo}"><span></span></div>
+      <div class="workshop-link-state"><strong>${connected ? '已連接' : '已分開'}</strong>${running ? '주축과 함께 돌아.' : '주축과 따로 멈춰 있어.'}</div>
+    </section>`;
+  }
+
+  function renderCouplingScene(cfg) {
+    const overloaded = !!state.workshop.derived.overloaded;
+    const devices = cfgComponents(cfg).map(renderCouplingDevice).join('');
+    return `<div class="workshop-scene workshop-coupling-scene ${overloaded ? 'overloaded' : ''}">
+      <div class="workshop-mainshaft" role="img" aria-label="${overloaded ? '부하 때문에 느려진 주축' : '정상 속도로 도는 주축'}">
+        <span class="workshop-mainshaft-wheel ${overloaded ? 'slow' : ''}"><i></i></span>
+        <b></b>
+        <div><strong>${overloaded ? '主軸變慢' : '主軸正常'}</strong>${overloaded ? '연결된 장치가 너무 많아졌어.' : '주축은 계속 일정하게 돌고 있어.'}</div>
+      </div>
+      <div class="workshop-coupling-branches">${devices}</div>
+      <div class="workshop-board-note">연결쇠 하나를 바꾸면 벨트와 작업바퀴가 어떻게 달라지는지 같이 봐.</div>
+    </div>`;
+  }
+
   const baseRender = render;
   render = function workshopRender() {
     const stage = current(), cfg = cfgFor(stage);
@@ -204,7 +235,9 @@
     gridEl.className = 'grid workshop-board';
     gridEl.setAttribute('role', 'group');
     gridEl.setAttribute('aria-label', cfg.boardLabel || '장인골 장치판');
-    gridEl.innerHTML = cfg.scene === 'forge' ? renderForgeScene(cfg) : renderWaterwheelScene(cfg);
+    if (cfg.scene === 'forge') gridEl.innerHTML = renderForgeScene(cfg);
+    else if (cfg.scene === 'couplings') gridEl.innerHTML = renderCouplingScene(cfg);
+    else gridEl.innerHTML = renderWaterwheelScene(cfg);
     bindWorkshopActions();
     renderWorkshopWords(stage);
 
@@ -222,9 +255,18 @@
     return entry;
   }
 
+  function stateFeedback(feedback, workshopState) {
+    for (const entry of feedback.states || []) {
+      if ((entry.conditions || []).every(condition => M.conditionMet(condition, workshopState))) return entry;
+    }
+    return null;
+  }
+
   function feedbackFor(stage, componentId, actionType, value, solved) {
     const feedback = stage.workshop?.feedback || {};
     if (solved && feedback.solved) return feedback.solved;
+    const stateEntry = stateFeedback(feedback, state.workshop);
+    if (stateEntry) return stateEntry;
     const entry = resolvedFeedback(feedback.actions?.[`${componentId}:${actionType}`], value);
     if (entry) return entry;
     return { text: '상태가 달라졌어. 다른 장치도 함께 확인해봐.', type: 'info' };
