@@ -15,7 +15,9 @@ const WORDS={
   '障礙':{p:'ㄓㄤˋ ㄞˋ',k:'장애물, 방해가 되는 것',ex:'石頭成了貨車前面的障礙。',rule:'주변에 있다고 모두 장애물은 아니야. 실제 이동을 막는 관계인지 확인해야 해.'},
   '移動':{p:'ㄧˊ ㄉㄨㄥˋ',k:'이동하다, 움직이다',ex:'先把貨車移動到安全的位置。',rule:'수레의 위치가 실제로 한 칸 바뀌면 移動이 성립해. 단어 버튼을 눌러 움직이는 것은 아니야.'},
   '前進':{p:'ㄑㄧㄢˊ ㄐㄧㄣˋ',k:'전진하다, 앞으로 나아가다',ex:'門打開後，貨車可以前進。',rule:'수레가 바라보는 방향으로 실제로 한 칸 움직이면 前進이야. 이 판에서 수레는 북쪽을 향해 있어.'},
-  '後退':{p:'ㄏㄡˋ ㄊㄨㄟˋ',k:'후퇴하다, 뒤로 물러나다',ex:'貨車先後退一點。',rule:'수레가 바라보는 방향의 반대로 실제로 한 칸 움직이면 後退야. 뒤로 움직이는 것도 移動이야.'}
+  '後退':{p:'ㄏㄡˋ ㄊㄨㄟˋ',k:'후퇴하다, 뒤로 물러나다',ex:'貨車先後退一點。',rule:'수레가 바라보는 방향의 반대로 실제로 한 칸 움직이면 後退야. 뒤로 움직이는 것도 移動이야.'},
+  '跟隨':{p:'ㄍㄣ ㄙㄨㄟˊ',k:'따라가다, 뒤따르다',ex:'貨車跟隨少年走新路。',rule:'이 판에서는 수레가 소년이 방금 떠난 칸을 실제로 한 칸씩 따라오면 跟隨이야. 수레를 직접 조작하지 않아.'},
+  '帶領':{p:'ㄉㄞˋ ㄌㄧㄥˇ',k:'이끌다, 인솔하다',ex:'少年帶領貨車到北口。',rule:'같은 장면을 소년 쪽에서 보면 帶領이야. 소년이 앞에서 수레도 지나갈 수 있는 길을 만들어야 해.'}
 };
 
 const STAGES=[
@@ -29,7 +31,8 @@ const STAGES=[
   {id:'gate-stage-2',title:'距離・範圍',subtitle:'종소리가 닿는 곳',kicker:'1장 · 길목 2/7',grid:['#####','#.B.#','..P..','.P#P.','.P.P.','.....','..S..'],goal:'找出鐘聲範圍內，距離鐘樓最遠的標記點。',rule:'표식에 서면 종탑까지의 距離와 종소리가 들리는지 확인할 수 있어.',words:['距離','範圍'],win:['range_boundary'],rangeSource:{source:'B',radius:3,pointChar:'P',revealOnFirstClear:true},story:'종소리가 닿는 가장자리를 찾았다.'},
   {id:'gate-stage-3',title:'路線・經由',subtitle:'두 갈래 길',kicker:'1장 · 길목 3/7',grid:['##E##','#...#','#.#.#','A.#.B','#.#.#','#...#','##S##'],goal:'選一條路線，經由一個哨站，到達北口。',rule:'서쪽과 동쪽 어느 路線도 괜찮아. 가는 길에 초소 한 곳을 실제로 들러야 해.',words:['路線','經由'],win:['via','at_exit'],route:{routes:[{id:'west',nameZh:'西路',nameKo:'서쪽 길',cells:[[5,1],[4,1],[3,1],[2,1],[1,1]]},{id:'east',nameZh:'東路',nameKo:'동쪽 길',cells:[[5,3],[4,3],[3,3],[2,3],[1,3]]}],waypoints:{A:{id:'west-post',nameZh:'西哨站',nameKo:'서쪽 초소'},B:{id:'east-post',nameZh:'東哨站',nameKo:'동쪽 초소'}}},story:'어느 길을 택하든, 필요한 곳을 거쳐 목적지에 닿을 수 있었다.'},
   {id:'gate-stage-4',title:'位置・周圍・障礙',subtitle:'바퀴가 걸린 자리',kicker:'1장 · 길목 4/7',grid:['.....','.....','..O..','.QCQ.','.....','.....','..S..'],goal:'看看貨車的位置和周圍，找出障礙。',goalAfter:'移開障礙。',rule:'어느 것부터 봐도 괜찮아. 가까이 가서 실제 공간 관계를 확인해.',words:['位置','周圍','障礙'],win:['obstacle_cleared'],investigation:{cartChar:'C',obstacleChar:'O',nearbyChars:['Q']},contextActions:[{target:'C',label:'수레 살펴보기',action:'g4-inspect-cart'},{target:'Q',label:'짐상자 살펴보기',action:'g4-inspect-nearby'},{target:'O',label:'돌 살펴보기',action:'g4-inspect-obstacle',unless:'obstacleIdentified'},{target:'O',label:'돌 치우기',action:'g4-clear-obstacle',priority:100,requires:'obstacleIdentified',unless:'obstacleCleared'}],story:'수레를 막고 있던 돌을 찾아 치웠다.'},
-  {id:'gate-stage-5',title:'移動・前進・後退',subtitle:'좁은 성문',kicker:'1장 · 길목 5/7',grid:['##E##','#.D.#','#.C.#','#...#','#...#','#.S.#','#####'],goal:'移動貨車，通過狹窄的門。',rule:'수레는 북쪽을 향해 있어. 수레를 누르면 앞·뒤 칸으로 움직일 수 있어.',words:['移動','前進','後退'],win:['cart_at_exit'],movableEntity:{char:'C',facing:'north',goalChar:'E',blockedChars:['#'],door:{char:'D',swingCell:[2,2]}},contextActions:[{target:'D',label:'문 살펴보기',action:'g5-inspect-door',unless:'doorInspected'},{target:'D',label:'문 열기',action:'g5-open-door',priority:100,requires:['doorInspected','doorClear'],unless:'doorOpen'}],story:'수레를 뒤로 빼 문을 열고, 다시 앞으로 보내 좁은 문을 통과했다.'}
+  {id:'gate-stage-5',title:'移動・前進・後退',subtitle:'좁은 성문',kicker:'1장 · 길목 5/7',grid:['##E##','#.D.#','#.C.#','#...#','#...#','#.S.#','#####'],goal:'移動貨車，通過狹窄的門。',rule:'수레는 북쪽을 향해 있어. 수레를 누르면 앞·뒤 칸으로 움직일 수 있어.',words:['移動','前進','後退'],win:['cart_at_exit'],movableEntity:{char:'C',facing:'north',goalChar:'E',blockedChars:['#'],door:{char:'D',swingCell:[2,2]}},contextActions:[{target:'D',label:'문 살펴보기',action:'g5-inspect-door',unless:'doorInspected'},{target:'D',label:'문 열기',action:'g5-open-door',priority:100,requires:['doorInspected','doorClear'],unless:'doorOpen'}],story:'수레를 뒤로 빼 문을 열고, 다시 앞으로 보내 좁은 문을 통과했다.'},
+  {id:'gate-stage-6',title:'跟隨・帶領',subtitle:'길을 잃은 짐수레',kicker:'1장 · 길목 6/7',grid:['##E##','#...#','#.=.#','#...#','#.X.#','#.S.#','#.C.#'],goal:'走在前面帶領貨車，讓貨車跟隨你到北口。',rule:'이번에는 수레를 직접 움직이지 않아. 소년이 한 칸 움직이면 수레가 방금 떠난 칸을 따라와.',words:['跟隨','帶領'],win:['at_exit','follower_at_exit'],follower:{char:'C',leaderGoalChar:'E',followerGoal:[1,2],blockedChars:['#','X','='],narrowChar:'='},story:'소년이 수레도 지나갈 수 있는 길을 골라 앞장섰고, 수레는 그 뒤를 따라 북쪽 길에 도착했다.'}
 ];
 
 const WORLD={
@@ -39,7 +42,7 @@ const WORLD={
   originNameKo:'고향 마을',
   originIcon:'region-origin',
   regions:[
-    {id:'gate-town',name:'關口鎮',nameKo:'길목',icon:'region-gate-town',subtitle:'길을 읽는 마을',status:'available',note:'경로·범위·순서·위치를 다룬다.',targets:['進入','退出','距離','範圍','路線','經由','位置','周圍','障礙','移動','前進','後退']},
+    {id:'gate-town',name:'關口鎮',nameKo:'길목',icon:'region-gate-town',subtitle:'길을 읽는 마을',status:'available',note:'경로·범위·순서·위치를 다룬다.',targets:['進入','退出','距離','範圍','路線','經由','位置','周圍','障礙','移動','前進','後退','跟隨','帶領']},
     {id:'workshop-town',name:'工坊村',nameKo:'장인골',icon:'region-workshop-town',subtitle:'상태를 바꾸는 마을',status:'available',note:'장치의 상태와 조건을 조작한다.',targets:['改變','保持','增加','減少','條件','允許']},
     {id:'market-town',name:'市集鎮',nameKo:'장터',icon:'region-market-town',subtitle:'자원을 고르는 마을',status:'available',note:'교환·선택·부족·가치를 다룬다.',targets:['需求','足夠','缺少','交換','價值','費用']},
     {id:'border-village',name:'邊境村',nameKo:'끝마을',icon:'region-border-village',subtitle:'위험과 손실을 다루는 마을',status:'recommended',recommendedAfter:'gate-town',note:'바로 갈 수 있지만 길목을 먼저 여행하면 길을 읽기 쉽다.',targets:['危機','風險','警告','損失']},
