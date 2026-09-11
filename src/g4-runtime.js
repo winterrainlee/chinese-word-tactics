@@ -135,7 +135,7 @@
     const st = current(), cfg = cfgFor(st); if (!cfg) return;
     state.surroundingsObserved = true; state.obstacleIdentified = true;
     const id = key(pos); if (!state.observedNearby.includes(id)) state.observedNearby.push(id);
-    finishIfReady(st, '石頭卡在前輪前面。這就是讓貨車動不了的障礙。 돌이 바퀴를 막고 있어.', 'good');
+    finishIfReady(st, '石頭正卡在前輪前面，擋住貨車前進。這塊石頭就是障礙。 돌이 앞바퀴를 막아서 수레가 앞으로 갈 수 없어. 이 돌이 바로 障礙야.', 'good');
   };
   handlers['g4-clear-obstacle'] = () => {
     const st = current(), cfg = cfgFor(st); if (!cfg || !state.obstacleIdentified || state.obstacleCleared) return;
