@@ -104,8 +104,10 @@
 
   function renderWorkshopGoal(stage) {
     const ws = state.workshop;
-    const mainDone = ws.values.mainGate === 1;
-    const keepDone = state.turn > 0 && ws.values.balanceGate === 1 && ws.untouched.balanceGate === true;
+    const main = componentById(stage.workshop, 'mainGate');
+    const keep = componentById(stage.workshop, 'balanceGate');
+    const mainDone = !!main && ws.values.mainGate === main.target;
+    const keepDone = !!keep && state.turn > 0 && ws.values.balanceGate === keep.target && ws.untouched.balanceGate === true;
     let goal = stage.goal;
     goal = markGoal(goal, '改變', mainDone);
     goal = markGoal(goal, '保持', keepDone);
@@ -163,7 +165,7 @@
         <div class="workshop-wheel ${wheelRunning ? 'running' : ''}" role="img" aria-label="${wheelRunning ? '돌고 있는 물레방아' : '멈춰 있는 물레방아'}"><span></span></div>
         <div class="workshop-wheel-state"><strong>${wheelRunning ? '水車轉動中' : '水車停止'}</strong>${wheelRunning ? '물이 알맞게 흐르고 있어.' : '물이 모자라 멈춰 있어.'}</div>
       </div>
-      <div class="workshop-board-note">장치를 바꾸면 물의 높이와 물레방아 상태가 바로 달라져.</div>
+      <div class="workshop-board-note">한 번 움직인 뒤 바로 누르지 말고, 물의 높이와 물레방아가 어떻게 달라졌는지 봐.</div>
     </div>`;
     bindWorkshopActions();
     renderWorkshopWords(stage);
@@ -185,8 +187,14 @@
       text: '一個改變了，一個保持原樣。水車開始轉了。 하나는 바꾸고, 하나는 그대로 뒀어. 물레방아가 돌기 시작했어.',
       type: 'good'
     };
-    if (value === 0) return { text: '左邊還是太低了。 왼쪽 물이 아직 너무 적어.', type: 'info' };
-    if (value === 2) return { text: '左邊太高了。 왼쪽 물이 이번에는 너무 많아졌어.', type: 'info' };
+    const main = componentById(cfgFor(current()), 'mainGate');
+    if (main && value < main.target) return {
+      text: value === 1
+        ? '水量增加了，但還不夠。 물은 늘었지만 물레방아를 돌리기엔 아직 부족해.'
+        : '左邊的水還太少。 왼쪽 물이 아직 너무 적어.',
+      type: 'info'
+    };
+    if (main && value > main.target) return { text: '左邊的水太多了。 왼쪽 물이 너무 많아졌어.', type: 'info' };
     return { text: '水量改變了。 물의 양이 달라졌어.', type: 'good' };
   }
 
