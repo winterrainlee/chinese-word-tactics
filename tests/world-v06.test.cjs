@@ -87,10 +87,12 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   const html = read('index.html');
   assert.ok(html.indexOf('journey-content.js') < html.indexOf('world-v06-content.js'));
   assert.ok(html.indexOf('world-v06-content.js') < html.indexOf('app.js'));
-  assert.match(html, /world\.css\?v=20260911-mapcoords1/);
-  assert.match(html, /world-v06-content\.js\?v=20260911-mapcoords1/);
-  assert.match(html, /world-runtime\.js\?v=20260911-mapcoords1/);
-  assert.match(html, /name="cwt-build" content="2026-09-11-mapcoords1"/);
+  assert.ok(html.indexOf('view.css') < html.indexOf('world-map-reset.css'));
+  assert.match(html, /world\.css\?v=20260911-mapgridfix1/);
+  assert.match(html, /world-map-reset\.css\?v=20260911-mapgridfix1/);
+  assert.match(html, /world-v06-content\.js\?v=20260911-mapgridfix1/);
+  assert.match(html, /world-runtime\.js\?v=20260911-mapgridfix1/);
+  assert.match(html, /name="cwt-build" content="2026-09-11-mapgridfix1"/);
 
   const runtime = read('src/world-runtime.js');
   assert.match(runtime, /loadChunkedMap/);
@@ -109,4 +111,13 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(css, /villageMapWash/);
   assert.match(css, /regionBadge/);
   assert.match(css, /regionCard\.selected/);
+
+  const reset = read('src/world-map-reset.css');
+  assert.match(reset, /display:block!important/);
+  assert.match(reset, /grid-template-columns:none!important/);
+  assert.match(reset, /grid-column:auto!important/);
+  assert.match(reset, /grid-row:auto!important/);
+  assert.match(reset, /left:var\(--map-x\)!important/);
+  assert.match(reset, /top:var\(--map-y\)!important/);
+  assert.match(reset, /regionCard::before/);
 });
