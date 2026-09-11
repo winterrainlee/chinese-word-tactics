@@ -16,6 +16,14 @@ function loadWorld() {
   return context;
 }
 
+function readMapBuffer(config) {
+  const parts = Array.from({ length: config.count }, (_, index) => {
+    const file = `${config.base.replace('./', '')}/${String(index).padStart(2, '0')}.txt`;
+    return read(file).trim();
+  });
+  return Buffer.from(parts.join(''), 'base64');
+}
+
 test('v0.6 world keeps stable ids while presenting one Three Streams settlement', () => {
   const context = loadWorld();
   const world = context.__world;
@@ -23,7 +31,9 @@ test('v0.6 world keeps stable ids while presenting one Three Streams settlement'
   assert.equal(world.originNameKo, '작은 마을');
   assert.equal(world.settlement.name, '三溪鎮');
   assert.equal(world.settlement.nameKo, '물길마을');
-  assert.equal(world.settlement.mapAsset, './images/world/three-streams-map.webp');
+  assert.equal(world.settlement.mapAssetChunks.base, './images/world/three-streams-map');
+  assert.equal(world.settlement.mapAssetChunks.count, 8);
+  assert.equal(world.settlement.mapAssetChunks.type, 'image/webp');
 
   const byId = Object.fromEntries(world.regions.map(region => [region.id, region]));
   assert.equal(byId['gate-town'].name, '關口');
@@ -59,16 +69,22 @@ test('watercolor map runs top to bottom and keeps recommendation text off the ma
   assert.match(byId['research-city'].lockHint, /장인골/);
 });
 
+test('chunked map data reconstructs a real WebP and preserves useful detail', () => {
+  const context = loadWorld();
+  const buffer = readMapBuffer(context.__world.settlement.mapAssetChunks);
+  assert.ok(buffer.length > 30_000);
+  assert.equal(buffer.subarray(0, 4).toString('ascii'), 'RIFF');
+  assert.equal(buffer.subarray(8, 12).toString('ascii'), 'WEBP');
+});
+
 test('world renderer uses raster art, paper wash, and tappable POI state badges', () => {
   const html = read('index.html');
   assert.ok(html.indexOf('journey-content.js') < html.indexOf('world-v06-content.js'));
   assert.ok(html.indexOf('world-v06-content.js') < html.indexOf('app.js'));
 
-  const mapFile = path.join(root, 'images/world/three-streams-map.webp');
-  assert.ok(fs.existsSync(mapFile));
-  assert.ok(fs.statSync(mapFile).size > 30_000);
-
   const runtime = read('src/world-runtime.js');
+  assert.match(runtime, /loadChunkedMap/);
+  assert.match(runtime, /new Blob/);
   assert.match(runtime, /villageMapImage/);
   assert.match(runtime, /villageMapWash/);
   assert.match(runtime, /dataset\.regionId/);
