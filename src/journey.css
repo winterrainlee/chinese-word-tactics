@@ -6,20 +6,36 @@
 .journeyFilters{display:flex;gap:8px}
 .journeyFilters button{flex:1;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
 .journeyFilters button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
-.journeyChapter h2{font-size:18px;margin:14px 0 2px}
-.journeyChapterMeta{font-size:12px;color:var(--muted);margin:0 0 10px}
+
+.journeyChapter{margin:8px 0 2px}
+.journeyChapterSummary,.journeyRegionSummary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.journeyChapterSummary::-webkit-details-marker,.journeyRegionSummary::-webkit-details-marker{display:none}
+.journeyChapterSummary{min-height:54px;display:grid;grid-template-columns:18px minmax(0,1fr);align-items:center;gap:8px;padding:8px 2px;border-radius:12px}
+.journeyChapterSummary::before,.journeyRegionSummary::before{content:'›';display:block;color:var(--muted);font-size:24px;line-height:1;transform:rotate(0deg);transform-origin:center;transition:transform .16s ease}
+.journeyChapter[open]>.journeyChapterSummary::before,.journeyRegion[open]>.journeyRegionSummary::before{transform:rotate(90deg)}
+.journeyChapterSummary:active,.journeyRegionSummary:active{background:var(--accent-soft)}
+.journeyChapterHeading{display:grid;gap:2px;min-width:0}
+.journeyChapterTitle{font-size:18px;line-height:1.35}
+.journeyChapterMeta{font-size:12px;color:var(--muted);font-weight:500}
+.journeyChapterBody{margin:2px 0 12px 8px;padding:0 0 2px 14px;border-left:2px solid var(--line)}
+.journeySectionDirect{padding:2px 0 6px 4px}
+
+.journeyRegion{margin:8px 0}
+.journeyRegionSummary{min-height:50px;display:grid;grid-template-columns:16px minmax(0,1fr);align-items:center;gap:7px;padding:8px 10px;border:1px dashed var(--line);border-radius:12px;background:color-mix(in srgb,var(--paper) 88%,var(--bg))}
+.journeyRegionHead{display:flex;align-items:baseline;gap:7px;min-width:0;flex-wrap:wrap}
+.journeyRegionKo{font-size:15px}
+.journeyRegionZh{font-size:12px;color:var(--muted);font-weight:650}
+.journeyRegionProgress{grid-column:2;font-size:11px;color:var(--muted);line-height:1.35}
+.journeyRegionBody{margin:4px 0 4px 8px;padding:4px 0 2px 14px;border-left:1px solid var(--line)}
+.journeyRegionEmpty{font-size:12px;color:var(--muted);margin:4px 0 8px}
+
 .journeyTimeline{list-style:none;padding:0;margin:0;display:grid;gap:8px}
 .journeyNode{display:grid;grid-template-columns:1fr;gap:5px;text-align:left;width:100%;min-height:88px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--paper)}
 .journeyNodeTitle{font-size:16px;line-height:1.4;word-break:keep-all;overflow-wrap:anywhere}
 .journeyType,.journeyNodeState{font-size:12px;color:var(--muted)}
 .journeyNode[data-state="complete"] .journeyNodeState{color:var(--accent)}
 .journeyNode[data-state="locked"]{background:var(--bg);border-style:dashed;color:var(--muted)}
-.journeyRegion{padding:12px 14px;margin:8px 0;border:1px dashed var(--line);border-radius:14px}
-.journeyRegionHead{display:flex;align-items:baseline;gap:7px}
-.journeyRegionKo{font-size:15px}
-.journeyRegionZh{font-size:12px;color:var(--muted);font-weight:650}
-.journeyRegion p{font-size:12px;color:var(--muted);margin:6px 0 0}
-.journeyRegion+.journeyTimeline{margin-top:8px}
+
 .journeyReset{min-height:48px;min-width:0;padding:8px 6px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--danger);font-size:13px;font-weight:750;white-space:nowrap;word-break:keep-all}
 .journeyReset:active{background:var(--danger-soft);border-color:var(--danger)}
 .resetWarning{font-size:15px;line-height:1.6;margin:12px 0;color:var(--ink)}
@@ -32,4 +48,4 @@
 .flowNotice[hidden]{display:none!important}
 .flowMenu{display:grid;gap:8px}.flowMenu button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);text-align:left;padding:10px 14px}
 .flowMenu button:disabled{color:var(--muted)}
-.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
