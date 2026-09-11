@@ -34,6 +34,7 @@ jobs:
           node --check src/interaction-runtime.js
           node --check src/range-runtime.js
           node --check src/route-runtime.js
+          node --check src/g4-runtime.js
           node --check src/flow-runtime.js
           node --check src/icons-runtime.js
           node --check src/world-runtime.js
