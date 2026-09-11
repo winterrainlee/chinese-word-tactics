@@ -207,6 +207,151 @@
   box-shadow: inset 0 0 0 3px rgba(68,102,138,.28);
 }
 
+/* Gate-town tactical objects. Runtime mark elements keep dynamic positions/state. */
+.investigation-cart-mark,
+.movable-cart-mark,
+.follower-cart-mark,
+.follower-chain-mark,
+.investigation-crate-mark,
+.investigation-rock-mark,
+.g7-obstacle-mark,
+.range-bell,
+.route-waypoint-mark,
+.movable-door-mark,
+.follower-narrow-mark,
+.cell.sign::before {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  box-shadow: none;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  pointer-events: none;
+  text-shadow: none;
+}
+
+.investigation-cart-mark,
+.movable-cart-mark,
+.follower-cart-mark,
+.follower-chain-mark {
+  width: 88%;
+  height: 82%;
+  background-image: var(--gate-icon-cart);
+}
+
+.investigation-crate-mark {
+  width: 76%;
+  height: 76%;
+  background-image: var(--gate-icon-crate);
+}
+
+.investigation-rock-mark,
+.g7-obstacle-mark {
+  width: 78%;
+  height: 78%;
+  background-image: var(--gate-icon-obstacle);
+}
+
+.range-bell {
+  width: 82%;
+  height: 88%;
+  background-image: var(--gate-icon-bell-tower);
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,.14));
+}
+
+.route-waypoint-mark {
+  width: 82%;
+  height: 88%;
+  background-image: var(--gate-icon-outpost);
+}
+
+.cell.route-waypoint.route-visited .route-waypoint-mark {
+  border: 0;
+  background-color: transparent;
+  filter: drop-shadow(0 0 3px rgba(45,98,72,.8));
+  box-shadow: none;
+}
+
+.movable-door-mark {
+  width: 88%;
+  height: 88%;
+  background-image: var(--gate-icon-gate);
+}
+
+.movable-door-mark::after {
+  content: "閉";
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  display: flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(80,64,44,.42);
+  border-radius: 50%;
+  background: #f5f1e8;
+  color: #5a4c3a;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.cell.movable-door-open .movable-door-mark {
+  opacity: .58;
+  transform: rotate(-10deg);
+}
+
+.cell.movable-door-open .movable-door-mark::after {
+  content: "開";
+  color: #315b44;
+}
+
+.follower-narrow-mark {
+  width: 88%;
+  height: 90%;
+  background-image: var(--gate-icon-narrow-pass);
+}
+
+.follower-narrow-mark::after {
+  content: "窄";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 2px 3px;
+  border-radius: 5px;
+  background: rgba(245,241,232,.9);
+  color: #6c533a;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.cell.sign::before {
+  content: "";
+  width: 74%;
+  height: 84%;
+  left: 13%;
+  top: 8%;
+  background-image: var(--gate-icon-signpost);
+}
+
+.cell.sign.active::before {
+  box-shadow: none;
+  filter: drop-shadow(0 0 3px rgba(218,160,23,.85)) drop-shadow(0 0 7px rgba(218,160,23,.45));
+}
+
+.follower-chain-badge {
+  z-index: 4;
+}
+
 /* Prevent the old text-glyph object artwork from resurfacing. */
 .cell.gate.open::before,
 .cell.gate::before,

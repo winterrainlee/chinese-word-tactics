@@ -1,4 +1,33 @@
 (() => {
+  const gateTacticalIcons = Object.freeze({
+    cart: './icons/tactical/gate-town/cart.png',
+    crate: './icons/tactical/gate-town/crate.png',
+    obstacle: './icons/tactical/gate-town/obstacle-rock.png',
+    bellTower: './icons/tactical/gate-town/bell-tower.png',
+    outpost: './icons/tactical/gate-town/outpost.png',
+    gate: './icons/tactical/gate-town/gate.png',
+    signpost: './icons/tactical/gate-town/signpost.png',
+    narrowPass: './icons/tactical/gate-town/narrow-pass.png'
+  });
+  globalThis.GATE_TACTICAL_ICONS = gateTacticalIcons;
+
+  if (typeof document === 'undefined') return;
+
+  const iconProperties = {
+    cart: '--gate-icon-cart',
+    crate: '--gate-icon-crate',
+    obstacle: '--gate-icon-obstacle',
+    bellTower: '--gate-icon-bell-tower',
+    outpost: '--gate-icon-outpost',
+    gate: '--gate-icon-gate',
+    signpost: '--gate-icon-signpost',
+    narrowPass: '--gate-icon-narrow-pass'
+  };
+  for (const [kind, property] of Object.entries(iconProperties)) {
+    const url = new URL(gateTacticalIcons[kind], document.baseURI).href;
+    document.documentElement.style.setProperty(property, `url("${url}")`);
+  }
+
   const rotations = {
     '→': '0deg',
     '↓': '90deg',
