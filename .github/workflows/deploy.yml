@@ -34,6 +34,7 @@ jobs:
           node --check src/journey-progress.js
           node --check src/story-outcome-content.js
           node --check src/g7-story-outcome-content.js
+          node --check src/gate-reward-story-content.js
           node --check src/app.js
           node --check src/interaction-runtime.js
           node --check src/range-runtime.js
@@ -46,6 +47,7 @@ jobs:
           node --check src/flow-runtime.js
           node --check src/icons-runtime.js
           node --check src/world-runtime.js
+          node --check src/world-reward-runtime.js
 
       - name: Run unit tests
         run: node --test tests/*.test.cjs
