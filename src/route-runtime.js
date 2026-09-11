@@ -54,7 +54,7 @@
     const waypoint = waypointForTile(ch, cfg.waypoints);
     if (waypoint) return `${waypoint.nameKo} · 중간 초소`;
     const route = routeForPosition(pos, cfg.routes);
-    if (route) return `${route.nameKo} · 북쪽 출구로 이어지는 길`;
+    if (route) return `${route.nameKo} · 북쪽으로 이어지는 길`;
     return baseDescTile(ch, pos);
   };
 
@@ -92,12 +92,13 @@
     const coordinate = `${String.fromCharCode(65 + pos[1])}${pos[0] + 1}`;
     if (waypoint) {
       const pass = passForWaypoint(waypoint), received = state.viaIds?.includes(waypoint.id);
-      openSheet(`<h2>${waypoint.nameKo}</h2><div class="pinyin">${waypoint.nameZh} · ${coordinate}</div><div class="gamerule">북쪽 출구로 가는 중간 초소야.<br>이곳에 실제로 들르면 <b>經由</b>가 성립해.${received ? `<br>여기서 <b>${pass.nameZh}</b>를 받았어.` : ''}</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
+      const passLine = cfg.awardPass === false ? '' : received ? `<br>여기서 <b>${pass.nameZh}</b>를 받았어.` : '';
+      openSheet(`<h2>${waypoint.nameKo}</h2><div class="pinyin">${waypoint.nameZh} · ${coordinate}</div><div class="gamerule">북쪽으로 가는 중간 초소야.<br>이곳에 실제로 들르면 <b>經由</b>가 성립해.${passLine}</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
       return;
     }
     const route = routeForPosition(pos, cfg.routes);
     if (route) {
-      openSheet(`<h2>${route.nameKo}</h2><div class="pinyin">${route.nameZh} · ${coordinate}</div><div class="gamerule">북쪽 출구로 이어지는 여러 <b>路線</b> 중 하나야. 어느 길을 택할지는 자유야.</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
+      openSheet(`<h2>${route.nameKo}</h2><div class="pinyin">${route.nameZh} · ${coordinate}</div><div class="gamerule">북쪽으로 이어지는 여러 <b>路線</b> 중 하나야. 어느 길을 택할지는 자유야.</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
       return;
     }
     return baseShowInspect(pos);
@@ -117,7 +118,7 @@
       state.routeObserved = true;
       if (!state.routeChoices.includes(route.id)) {
         state.routeChoices.push(route.id);
-        message = `選擇${route.nameZh}。 이 길도 북쪽 출구로 이어지는 路線이야.`;
+        message = `選擇${route.nameZh}。 이 길도 북쪽으로 이어지는 路線이야.`;
       }
     }
 
@@ -127,15 +128,20 @@
       state.via = true;
       const firstVisit = !state.viaIds.includes(waypoint.id);
       if (firstVisit) state.viaIds.push(waypoint.id);
-      const pass = passForWaypoint(waypoint);
-      message = firstVisit
-        ? `已經由${waypoint.nameZh}。收到「${pass.nameZh}」。 ${waypoint.nameKo}를 경유하고 통행패를 받았어.`
-        : `已經由${waypoint.nameZh}。 ${waypoint.nameKo}에 다시 들렀어.`;
+      if (firstVisit && cfg.awardPass === false) {
+        message = `${waypoint.visitZh || `已經由${waypoint.nameZh}。`} ${waypoint.visitKo || `${waypoint.nameKo}를 경유했어.`}`;
+      } else {
+        const pass = passForWaypoint(waypoint);
+        message = firstVisit
+          ? `已經由${waypoint.nameZh}。收到「${pass.nameZh}」。 ${waypoint.nameKo}를 경유하고 통행패를 받았어.`
+          : `已經由${waypoint.nameZh}。 ${waypoint.nameKo}에 다시 들렀어.`;
+      }
     }
 
     save(); render();
-    if (atExit() && !state.via) {
-      setStatus('已經到北口，但還沒經由哨站。 북쪽 출구에는 왔지만 아직 초소를 경유하지 않았어.', 'info');
+    const goalChar = cfg.goalChar || 'E', atRouteGoal = tileAt(state.hero) === goalChar;
+    if (atRouteGoal && !state.via) {
+      setStatus('已經到北邊，但還沒經由哨站。 북쪽에는 왔지만 아직 초소를 경유하지 않았어.', 'info');
     } else if (message) {
       setStatus(message, waypoint ? 'good' : 'info');
     }
