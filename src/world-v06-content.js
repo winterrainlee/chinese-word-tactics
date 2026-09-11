@@ -23,21 +23,21 @@
       subtitle: '마을 밖 길과 이어지는 관문',
       note: '사람과 짐수레가 드나드는 물길마을의 관문 구역. 이 문을 지나면 다시 바깥길로 이어진다.',
       completionMilestone: 'gate-core',
-      map: { x: 50, y: 78, branch: 'outward', kind: 'district' }
+      map: { x: 50, y: 80, branch: 'outward', kind: 'district' }
     },
     'workshop-town': {
       name: '工坊谷', nameKo: '장인골', mapNameKo: '장인골',
       subtitle: '물길을 쓰는 공방 골짜기',
       note: '수차와 공방이 물길을 따라 모여 있다. 물을 쓰는 장치와 상태를 살피는 일이 많다.',
       completionMilestone: 'workshop-core',
-      map: { x: 22, y: 56, branch: 'workshop', kind: 'district' }
+      map: { x: 18, y: 58, branch: 'workshop', kind: 'district' }
     },
     'market-town': {
       name: '市集', nameKo: '장터', mapNameKo: '장터',
       subtitle: '사람과 물건이 모이는 큰길',
       note: '물길과 큰길이 만나는 생활 중심지. 필요한 것을 사고팔고 나누는 일이 이곳에 모인다.',
       completionMilestone: 'market-core',
-      map: { x: 69, y: 59, branch: 'market', kind: 'district' }
+      map: { x: 65, y: 60, branch: 'market', kind: 'district' }
     },
     'border-village': {
       name: '邊境村', nameKo: '끝마을', mapNameKo: '끝마을 방면',
@@ -45,7 +45,7 @@
       note: '관문을 지나 계속 가면 닿는 다음 정착지다. 물길마을에서 익힌 길 읽기가 바깥여행으로 이어진다.',
       recommendationMilestone: 'gate-core',
       recommendation: '길목의 일을 먼저 마치고 오는 걸 권장해. 그러면 바깥길로 이어지는 이야기가 자연스럽게 연결돼.',
-      map: { x: 50, y: 92, branch: 'outward', kind: 'outside' }
+      map: { x: 50, y: 91, branch: 'outward', kind: 'outside' }
     },
     'council-town': {
       name: '會議所', nameKo: '회의소', mapNameKo: '회의소',
@@ -53,14 +53,14 @@
       note: '장터에서 해결하지 못한 공동의 규칙과 의견을 다루는 회의 공간이다.',
       recommendationMilestone: 'market-core',
       recommendation: '장터의 일을 먼저 마치고 오는 걸 권장해. 물건을 나누는 문제가 왜 마을의 결정으로 이어지는지 알기 쉬워져.',
-      map: { x: 80, y: 48, branch: 'market', kind: 'landmark' }
+      map: { x: 79, y: 48, branch: 'market', kind: 'landmark' }
     },
     'research-city': {
       name: '學術塔', nameKo: '학술탑', mapNameKo: '학술탑',
       subtitle: '지식과 기록이 모이는 탑',
       note: '오래된 기술과 기록을 살피는 곳. 장인골에서 발견한 단서가 이곳으로 이어진다.',
       lockHint: '장인골의 핵심 의뢰를 끝내면 학술탑을 찾아갈 이유와 단서를 얻게 돼.',
-      map: { x: 31, y: 46, branch: 'workshop', kind: 'landmark' }
+      map: { x: 26, y: 46, branch: 'workshop', kind: 'landmark' }
     }
   };
 
