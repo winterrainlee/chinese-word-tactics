@@ -28,6 +28,7 @@ jobs:
         run: |
           node --check src/content.js
           node --check src/journey-content.js
+          node --check src/world-v06-content.js
           node --check src/journey-progress.js
           node --check src/story-outcome-content.js
           node --check src/app.js
