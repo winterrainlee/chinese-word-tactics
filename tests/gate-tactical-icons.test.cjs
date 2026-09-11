@@ -64,13 +64,18 @@ test('G7 carts follow followerPositions, preserve number badges, and clear the r
   assert.match(read('src/icons-runtime.css'), /\.g7-obstacle-mark[\s\S]*var\(--gate-icon-obstacle\)/);
 });
 
-test('G5 swing space and G7 cart direction cues are visible without relying on color alone', () => {
+test('G5 swing space is visible and G7 cart art stays fixed while movement keeps direction', () => {
   const css = read('src/icons-runtime.css');
   assert.match(css, /\.movable-door-swing-cue[\s\S]*font-size:/);
-  assert.match(css, /\.follower-chain-direction-east[\s\S]*--cart-rotation:/);
-  assert.match(css, /\.follower-chain-direction-west[\s\S]*--cart-rotation:/);
+  assert.match(css, /\.follower-chain-mark\s*\{[^}]*--cart-art-rotation: -135deg;/);
+  for (const direction of ['east', 'south', 'west']) {
+    const block = css.match(new RegExp(`\\.follower-chain-direction-${direction}\\s*\\{([^}]*)\\}`));
+    assert.ok(block, `${direction} movement style must exist`);
+    assert.match(block[1], /--cart-step-[xy]:/);
+    assert.doesNotMatch(block[1], /rotation/);
+  }
   assert.match(css, /\.follower-chain-moving[\s\S]*animation: follower-chain-step/);
-  assert.match(css, /@keyframes follower-chain-step/);
+  assert.match(css, /@keyframes follower-chain-step[\s\S]*rotate\(var\(--cart-art-rotation\)\)/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 });
 

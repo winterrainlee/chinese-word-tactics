@@ -136,6 +136,9 @@ try:
         assert second_cart.count() == 1
         assert first_cart.get_attribute('data-direction') == 'east'
         assert second_cart.get_attribute('data-direction') == 'north'
+        cart_art_rotations = page.locator('.follower-chain-mark').evaluate_all('''marks =>
+          marks.map(mark => getComputedStyle(mark).getPropertyValue('--cart-art-rotation').trim())''')
+        assert cart_art_rotations == ['-135deg', '-135deg'], cart_art_rotations
         assert first_cart.evaluate('(node)=>node.classList.contains("follower-chain-moving")')
         assert second_cart.evaluate('(node)=>node.classList.contains("follower-chain-moving")')
         assert first_cart.evaluate('(node)=>getComputedStyle(node).animationName') == 'follower-chain-step'

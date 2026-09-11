@@ -367,29 +367,26 @@
   z-index: 4;
 }
 
-/* The cart art has a visible tow bar, so rotate it toward each cart's actual last step. */
+/* Keep the supplied cart artwork facing one way; direction only controls where its step animation starts. */
 .follower-chain-mark {
-  --cart-rotation: -135deg;
+  --cart-art-rotation: -135deg;
   --cart-step-x: 0;
   --cart-step-y: 28%;
-  transform: rotate(var(--cart-rotation));
+  transform: rotate(var(--cart-art-rotation));
   transform-origin: center;
 }
 
 .follower-chain-direction-east {
-  --cart-rotation: -45deg;
   --cart-step-x: -28%;
   --cart-step-y: 0;
 }
 
 .follower-chain-direction-south {
-  --cart-rotation: 45deg;
   --cart-step-x: 0;
   --cart-step-y: -28%;
 }
 
 .follower-chain-direction-west {
-  --cart-rotation: 135deg;
   --cart-step-x: 28%;
   --cart-step-y: 0;
 }
@@ -401,11 +398,11 @@
 @keyframes follower-chain-step {
   from {
     opacity: .72;
-    transform: translate(var(--cart-step-x), var(--cart-step-y)) rotate(var(--cart-rotation));
+    transform: translate(var(--cart-step-x), var(--cart-step-y)) rotate(var(--cart-art-rotation));
   }
   to {
     opacity: 1;
-    transform: translate(0, 0) rotate(var(--cart-rotation));
+    transform: translate(0, 0) rotate(var(--cart-art-rotation));
   }
 }
 
