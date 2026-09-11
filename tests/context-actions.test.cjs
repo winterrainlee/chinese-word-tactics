@@ -8,7 +8,7 @@ const stage = {
   contextActions: [
     { target: 'C', label: '수레 살펴보기', action: 'inspect-cart' },
     { target: 'O', label: '돌 살펴보기', action: 'inspect-rock', unless: 'obstacleIdentified' },
-    { target: 'O', label: '돌 치우기', action: 'clear-rock', requires: 'obstacleIdentified', unless: 'obstacleCleared' }
+    { target: 'O', label: '돌 치우기', action: 'clear-rock', priority: 100, requires: 'obstacleIdentified', unless: 'obstacleCleared' }
   ]
 };
 
@@ -29,4 +29,22 @@ test('multiple requirements are all respected', () => {
   assert.equal(C.enabled({ requires: ['a', 'b'] }, s), false);
   s.b = true;
   assert.equal(C.enabled({ requires: ['a', 'b'] }, s), true);
+});
+
+test('higher-priority decisive action suppresses nearby lower-priority inspections', () => {
+  const candidates = [
+    { pos: [2, 2], action: { label: '짐상자 살펴보기' } },
+    { pos: [1, 1], action: { label: '돌 치우기', priority: 100 } }
+  ];
+  const result = C.highestPriorityActions(candidates);
+  assert.equal(result.length, 1);
+  assert.equal(result[0].action.label, '돌 치우기');
+});
+
+test('equal-priority actions remain together so the player can choose', () => {
+  const candidates = [
+    { pos: [1, 0], action: { label: '왼쪽 살펴보기' } },
+    { pos: [1, 2], action: { label: '오른쪽 살펴보기' } }
+  ];
+  assert.equal(C.highestPriorityActions(candidates).length, 2);
 });
