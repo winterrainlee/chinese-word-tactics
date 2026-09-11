@@ -7,18 +7,19 @@
   if (typeof current !== 'function' || typeof render !== 'function' || typeof showInspect !== 'function') return;
 
   const cfgFor = st => st.investigation || null;
-  const cartPos = st => locate(st.grid, cfgFor(st)?.cartChar || 'C');
   const solidChars = st => [cfgFor(st)?.cartChar, cfgFor(st)?.obstacleChar, ...(cfgFor(st)?.nearbyChars || [])].filter(Boolean);
-  const completeStage = st => {
+  function finishIfReady(st, message, type = 'info') {
+    save(); render();
+    setStatus(message, type);
+    if (!isWin()) return;
     if (stageSession.mode !== 'replay') completed.add(st.id);
     window.GameFlow?.recordStageComplete(st.id, stageSession);
-    save(); render();
-    setStatus('已移開障礙。 앞바퀴 앞의 길이 비었어.', 'good');
+    save();
     clearTimeout(completionTimer);
     completionTimer = setTimeout(() => {
       if (screen === 'tutorial' && current().id === st.id && isWin()) showComplete();
     }, 160);
-  };
+  }
 
   const baseInitialState = initialState;
   initialState = function investigationInitialState(st) {
@@ -47,6 +48,16 @@
     return baseAcceptedMove(pos);
   };
 
+  const baseAttemptMove = attemptMove;
+  attemptMove = function investigationAttemptMove(pos, isWait) {
+    const st = current(), cfg = cfgFor(st), ch = tileAt(pos);
+    if (cfg && !isWait && solidChars(st).includes(ch) && !(ch === cfg.obstacleChar && state.obstacleCleared)) {
+      setStatus(ch === cfg.cartChar ? '수레 위로는 올라갈 수 없어. 가까이 가서 살펴봐.' : '그 물체가 있는 칸으로는 들어갈 수 없어. 가까이 가서 살펴봐.', 'info');
+      return;
+    }
+    return baseAttemptMove(pos, isWait);
+  };
+
   const baseRenderGoal = renderGoal;
   renderGoal = function investigationRenderGoal() {
     baseRenderGoal();
@@ -55,7 +66,8 @@
     let goal = state.obstacleIdentified && st.goalAfter ? st.goalAfter : st.goal;
     goal = markGoal(goal, '位置', !!state.positionObserved);
     goal = markGoal(goal, '周圍', !!state.surroundingsObserved);
-    goal = markGoal(goal, '障礙', state.obstacleIdentified && !st.goalAfter ? true : !!state.obstacleCleared);
+    if (state.obstacleIdentified && st.goalAfter) goal = markGoal(goal, '障礙', !!state.obstacleCleared);
+    else goal = markGoal(goal, '障礙', !!state.obstacleIdentified);
     $('#goal').innerHTML = goal;
   };
 
@@ -111,28 +123,25 @@
   handlers['g4-inspect-cart'] = () => {
     const st = current(), cfg = cfgFor(st); if (!cfg) return;
     state.positionObserved = true;
-    save(); render();
-    setStatus('貨車停在北口外，車頭朝北。 수레의 位置를 확인했어. 이제 周圍도 살펴볼 수 있어.', 'info');
+    finishIfReady(st, '貨車停在北口外，車頭朝北。 수레의 位置를 확인했어. 이제 周圍도 살펴볼 수 있어.', 'info');
   };
   handlers['g4-inspect-nearby'] = (pos) => {
     const st = current(), cfg = cfgFor(st); if (!cfg) return;
     state.surroundingsObserved = true;
     const id = key(pos); if (!state.observedNearby.includes(id)) state.observedNearby.push(id);
-    save(); render();
-    setStatus('木箱在貨車旁邊，沒有卡住車輪。 수레 周圍에 있지만 바퀴를 막고 있지는 않아.', 'info');
+    finishIfReady(st, '木箱在貨車旁邊，沒有卡住車輪。 수레 周圍에 있지만 바퀴를 막고 있지는 않아.', 'info');
   };
   handlers['g4-inspect-obstacle'] = (pos) => {
     const st = current(), cfg = cfgFor(st); if (!cfg) return;
     state.surroundingsObserved = true; state.obstacleIdentified = true;
     const id = key(pos); if (!state.observedNearby.includes(id)) state.observedNearby.push(id);
-    save(); render();
-    setStatus('石頭卡在前輪前面。這就是讓貨車動不了的障礙。 돌이 바퀴를 막고 있어.', 'good');
+    finishIfReady(st, '石頭卡在前輪前面。這就是讓貨車動不了的障礙。 돌이 바퀴를 막고 있어.', 'good');
   };
   handlers['g4-clear-obstacle'] = () => {
     const st = current(), cfg = cfgFor(st); if (!cfg || !state.obstacleIdentified || state.obstacleCleared) return;
     history.push(clone(state));
     state.obstacleCleared = true;
-    completeStage(st);
+    finishIfReady(st, '已移開障礙。 앞바퀴 앞의 길이 비었어.', 'good');
   };
 
   const baseShowInspect = showInspect;
