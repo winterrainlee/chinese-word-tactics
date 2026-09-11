@@ -1,10 +1,34 @@
 /* Contextual tactical actions. Keeps common one-tap interactions out of stage-specific rules. */
 (() => {
+  const manhattan = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+  const list = value => Array.isArray(value) ? value : value ? [value] : [];
+  const enabled = (action, s) => list(action.requires).every(flag => !!s?.[flag]) &&
+    list(action.unless).every(flag => !s?.[flag]);
+  function actionsForPosition(stage, pos, s) {
+    if (!stage?.grid || !Array.isArray(pos) || !Array.isArray(s?.hero) || manhattan(s.hero, pos) !== 1) return [];
+    const ch = stage.grid[pos[0]]?.[pos[1]];
+    return list(stage.contextActions).filter(action => action?.target === ch && enabled(action, s));
+  }
+  const primaryActionForPosition = (stage, pos, s) => actionsForPosition(stage, pos, s)[0] || null;
+
+  globalThis.ContextActionLogic = Object.freeze({ manhattan, enabled, actionsForPosition, primaryActionForPosition });
+
+  if (typeof document === 'undefined' || typeof render !== 'function') return;
   const button = document.getElementById('inspectBtn');
   const grid = document.getElementById('grid');
-  if (!button || !grid || typeof render !== 'function') return;
+  if (!button || !grid) return;
+
+  function runAction(action, pos) {
+    if (action.action === 'inspect') return showInspect(pos);
+    const handler = globalThis.ContextActionHandlers?.[action.action];
+    if (typeof handler === 'function') return handler(pos, action);
+    setStatus('아직 이 행동을 사용할 수 없어.', 'info');
+  }
 
   function actionFor(pos) {
+    const action = primaryActionForPosition(current(), pos, state);
+    if (action) return { ...action, run: () => runAction(action, pos) };
+    // Compatibility for saves/content created before contextActions was added to G1.
     const ch = current().grid[pos[0]]?.[pos[1]];
     if (ch === 'L' && current().enterExit && dist(state.hero, pos) === 1) {
       return { label: '길표지 살펴보기', run: () => showInspect(pos) };
