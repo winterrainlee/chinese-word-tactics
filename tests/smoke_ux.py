@@ -155,6 +155,25 @@ try:
         page.screenshot(path=str(OUT / 'ux-01-market-m8-entry-375x812.png'), full_page=True)
         print('UX_LAYOUT_MARKET_M8', json.dumps(market_layout, ensure_ascii=False), flush=True)
 
+        # Selected market targets may expand the context area, but immediate feedback remains before it.
+        page.locator('#inspectBtn').click()
+        location_count = page.locator('.market-location').count()
+        selected_layouts = []
+        for index in range(location_count):
+            cell = page.locator('.market-location').nth(index)
+            label = cell.get_attribute('aria-label') or f'location-{index}'
+            cell.click()
+            selected = visible_layout(page)
+            assert selected['document']['width'] <= selected['viewport']['width'], (label, selected)
+            assert selected['context']['y'] >= selected['status']['y'] + selected['status']['height'], (label, selected)
+            overflow = max(0, selected['document']['height'] - selected['viewport']['height'])
+            assert overflow <= 240, (label, selected)
+            selected_layouts.append({'index': index, 'label': label, 'overflow': overflow, 'contextHeight': selected['context']['height']})
+        worst = max(selected_layouts, key=lambda item: (item['overflow'], item['contextHeight']))
+        page.locator('.market-location').nth(worst['index']).click()
+        page.screenshot(path=str(OUT / 'ux-02-market-m8-selected-context-375x812.png'), full_page=True)
+        print('UX_MARKET_SELECTED', json.dumps(selected_layouts, ensure_ascii=False), flush=True)
+
         # UX-05/06: completion remains on the board instead of opening a modal summary.
         page.evaluate('GameFlow.showStageComplete("market-stage-8",{mode:"replay",returnTo:"journey"})')
         assert page.locator('#completionBar').is_visible()
