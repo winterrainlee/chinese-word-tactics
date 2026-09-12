@@ -10,18 +10,31 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 require('../src/icons-runtime.js');
 const icons = globalThis.GATE_TACTICAL_ICONS;
 
-test('gate-town tactical asset mapping is complete, relative, optimized, and transparent', () => {
+test('gate-town tactical asset mapping is complete, relative, lightweight, and vector-only', () => {
   assert.deepEqual(Object.keys(icons).sort(), [
     'bellTower', 'cart', 'crate', 'gate', 'gateClosed', 'narrowPass', 'obstacle', 'outpost', 'signpost'
   ]);
+  let totalBytes = 0;
   for (const asset of Object.values(icons)) {
-    assert.match(asset, /^\.\/icons\/tactical\/gate-town\/[a-z-]+\.png$/);
-    const bytes = fs.readFileSync(path.join(root, asset));
-    assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
-    assert.ok(bytes.readUInt32BE(16) <= 384);
-    assert.ok(bytes.readUInt32BE(20) <= 384);
-    assert.equal(bytes[25], 6, `${asset} must use RGBA color type`);
+    assert.match(asset, /^\.\/icons\/tactical\/gate-town\/[a-z-]+\.svg$/);
+    const svg = read(asset);
+    const bytes = Buffer.byteLength(svg);
+    totalBytes += bytes;
+    assert.ok(bytes <= 4_000, `${asset} must stay under 4 KB`);
+    assert.match(svg, /<svg[^>]*width="32"[^>]*height="32"[^>]*viewBox="0 0 32 32"/);
+    assert.match(svg, /<g stroke="#352e27" stroke-width="0\.95"/);
+    assert.doesNotMatch(svg, /<(?:image|script|foreignObject|filter|linearGradient|radialGradient)\b/i);
   }
+  assert.ok(totalBytes <= 20_000, 'gate-town tactical SVG set must stay under 20 KB');
+});
+
+test('the lightweight tactical set is warmed before first stage use', () => {
+  const runtime = read('src/icons-runtime.js');
+  assert.match(runtime, /GATE_TACTICAL_ICONS_READY = Promise\.all/);
+  assert.match(runtime, /Object\.values\(gateTacticalIcons\)/);
+  assert.match(runtime, /image\.decoding = 'async'/);
+  assert.match(runtime, /image\.decode\(\)\.catch/);
+  assert.match(read('index.html'), /icons-runtime\.js\?v=20260913-gatetacticalsvg1/);
 });
 
 test('G1-G4 static object marks use the shared tactical assets', () => {
@@ -67,7 +80,7 @@ test('G7 carts follow followerPositions, preserve number badges, and clear the r
 test('G5 swing space is visible and G7 cart art stays fixed while movement keeps direction', () => {
   const css = read('src/icons-runtime.css');
   assert.match(css, /\.movable-door-swing-cue[\s\S]*font-size:/);
-  assert.match(css, /\.follower-chain-mark\s*\{[^}]*--cart-art-rotation: -135deg;/);
+  assert.match(css, /\.follower-chain-mark\s*\{[^}]*--cart-art-rotation: 0deg;/);
   for (const direction of ['east', 'south', 'west']) {
     const block = css.match(new RegExp(`\\.follower-chain-direction-${direction}\\s*\\{([^}]*)\\}`));
     assert.ok(block, `${direction} movement style must exist`);
@@ -87,13 +100,16 @@ test('G3 and G7 reuse the same route outpost renderer and asset', () => {
   assert.equal(stages.length, 2);
   for (const stage of stages) assert.deepEqual(Object.keys(stage.route.waypoints).sort(), ['A', 'B']);
   assert.match(read('src/route-runtime.js'), /mark\.className = 'route-waypoint-mark'/);
-  assert.equal(icons.outpost, './icons/tactical/gate-town/outpost.png');
+  assert.equal(icons.outpost, './icons/tactical/gate-town/outpost.svg');
 });
 
-test('G5 uses distinct supplied-art variants for closed and open gate states', () => {
+test('G5 uses distinct vector variants for closed and open gate states', () => {
   const css = read('src/icons-runtime.css');
-  assert.equal(icons.gate, './icons/tactical/gate-town/gate.png');
-  assert.equal(icons.gateClosed, './icons/tactical/gate-town/gate-closed.png');
+  assert.equal(icons.gate, './icons/tactical/gate-town/gate.svg');
+  assert.equal(icons.gateClosed, './icons/tactical/gate-town/gate-closed.svg');
+  const frame = asset => read(asset).match(/<g data-part="frame">[\s\S]*?<\/g>/)?.[0];
+  assert.ok(frame(icons.gate));
+  assert.equal(frame(icons.gate), frame(icons.gateClosed), 'open and closed gates must share one frame');
   assert.match(css, /\.movable-door-mark[\s\S]*var\(--gate-icon-gate-closed\)/);
   assert.match(css, /\.cell\.movable-door-open \.movable-door-mark[\s\S]*var\(--gate-icon-gate\)/);
 });

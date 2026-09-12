@@ -1,14 +1,14 @@
 (() => {
   const gateTacticalIcons = Object.freeze({
-    cart: './icons/tactical/gate-town/cart.png',
-    crate: './icons/tactical/gate-town/crate.png',
-    obstacle: './icons/tactical/gate-town/obstacle-rock.png',
-    bellTower: './icons/tactical/gate-town/bell-tower.png',
-    outpost: './icons/tactical/gate-town/outpost.png',
-    gate: './icons/tactical/gate-town/gate.png',
-    gateClosed: './icons/tactical/gate-town/gate-closed.png',
-    signpost: './icons/tactical/gate-town/signpost.png',
-    narrowPass: './icons/tactical/gate-town/narrow-pass.png'
+    cart: './icons/tactical/gate-town/cart.svg',
+    crate: './icons/tactical/gate-town/crate.svg',
+    obstacle: './icons/tactical/gate-town/obstacle-rock.svg',
+    bellTower: './icons/tactical/gate-town/bell-tower.svg',
+    outpost: './icons/tactical/gate-town/outpost.svg',
+    gate: './icons/tactical/gate-town/gate.svg',
+    gateClosed: './icons/tactical/gate-town/gate-closed.svg',
+    signpost: './icons/tactical/gate-town/signpost.svg',
+    narrowPass: './icons/tactical/gate-town/narrow-pass.svg'
   });
   globalThis.GATE_TACTICAL_ICONS = gateTacticalIcons;
 
@@ -29,6 +29,15 @@
     const url = new URL(gateTacticalIcons[kind], document.baseURI).href;
     document.documentElement.style.setProperty(property, `url("${url}")`);
   }
+
+  // The complete vector set is under 10 KB, so warming every gate icon is
+  // cheaper and more reliable than discovering CSS backgrounds on stage entry.
+  globalThis.GATE_TACTICAL_ICONS_READY = Promise.all(Object.values(gateTacticalIcons).map((asset) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = new URL(asset, document.baseURI).href;
+    return image.decode().catch(() => undefined);
+  }));
 
   const rotations = {
     '→': '0deg',

@@ -367,9 +367,9 @@
   z-index: 4;
 }
 
-/* Keep the supplied cart artwork facing one way; direction only controls where its step animation starts. */
+/* Keep the cart artwork facing one way; direction only controls where its step animation starts. */
 .follower-chain-mark {
-  --cart-art-rotation: -135deg;
+  --cart-art-rotation: 0deg;
   --cart-step-x: 0;
   --cart-step-y: 28%;
   transform: rotate(var(--cart-art-rotation));

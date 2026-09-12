@@ -56,11 +56,23 @@ try:
         page.on('response', lambda response: missing.append(response.url) if response.status >= 400 and 'favicon' not in response.url else None)
         page.goto(url)
         page.wait_for_function('!!window.GameFlow && !!window.GATE_TACTICAL_ICONS')
+        page.evaluate('GATE_TACTICAL_ICONS_READY')
+        preloaded_icons = page.evaluate('''() => performance.getEntriesByType('resource')
+          .map(entry => new URL(entry.name).pathname)
+          .filter(path => path.includes('/icons/tactical/gate-town/') && path.endsWith('.svg'))
+          .map(path => path.split('/').pop())''')
+        assert sorted(set(preloaded_icons)) == sorted([
+            'bell-tower.svg', 'cart.svg', 'crate.svg', 'gate-closed.svg', 'gate.svg',
+            'narrow-pass.svg', 'obstacle-rock.svg', 'outpost.svg', 'signpost.svg',
+        ]), preloaded_icons
+        assert not page.evaluate('''() => performance.getEntriesByType('resource')
+          .some(entry => new URL(entry.name).pathname.includes('/icons/tactical/gate-town/') &&
+            new URL(entry.name).pathname.endsWith('.png'))''')
 
         stage_checks = [
-            ('gate-stage-1', '.cell.sign', 'signpost.png', '::before'),
-            ('gate-stage-2', '.range-bell', 'bell-tower.png', None),
-            ('gate-stage-3', '.route-waypoint-mark', 'outpost.png', None),
+            ('gate-stage-1', '.cell.sign', 'signpost.svg', '::before'),
+            ('gate-stage-2', '.range-bell', 'bell-tower.svg', None),
+            ('gate-stage-3', '.route-waypoint-mark', 'outpost.svg', None),
         ]
         for stage_id, selector, asset, pseudo in stage_checks:
             page.evaluate('(id)=>TacticalGame.playStage(id,{mode:"replay"})', stage_id)
@@ -73,17 +85,17 @@ try:
         assert page.locator('.investigation-cart-mark').count() == 1
         assert page.locator('.investigation-crate-mark').count() == 2
         assert page.locator('.investigation-rock-mark').count() == 1
-        background_asset(page, '.investigation-cart-mark', 'cart.png')
-        background_asset(page, '.investigation-crate-mark', 'crate.png')
-        background_asset(page, '.investigation-rock-mark', 'obstacle-rock.png')
+        background_asset(page, '.investigation-cart-mark', 'cart.svg')
+        background_asset(page, '.investigation-crate-mark', 'crate.svg')
+        background_asset(page, '.investigation-rock-mark', 'obstacle-rock.svg')
         page.screenshot(path=str(OUT / 'gate-g4-objects-375.png'))
         page.evaluate('state.obstacleCleared=true;render()')
         assert page.locator('.investigation-rock-mark').count() == 0
 
         page.evaluate('TacticalGame.playStage("gate-stage-5",{mode:"replay"})')
-        background_asset(page, '.movable-door-mark', 'gate-closed.png')
+        background_asset(page, '.movable-door-mark', 'gate-closed.svg')
         page.evaluate('state.doorOpen=true;render()')
-        background_asset(page, '.movable-door-mark', 'gate.png')
+        background_asset(page, '.movable-door-mark', 'gate.svg')
         page.evaluate('state.doorOpen=false;render()')
         assert page.locator('#grid .cell').nth(12).locator('.movable-cart-mark').count() == 1
         page.evaluate('state.movablePos=[3,2];render()')
@@ -100,9 +112,10 @@ try:
         page.evaluate('ContextActionHandlers["g5-open-door"]([1,2])')
         assert page.evaluate('state.doorOpen')
         assert page.locator('.movable-door-open').count() == 1
+        page.screenshot(path=str(OUT / 'gate-g5-open-375.png'))
 
         page.evaluate('TacticalGame.playStage("gate-stage-6",{mode:"replay"})')
-        background_asset(page, '.follower-narrow-mark', 'narrow-pass.png')
+        background_asset(page, '.follower-narrow-mark', 'narrow-pass.svg')
         assert page.locator('#grid .cell').nth(32).locator('.follower-cart-mark').count() == 1
         page.evaluate('state.followerPos=[5,2];render()')
         assert page.locator('#grid .cell').nth(32).locator('.follower-cart-mark').count() == 0
@@ -123,6 +136,17 @@ try:
         })''')
         assert all(target['width'] >= 44 and target['height'] >= 44 for target in cart_targets), cart_targets
         assert cart_cells.locator('.follower-chain-badge').all_text_contents() == ['1', '2']
+        badge_targets = cart_cells.evaluate_all('''cells => cells.map(cell => {
+          const cellBox = cell.getBoundingClientRect();
+          const badgeBox = cell.querySelector('.follower-chain-badge').getBoundingClientRect();
+          return {
+            width: badgeBox.width, height: badgeBox.height,
+            inside: badgeBox.left >= cellBox.left && badgeBox.top >= cellBox.top &&
+              badgeBox.right <= cellBox.right && badgeBox.bottom <= cellBox.bottom,
+          };
+        })''')
+        assert all(target['inside'] for target in badge_targets), badge_targets
+        assert all(target['width'] >= 18 and target['height'] >= 18 for target in badge_targets), badge_targets
         action_targets = page.locator('.wordbtn:visible, .control:visible, .iconbtn:visible').evaluate_all('''buttons => buttons.map(button => {
           const box = button.getBoundingClientRect();
           return {text: button.textContent.trim(), className: button.className, width: box.width, height: box.height};
@@ -139,7 +163,7 @@ try:
         assert second_cart.get_attribute('data-direction') == 'north'
         cart_art_rotations = page.locator('.follower-chain-mark').evaluate_all('''marks =>
           marks.map(mark => getComputedStyle(mark).getPropertyValue('--cart-art-rotation').trim())''')
-        assert cart_art_rotations == ['-135deg', '-135deg'], cart_art_rotations
+        assert cart_art_rotations == ['0deg', '0deg'], cart_art_rotations
         assert first_cart.evaluate('(node)=>node.classList.contains("follower-chain-moving")')
         assert second_cart.evaluate('(node)=>node.classList.contains("follower-chain-moving")')
         assert first_cart.evaluate('(node)=>getComputedStyle(node).animationName') == 'follower-chain-step'
@@ -155,7 +179,7 @@ try:
         assert g7_layout['document']['width'] <= g7_layout['viewport']['width']
         assert g7_layout['document']['height'] <= g7_layout['viewport']['height'], g7_layout
         assert g7_layout['controls']['y'] + g7_layout['controls']['height'] <= g7_layout['viewport']['height'], g7_layout
-        print('G7_LAYOUT:', g7_layout, 'CART_TARGETS:', cart_targets, 'ACTION_TARGETS:', action_targets, flush=True)
+        print('G7_LAYOUT:', g7_layout, 'CART_TARGETS:', cart_targets, 'BADGE_TARGETS:', badge_targets, 'ACTION_TARGETS:', action_targets, flush=True)
         page.evaluate('state.g7ObstacleCleared=true;render()')
         assert page.locator('.g7-obstacle-mark').count() == 0
 

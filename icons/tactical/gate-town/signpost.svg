@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <g stroke="#352e27" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Direction sign: broad arrow and grounded post, without baked-in text. -->
+    <path d="M14.2 8.8H27.9L30.1 12.5 27.9 16.2H14.2Z" fill="#b88a55"/>
+    <path d="M13 5.2H5.7L2.3 8.7 5.7 12.2H13Z" fill="#9b744a"/>
+    <path d="M12.5 4.4H15.2V28.3H12.5Z" fill="#806043"/>
+    <path d="M11.6 7.1H16M11.6 10.2H16" stroke="#c0a273" stroke-width="0.8"/>
+    <path d="M7.1 14.6Q13.8 12.9 20.4 14.7" stroke="#72563b" stroke-width="1.15"/>
+    <path d="M8.6 28.3 11.1 25.5H17.1L20 28.5 18.6 30H9.6Z" fill="#9e947e"/>
+    <path d="M4 29Q7 25.6 10 29M19.2 29Q22.5 25.4 25 29" stroke="#71805e" stroke-width="1.35"/>
+  </g>
+</svg>

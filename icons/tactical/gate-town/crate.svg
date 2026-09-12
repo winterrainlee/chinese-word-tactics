@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <g stroke="#352e27" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Three supply crates form one readable stepped silhouette. -->
+    <path d="M4 15.2H16.1V28.5H4Z" fill="#9b744a"/>
+    <path d="M5.6 17 14.5 26.7M14.5 17 5.6 26.7" stroke="#c09867" stroke-width="1.1"/>
+    <path d="M15.9 17.8H28V28.5H15.9Z" fill="#a97f58"/>
+    <path d="M17.5 19.4 26.5 27M26.5 19.4 17.5 27" stroke="#c9a06d" stroke-width="1.05"/>
+    <path d="M9.4 4H22.6V16.9H9.4Z" fill="#b88a55"/>
+    <path d="M11.1 5.8 20.9 15.1M20.9 5.8 11.1 15.1" stroke="#d1aa76" stroke-width="1.1"/>
+    <path d="M4 15.2H16.1V17H4ZM15.9 17.8H28V19.5H15.9ZM9.4 4H22.6V5.8H9.4Z" fill="#6d5136" stroke-width="0.65"/>
+  </g>
+</svg>

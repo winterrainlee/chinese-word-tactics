@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <g stroke="#352e27" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Gate-town bell tower: roof, bell and stone base remain distinct at grid size. -->
+    <path d="M4 9 16 2.8 28 9 25.8 11.2H6.2Z" fill="#a96f45"/>
+    <path d="M16 2.8V1.2M14.8 1.2H17.2" stroke="#726957" stroke-width="1.1"/>
+    <path d="M7.3 10.6H24.7V22.3H7.3Z" fill="#9b744a"/>
+    <path d="M9.5 11V21.8M22.5 11V21.8" stroke="#6d5136" stroke-width="1.35"/>
+    <path d="M14.1 12.5Q16 10.8 17.9 12.5L19.3 17.8H12.7Z" fill="#d0b36d"/>
+    <path d="M11.9 17.8H20.1M16 18V19.6" stroke="#72563b" stroke-width="0.9"/>
+    <circle cx="16" cy="20.1" r="1" fill="#b88a55"/>
+    <path d="M6.2 21.5H25.8V25.2H6.2Z" fill="#b8ad95"/>
+    <path d="M4.5 25.2H27.5V29.3H4.5Z" fill="#9e947e"/>
+    <path d="M9 25.4V29M16 25.4V29M23 25.4V29" stroke="#736957" stroke-width="0.7"/>
+  </g>
+</svg>
