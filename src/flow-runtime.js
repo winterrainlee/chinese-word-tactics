@@ -1,7 +1,8 @@
 /* The only coordinator between story/journey renderers and the tactical adapter. */
 (() => {
   const P = JourneyProgress, $ = id => document.getElementById(id);
-  const RESET_KEYS = [P.KEY, 'chufa-tutorial-v03', 'chinese-word-tactics-world-v1'];
+  const PENDING_COMPLETION_KEY = 'chinese-word-tactics-pending-completion-v1';
+  const RESET_KEYS = [P.KEY, 'chufa-tutorial-v03', 'chinese-word-tactics-world-v1', PENDING_COMPLETION_KEY];
   const store = P.createStore({ getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) }, () => {
     $('flowNotice').hidden = false;
     $('flowNotice').textContent = '진행 기록을 읽거나 저장하지 못했어. 이 탭에서는 계속할 수 있지만, 새로고침하면 기록을 잃을 수 있어.';
@@ -10,6 +11,13 @@
   const validOptions = options => ({ mode: options.mode === 'replay' ? 'replay' : 'first-play', returnTo: options.returnTo === 'world' ? 'world' : 'journey' });
   const canVisitWorld = () => store.get().completedStages.includes('stage-5');
   const nodeRegionId = node => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(section => section.id === node?.sectionId)?.regionId || null;
+  const readPendingCompletion = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(PENDING_COMPLETION_KEY) || 'null');
+      return value && typeof value.stageId === 'string' ? value : null;
+    } catch { return null; }
+  };
+  const clearPendingCompletion = () => { try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {} };
   function showJourney() {
     active = null; StoryRuntime.stop(); TacticalGame.showView('journey'); JourneyRuntime.render();
     document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
@@ -74,8 +82,20 @@
   }
   function resume() {
     const progress = store.get(), location = progress.lastLocation, node = P.recommendedNode(progress);
-    const saved = P.getNode(location?.nodeId);
-    if (saved && P.isComplete(saved, progress)) return continueFromNode(saved.nodeId);
+    const saved = P.getNode(location?.nodeId), pending = readPendingCompletion();
+    if (saved && P.isComplete(saved, progress)) {
+      if (pending?.stageId === saved.id && saved.type === 'stage' && location?.view === 'tactical') {
+        const context = { mode: 'first-play', returnTo: 'journey', nodeId: saved.nodeId, type: 'stage' };
+        if (TacticalGame.resumeStage(saved.id, context)) {
+          active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: saved.nodeId });
+          globalThis.__CWT_PENDING_COMPLETION__ = { id: saved.id, context };
+          return true;
+        }
+      }
+      if (pending) clearPendingCompletion();
+      return continueFromNode(saved.nodeId);
+    }
+    if (pending) clearPendingCompletion();
     if (!node) return showWorld();
     if (nodeRegionId(node) && location?.nodeId !== node.nodeId) return showWorld();
     if (node.type === 'story') return playStory(node.id, { beat: location?.nodeId === node.nodeId ? location.beat : 0 });
