@@ -1,0 +1,28 @@
+/* Shared v1.0 tactical UX layer: compact intent, nearby feedback, inline completion. */
+.goalbox{position:relative;min-height:52px;padding:8px 56px 8px 11px;display:flex;align-items:center;background:rgba(255,253,247,.82);box-shadow:none;border-radius:14px}
+.goal{font-size:16px;line-height:1.42;text-align:left;width:100%}
+.ruleline{display:none}
+.goalDetailBtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:800}
+.goalDetailBtn:active{background:#ece6da;color:var(--ink)}
+.status{min-height:48px;padding:7px 10px;font-size:15px;line-height:1.4;background:rgba(255,253,247,.9);border:1px solid rgba(215,208,196,.78)}
+.status.info{background:#e8eff5;border-color:#c8d5e1;color:#334f6a}
+.status.good{background:#e3efe7;border-color:#bfd3c6;color:#28563f}
+.status.bad{background:#f5e2df;border-color:#e2beb9;color:#722f2a}
+.contextPanel[hidden],.completionBar[hidden]{display:none!important}
+.contextPanel{flex:none;min-width:0}
+.contextPanel .market-panel{min-height:0;padding:10px 12px;border-radius:14px;box-shadow:none;border:1px solid rgba(98,79,51,.12)}
+.contextPanel .market-panel-empty{min-height:42px;display:flex;align-items:center;justify-content:center;padding:7px 10px}
+.contextPanel .market-panel-empty p{display:none}
+.contextPanel .market-carry{padding-bottom:0;border-bottom:0;text-align:center}
+.contextPanel .market-panel:not(.market-panel-empty) .market-carry{padding-bottom:8px;border-bottom:1px solid rgba(98,79,51,.12);text-align:left}
+.contextPanel .market-panel-head{margin:8px 0}
+.contextPanel .market-info-row,.contextPanel .market-fact-row{padding:5px 0}
+.contextPanel .market-panel-actions{margin-top:8px}
+.contextPanel .market-action-hint{margin-top:7px}
+.grid.market-board>.market-scene{gap:0}
+.completionBar{flex:none;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;min-height:48px;padding:6px 7px 6px 11px;border:1px solid #b9cebf;border-radius:14px;background:#e7f0e9}
+.completionBar strong{font-size:14px;color:#28563f}
+.completionBar button{min-height:44px;border:0;border-radius:11px;padding:0 14px;background:var(--accent);color:#fff;font-weight:800}
+.shell.stageComplete .controls{display:none}
+.shell.stageComplete .status{border-color:#b9cebf}
+@media(max-height:650px){.goalbox{min-height:48px;padding-top:6px;padding-bottom:6px}.goal{font-size:15px}.status{min-height:44px;padding-top:5px;padding-bottom:5px}.contextPanel .market-panel{padding:8px 10px}}
