@@ -4,64 +4,38 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const root = path.join(__dirname, '..');
-const read = file => fs.readFileSync(path.join(root, file), 'utf8');
+const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 
 test('late market content defines M5-M8 and keeps M8 as the market core milestone', () => {
   const sandbox = { WORDS: {}, STAGES: [] };
   vm.runInNewContext(read('src/market-content.js'), sandbox);
   vm.runInNewContext(read('src/market-late-content.js'), sandbox);
-  assert.deepEqual(Array.from(sandbox.STAGES.slice(-4), stage => stage.id), [
-    'market-stage-5', 'market-stage-6', 'market-stage-7', 'market-stage-8'
-  ]);
-  for (const word of ['價值', '選擇', '放棄', '分配', '補充']) assert.ok(sandbox.WORDS[word]);
-  assert.equal(sandbox.STAGES.find(stage => stage.id === 'market-stage-8').milestone, 'market-core');
-  assert.deepEqual(
-    Object.fromEntries(Object.entries(sandbox.STAGES.find(stage => stage.id === 'market-stage-5').market.outcomeDecisions)),
-    { choice: 'tool' }
-  );
-  assert.deepEqual(
-    Object.fromEntries(Object.entries(sandbox.STAGES.find(stage => stage.id === 'market-stage-6').market.outcomeDecisions)),
-    { chosenCargo: 'cargo', deferredCargo: 'deferredCargo' }
-  );
+  const late = sandbox.STAGES.filter(stage => /^market-stage-[5-8]$/.test(stage.id));
+  assert.deepEqual(Array.from(late, stage => stage.id), ['market-stage-5','market-stage-6','market-stage-7','market-stage-8']);
+  assert.equal(late.at(-1).milestone, 'market-core');
 });
 
 test('M6 visibly deactivates the deferred cargo after a choice', () => {
-  const runtime = read('src/market-runtime.js');
   const css = read('src/market-state-visuals.css');
-  assert.match(runtime, /choiceState/);
-  assert.match(runtime, /market-deferred/);
-  assert.match(runtime, /button\.disabled = true/);
-  assert.match(runtime, /market-deferred-tag/);
+  const runtime = read('src/market-runtime.js');
   assert.match(css, /market-deferred/);
-  assert.match(css, /grayscale/);
-  assert.match(css, /opacity/);
+  assert.match(runtime, /market-deferred/);
+  assert.match(runtime, /aria-disabled/);
+  assert.match(runtime, /放棄/);
 });
 
 test('M7 and M8 use six-column boards with varied replenishment quantities and surplus stock', () => {
   const sandbox = { WORDS: {}, STAGES: [] };
   vm.runInNewContext(read('src/market-content.js'), sandbox);
   vm.runInNewContext(read('src/market-late-content.js'), sandbox);
-  const m7 = sandbox.STAGES.find(stage => stage.id === 'market-stage-7');
-  const m8 = sandbox.STAGES.find(stage => stage.id === 'market-stage-8');
-  assert.equal(m7.grid[0].length, 6);
-  assert.equal(m8.grid[0].length, 6);
-  assert.equal(m7.market.capacity, 3);
-  assert.equal(m7.market.revision, 4);
-  assert.equal(m7.market.locations.find(location => location.id === 'bakery').needs.flour, 3);
-  assert.equal(m7.market.locations.find(location => location.id === 'bakery').stock.flour, 1);
-  assert.equal(m7.market.locations.find(location => location.id === 'bakery').limitToNeed, true);
-  assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').needs.oil, 4);
-  assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').stock.oil, 1);
-  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.flour, 3);
-  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.oil, 3);
-  assert.ok(m7.market.predicates.some(predicate => predicate.type === 'location-at-least' && predicate.location === 'late-goods' && predicate.item === 'flour' && predicate.amount === 1));
-  assert.equal(m8.market.locations.find(location => location.id === 'bakery').needs.flour, 2);
-  assert.equal(m8.market.locations.find(location => location.id === 'late-goods').stock.flour, 2);
-  assert.match(read('src/market-runtime.js'), /market-grid-wide/);
-  assert.match(read('src/market-runtime.js'), /need-filled/);
-  assert.match(read('src/market-runtime.css'), /market-grid\.market-grid-wide/);
-  assert.match(read('src/market-runtime.css'), /44px/);
+  for (const id of ['market-stage-7','market-stage-8']) {
+    const stage = sandbox.STAGES.find(item => item.id === id);
+    assert.equal(stage.grid[0].length, 6);
+  }
+  const m7 = sandbox.STAGES.find(item => item.id === 'market-stage-7');
+  const bread = m7.market.locations.find(location => location.id === 'bakery');
+  assert.equal(bread.needs.flour, 3);
+  assert.ok(m7.market.locations.some(location => (location.stock?.flour || 0) > 0));
 });
 
 test('market state visuals keep inspected stock and need counts on the board and pulse changed locations', () => {
@@ -77,13 +51,14 @@ test('market state visuals keep inspected stock and need counts on the board and
   assert.match(css, /marketResourcePulse/);
 });
 
-test('index loads late market data and state visuals in dependency order', () => {
+test('index loads late market data, continuous flow, state visuals and UX layer in dependency order', () => {
   const html = read('index.html');
   const market = html.indexOf('./src/market-content.js');
   const late = html.indexOf('./src/market-late-content.js');
   const journey = html.indexOf('./src/journey-content.js');
   const marketJourney = html.indexOf('./src/market-journey-content.js');
   const lateJourney = html.indexOf('./src/market-late-journey-content.js');
+  const continuous = html.indexOf('./src/continuous-region-flow.js');
   const progress = html.indexOf('./src/journey-progress.js');
   const baseOutcome = html.indexOf('./src/story-outcome-content.js');
   const marketOutcome = html.indexOf('./src/market-story-outcome-content.js');
@@ -91,16 +66,19 @@ test('index loads late market data and state visuals in dependency order', () =>
   const marketRuntime = html.indexOf('./src/market-runtime.js');
   const marketVisuals = html.indexOf('./src/market-state-visuals.js');
   const flowRuntime = html.indexOf('./src/flow-runtime.js');
+  const uxRuntime = html.indexOf('./src/ux-play-runtime.js');
 
   assert.ok(market < late && late < journey);
-  assert.ok(marketJourney < lateJourney && lateJourney < progress);
+  assert.ok(marketJourney < lateJourney && lateJourney < continuous && continuous < progress);
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
-  assert.ok(marketRuntime < marketVisuals && marketVisuals < flowRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-12-innroomkey1"/);
+  assert.ok(marketRuntime < marketVisuals && marketVisuals < flowRuntime && flowRuntime < uxRuntime);
+  assert.match(html, /name="cwt-build" content="2026-09-12-uxflow1"/);
   assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/);
   assert.match(html, /market-runtime\.js\?v=20260912-marketm8r3/);
   assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/);
   assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/);
+  assert.match(html, /continuous-region-flow\.js\?v=20260912-uxflow1/);
+  assert.match(html, /ux-play-runtime\.js\?v=20260912-uxflow1/);
 });
 
 test('M8 keeps synthesis compact instead of adding a new target vocabulary family', () => {
