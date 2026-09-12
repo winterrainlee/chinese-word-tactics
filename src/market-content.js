@@ -1,4 +1,4 @@
-/* Market vocabulary and M1-M3 stage data. */
+/* Market vocabulary and M1-M4 stage data. */
 (() => {
   Object.assign(WORDS, {
     '需求': {
@@ -42,6 +42,24 @@
       k: '얻다, 획득하다',
       ex: '交換以後，獲得了一捆繩子。',
       rule: '獲得은 물건을 얻은 결과야. 이 판에서는 交換을 한 결과로 필요한 밧줄을 손에 넣게 돼.'
+    },
+    '買': {
+      p: 'ㄇㄞˇ',
+      k: '사다, 구입하다',
+      ex: '我買了一份菜。',
+      rule: '내가 돈을 내고 물건을 받는 쪽에서 보면 買야. 이 판에서는 구매가 확정되면 가격만큼 돈이 줄고 물건이 손에 들어와.'
+    },
+    '賣': {
+      p: 'ㄇㄞˋ',
+      k: '팔다',
+      ex: '菜販賣出了一份菜。',
+      rule: '같은 거래를 좌판 주인 쪽에서 보면 賣야. 소년이 買한 순간 좌판은 그 물건을 賣한 셈이야.'
+    },
+    '價格': {
+      p: 'ㄐㄧㄚˋ ㄍㄜˊ',
+      k: '가격',
+      ex: '先看看麵包的價格。',
+      rule: '물건을 사기 위해 내야 하는 돈의 양이야. 구매하기 전에 좌판의 상황 패널에서 확인할 수 있어.'
     }
   });
 
@@ -49,7 +67,9 @@
     flour: { labelZh: '麵粉', labelKo: '밀가루', unitZh: '袋' },
     oil: { labelZh: '燈油', labelKo: '등잔기름', unitZh: '箱' },
     cloth: { labelZh: '布', labelKo: '천', unitZh: '捆' },
-    rope: { labelZh: '繩子', labelKo: '밧줄', unitZh: '捆' }
+    rope: { labelZh: '繩子', labelKo: '밧줄', unitZh: '捆' },
+    vegetable: { labelZh: '菜', labelKo: '채소', unitZh: '份' },
+    bread: { labelZh: '麵包', labelKo: '빵', unitZh: '個' }
   };
 
   STAGES.push({
@@ -185,6 +205,54 @@
       ],
       feedback: {
         solved: '交換得到的繩子帶回來了。 교환해서 얻은 밧줄을 아주머니에게 가져왔어.'
+      }
+    }
+  });
+
+  STAGES.push({
+    id: 'market-stage-4',
+    title: '買・賣・價格',
+    subtitle: '오늘 저녁거리',
+    kicker: '1장 · 장터 4/8',
+    grid: ['.....', '.....', '..S..', '.....', '.....'],
+    goal: '看價格，買一份菜和一個麵包，帶回給客棧主人。',
+    rule: '같은 거래를 소년은 買, 상인은 賣라고 해. 價格만큼 이 판의 錢幣가 줄어.',
+    words: ['買', '賣', '價格'],
+    win: [],
+    milestone: 'inn-unlocked',
+    story: '채소와 빵을 사서 여관 주인에게 가져다주었다. 장터 한쪽에 오늘 돌아갈 곳이 생겼다.',
+    market: {
+      scene: 'buying',
+      boardLabel: '채소 좌판, 빵 좌판과 여관 주인',
+      capacity: 2,
+      coins: 10,
+      items: commonItems,
+      startStatus: '錢幣有十個。 먼저 두 좌판의 가격을 보고 채소와 빵을 하나씩 사 와.',
+      locations: [
+        {
+          id: 'vegetable-stall', labelZh: '菜攤', labelKo: '채소 좌판', icon: '🥬', pos: [0, 0],
+          stock: { vegetable: 1 }, sell: { item: 'vegetable', price: 3 }
+        },
+        {
+          id: 'bread-shop', labelZh: '麵包攤', labelKo: '빵 좌판', icon: '🥖', pos: [0, 4],
+          stock: { bread: 1 }, sell: { item: 'bread', price: 4 }
+        },
+        {
+          id: 'innkeeper', kind: 'npc', labelZh: '客棧主人', labelKo: '여관 주인', icon: '🧑', pos: [4, 2],
+          stock: { vegetable: 0, bread: 0 }, needs: { vegetable: 1, bread: 1 }, allowPut: true, accepts: ['vegetable', 'bread']
+        }
+      ],
+      predicates: [
+        { type: 'location-at-least', location: 'innkeeper', item: 'vegetable', amount: 1 },
+        { type: 'location-at-least', location: 'innkeeper', item: 'bread', amount: 1 }
+      ],
+      goalMarks: [
+        { word: '價格', type: 'inspected-all', locations: ['vegetable-stall', 'bread-shop'] },
+        { word: '買', type: 'flag', flag: 'bought', eq: true },
+        { word: '賣', type: 'flag', flag: 'sold', eq: true }
+      ],
+      feedback: {
+        solved: '菜和麵包都買到了，也送回客棧主人手上了。 저녁에 필요한 두 가지를 모두 사서 가져왔어.'
       }
     }
   });
