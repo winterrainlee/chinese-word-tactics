@@ -84,6 +84,7 @@
         }
       ],
       predicates: [
+        { type: 'inspected-all', locations: ['bread-stall', 'noodle-stall'] },
         { type: 'location-at-least', location: 'bread-stall', item: 'flour', amount: 3 },
         { type: 'location-at-least', location: 'noodle-stall', item: 'flour', amount: 2 }
       ],
