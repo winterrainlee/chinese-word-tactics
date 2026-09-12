@@ -10,15 +10,19 @@
 .status.bad{background:#f5e2df;border-color:#e2beb9;color:#722f2a}
 .contextPanel[hidden],.completionBar[hidden]{display:none!important}
 .contextPanel{flex:none;min-width:0}
-.contextPanel .market-panel{min-height:0;padding:10px 12px;border-radius:14px;box-shadow:none;border:1px solid rgba(98,79,51,.12)}
+.contextPanel .market-panel{min-height:0;padding:9px 12px;border-radius:14px;box-shadow:none;border:1px solid rgba(98,79,51,.12)}
 .contextPanel .market-panel-empty{min-height:42px;display:flex;align-items:center;justify-content:center;padding:7px 10px}
 .contextPanel .market-panel-empty p{display:none}
 .contextPanel .market-carry{padding-bottom:0;border-bottom:0;text-align:center}
-.contextPanel .market-panel:not(.market-panel-empty) .market-carry{padding-bottom:8px;border-bottom:1px solid rgba(98,79,51,.12);text-align:left}
-.contextPanel .market-panel-head{margin:8px 0}
-.contextPanel .market-info-row,.contextPanel .market-fact-row{padding:5px 0}
-.contextPanel .market-panel-actions{margin-top:8px}
-.contextPanel .market-action-hint{margin-top:7px}
+.contextPanel .market-panel:not(.market-panel-empty) .market-carry{padding-bottom:6px;border-bottom:1px solid rgba(98,79,51,.12);text-align:left}
+.contextPanel .market-panel-head{margin:6px 0}
+.contextPanel .market-info-row{grid-template-columns:48px minmax(0,1fr);gap:1px 8px;padding:4px 0;align-items:center}
+.contextPanel .market-info-row>span{grid-column:1;grid-row:1 / span 2;align-self:center}
+.contextPanel .market-info-row>strong{grid-column:2;grid-row:1;min-width:0}
+.contextPanel .market-info-row>small{grid-column:2;grid-row:2;margin-top:0;min-width:0}
+.contextPanel .market-fact-row{padding:4px 0}
+.contextPanel .market-panel-actions{margin-top:7px}
+.contextPanel .market-action-hint{margin-top:6px}
 .grid.market-board>.market-scene{gap:0}
 .completionBar{flex:none;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;min-height:48px;padding:6px 7px 6px 11px;border:1px solid #b9cebf;border-radius:14px;background:#e7f0e9}
 .completionBar strong{font-size:14px;color:#28563f}
