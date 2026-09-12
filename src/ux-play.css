@@ -1,6 +1,7 @@
 /* Shared v1.0 tactical UX layer: compact intent, target words, nearby feedback, inline completion. */
 .goalbox{position:relative;min-height:52px;padding:8px 56px 8px 11px;display:flex;align-items:center;background:rgba(255,253,247,.82);box-shadow:none;border-radius:14px}
 .goal{font-size:16px;line-height:1.42;text-align:left;width:100%}
+.goal,.status,.statusZh,.statusKo{word-break:keep-all;overflow-wrap:anywhere}
 .ruleline{display:none}
 .goalDetailBtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:800}
 .goalDetailBtn:active{background:#ece6da;color:var(--ink)}
