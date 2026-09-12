@@ -16,8 +16,10 @@ const passes = [];
 function warn(id, message) { warnings.push({ id, message }); }
 function pass(id, message) { passes.push({ id, message }); }
 
-if (/function showStageComplete[\s\S]*completionBar[\s\S]*id=\"flowNext\"/.test(ux) &&
-    !/function showStageComplete[\s\S]*openSheet/.test(ux.slice(ux.indexOf('function showStageComplete'), ux.indexOf('globalThis.GameFlow')))) {
+const completionStart = ux.indexOf('function showStageComplete');
+const completionEnd = ux.indexOf('globalThis.GameFlow', completionStart);
+const completionBody = completionStart >= 0 && completionEnd > completionStart ? ux.slice(completionStart, completionEnd) : '';
+if (/completionBar/.test(ux) && /completion\.hidden = false/.test(completionBody) && /id=\"flowNext\"/.test(completionBody) && !/openSheet/.test(completionBody)) {
   pass('UX-05/06', '완료는 판을 덮는 시트 대신 같은 전술 화면의 인라인 진행 행동으로 표시된다.');
 } else {
   warn('UX-05/06', '완료가 최종 판을 덮지 않는지 정적으로 확인하지 못했다.');
@@ -43,7 +45,7 @@ if (/document\.querySelector\('#grid \.market-panel'\)/.test(ux) && /context\.re
   warn('UX-02', '장터 대상 패널과 상태 메시지의 순서를 확인하지 못했다.');
 }
 
-if (/if \(node\) return playNode\(node\)/.test(flow) && /lastStoryIndex/.test(continuous)) {
+if (/if \(node\) return playNode\(node\)/.test(flow) && /node\.returnToWorldAfter = index === lastStoryIndex/.test(continuous)) {
   pass('UX-07/09', '다음 노드 직접 연결과 구역 내부 연속 진행 규칙이 함께 존재한다.');
 } else {
   warn('UX-07/09', '구역 내부 연속 진행 계약을 확인하지 못했다.');
