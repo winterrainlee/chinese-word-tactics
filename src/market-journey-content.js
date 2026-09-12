@@ -1,4 +1,4 @@
-/* Market M1-M3 story/stage sequence. */
+/* Market M1-M4 story/stage sequence. */
 (() => {
   const stories = JourneyContent.STORIES;
   Object.assign(stories, {
@@ -65,6 +65,30 @@
         { speaker: 'merchant', zh: '哈哈，跟在路上遇到你的時候一樣。那我先去送下一批貨。晚點再見。', ko: '하하, 길에서 널 만났을 때랑 똑같네. 난 다음 짐을 배달하러 갈게. 또 보자.' },
         { speaker: 'narrator', zh: '行商阿姨拉著小木車往另一排攤子走去。少年也回頭看向仍在忙碌的市集。', ko: '행상 아주머니는 작은 목제 손수레를 끌고 다른 좌판 쪽으로 갔다. 소년도 다시 분주한 장터를 바라보았다.' }
       ]
+    },
+    'market-m4-setup': {
+      id: 'market-m4-setup', chapterId: 'chapter-1-three-roads', titleKo: '오늘 저녁거리를 부탁받다',
+      background: 'market', placeZh: '市集', placeKo: '장터',
+      beats: [
+        { speaker: 'narrator', zh: '少年再走進市集時，一名客棧主人正站在兩個攤子中間，手裡拿著空籃子。', ko: '소년이 다시 장터로 들어오자, 여관 주인이 빈 바구니를 든 채 두 좌판 사이에 서 있었다.' },
+        { speaker: 'innkeeper', zh: '小弟，你現在有空嗎？客棧的鍋還在火上，我得趕快回去看著。', ko: '얘야, 지금 잠깐 시간 있니? 여관에 솥을 불 위에 올려 둬서 내가 얼른 돌아가 봐야 해.' },
+        { speaker: 'innkeeper', zh: '今晚還少一份菜和一個麵包。這十個錢幣給你，可以幫我買回來嗎？', ko: '오늘 저녁에 채소 한 묶음하고 빵 하나가 더 필요해. 이 동전 열 개를 줄 테니 대신 사다 줄래?' },
+        { speaker: 'innkeeper', zh: '先看看價格。買好了就帶回來給我。', ko: '먼저 가격을 보고 사렴. 다 샀으면 내게 가져다줘.' },
+        { speaker: 'boy', zh: '好。我買好了就送回來。', ko: '좋아요. 다 사면 바로 가져올게요.' }
+      ]
+    },
+    'market-after-m4': {
+      id: 'market-after-m4', chapterId: 'chapter-1-three-roads', titleKo: '오늘 돌아갈 곳',
+      background: 'market', placeZh: '客棧旁', placeKo: '장터 골목',
+      beats: [
+        { speaker: 'innkeeper', zh: '菜和麵包都齊了。謝謝你，晚飯總算不用再擔心了。', ko: '채소와 빵이 다 모였네. 고맙다. 이제 저녁 준비는 걱정하지 않아도 되겠어.' },
+        { speaker: 'innkeeper', zh: '對了，你今天住哪裡？', ko: '그러고 보니, 오늘은 어디서 묵니?' },
+        { speaker: 'boy', zh: '我還沒決定。', ko: '아직 정하지 않았어요.' },
+        { speaker: 'innkeeper', zh: '客棧還有一間空房。你今天幫了我不少忙，要是不嫌棄，今晚先住下吧。', ko: '여관에 빈방이 하나 있어. 오늘 네가 많이 도와줬으니, 괜찮다면 오늘은 거기서 쉬렴.' },
+        { speaker: 'boy', zh: '真的可以嗎？', ko: '정말 그래도 돼요?' },
+        { speaker: 'innkeeper', zh: '當然。先把這裡當個落腳處。想繼續逛市集也沒關係，晚一點再回來就好。', ko: '그럼. 우선 여기를 머물 곳으로 생각해. 장터를 더 둘러보고 싶으면 그래도 괜찮아. 나중에 돌아오면 돼.' },
+        { speaker: 'narrator', zh: '少年看了看客棧門口亮起的燈。來到三溪鎮以後，他第一次有了一個可以回來的地方。', ko: '소년은 여관 입구에 켜진 등을 바라보았다. 물길마을에 온 뒤 처음으로, 돌아올 수 있는 곳이 하나 생겼다.' }
+      ]
     }
   });
 
@@ -81,6 +105,9 @@
     { type: 'story', id: 'market-after-m2', requires: ['stage:market-stage-2'], returnToWorldAfter: true },
     { type: 'story', id: 'market-m3-setup', requires: ['story:market-after-m2'] },
     { type: 'stage', id: 'market-stage-3', requires: ['story:market-m3-setup'] },
-    { type: 'story', id: 'market-after-m3', requires: ['stage:market-stage-3'], returnToWorldAfter: true }
+    { type: 'story', id: 'market-after-m3', requires: ['stage:market-stage-3'], returnToWorldAfter: true },
+    { type: 'story', id: 'market-m4-setup', requires: ['story:market-after-m3'] },
+    { type: 'stage', id: 'market-stage-4', requires: ['story:market-m4-setup'] },
+    { type: 'story', id: 'market-after-m4', requires: ['stage:market-stage-4'], returnToWorldAfter: true }
   );
 })();
