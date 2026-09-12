@@ -51,6 +51,21 @@ test('UX-01 learning words sit directly under the goal before the tactical board
   assert.equal(ordered(index, ['class="goalbox"', 'class="words"', 'class="mapwrap"']), true);
 });
 
+test('UX-02 learning feedback shows Chinese first and hides Korean behind a per-message meaning button', () => {
+  assert.match(ux, /function splitLearningFeedback/);
+  assert.match(ux, /statusMeaningBtn/);
+  assert.match(ux, /행동 안내와 결과의 한국어 뜻 보기/);
+  assert.match(ux, /ko\.hidden = true/);
+  assert.match(ux, /button\.textContent = opening \? '접기' : '뜻'/);
+  assert.match(uxStyles, /\.statusMeaningBtn\{[^}]*min-width:44px;[^}]*min-height:44px/s);
+  assert.match(uxStyles, /\.statusKo\[hidden\]\{display:none!important\}/);
+});
+
+test('UX-02 Korean-only system or usability feedback remains immediately readable', () => {
+  assert.match(ux, /if \(!\[\\u3400-\\u9fff\]\/u\.test\(text\)\) return null/);
+  assert.match(ux, /if \(!parts \|\| !status\) return false/);
+});
+
 test('UX-02 market detail panel moves below immediate action feedback', () => {
   assert.match(ux, /document\.querySelector\('#grid \.market-panel'\)/);
   assert.match(ux, /context\.replaceChildren\(panel\)/);
