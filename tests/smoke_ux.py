@@ -69,13 +69,13 @@ def assert_tactical_viewport(layout, *, max_vertical_scroll=0):
     assert document['width'] <= viewport['width'], layout
     overflow = max(0, document['height'] - viewport['height'])
     assert overflow <= max_vertical_scroll, layout
-    for name in ('goal', 'grid', 'status', 'words'):
+    for name in ('goal', 'words', 'grid', 'status'):
         item = layout[name]
         assert item['x'] >= 0 and item['x'] + item['width'] <= viewport['width'] + 1, (name, layout)
         assert item['y'] >= 0 and item['y'] + item['height'] <= document['height'] + 1, (name, layout)
-    assert layout['goal']['y'] < layout['grid']['y'] < layout['status']['y'] < layout['words']['y'], layout
+    assert layout['goal']['y'] < layout['words']['y'] < layout['grid']['y'] < layout['status']['y'], layout
     if 'controls' in layout:
-        assert layout['words']['y'] < layout['controls']['y'], layout
+        assert layout['status']['y'] < layout['controls']['y'], layout
 
 
 def assert_touch_targets(page, selector):
@@ -113,7 +113,7 @@ try:
         page.goto(url)
         page.wait_for_function('!!window.GameFlow && !!window.TacticalGame && !!window.UXPlay')
 
-        # UX-01/02/12: compact goal and nearby feedback on the base grid.
+        # UX-01/02/12: goal, target words, board and nearby feedback on the base grid.
         page.evaluate('TacticalGame.playStage("gate-stage-1",{mode:"replay",returnTo:"journey"})')
         layout = visible_layout(page)
         assert_tactical_viewport(layout)
@@ -141,7 +141,7 @@ try:
         page.screenshot(path=str(OUT / 'ux-01-workshop-w2-entry-375x812.png'), full_page=True)
         print('UX_LAYOUT_WORKSHOP_W2', json.dumps(workshop_layout, ensure_ascii=False), flush=True)
 
-        # UX-01/02/12: M8 uses a short intent line and puts target details below immediate feedback.
+        # UX-01/02/12: M8 uses a short intent line, target words before the board, and target details below immediate feedback.
         page.evaluate('TacticalGame.playStage("market-stage-8",{mode:"replay",returnTo:"journey"})')
         market_layout = visible_layout(page)
         assert_tactical_viewport(market_layout)
