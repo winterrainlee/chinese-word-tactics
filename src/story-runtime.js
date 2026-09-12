@@ -1,6 +1,6 @@
 (() => {
   const $ = id => document.getElementById(id);
-  const speakers = { narrator: ['旁白', '이야기'], boy: ['少年', '소년'], merchant: ['行商', '행상인'], marketkeeper: ['市集管理人', '장터지기'], gatekeeper: ['守門人', '길지기'], driver: ['車夫', '수레꾼'], artisan: ['工匠', '장인'], unknown: ['遠處的聲音', '멀리서 들리는 목소리'] };
+  const speakers = { narrator: ['旁白', '이야기'], boy: ['少年', '소년'], merchant: ['行商阿姨', '행상 아주머니'], marketkeeper: ['市集管理人', '장터지기'], gatekeeper: ['守門人', '길지기'], driver: ['車夫', '수레꾼'], artisan: ['工匠', '장인'], unknown: ['遠處的聲音', '멀리서 들리는 목소리'] };
   const backgrounds = { origin: 'region-origin', forest: 'region-origin', roadside: 'region-gate-town', gate: 'region-gate-town', workshop: 'region-workshop-town', market: 'region-market-town' };
   let session = null;
   function render() {
