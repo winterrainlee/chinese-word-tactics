@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 require('../src/journey-content.js');
 require('../src/market-journey-content.js');
 
-test('market section connects M1 through M3 with world pauses', () => {
+test('market section connects M1 through M4 with world pauses', () => {
   const section = globalThis.JourneyContent.JOURNEY
     .flatMap(chapter => chapter.sections)
     .find(item => item.id === 'market-town');
@@ -18,11 +18,15 @@ test('market section connects M1 through M3 with world pauses', () => {
     'story:market-after-m2',
     'story:market-m3-setup',
     'stage:market-stage-3',
-    'story:market-after-m3'
+    'story:market-after-m3',
+    'story:market-m4-setup',
+    'stage:market-stage-4',
+    'story:market-after-m4'
   ]);
   assert.equal(section.sequence[2].returnToWorldAfter, true);
   assert.equal(section.sequence[5].returnToWorldAfter, true);
   assert.equal(section.sequence[8].returnToWorldAfter, true);
+  assert.equal(section.sequence[11].returnToWorldAfter, true);
 });
 
 test('M1 directly reunites the boy with a middle-aged merchant who has a concrete reason to ask for help', () => {
@@ -52,4 +56,19 @@ test('M2 leftovers lead directly to the M3 cloth-for-rope exchange', () => {
   assert.match(after.beats.map(beat => beat.zh).join('\n'), /少一捆繩子/);
   assert.match(setup.beats.map(beat => beat.zh).join('\n'), /行商阿姨把一捆布/);
   assert.match(setup.beats.map(beat => beat.zh).join('\n'), /不是白拿，要互相交換/);
+});
+
+test('M4 gives stage-local coins, asks the player to check prices, and makes the inn a return place', () => {
+  const setup = globalThis.JourneyContent.STORIES['market-m4-setup'];
+  const after = globalThis.JourneyContent.STORIES['market-after-m4'];
+  const setupZh = setup.beats.map(beat => beat.zh).join('\n');
+  const afterZh = after.beats.map(beat => beat.zh).join('\n');
+  const afterKo = after.beats.map(beat => beat.ko).join('\n');
+  assert.match(setupZh, /十個錢幣/);
+  assert.match(setupZh, /一份菜和一個麵包/);
+  assert.match(setupZh, /先看看價格/);
+  assert.match(afterZh, /你今天住哪裡/);
+  assert.match(afterZh, /我還沒決定/);
+  assert.match(afterZh, /客棧還有一間空房/);
+  assert.match(afterKo, /돌아올 수 있는 곳/);
 });
