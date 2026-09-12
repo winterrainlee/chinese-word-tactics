@@ -4,6 +4,17 @@
   const $ = id => document.getElementById(id);
   const shell = $('tutorialView');
   const status = $('status');
+  const PENDING_COMPLETION_KEY = 'chinese-word-tactics-pending-completion-v1';
+  const SHORT_GOALS = Object.freeze({
+    'market-stage-8': '開市以前，補齊各處需要的東西。'
+  });
+
+  function savePendingCompletion(stageId) {
+    try { localStorage.setItem(PENDING_COMPLETION_KEY, JSON.stringify({ stageId })); } catch {}
+  }
+  function clearPendingCompletion() {
+    try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {}
+  }
 
   function ensureSlots() {
     let context = $('contextPanel');
@@ -46,6 +57,14 @@
     };
   }
 
+  function applyShortGoal() {
+    const short = SHORT_GOALS[current()?.id];
+    if (!short) return;
+    const goal = $('goal');
+    goal.textContent = short;
+    goal.setAttribute('lang', 'zh-Hant');
+  }
+
   function relocateMarketPanel() {
     const { context } = ensureSlots();
     const panel = document.querySelector('#grid .market-panel');
@@ -67,6 +86,7 @@
 
   function decorate() {
     ensureGoalDetail();
+    applyShortGoal();
     status?.setAttribute('role', 'status');
     status?.setAttribute('aria-live', 'polite');
     relocateMarketPanel();
@@ -84,6 +104,7 @@
   const baseResetStage = resetStage;
   resetStage = function uxPlayResetStage(...args) {
     hideCompletion();
+    clearPendingCompletion();
     return baseResetStage(...args);
   };
 
@@ -101,11 +122,14 @@
       const { completion } = ensureSlots();
       closeSheet();
       shell?.classList.add('stageComplete');
+      if (context.mode !== 'replay') savePendingCompletion(id);
+      if (!status?.classList.contains('good')) setStatus('目標完成。 이번 목표를 끝냈어. 결과를 확인하고 다음으로 넘어가자.', 'good');
       completion.hidden = false;
       completion.innerHTML = `<strong>✓ 스테이지 완료</strong><button id="flowNext" type="button"></button>`;
       const next = $('flowNext');
       next.textContent = completionLabel(id, context);
       next.onclick = () => {
+        clearPendingCompletion();
         hideCompletion();
         if (context.mode === 'replay') {
           context.returnTo === 'world' ? baseFlow.showWorld() : baseFlow.showJourney();
@@ -116,8 +140,13 @@
     }
 
     globalThis.GameFlow = Object.freeze({ ...baseFlow, showStageComplete });
+    const pending = globalThis.__CWT_PENDING_COMPLETION__;
+    if (pending?.id && current()?.id === pending.id) {
+      showStageComplete(pending.id, pending.context || { mode: 'first-play', returnTo: 'journey' });
+      delete globalThis.__CWT_PENDING_COMPLETION__;
+    }
   }
 
   decorate();
-  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion });
+  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion, clearPendingCompletion });
 })();
