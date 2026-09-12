@@ -28,6 +28,33 @@
     return message;
   }
 
+  function addPunctuationBreaks(root) {
+    if (!root) return;
+    root.querySelectorAll('wbr[data-punctuation-break]').forEach(node => node.remove());
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    for (const node of nodes) {
+      const parent = node.parentElement;
+      if (!parent || parent.closest('button')) continue;
+      const text = node.nodeValue || '';
+      if (!/[，。；：！？、,.!?;:]/u.test(text)) continue;
+      const parts = text.split(/([，。；：！？、,.!?;:]+)/u);
+      if (parts.length < 2) continue;
+      const fragment = document.createDocumentFragment();
+      parts.forEach((part, index) => {
+        if (!part) return;
+        fragment.append(document.createTextNode(part));
+        if (/^[，。；：！？、,.!?;:]+$/u.test(part) && parts.slice(index + 1).some(Boolean)) {
+          const br = document.createElement('wbr');
+          br.dataset.punctuationBreak = '';
+          fragment.append(br);
+        }
+      });
+      node.replaceWith(fragment);
+    }
+  }
+
   function splitLearningFeedback(message) {
     const text = String(message || '').trim();
     if (!/[\u3400-\u9fff]/u.test(text)) return null;
@@ -62,8 +89,10 @@
       ko.hidden = !opening;
       button.setAttribute('aria-expanded', String(opening));
       button.textContent = opening ? '접기' : '뜻';
+      addPunctuationBreaks(status);
     };
     status.append(zh, button, ko);
+    addPunctuationBreaks(status);
     return true;
   }
 
@@ -71,7 +100,7 @@
   setStatus = function uxPlaySetStatus(message, type = '') {
     const normalized = normalizeLearningFeedback(message);
     baseSetStatus(normalized, type);
-    renderLearningFeedback(status?.textContent || normalized);
+    if (!renderLearningFeedback(status?.textContent || normalized)) addPunctuationBreaks(status);
   };
 
   function ensureSlots() {
@@ -145,6 +174,8 @@
   function decorate() {
     ensureGoalDetail();
     applyShortGoal();
+    addPunctuationBreaks($('goal'));
+    addPunctuationBreaks(status);
     status?.setAttribute('role', 'status');
     status?.setAttribute('aria-live', 'polite');
     relocateMarketPanel();
@@ -206,5 +237,5 @@
   }
 
   decorate();
-  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion, clearPendingCompletion, normalizeLearningFeedback, splitLearningFeedback, renderLearningFeedback });
+  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion, clearPendingCompletion, normalizeLearningFeedback, addPunctuationBreaks, splitLearningFeedback, renderLearningFeedback });
 })();
