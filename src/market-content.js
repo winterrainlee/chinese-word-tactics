@@ -28,7 +28,7 @@
     '剩下': {
       p: 'ㄕㄥˋ ㄒㄧㄚˋ',
       k: '남다, 남아 있다',
-      ex: '車上還剩下兩箱燈油。',
+      ex: '這批貨還剩下兩箱燈油。',
       rule: '이미 보내거나 사용한 것을 빼고 지금 실제로 남아 있는 양을 말해. 처음 몇 개였는지만 보고 고르면 안 돼.'
     },
     '交換': {
@@ -57,18 +57,18 @@
     title: '需求・足夠・不足',
     subtitle: '모자란 자루',
     kicker: '1장 · 장터 1/8',
-    grid: ['.....', '.....', '..S..', '.....', '.....'],
+    grid: ['.....', '.....', '.....', '..S..', '.....'],
     goal: '先看兩個攤子的需求，把麵粉補到不足的地方。',
     rule: '需求과 현재 수량을 함께 봐. 이미 足夠한 곳과 不足한 곳이 달라.',
     words: ['需求', '足夠', '不足'],
     win: [],
-    story: '두 좌판의 필요량을 확인하고, 모자란 곳에 밀가루 한 자루를 채웠다.',
+    story: '두 좌판의 필요량을 확인하고, 행상 아주머니 곁에 있던 밀가루 한 자루를 모자란 곳에 채웠다.',
     market: {
       scene: 'stalls',
-      boardLabel: '장터의 두 좌판과 배달수레',
+      boardLabel: '장터의 두 좌판과 행상 아주머니',
       capacity: 1,
       items: commonItems,
-      startStatus: '先看看兩個攤子的需求。 먼저 두 좌판에 무엇이 얼마나 필요한지 살펴봐.',
+      startStatus: '先看看兩個攤子的需求。 아주머니가 짐을 정리하는 동안 두 좌판의 필요량을 확인해봐.',
       locations: [
         {
           id: 'bread-stall', labelZh: '麵包攤', labelKo: '빵 좌판', icon: '🥖', pos: [0, 0],
@@ -79,8 +79,8 @@
           stock: { flour: 2 }, needs: { flour: 2 }, allowTake: true, allowPut: true, accepts: ['flour']
         },
         {
-          id: 'delivery-cart', labelZh: '送貨車', labelKo: '배달수레', icon: '🛒', pos: [4, 2],
-          stock: { flour: 1 }, allowTake: true, allowPut: true, accepts: ['flour'], stockLabelZh: '還有', stockLabelKo: '남아 있음'
+          id: 'merchant', kind: 'npc', labelZh: '行商阿姨', labelKo: '행상 아주머니', icon: '👩‍🦱', pos: [4, 2],
+          stock: { flour: 1 }, allowTake: true, allowPut: true, accepts: ['flour'], stockLabelZh: '手邊', stockLabelKo: '곁에 둔 짐'
         }
       ],
       predicates: [
@@ -105,20 +105,20 @@
     subtitle: '남은 상자',
     kicker: '1장 · 장터 2/8',
     grid: ['.....', '.....', '..S..', '.....', '.....'],
-    goal: '確認貨車上剩下的數量，把兩箱燈油送回倉庫。',
+    goal: '確認這批貨剩下的數量，把兩箱燈油送回倉庫。',
     rule: '原來有多少와 지금 剩下은 얼마나 다른지 구분해.',
     words: ['數量', '剩下'],
     win: [],
-    story: '행상인의 수레에 실제로 남은 등잔기름 두 상자를 찾아 창고로 돌려보냈다.',
+    story: '행상 아주머니가 가져온 짐 가운데 실제로 남은 등잔기름 두 상자를 찾아 창고로 돌려보냈다.',
     market: {
-      scene: 'merchant-cart',
-      boardLabel: '행상인의 수레와 장터 창고',
+      scene: 'merchant-goods',
+      boardLabel: '행상 아주머니와 장터 창고',
       capacity: 2,
       items: commonItems,
-      startStatus: '先看看車上還剩下什麼。 행상인의 수레에 지금 실제로 무엇이 남았는지 확인해봐.',
+      startStatus: '先看看阿姨這批貨還剩下什麼。 아주머니가 가져온 짐에 지금 실제로 무엇이 남았는지 확인해봐.',
       locations: [
         {
-          id: 'merchant-cart', labelZh: '行商的貨車', labelKo: '행상인의 수레', icon: '🛒', pos: [0, 2],
+          id: 'merchant', kind: 'npc', labelZh: '行商阿姨', labelKo: '행상 아주머니', icon: '👩‍🦱', pos: [0, 2],
           stock: { cloth: 0, oil: 2 }, allowTake: true, allowPut: true, accepts: ['oil'], stockLabelZh: '剩下', stockLabelKo: '현재 남은 것',
           facts: [
             { labelZh: '原來數量', labelKo: '원래 수량', textZh: '布 ×2', textKo: '천 2묶음' },
@@ -133,12 +133,12 @@
         }
       ],
       predicates: [
-        { type: 'location-equals', location: 'merchant-cart', item: 'oil', amount: 0 },
+        { type: 'location-equals', location: 'merchant', item: 'oil', amount: 0 },
         { type: 'location-at-least', location: 'warehouse', item: 'oil', amount: 2 }
       ],
       goalMarks: [
-        { word: '數量', type: 'inspected', location: 'merchant-cart' },
-        { word: '剩下', type: 'inspected', location: 'merchant-cart' }
+        { word: '數量', type: 'inspected', location: 'merchant' },
+        { word: '剩下', type: 'inspected', location: 'merchant' }
       ],
       feedback: {
         solved: '剩下的兩箱燈油都送回倉庫了。 남아 있던 등잔기름 두 상자를 모두 창고로 돌려보냈어.'
@@ -152,21 +152,21 @@
     subtitle: '바꿔 온 물건',
     kicker: '1장 · 장터 3/8',
     grid: ['.....', '.....', '..S..', '.....', '.....'],
-    goal: '用布交換繩子，把獲得的繩子帶回給行商。',
+    goal: '用布交換繩子，把獲得的繩子帶回給阿姨。',
     rule: '交換은 서로 주고받는 방법이고, 獲得은 그 결과로 손에 넣는 일이야.',
     words: ['交換', '獲得'],
     win: [],
-    story: '행상인이 남긴 천 한 묶음을 밧줄과 교환해, 다음 배달에 필요한 밧줄을 가져다주었다.',
+    story: '행상 아주머니가 건넨 천 한 묶음을 밧줄과 교환해, 다음 배달에 필요한 밧줄을 가져다주었다.',
     market: {
       scene: 'exchange',
-      boardLabel: '행상인의 수레와 밧줄 좌판',
+      boardLabel: '행상 아주머니와 밧줄 좌판',
       capacity: 1,
       items: commonItems,
       initialInventory: { cloth: 1 },
       startStatus: '手上有一捆布。 밧줄 좌판에서 무엇과 바꿀 수 있는지 살펴봐.',
       locations: [
         {
-          id: 'merchant-cart', labelZh: '行商的貨車', labelKo: '행상인의 수레', icon: '🛒', pos: [0, 0],
+          id: 'merchant', kind: 'npc', labelZh: '行商阿姨', labelKo: '행상 아주머니', icon: '👩‍🦱', pos: [0, 0],
           stock: { rope: 0 }, needs: { rope: 1 }, allowPut: true, accepts: ['rope']
         },
         {
@@ -177,14 +177,14 @@
       ],
       predicates: [
         { type: 'flag', flag: 'exchanged', eq: true },
-        { type: 'location-at-least', location: 'merchant-cart', item: 'rope', amount: 1 }
+        { type: 'location-at-least', location: 'merchant', item: 'rope', amount: 1 }
       ],
       goalMarks: [
         { word: '交換', type: 'flag', flag: 'exchanged', eq: true },
         { word: '獲得', type: 'flag', flag: 'exchanged', eq: true }
       ],
       feedback: {
-        solved: '交換得到的繩子帶回來了。 교환해서 얻은 밧줄을 행상인에게 가져왔어.'
+        solved: '交換得到的繩子帶回來了。 교환해서 얻은 밧줄을 아주머니에게 가져왔어.'
       }
     }
   });
