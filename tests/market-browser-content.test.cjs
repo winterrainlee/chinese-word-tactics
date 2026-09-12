@@ -16,8 +16,9 @@ test('market content defines M1-M3 and the new target words', () => {
   assert.equal(sandbox.STAGES[2].market.initialInventory.cloth, 1);
 });
 
-test('main page loads market data before journey helpers and market runtime before flow', () => {
+test('main page preserves old stage order while loading market data before journey helpers', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const g7Content = html.indexOf('./src/g7-content.js');
   const marketContent = html.indexOf('./src/market-content.js');
   const journeyContent = html.indexOf('./src/journey-content.js');
   const marketJourney = html.indexOf('./src/market-journey-content.js');
@@ -25,7 +26,8 @@ test('main page loads market data before journey helpers and market runtime befo
   const app = html.indexOf('./src/app.js');
   const marketRuntime = html.indexOf('./src/market-runtime.js');
   const flow = html.indexOf('./src/flow-runtime.js');
-  assert.ok(marketContent > 0 && marketContent < journeyContent);
+  assert.ok(g7Content > 0 && g7Content < marketContent, 'new market stages must be appended after existing G7 content');
+  assert.ok(marketContent < journeyContent);
   assert.ok(marketJourney > journeyContent && marketJourney < progress);
   assert.ok(marketRuntime > app && marketRuntime < flow);
 });
