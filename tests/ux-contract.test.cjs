@@ -58,7 +58,8 @@ test('UX-05/06 completion stays inline on the solved board and exposes only forw
   const end = ux.indexOf('globalThis.GameFlow', start);
   assert.ok(start >= 0 && end > start);
   const body = ux.slice(start, end);
-  assert.match(body, /completionBar/);
+  assert.match(ux, /completionBar/);
+  assert.match(body, /completion\.hidden = false/);
   assert.match(body, /✓ 스테이지 완료/);
   assert.match(body, /id=\"flowNext\"/);
   assert.doesNotMatch(body, /openSheet/);
@@ -82,8 +83,7 @@ test('UX-08 story end label still describes the next node', () => {
 
 test('UX-09 regional stories suppress intermediate world-map returns but preserve the finale return', () => {
   assert.match(continuous, /lastStoryIndex/);
-  assert.match(continuous, /node\.returnToWorldAfter = true/);
-  assert.match(continuous, /node\.returnToWorldAfter = false/);
+  assert.match(continuous, /node\.returnToWorldAfter = index === lastStoryIndex/);
 });
 
 test('UX-06 replay inline completion returns to its caller without changing campaign flow', () => {
