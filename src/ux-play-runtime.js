@@ -42,10 +42,10 @@
       const parts = text.split(/([，。；：！？、,.!?;:]+)/u);
       if (parts.length < 2) continue;
       const fragment = document.createDocumentFragment();
-      parts.forEach((part, index) => {
+      parts.forEach(part => {
         if (!part) return;
         fragment.append(document.createTextNode(part));
-        if (/^[，。；：！？、,.!?;:]+$/u.test(part) && parts.slice(index + 1).some(Boolean)) {
+        if (/^[，。；：！？、,.!?;:]+$/u.test(part)) {
           const br = document.createElement('wbr');
           br.dataset.punctuationBreak = '';
           fragment.append(br);
