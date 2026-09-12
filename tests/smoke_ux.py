@@ -141,11 +141,12 @@ try:
         page.screenshot(path=str(OUT / 'ux-01-workshop-w2-entry-375x812.png'), full_page=True)
         print('UX_LAYOUT_WORKSHOP_W2', json.dumps(workshop_layout, ensure_ascii=False), flush=True)
 
-        # UX-01/02/12: M8 panel is moved below immediate feedback and its initial view no longer exceeds 812px.
+        # UX-01/02/12: M8 uses a short intent line and puts target details below immediate feedback.
         page.evaluate('TacticalGame.playStage("market-stage-8",{mode:"replay",returnTo:"journey"})')
         market_layout = visible_layout(page)
         assert_tactical_viewport(market_layout)
-        assert market_layout['goal']['height'] <= 88, market_layout
+        assert market_layout['goal']['height'] <= 72, market_layout
+        assert page.locator('#goal').inner_text() == '開市以前，補齊各處需要的東西。'
         assert 'context' in market_layout and market_layout['context']['y'] > market_layout['status']['y'], market_layout
         assert page.locator('#grid .market-panel').count() == 0
         assert page.locator('#contextPanel .market-panel').count() == 1
@@ -154,7 +155,7 @@ try:
         page.screenshot(path=str(OUT / 'ux-01-market-m8-entry-375x812.png'), full_page=True)
         print('UX_LAYOUT_MARKET_M8', json.dumps(market_layout, ensure_ascii=False), flush=True)
 
-        # UX-05/06: completion remains on the solved board instead of opening a modal summary.
+        # UX-05/06: completion remains on the board instead of opening a modal summary.
         page.evaluate('GameFlow.showStageComplete("market-stage-8",{mode:"replay",returnTo:"journey"})')
         assert page.locator('#completionBar').is_visible()
         assert page.locator('#flowNext').is_visible()
@@ -177,7 +178,7 @@ try:
             assert stories[-1][1] is True, (region, stories)
         print('UX_REGION_FLOW', json.dumps(flow_flags, ensure_ascii=False), flush=True)
 
-        # UX-08: fresh story still hands directly to the first stage.
+        # UX-08/11: fresh story hands to stage 0, and an unacknowledged clear survives refresh.
         page.evaluate('localStorage.clear(); location.reload()')
         page.wait_for_function('!!window.GameFlow && !!window.UXPlay && document.querySelector("#storyView") && !document.querySelector("#storyView").hidden')
         while page.locator('#storyView').is_visible():
@@ -191,6 +192,26 @@ try:
         assert page.evaluate('current().id') == 'stage-0'
         assert not page.locator('#journeyView').is_visible()
         page.screenshot(path=str(OUT / 'ux-08-story-to-stage-375x812.png'), full_page=True)
+
+        page.locator('.cell:has(.hero)').click()
+        for index in [7, 4, 1]:
+            page.locator('#grid .cell').nth(index).click()
+        page.locator('#completionBar').wait_for(state='visible')
+        assert page.locator('#flowNext').inner_text() == '다음 판 시작'
+        assert page.evaluate('JSON.parse(localStorage.getItem("chinese-word-tactics-pending-completion-v1")).stageId') == 'stage-0'
+        page.screenshot(path=str(OUT / 'ux-11-stage0-complete-before-refresh-375x812.png'), full_page=True)
+
+        page.reload()
+        page.wait_for_function('!!window.GameFlow && !!window.UXPlay && !document.querySelector("#tutorialView").hidden')
+        assert page.evaluate('current().id') == 'stage-0'
+        assert page.locator('#completionBar').is_visible()
+        assert page.locator('#status').evaluate('(el)=>el.classList.contains("good")')
+        assert page.evaluate('JSON.parse(localStorage.getItem("chinese-word-tactics-pending-completion-v1")).stageId') == 'stage-0'
+        page.screenshot(path=str(OUT / 'ux-11-stage0-complete-after-refresh-375x812.png'), full_page=True)
+        page.locator('#flowNext').click()
+        assert page.locator('#tutorialView').is_visible()
+        assert page.evaluate('current().id') == 'stage-1'
+        assert page.evaluate('localStorage.getItem("chinese-word-tactics-pending-completion-v1")') is None
 
         assert not errors, errors
         assert not missing, missing
