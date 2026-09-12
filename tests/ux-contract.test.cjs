@@ -23,9 +23,9 @@ function ordered(source, tokens) {
   return true;
 }
 
-test('UX-01 tactical screen keeps intent, board, feedback, words, controls in a stable order', () => {
+test('UX-01 tactical screen keeps intent, target words, board, feedback, controls in a stable order', () => {
   assert.equal(
-    ordered(index, ['class="goalbox"', 'class="mapwrap"', 'class="status"', 'class="words"', 'class="controls"']),
+    ordered(index, ['class="goalbox"', 'class="words"', 'class="mapwrap"', 'class="status"', 'class="controls"']),
     true
   );
   assert.match(index, /ux-play\.css/);
@@ -45,6 +45,10 @@ test('UX-01/02 compact goal removes the always-visible rule block and strengthen
   assert.match(uxStyles, /\.status\{[^}]*min-height:48px[^}]*font-size:15px/s);
   assert.match(ux, /goalDetailBtn/);
   assert.match(ux, /목표와 규칙 자세히 보기/);
+});
+
+test('UX-01 learning words sit directly under the goal before the tactical board', () => {
+  assert.equal(ordered(index, ['class="goalbox"', 'class="words"', 'class="mapwrap"']), true);
 });
 
 test('UX-02 market detail panel moves below immediate action feedback', () => {
