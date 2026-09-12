@@ -82,3 +82,49 @@ test('M3 exchange is atomic and the acquired rope can be delivered', () => {
   state = M.applyAction(m3, exchanged.state, { type: 'put', location: 'merchant', item: 'rope' }).state;
   assert.equal(M.isSolved(m3, state), true);
 });
+
+const m4 = { capacity: 2, coins: 10, locations: [
+  { id: 'vegetable', stock: { vegetable: 1 }, sell: { item: 'vegetable', price: 3 } },
+  { id: 'bread', stock: { bread: 1 }, sell: { item: 'bread', price: 4 } },
+  { id: 'innkeeper', stock: { vegetable: 0, bread: 0 }, needs: { vegetable: 1, bread: 1 }, allowPut: true, accepts: ['vegetable', 'bread'] }
+], predicates: [
+  { type: 'location-at-least', location: 'innkeeper', item: 'vegetable', amount: 1 },
+  { type: 'location-at-least', location: 'innkeeper', item: 'bread', amount: 1 }
+] };
+
+test('M4 purchase atomically changes money, seller stock, inventory, and buy/sell flags', () => {
+  const initial = M.createState(m4);
+  const bought = M.applyAction(m4, initial, { type: 'buy', location: 'vegetable' });
+  assert.equal(bought.changed, true);
+  assert.equal(bought.reason, 'bought');
+  assert.equal(bought.state.coins, 7);
+  assert.equal(bought.state.locations.vegetable.stock.vegetable, 0);
+  assert.equal(bought.state.inventory.vegetable, 1);
+  assert.equal(bought.state.flags.bought, true);
+  assert.equal(bought.state.flags.sold, true);
+  assert.equal(bought.state.flags['bought:vegetable'], true);
+});
+
+test('M4 can buy in either order and completes only after both goods reach the innkeeper', () => {
+  for (const order of [['vegetable', 'bread'], ['bread', 'vegetable']]) {
+    let state = M.createState(m4);
+    for (const location of order) state = M.applyAction(m4, state, { type: 'buy', location }).state;
+    assert.equal(state.coins, 3);
+    assert.equal(M.isSolved(m4, state), false);
+    state = M.applyAction(m4, state, { type: 'put', location: 'innkeeper', item: 'vegetable' }).state;
+    assert.equal(M.isSolved(m4, state), false);
+    state = M.applyAction(m4, state, { type: 'put', location: 'innkeeper', item: 'bread' }).state;
+    assert.equal(M.isSolved(m4, state), true);
+  }
+});
+
+test('M4 insufficient money leaves every transaction state unchanged', () => {
+  const poor = { ...m4, coins: 2 };
+  const initial = M.createState(poor);
+  const result = M.applyAction(poor, initial, { type: 'buy', location: 'vegetable' });
+  assert.equal(result.changed, false);
+  assert.equal(result.reason, 'insufficient-coins');
+  assert.equal(result.state.coins, 2);
+  assert.equal(result.state.locations.vegetable.stock.vegetable, 1);
+  assert.equal(result.state.inventory.vegetable, undefined);
+});
