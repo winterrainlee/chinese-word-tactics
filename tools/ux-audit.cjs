@@ -57,7 +57,7 @@ if (/next\?\.type === 'stage' \? '스테이지 시작'/.test(flow) && /next\?\.t
   warn('UX-08', '이야기 종료 버튼 라벨과 다음 노드 유형 연결을 확인하지 못했다.');
 }
 
-const order = ['class="goalbox"', 'class="mapwrap"', 'class="status"', 'class="words"', 'class="controls"'];
+const order = ['class="goalbox"', 'class="words"', 'class="mapwrap"', 'class="status"', 'class="controls"'];
 let cursor = -1;
 const stableOrder = order.every(token => {
   const next = index.indexOf(token, cursor + 1);
@@ -65,7 +65,7 @@ const stableOrder = order.every(token => {
   cursor = next;
   return true;
 });
-if (stableOrder) pass('UX-01/02', '기본 전술 DOM은 목표 → 판 → 상태 → 단어 → 조작 순서를 유지한다.');
+if (stableOrder) pass('UX-01/02', '기본 전술 DOM은 목표 → 주요 단어 → 판 → 상태 → 조작 순서를 유지한다.');
 else warn('UX-01/02', '전술 화면 기본 정보 순서가 달라졌다.');
 
 if (/\.cell\{[^}]*min-width:44px;[^}]*min-height:44px;/s.test(styles)) pass('UX-12', '기본 전술 칸의 44px 터치 바닥값이 유지된다.');
