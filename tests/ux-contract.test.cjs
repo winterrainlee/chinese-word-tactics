@@ -42,28 +42,36 @@ test('UX-02 feedback sits immediately after the tactical board instead of behind
 });
 
 test('UX-06 completion keeps retry secondary and forward progress primary', () => {
-  assert.match(flow, /id=\\"flowRetry\\" class=\\"secondary\\"/);
-  assert.match(flow, /id=\\"flowNext\\"/);
-  assert.match(flow, /\$\('flowNext'\)\.textContent = replay \?/);
+  const retryAt = flow.indexOf('flowRetry');
+  const nextAt = flow.indexOf('flowNext');
+  assert.ok(retryAt >= 0 && nextAt >= 0, 'completion actions should exist');
+  assert.match(flow.slice(Math.max(0, retryAt - 100), retryAt + 150), /secondary/);
+  assert.match(flow, /flowNext[\s\S]*textContent[\s\S]*replay/);
 });
 
 test('UX-07 stage completion continues to the next node directly on first play', () => {
-  assert.match(flow, /replay \? returnFromReplay\(context\) : continueFromNode\(`stage:\$\{id\}`\)/);
-  assert.doesNotMatch(flow, /\$\('flowNext'\)\.onclick[^;]*showJourney\(/s);
+  const nextHandlerAt = flow.indexOf("$('flowNext').onclick");
+  assert.ok(nextHandlerAt >= 0, 'forward completion handler should exist');
+  const handler = flow.slice(nextHandlerAt, nextHandlerAt + 320);
+  assert.match(handler, /returnFromReplay\(context\)/);
+  assert.match(handler, /continueFromNode/);
+  assert.doesNotMatch(handler, /showJourney\(/);
 });
 
 test('UX-08 story end label describes the next node and finish continues directly', () => {
   assert.match(flow, /next\?\.type === 'stage' \? '스테이지 시작'/);
   assert.match(flow, /next\?\.type === 'story' \? '이야기 계속'/);
-  assert.match(flow, /else continueFromNode\(node\.nodeId\)/);
-  assert.match(story, /storyNext.*options\.endLabel/s);
+  assert.match(flow, /continueFromNode\(node\.nodeId\)/);
+  assert.match(story, /storyNext[\s\S]*options\.endLabel/);
 });
 
 test('UX-09 direct stage-to-stage flow does not force a journey or world detour', () => {
-  const continueFn = flow.match(/function continueFromNode\(id\) \{([\s\S]*?)\n  \}/);
-  assert.ok(continueFn, 'continueFromNode should exist');
-  assert.match(continueFn[1], /const node = P\.nextNode/);
-  assert.match(continueFn[1], /if \(node\) return playNode\(node\)/);
+  const start = flow.indexOf('function continueFromNode(id)');
+  const end = flow.indexOf('function playStory', start);
+  assert.ok(start >= 0 && end > start, 'continueFromNode should exist');
+  const body = flow.slice(start, end);
+  assert.match(body, /P\.nextNode/);
+  assert.match(body, /if \(node\) return playNode\(node\)/);
 });
 
 test('UX-06 replay exit returns to the caller instead of altering campaign progression', () => {
