@@ -75,8 +75,11 @@ test('M6 choosing oil is equally valid and leaves flour for the next trip', () =
   assert.equal(M.stockAt(state, 'flour-load', 'flour'), 1);
 });
 
-test('M7 distributes four goods, sets replenished, and rejects a wrong destination without mutation', () => {
+test('M7 mixes one- and two-unit shortages across three carrying trips', () => {
   const cfg = stage('market-stage-7');
+  assert.equal(M.needAt(cfg, 'bakery', 'flour') - M.stockAt(M.createState(cfg), 'bakery', 'flour'), 2);
+  assert.equal(M.needAt(cfg, 'oil-stall', 'oil') - M.stockAt(M.createState(cfg), 'oil-stall', 'oil'), 2);
+
   let state = M.createState(cfg);
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'flour' });
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'vegetable' });
@@ -87,10 +90,21 @@ test('M7 distributes four goods, sets replenished, and rejects a wrong destinati
 
   state = act(cfg, state, { type: 'put', location: 'bakery', item: 'flour' });
   state = act(cfg, state, { type: 'put', location: 'inn', item: 'vegetable' });
+
+  state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'flour' });
+  state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'oil' });
+  state = act(cfg, state, { type: 'put', location: 'bakery', item: 'flour' });
+  state = act(cfg, state, { type: 'put', location: 'oil-stall', item: 'oil' });
+
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'oil' });
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'cloth' });
   state = act(cfg, state, { type: 'put', location: 'oil-stall', item: 'oil' });
   state = act(cfg, state, { type: 'put', location: 'warehouse', item: 'cloth' });
+
+  assert.equal(M.stockAt(state, 'bakery', 'flour'), 3);
+  assert.equal(M.stockAt(state, 'oil-stall', 'oil'), 3);
+  assert.equal(M.stockAt(state, 'late-goods', 'flour'), 0);
+  assert.equal(M.stockAt(state, 'late-goods', 'oil'), 0);
   assert.equal(state.flags.replenished, true);
   assert.equal(M.isSolved(cfg, state), true);
 });
@@ -114,16 +128,21 @@ function solveM8(order) {
   return { cfg, state };
 }
 
-test('M8 clears with three distinct valid resolution orders', () => {
+test('M8 requires two flour units but still clears with three distinct valid resolution orders', () => {
+  const cfg = stage('market-stage-8');
+  assert.equal(M.needAt(cfg, 'bakery', 'flour'), 2);
+  assert.equal(M.stockAt(M.createState(cfg), 'late-goods', 'flour'), 2);
+
   const orders = [
-    ['takeFlour', 'takeOil', 'flour', 'oil', 'takeCloth', 'exchange', 'rope', 'buyVeg', 'veg'],
-    ['takeCloth', 'takeFlour', 'exchange', 'rope', 'flour', 'buyVeg', 'veg', 'takeOil', 'oil'],
-    ['buyVeg', 'veg', 'takeCloth', 'takeOil', 'exchange', 'rope', 'oil', 'takeFlour', 'flour']
+    ['takeFlour', 'takeFlour', 'flour', 'flour', 'takeOil', 'takeCloth', 'oil', 'exchange', 'rope', 'buyVeg', 'veg'],
+    ['takeCloth', 'takeFlour', 'exchange', 'rope', 'flour', 'takeFlour', 'takeOil', 'flour', 'oil', 'buyVeg', 'veg'],
+    ['buyVeg', 'veg', 'takeCloth', 'takeOil', 'exchange', 'rope', 'oil', 'takeFlour', 'takeFlour', 'flour', 'flour']
   ];
   for (const order of orders) {
-    const { cfg, state } = solveM8(order);
+    const { state } = solveM8(order);
     assert.equal(M.isSolved(cfg, state), true, order.join(' > '));
     assert.equal(state.flags.exchanged, true);
     assert.equal(state.flags.bought, true);
+    assert.equal(M.stockAt(state, 'bakery', 'flour'), 2);
   }
 });
