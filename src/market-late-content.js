@@ -28,8 +28,8 @@
     '補充': {
       p: 'ㄅㄨˇ ㄔㄨㄥ',
       k: '보충하다, 채우다',
-      ex: '把缺的一份補充進去。',
-      rule: '이미 있는 것에 모자란 만큼을 더해서 필요한 상태로 만드는 일이야. 부족한 장소가 足夠이 되는 순간을 눈여겨봐.'
+      ex: '把缺的兩份補充進去。',
+      rule: '이미 있는 것에 모자란 만큼을 더해서 필요한 상태로 만드는 일이야. 부족량이 한 개가 아닐 수도 있으니 현재 수량과 필요 수량을 함께 봐.'
     }
   });
 
@@ -187,22 +187,22 @@
     subtitle: '제자리로 돌아갈 물건',
     kicker: '1장 · 장터 7/8',
     grid: ['......', '......', '..S...', '......', '......'],
-    goal: '看每個地方缺什麼，把晚到的貨分配到需要的位置。',
-    rule: '부족한 곳에는 필요한 만큼 補充하고, 남는 물건까지 맞는 곳에 分配해.',
+    goal: '看每個地方缺多少，把晚到的貨分配到需要的位置。',
+    rule: '부족량은 장소마다 달라. 현재/필요 수량을 보고 필요한 만큼 補充하고, 남는 물건까지 맞는 곳에 分配해.',
     words: ['分配', '補充', '需求', '數量', '剩下'],
     win: [],
-    story: '늦게 도착한 물건을 각 장소의 필요에 맞게 나누어 보냈다. 남은 천도 창고 제자리로 돌아갔다.',
+    story: '늦게 도착한 물건을 각 장소의 필요량에 맞게 여러 번 나누어 보냈다. 남은 천도 창고 제자리로 돌아갔다.',
     market: {
-      revision: 1,
+      revision: 2,
       scene: 'distribution',
-      boardLabel: '늦게 도착한 짐을 네 곳에 나누는 장터',
+      boardLabel: '부족량이 서로 다른 곳에 늦게 온 짐을 나누는 장터',
       capacity: 2,
       items,
-      startStatus: '先看每個地方缺什麼。 수레의 네 가지 물건을 필요한 장소에 나누어 보내.',
+      startStatus: '先看每個地方缺多少。 부족한 양이 서로 달라. 현재/필요 수량을 보고 짐을 나누어 보내.',
       locations: [
         {
           id: 'bakery', labelZh: '麵包坊', labelKo: '빵집', icon: '🥖', pos: [0, 0],
-          stock: { flour: 2 }, needs: { flour: 3 }, allowPut: true, accepts: ['flour']
+          stock: { flour: 1 }, needs: { flour: 3 }, allowPut: true, accepts: ['flour']
         },
         {
           id: 'inn', kind: 'npc', labelZh: '客棧', labelKo: '여관', icon: '🏮', pos: [0, 5],
@@ -210,12 +210,12 @@
         },
         {
           id: 'late-goods', labelZh: '晚到的貨', labelKo: '늦게 온 짐', icon: '📦', pos: [2, 3],
-          stock: { flour: 1, vegetable: 1, oil: 1, cloth: 1 }, allowTake: true, allowPut: true,
+          stock: { flour: 2, vegetable: 1, oil: 2, cloth: 1 }, allowTake: true, allowPut: true,
           accepts: ['flour', 'vegetable', 'oil', 'cloth'], stockLabelZh: '剩下', stockLabelKo: '현재 남은 것'
         },
         {
           id: 'oil-stall', labelZh: '燈油攤', labelKo: '등잔기름 좌판', icon: '🪔', pos: [4, 0],
-          stock: { oil: 1 }, needs: { oil: 2 }, allowPut: true, accepts: ['oil']
+          stock: { oil: 1 }, needs: { oil: 3 }, allowPut: true, accepts: ['oil']
         },
         {
           id: 'warehouse', labelZh: '倉庫', labelKo: '창고', icon: '🏚️', pos: [4, 5],
@@ -225,7 +225,7 @@
       predicates: [
         { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 3 },
         { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 },
-        { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 2 },
+        { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 3 },
         { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 }
       ],
       goalMarks: [
@@ -236,12 +236,12 @@
         { word: '分配', type: 'all', conditions: [
           { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 3 },
           { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 },
-          { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 2 },
+          { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 3 },
           { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 }
         ] }
       ],
       feedback: {
-        solved: '每樣東西都到了需要的位置。 부족한 곳은 채워졌고, 남은 물건도 제자리로 분배됐어.'
+        solved: '每樣東西都到了需要的位置。 두 개씩 모자라던 곳까지 필요한 양만큼 채우고, 남은 물건도 제자리로 분배했어.'
       }
     }
   });
@@ -253,23 +253,23 @@
     kicker: '1장 · 장터 8/8',
     grid: ['......', '......', '..S...', '......', '......'],
     goal: '開市以前，把缺的東西補好：能分配的分配、能交換的交換、需要買的就買。',
-    rule: '새 규칙은 없어. 需求과 剩下을 보고, 交換·買·分配를 필요한 순서대로 조합해.',
+    rule: '새 규칙은 없어. 需求과 剩下을 보고, 한 곳에 여러 개가 필요할 때도 交換·買·分配를 필요한 순서대로 조합해.',
     words: ['需求', '交換', '買', '分配'],
     win: [],
     milestone: 'market-core',
     story: '장날이 열리기 전 마지막 부족분을 모두 정리했다. 장터는 각자의 자리에서 다시 움직이기 시작했다.',
     market: {
-      revision: 1,
+      revision: 2,
       scene: 'market-finale',
       boardLabel: '장날 전 마지막 물류를 정리하는 장터',
       capacity: 2,
       coins: 5,
       items,
-      startStatus: '장터가 열리기 전 네 곳이 아직 준비 중이야. 손에 있는 것과 필요한 것을 보고 순서를 정해봐.',
+      startStatus: '장터가 열리기 전 네 곳이 아직 준비 중이야. 같은 물건이 두 개 필요한 곳도 있으니 수량을 보고 순서를 정해봐.',
       locations: [
         {
           id: 'bakery', labelZh: '麵包坊', labelKo: '빵집', icon: '🥖', pos: [0, 0],
-          stock: { flour: 0 }, needs: { flour: 1 }, allowPut: true, accepts: ['flour']
+          stock: { flour: 0 }, needs: { flour: 2 }, allowPut: true, accepts: ['flour']
         },
         {
           id: 'rope-stall', labelZh: '繩子攤', labelKo: '밧줄 좌판', icon: '🧵', pos: [0, 2],
@@ -286,7 +286,7 @@
         },
         {
           id: 'late-goods', labelZh: '晚到的貨', labelKo: '늦게 온 짐', icon: '📦', pos: [2, 0],
-          stock: { flour: 1, oil: 1, cloth: 1 }, allowTake: true, allowPut: true,
+          stock: { flour: 2, oil: 1, cloth: 1 }, allowTake: true, allowPut: true,
           accepts: ['flour', 'oil', 'cloth'], stockLabelZh: '剩下', stockLabelKo: '현재 남은 것'
         },
         {
@@ -299,7 +299,7 @@
         }
       ],
       predicates: [
-        { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 1 },
+        { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 2 },
         { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 1 },
         { type: 'location-at-least', location: 'market-tent', item: 'rope', amount: 1 },
         { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 }
@@ -309,14 +309,14 @@
         { word: '交換', type: 'flag', flag: 'exchanged', eq: true },
         { word: '買', type: 'flag', flag: 'bought', eq: true },
         { word: '分配', type: 'all', conditions: [
-          { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 1 },
+          { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 2 },
           { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 1 },
           { type: 'location-at-least', location: 'market-tent', item: 'rope', amount: 1 },
           { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 }
         ] }
       ],
       feedback: {
-        solved: '開市前的準備都完成了。 필요한 것을 보고 교환하고 사고 나누면서 장터의 흐름을 모두 이어냈어.'
+        solved: '開市前的準備都完成了。 여러 개 필요한 곳까지 수량을 맞추고, 교환하고 사고 나누면서 장터의 흐름을 모두 이어냈어.'
       }
     }
   });
