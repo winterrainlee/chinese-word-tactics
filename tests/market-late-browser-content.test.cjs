@@ -26,18 +26,40 @@ test('late market content defines M5-M8 and keeps M8 as the market core mileston
   );
 });
 
-test('M7 and M8 use six-column boards that the market renderer explicitly supports', () => {
+test('M7 and M8 use six-column boards with varied replenishment quantities', () => {
   const sandbox = { WORDS: {}, STAGES: [] };
   vm.runInNewContext(read('src/market-content.js'), sandbox);
   vm.runInNewContext(read('src/market-late-content.js'), sandbox);
-  assert.equal(sandbox.STAGES.find(stage => stage.id === 'market-stage-7').grid[0].length, 6);
-  assert.equal(sandbox.STAGES.find(stage => stage.id === 'market-stage-8').grid[0].length, 6);
+  const m7 = sandbox.STAGES.find(stage => stage.id === 'market-stage-7');
+  const m8 = sandbox.STAGES.find(stage => stage.id === 'market-stage-8');
+  assert.equal(m7.grid[0].length, 6);
+  assert.equal(m8.grid[0].length, 6);
+  assert.equal(m7.market.locations.find(location => location.id === 'bakery').needs.flour, 3);
+  assert.equal(m7.market.locations.find(location => location.id === 'bakery').stock.flour, 1);
+  assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').needs.oil, 3);
+  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.flour, 2);
+  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.oil, 2);
+  assert.equal(m8.market.locations.find(location => location.id === 'bakery').needs.flour, 2);
+  assert.equal(m8.market.locations.find(location => location.id === 'late-goods').stock.flour, 2);
   assert.match(read('src/market-runtime.js'), /market-grid-wide/);
   assert.match(read('src/market-runtime.css'), /market-grid\.market-grid-wide/);
   assert.match(read('src/market-runtime.css'), /44px/);
 });
 
-test('index loads late market data, late journey, outcome resolver, and cache-busted runtime in dependency order', () => {
+test('market state visuals keep inspected stock and need counts on the board and pulse changed locations', () => {
+  const runtime = read('src/market-state-visuals.js');
+  const css = read('src/market-state-visuals.css');
+  assert.match(runtime, /market-stock-badge/);
+  assert.match(runtime, /market-stock-full/);
+  assert.match(runtime, /market-stock-short/);
+  assert.match(runtime, /market-resource-changed/);
+  assert.match(runtime, /inspected/);
+  assert.match(css, /market-stock-short/);
+  assert.match(css, /market-stock-full/);
+  assert.match(css, /marketResourcePulse/);
+});
+
+test('index loads late market data and state visuals in dependency order', () => {
   const html = read('index.html');
   const market = html.indexOf('./src/market-content.js');
   const late = html.indexOf('./src/market-late-content.js');
@@ -49,15 +71,17 @@ test('index loads late market data, late journey, outcome resolver, and cache-bu
   const marketOutcome = html.indexOf('./src/market-story-outcome-content.js');
   const storyRuntime = html.indexOf('./src/story-runtime.js');
   const marketRuntime = html.indexOf('./src/market-runtime.js');
+  const marketVisuals = html.indexOf('./src/market-state-visuals.js');
   const flowRuntime = html.indexOf('./src/flow-runtime.js');
 
   assert.ok(market < late && late < journey);
   assert.ok(marketJourney < lateJourney && lateJourney < progress);
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
-  assert.ok(marketRuntime < flowRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-12-marketm8r1"/);
-  assert.match(html, /market-runtime\.js\?v=20260912-marketm8r1/);
-  assert.match(html, /flow-runtime\.js\?v=20260912-marketm8r1/);
+  assert.ok(marketRuntime < marketVisuals && marketVisuals < flowRuntime);
+  assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-marketm8r\d+"/);
+  assert.match(html, /market-late-content\.js\?v=20260912-marketm8r2/);
+  assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r2/);
+  assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r2/);
 });
 
 test('M8 keeps synthesis compact instead of adding a new target vocabulary family', () => {
