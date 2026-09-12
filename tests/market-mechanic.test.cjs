@@ -8,19 +8,28 @@ const m1 = { capacity: 1, locations: [
   { id: 'noodle', stock: { flour: 2 }, needs: { flour: 2 }, allowTake: true, allowPut: true, accepts: ['flour'] },
   { id: 'cart', stock: { flour: 1 }, allowTake: true, allowPut: true, accepts: ['flour'] }
 ], predicates: [
+  { type: 'inspected-all', locations: ['bread', 'noodle'] },
   { type: 'location-at-least', location: 'bread', item: 'flour', amount: 3 },
   { type: 'location-at-least', location: 'noodle', item: 'flour', amount: 2 }
 ] };
 
-test('M1 fills the deficient stall', () => {
+const inspectBothM1Stalls = state => {
+  state = M.inspectLocation(m1, state, 'bread').state;
+  return M.inspectLocation(m1, state, 'noodle').state;
+};
+
+test('M1 requires reading both stall needs before completion', () => {
   let state = M.createState(m1);
   state = M.applyAction(m1, state, { type: 'take', location: 'cart', item: 'flour' }).state;
   state = M.applyAction(m1, state, { type: 'put', location: 'bread', item: 'flour' }).state;
+  assert.equal(M.allNeedsMet(m1, state), true);
+  assert.equal(M.isSolved(m1, state), false);
+  state = inspectBothM1Stalls(state);
   assert.equal(M.isSolved(m1, state), true);
 });
 
 test('M1 overfilling the already sufficient stall can be recovered', () => {
-  let state = M.createState(m1);
+  let state = inspectBothM1Stalls(M.createState(m1));
   state = M.applyAction(m1, state, { type: 'take', location: 'cart', item: 'flour' }).state;
   state = M.applyAction(m1, state, { type: 'put', location: 'noodle', item: 'flour' }).state;
   const recovered = M.applyAction(m1, state, { type: 'take', location: 'noodle', item: 'flour' });
