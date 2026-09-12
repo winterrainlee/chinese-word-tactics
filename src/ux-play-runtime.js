@@ -16,6 +16,51 @@
     try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {}
   }
 
+  function splitLearningFeedback(message) {
+    const text = String(message || '').trim();
+    if (!/[\u3400-\u9fff]/u.test(text)) return null;
+    const koIndex = text.search(/[가-힣]/u);
+    if (koIndex <= 0) return null;
+    const zh = text.slice(0, koIndex).replace(/[\s—–-]+$/u, '').trim();
+    const ko = text.slice(koIndex).trim();
+    return zh && ko ? { zh, ko } : null;
+  }
+
+  function renderLearningFeedback(message) {
+    const parts = splitLearningFeedback(message);
+    if (!parts || !status) return false;
+    status.replaceChildren();
+    const zh = document.createElement('span');
+    zh.className = 'statusZh';
+    zh.lang = 'zh-Hant';
+    zh.textContent = parts.zh;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'statusMeaningBtn';
+    button.textContent = '뜻';
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-label', '행동 안내와 결과의 한국어 뜻 보기');
+    const ko = document.createElement('span');
+    ko.className = 'statusKo';
+    ko.lang = 'ko';
+    ko.textContent = parts.ko;
+    ko.hidden = true;
+    button.onclick = () => {
+      const opening = ko.hidden;
+      ko.hidden = !opening;
+      button.setAttribute('aria-expanded', String(opening));
+      button.textContent = opening ? '접기' : '뜻';
+    };
+    status.append(zh, button, ko);
+    return true;
+  }
+
+  const baseSetStatus = setStatus;
+  setStatus = function uxPlaySetStatus(message, type = '') {
+    baseSetStatus(message, type);
+    renderLearningFeedback(status?.textContent || message);
+  };
+
   function ensureSlots() {
     let context = $('contextPanel');
     if (!context) {
@@ -148,5 +193,5 @@
   }
 
   decorate();
-  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion, clearPendingCompletion });
+  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion, clearPendingCompletion, splitLearningFeedback, renderLearningFeedback });
 })();
