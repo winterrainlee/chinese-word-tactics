@@ -75,34 +75,37 @@ test('M6 choosing oil is equally valid and leaves flour for the next trip', () =
   assert.equal(M.stockAt(state, 'flour-load', 'flour'), 1);
 });
 
-test('M7 mixes one- and two-unit shortages across three carrying trips', () => {
+test('M7 mixes one-, two-, and three-unit shortages across three carrying trips', () => {
   const cfg = stage('market-stage-7');
-  assert.equal(M.needAt(cfg, 'bakery', 'flour') - M.stockAt(M.createState(cfg), 'bakery', 'flour'), 2);
-  assert.equal(M.needAt(cfg, 'oil-stall', 'oil') - M.stockAt(M.createState(cfg), 'oil-stall', 'oil'), 2);
+  const initial = M.createState(cfg);
+  assert.equal(M.capacityLimit(cfg, initial), 3);
+  assert.equal(M.needAt(cfg, 'bakery', 'flour') - M.stockAt(initial, 'bakery', 'flour'), 2);
+  assert.equal(M.needAt(cfg, 'oil-stall', 'oil') - M.stockAt(initial, 'oil-stall', 'oil'), 3);
 
-  let state = M.createState(cfg);
+  let state = initial;
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'flour' });
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'vegetable' });
+  state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'oil' });
   const wrong = M.applyAction(cfg, state, { type: 'put', location: 'bakery', item: 'vegetable' });
   assert.equal(wrong.changed, false);
   assert.equal(wrong.reason, 'wrong-destination');
   assert.deepEqual(wrong.state, state);
-
   state = act(cfg, state, { type: 'put', location: 'bakery', item: 'flour' });
   state = act(cfg, state, { type: 'put', location: 'inn', item: 'vegetable' });
+  state = act(cfg, state, { type: 'put', location: 'oil-stall', item: 'oil' });
 
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'flour' });
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'oil' });
-  state = act(cfg, state, { type: 'put', location: 'bakery', item: 'flour' });
-  state = act(cfg, state, { type: 'put', location: 'oil-stall', item: 'oil' });
-
-  state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'oil' });
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'cloth' });
+  state = act(cfg, state, { type: 'put', location: 'bakery', item: 'flour' });
   state = act(cfg, state, { type: 'put', location: 'oil-stall', item: 'oil' });
   state = act(cfg, state, { type: 'put', location: 'warehouse', item: 'cloth' });
 
+  state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'oil' });
+  state = act(cfg, state, { type: 'put', location: 'oil-stall', item: 'oil' });
+
   assert.equal(M.stockAt(state, 'bakery', 'flour'), 3);
-  assert.equal(M.stockAt(state, 'oil-stall', 'oil'), 3);
+  assert.equal(M.stockAt(state, 'oil-stall', 'oil'), 4);
   assert.equal(M.stockAt(state, 'late-goods', 'flour'), 0);
   assert.equal(M.stockAt(state, 'late-goods', 'oil'), 0);
   assert.equal(state.flags.replenished, true);
