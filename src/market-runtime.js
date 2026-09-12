@@ -236,7 +236,7 @@
 
   function renderPanel(cfg) {
     const focus = locationCfg(cfg, state.market.focus);
-    if (!focus) return `<section class="market-panel market-panel-empty"><div class="market-carry">${inventoryText(cfg)}</div><p>${inspect ? '살펴보기 모드에서는 멀리 있는 좌판도 눌러 정보를 확인할 수 있어.' : '좌판·수레·창고 가까이 가서 눌러봐.'}</p></section>`;
+    if (!focus) return `<section class="market-panel market-panel-empty"><div class="market-carry">${inventoryText(cfg)}</div><p>${inspect ? '살펴보기 모드에서는 멀리 있는 좌판이나 사람도 눌러 정보를 확인할 수 있어.' : '좌판·사람·짐·창고 가까이 가서 눌러봐.'}</p></section>`;
     const adjacent = dist(state.hero, focus.pos) === 1;
     return `<section class="market-panel" data-focus="${focus.id}">
       <div class="market-carry">${inventoryText(cfg)}</div>
@@ -256,6 +256,7 @@
     if (location) {
       const inspected = (state.market.inspected || []).includes(location.id);
       button.classList.add('market-location');
+      if (location.kind) button.classList.add(`market-${location.kind}`);
       if (inspected) button.classList.add('inspected');
       if (state.market.focus === location.id) button.classList.add('focused');
       if (inspect || dist(state.hero, pos) === 1) button.classList.add('interactable');
@@ -269,6 +270,8 @@
       if (moveable) button.innerHTML = `<span class="move-arrow" aria-hidden="true">${arrowFor(pos)}</span>`;
     }
     if (heroHere) {
+      button.classList.add('hero-here');
+      button.setAttribute('aria-current', 'location');
       const hero = document.createElement('span');
       hero.className = 'hero market-hero'; hero.textContent = '🧑‍🎒'; hero.setAttribute('aria-hidden', 'true');
       button.append(hero);
@@ -334,7 +337,7 @@
     const location = marketLocationAt(cfg, pos);
     if (location) {
       if (!inspect && dist(state.hero, pos) !== 1) {
-        setStatus('가까이 가면 좌판이나 수레의 물건을 직접 확인할 수 있어.', 'info');
+        setStatus('가까이 가면 그곳의 물건과 필요한 수량을 직접 확인할 수 있어.', 'info');
         return;
       }
       const result = M.inspectLocation(cfg, state.market, location.id);
@@ -344,7 +347,7 @@
       return;
     }
     if (inspect) {
-      setStatus('여기는 장터의 길이야. 좌판이나 수레를 눌러 수량을 살펴봐.', 'info');
+      setStatus('여기는 장터의 길이야. 좌판이나 사람, 짐을 눌러 정보를 살펴봐.', 'info');
       return;
     }
     if (dist(state.hero, pos) !== 1) {
