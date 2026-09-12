@@ -3,9 +3,11 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
-const app = read('src/app.js');
 const styles = read('src/styles.css');
+const uxStyles = read('src/ux-play.css');
 const flow = read('src/flow-runtime.js');
+const ux = read('src/ux-play-runtime.js');
+const continuous = read('src/continuous-region-flow.js');
 const index = read('index.html');
 
 const warnings = [];
@@ -14,37 +16,37 @@ const passes = [];
 function warn(id, message) { warnings.push({ id, message }); }
 function pass(id, message) { passes.push({ id, message }); }
 
-const completionDelay = app.match(/completionTimer=setTimeout\([\s\S]*?\},(\d+)\)/)?.[1];
-if (completionDelay) {
-  const ms = Number(completionDelay);
-  if (ms < 500) warn('UX-05', `완료 시트가 최종 행동 뒤 ${ms}ms 만에 열린다. 마지막 판 변화와 성공 피드백이 묻히는지 브라우저 캡처로 확인할 것.`);
-  else pass('UX-05', `완료 전환 지연 ${ms}ms가 명시되어 있다.`);
+if (/function showStageComplete[\s\S]*completionBar[\s\S]*id=\"flowNext\"/.test(ux) &&
+    !/function showStageComplete[\s\S]*openSheet/.test(ux.slice(ux.indexOf('function showStageComplete'), ux.indexOf('globalThis.GameFlow')))) {
+  pass('UX-05/06', '완료는 판을 덮는 시트 대신 같은 전술 화면의 인라인 진행 행동으로 표시된다.');
 } else {
-  warn('UX-05', '완료 시트 전환 시간을 정적으로 확인하지 못했다.');
+  warn('UX-05/06', '완료가 최종 판을 덮지 않는지 정적으로 확인하지 못했다.');
 }
 
-const goalFont = Number(styles.match(/\.goal\{[^}]*font-size:(\d+)px/s)?.[1]);
-const statusFont = Number(styles.match(/\.status\{[^}]*font-size:(\d+)px/s)?.[1]);
-if (goalFont && statusFont && goalFont > statusFont) {
-  warn('UX-01/02', `목표 글자 ${goalFont}px, 상태 메시지 ${statusFont}px다. 플레이 중 상태 변화가 충분히 눈에 들어오는지 대표 화면에서 비교할 것.`);
+const goalFont = Number(uxStyles.match(/\.goal\{[^}]*font-size:(\d+(?:\.\d+)?)px/s)?.[1]);
+const statusFont = Number(uxStyles.match(/\.status\{[^}]*font-size:(\d+(?:\.\d+)?)px/s)?.[1]);
+if (goalFont && statusFont && goalFont - statusFont <= 1) {
+  pass('UX-01/02', `목표 ${goalFont}px, 상태 메시지 ${statusFont}px로 플레이 중 피드백이 지나치게 약하지 않다.`);
 } else {
-  pass('UX-01/02', '목표와 상태 메시지의 글자 위계에 뚜렷한 역전 위험이 감지되지 않았다.');
+  warn('UX-01/02', `목표/상태 글자 위계를 확인할 것. goal=${goalFont || '?'} status=${statusFont || '?'}px.`);
 }
 
-if (/\.goalbox\{[^}]*box-shadow:/s.test(styles) && /\.status\{[^}]*background:rgba\([^)]*,\.68\)/s.test(styles)) {
-  warn('UX-01/02', '목표는 독립 카드+그림자이고 상태창은 반투명 배경이다. 첫 진입과 행동 직후 화면에서 시각적 무게를 비교할 것.');
+if (/\.goalbox\{[^}]*box-shadow:none/s.test(uxStyles) && /\.ruleline\{display:none\}/.test(uxStyles)) {
+  pass('UX-01', '상시 목표 카드는 그림자를 줄이고 상세 규칙을 필요할 때 여는 구조다.');
+} else {
+  warn('UX-01', '목표 카드의 상시 시각 무게가 충분히 줄었는지 확인할 것.');
 }
 
-if (/id=\"flowRetry\" class=\"secondary\"/.test(flow) && /id=\"flowNext\"/.test(flow)) {
-  pass('UX-06', '완료 화면에서 재시도는 secondary, 다음 진행은 primary로 구분된다.');
+if (/document\.querySelector\('#grid \.market-panel'\)/.test(ux) && /context\.replaceChildren\(panel\)/.test(ux)) {
+  pass('UX-02', '장터 대상 패널은 실제 판-상태 메시지 사이를 막지 않고 상태 메시지 아래로 이동한다.');
 } else {
-  warn('UX-06', '완료 화면의 primary/secondary 행동 위계를 정적으로 확인하지 못했다.');
+  warn('UX-02', '장터 대상 패널과 상태 메시지의 순서를 확인하지 못했다.');
 }
 
-if (/if \(node\) return playNode\(node\)/.test(flow)) {
-  pass('UX-07/09', '다음 노드가 있으면 여정 목록을 거치지 않고 직접 이어진다.');
+if (/if \(node\) return playNode\(node\)/.test(flow) && /lastStoryIndex/.test(continuous)) {
+  pass('UX-07/09', '다음 노드 직접 연결과 구역 내부 연속 진행 규칙이 함께 존재한다.');
 } else {
-  warn('UX-07/09', '다음 노드 직접 연결 계약을 찾지 못했다.');
+  warn('UX-07/09', '구역 내부 연속 진행 계약을 확인하지 못했다.');
 }
 
 if (/next\?\.type === 'stage' \? '스테이지 시작'/.test(flow) && /next\?\.type === 'story' \? '이야기 계속'/.test(flow)) {
@@ -61,8 +63,11 @@ const stableOrder = order.every(token => {
   cursor = next;
   return true;
 });
-if (stableOrder) pass('UX-01/02', '전술 화면이 목표 → 판 → 상태 → 단어 → 조작 순서를 유지한다.');
+if (stableOrder) pass('UX-01/02', '기본 전술 DOM은 목표 → 판 → 상태 → 단어 → 조작 순서를 유지한다.');
 else warn('UX-01/02', '전술 화면 기본 정보 순서가 달라졌다.');
+
+if (/\.cell\{[^}]*min-width:44px;[^}]*min-height:44px;/s.test(styles)) pass('UX-12', '기본 전술 칸의 44px 터치 바닥값이 유지된다.');
+else warn('UX-12', '기본 전술 칸의 최소 터치 크기를 확인할 것.');
 
 console.log('UX heuristic audit');
 for (const item of passes) console.log(`PASS ${item.id}  ${item.message}`);
