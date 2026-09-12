@@ -36,6 +36,30 @@ jobs:
       - name: Run UX heuristic audit
         run: node tools/ux-audit.cjs
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install --disable-pip-version-check playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Run mobile UX browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_ux.py
+
+      - name: Upload UX screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ux-screenshots
+          path: ${{ runner.temp }}/ux-screenshots
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
