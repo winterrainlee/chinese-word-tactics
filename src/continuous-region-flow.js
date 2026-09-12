@@ -9,8 +9,7 @@
     if (lastStoryIndex < 0) continue;
     section.sequence.forEach((node, index) => {
       if (node?.type !== 'story') return;
-      if (index === lastStoryIndex) node.returnToWorldAfter = true;
-      else if (node.returnToWorldAfter) node.returnToWorldAfter = false;
+      node.returnToWorldAfter = index === lastStoryIndex;
     });
   }
 })();
