@@ -161,9 +161,12 @@ try:
         page.set_default_timeout(5000)
         (page.set_content(memory_document({})) if MEMORY else page.goto(URL)); page.wait_for_function('!!window.GameFlow')
         assert_view(page,'story'); assert page.locator('#storyKo').is_hidden(); assert page.locator('#storySkip').is_hidden()
+        assert page.locator('#storyPortrait').is_hidden()
         page.locator('#storyTranslate').click(); assert page.locator('#storyKo').is_visible()
         page.screenshot(path=str(OUT/'story-375.png'))
         page.locator('#storyNext').click(); assert page.locator('#storyKo').is_hidden()
+        assert page.locator('#storyPortrait').is_visible()
+        assert page.locator('#storyPortrait').get_attribute('data-speaker') == 'boy'
         page.locator('#storyPrev').click(); assert page.locator('#storyCount').inner_text()=='1 / 4'
         page.locator('#storyNext').click(); page=reload_app(page, context); assert page.locator('#storyCount').inner_text()=='2 / 4'
         assert page.evaluate('GameFlow.progress().seenStories.length')==0
@@ -188,6 +191,11 @@ try:
             paths.append(solve(page)); page.locator('#flowNext').click()
         assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='숲 너머의 목소리'
         finish_story(page); assert page.locator('#storyTitle').inner_text()=='길가의 행상인'
+        assert page.locator('#storyPortrait').is_hidden()
+        page.locator('#storyNext').click()
+        assert page.locator('#storyPortrait').is_visible()
+        assert page.locator('#storyPortrait').get_attribute('data-speaker') == 'merchant'
+        page.screenshot(path=str(OUT/'merchant-story-375.png'))
         finish_story(page); assert_view(page,'world')
         assert page.evaluate('GameFlow.progress().completedStages.length')==6
         assert page.evaluate('GameFlow.progress().seenStories.length')==3
