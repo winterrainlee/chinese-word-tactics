@@ -36,6 +36,9 @@ jobs:
       - name: Run UX heuristic audit
         run: node tools/ux-audit.cjs
 
+      - name: Run story handoff audit
+        run: node tools/story-handoff-audit.cjs
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
