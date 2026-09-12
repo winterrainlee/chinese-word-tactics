@@ -34,11 +34,13 @@ test('M7 and M8 use six-column boards with varied replenishment quantities', () 
   const m8 = sandbox.STAGES.find(stage => stage.id === 'market-stage-8');
   assert.equal(m7.grid[0].length, 6);
   assert.equal(m8.grid[0].length, 6);
+  assert.equal(m7.market.capacity, 3);
   assert.equal(m7.market.locations.find(location => location.id === 'bakery').needs.flour, 3);
   assert.equal(m7.market.locations.find(location => location.id === 'bakery').stock.flour, 1);
-  assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').needs.oil, 3);
+  assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').needs.oil, 4);
+  assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').stock.oil, 1);
   assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.flour, 2);
-  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.oil, 2);
+  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.oil, 3);
   assert.equal(m8.market.locations.find(location => location.id === 'bakery').needs.flour, 2);
   assert.equal(m8.market.locations.find(location => location.id === 'late-goods').stock.flour, 2);
   assert.match(read('src/market-runtime.js'), /market-grid-wide/);
