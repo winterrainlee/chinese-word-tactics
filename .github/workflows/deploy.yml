@@ -36,6 +36,9 @@ jobs:
       - name: Run UX heuristic audit
         run: node tools/ux-audit.cjs
 
+      - name: Run status language audit
+        run: node tools/status-language-audit.cjs
+
       - name: Run story handoff audit
         run: node tools/story-handoff-audit.cjs
 
