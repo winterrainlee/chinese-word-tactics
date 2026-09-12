@@ -1,4 +1,4 @@
-/* Market resource runtime: small walkable boards plus inspectable stalls, stock transfers, and exchange. */
+/* Market resource runtime: small walkable boards plus inspectable stalls, stock transfers, exchange, and buying. */
 (() => {
   const copy = value => JSON.parse(JSON.stringify(value));
   const cfgLocations = cfg => Array.isArray(cfg?.locations) ? cfg.locations : [];
@@ -103,6 +103,26 @@
       return { state: next, changed: true, reason: 'exchanged', give: offer.give, receive: offer.receive, giveQty, receiveQty };
     }
 
+    if (action.type === 'buy') {
+      const offer = location.sell;
+      if (!offer) return { state: marketState, changed: false, reason: 'no-sale' };
+      const buyItem = offer.item;
+      const buyQty = Math.max(1, number(offer.qty) || 1);
+      const price = Math.max(0, number(offer.price));
+      const total = price * buyQty;
+      if (stockAt(next, location.id, buyItem) < buyQty) return { state: marketState, changed: false, reason: 'sold-out' };
+      if (next.coins < total) return { state: marketState, changed: false, reason: 'insufficient-coins' };
+      if (capacityLeft(cfg, next) < buyQty) return { state: marketState, changed: false, reason: 'capacity' };
+      next.coins -= total;
+      locState.stock[buyItem] = stockAt(next, location.id, buyItem) - buyQty;
+      next.inventory[buyItem] = getQty(next.inventory, buyItem) + buyQty;
+      next.flags.bought = true;
+      next.flags.sold = true;
+      next.flags[`bought:${buyItem}`] = true;
+      next.focus = location.id;
+      return { state: next, changed: true, reason: 'bought', item: buyItem, qty: buyQty, price, total };
+    }
+
     return { state: marketState, changed: false, reason: 'unknown-action' };
   }
 
@@ -185,7 +205,17 @@
     const items = held.length
       ? held.map(([item, qty]) => `${itemCfg(cfg, item).labelZh} ×${qty}`).join('　')
       : '없음';
-    return `手上　${items}　│　짐 ${M.capacityUsed(state.market)}/${number(cfg.capacity)}`;
+    const coins = Object.prototype.hasOwnProperty.call(cfg || {}, 'coins') ? `錢幣 ${state.market.coins}　│　` : '';
+    return `${coins}手上　${items}　│　짐 ${M.capacityUsed(state.market)}/${number(cfg.capacity)}`;
+  }
+
+  function commerceRows(cfg, location) {
+    if (!location.sell) return '';
+    const meta = itemCfg(cfg, location.sell.item);
+    return `<div class="market-commerce-list">
+      <div class="market-info-row"><span>賣</span><strong lang="zh-Hant">${meta.labelZh}</strong><small>${meta.labelKo}</small></div>
+      <div class="market-info-row"><span>價格</span><strong lang="zh-Hant">${number(location.sell.price)}</strong><small>錢幣 · 동전</small></div>
+    </div>`;
   }
 
   function needRows(cfg, location) {
@@ -196,7 +226,7 @@
       rows.push(`<div class="market-info-row"><span>需求</span><strong lang="zh-Hant">${meta.labelZh} ×${need}</strong><small>${meta.labelKo}</small></div>`);
       rows.push(`<div class="market-info-row"><span>現在</span><strong lang="zh-Hant">${meta.labelZh} ×${stock}</strong><small>${stock >= need ? '足夠 · 충분함' : `不足 ×${shortage} · 부족`}</small></div>`);
     }
-    if (!Object.keys(location.needs || {}).length) {
+    if (!Object.keys(location.needs || {}).length && !location.sell) {
       const labelZh = location.stockLabelZh || '現在', labelKo = location.stockLabelKo || '현재';
       const stockRows = Object.entries(locState.stock || {}).filter(([, qty]) => number(qty) > 0)
         .map(([item, qty]) => {
@@ -217,6 +247,11 @@
     if (!adjacent) return '<p class="market-action-hint">가까이 가면 물건을 주고받을 수 있어.</p>';
     const buttons = [];
     const locState = state.market.locations[location.id];
+
+    if (location.sell) {
+      const offer = location.sell, meta = itemCfg(cfg, offer.item), available = M.stockAt(state.market, location.id, offer.item) > 0;
+      buttons.push(`<button type="button" data-market-action="buy" data-location="${location.id}" ${available ? '' : 'disabled'}>買 ${meta.labelZh} · ${number(offer.price)}</button>`);
+    }
 
     if (location.exchange) {
       const offer = location.exchange, give = itemCfg(cfg, offer.give), receive = itemCfg(cfg, offer.receive);
@@ -252,6 +287,7 @@
       <div class="market-carry">${inventoryText(cfg)}</div>
       <div class="market-panel-head"><span class="market-panel-icon" aria-hidden="true">${focus.icon || '📦'}</span><div><strong lang="zh-Hant">${focus.labelZh}</strong><small>${focus.labelKo}</small></div></div>
       ${factRows(focus)}
+      ${commerceRows(cfg, focus)}
       <div class="market-info-list">${needRows(cfg, focus)}</div>
       ${actionButtons(cfg, focus, adjacent)}
     </section>`;
@@ -380,12 +416,19 @@
         empty: '여기에는 지금 가져갈 물건이 없어.',
         'wrong-destination': '이 물건은 여기서 필요한 물건이 아니야.',
         'missing-give': '교환하려면 먼저 상대가 원하는 물건을 가지고 있어야 해.',
-        'missing-receive': '상대에게 지금 교환해 줄 물건이 없어.'
+        'missing-receive': '상대에게 지금 교환해 줄 물건이 없어.',
+        'insufficient-coins': '錢幣不夠。 가진 돈으로는 지금 이 물건을 살 수 없어.',
+        'sold-out': '這個已經賣完了。 이 좌판에는 지금 살 수 있는 물건이 남아 있지 않아.',
+        'no-sale': '여기서는 물건을 팔고 있지 않아.'
       })[result.reason] || '지금은 그 행동을 할 수 없어.';
     }
     if (solved && cfg.feedback?.solved) return cfg.feedback.solved;
     if (result.reason === 'exchanged') {
       return `交換完成。你獲得了${itemCfg(cfg, result.receive).labelZh}。 교환이 끝났어. ${itemCfg(cfg, result.receive).labelKo}을 얻었어.`;
+    }
+    if (result.reason === 'bought') {
+      const meta = itemCfg(cfg, result.item);
+      return `攤主賣出${meta.labelZh}，你買了${meta.labelZh}。價格 ${result.total}。 좌판은 ${meta.labelKo}을 팔았고, 소년은 샀어. 남은 돈은 ${result.state.coins}이야.`;
     }
     const meta = itemCfg(cfg, result.item);
     if (result.reason === 'taken') return `拿了${meta.labelZh} ×${result.qty}。 ${meta.labelKo}을 가져왔어.`;
