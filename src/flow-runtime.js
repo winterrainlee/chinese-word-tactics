@@ -88,7 +88,7 @@
   function recordStageComplete(id, context) {
     const node = P.getNode(`stage:${id}`);
     const stage = STAGES.find(item => item.id === id);
-    const outcome = globalThis.RouteMechanic?.currentOutcome?.(id) || null;
+    const outcome = globalThis.RouteMechanic?.currentOutcome?.(id) || TacticalGame.stageOutcome?.(id) || null;
     if (node) store.complete(node, context.mode, outcome, stage?.milestone);
   }
   function showStageComplete(id, context) {
