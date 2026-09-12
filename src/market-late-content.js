@@ -187,35 +187,35 @@
     subtitle: '제자리로 돌아갈 물건',
     kicker: '1장 · 장터 7/8',
     grid: ['......', '......', '..S...', '......', '......'],
-    goal: '看每個地方缺多少，把晚到的貨分配到需要的位置。',
-    rule: '부족량은 장소마다 달라. 현재/필요 수량을 보고 필요한 만큼 補充하고, 남는 물건까지 맞는 곳에 分配해.',
+    goal: '看每個地方缺多少，把需要的貨分配過去，剩下的留在原處。',
+    rule: '도착한 물건이 부족량과 꼭 같지는 않아. 필요한 만큼만 補充하고, 남는 것은 억지로 채우지 말고 剩下으로 남겨둬.',
     words: ['分配', '補充', '需求', '數量', '剩下'],
     win: [],
-    story: '늦게 도착한 물건을 각 장소의 필요량에 맞게 여러 번 나누어 보냈다. 남은 천도 창고 제자리로 돌아갔다.',
+    story: '늦게 도착한 물건을 각 장소의 필요량에 맞게 나누어 보냈다. 필요보다 하나 더 온 밀가루는 짐에 남겨두고, 천도 창고 제자리로 돌려보냈다.',
     market: {
-      revision: 3,
+      revision: 4,
       scene: 'distribution',
-      boardLabel: '부족량이 서로 다른 곳에 늦게 온 짐을 나누는 장터',
+      boardLabel: '부족량과 도착량이 서로 다른 짐을 나누는 장터',
       capacity: 3,
       items,
-      startStatus: '先看每個地方缺多少。 밀가루는 두 개, 등잔기름은 세 개가 부족해. 현재/필요 수량을 보고 이번 운반을 묶어봐.',
+      startStatus: '先看每個地方缺多少。 도착한 수량이 꼭 필요한 양과 같지는 않아. 전부 쓸어담기 전에 현재/필요 수량을 확인해.',
       locations: [
         {
           id: 'bakery', labelZh: '麵包坊', labelKo: '빵집', icon: '🥖', pos: [0, 0],
-          stock: { flour: 1 }, needs: { flour: 3 }, allowPut: true, accepts: ['flour']
+          stock: { flour: 1 }, needs: { flour: 3 }, allowPut: true, accepts: ['flour'], limitToNeed: true
         },
         {
           id: 'inn', kind: 'npc', labelZh: '客棧', labelKo: '여관', icon: '🏮', pos: [0, 5],
-          stock: { vegetable: 0 }, needs: { vegetable: 1 }, allowPut: true, accepts: ['vegetable']
+          stock: { vegetable: 0 }, needs: { vegetable: 1 }, allowPut: true, accepts: ['vegetable'], limitToNeed: true
         },
         {
           id: 'late-goods', labelZh: '晚到的貨', labelKo: '늦게 온 짐', icon: '📦', pos: [2, 3],
-          stock: { flour: 2, vegetable: 1, oil: 3, cloth: 1 }, allowTake: true, allowPut: true,
+          stock: { flour: 3, vegetable: 1, oil: 3, cloth: 1 }, allowTake: true, allowPut: true,
           accepts: ['flour', 'vegetable', 'oil', 'cloth'], stockLabelZh: '剩下', stockLabelKo: '현재 남은 것'
         },
         {
           id: 'oil-stall', labelZh: '燈油攤', labelKo: '등잔기름 좌판', icon: '🪔', pos: [4, 0],
-          stock: { oil: 1 }, needs: { oil: 4 }, allowPut: true, accepts: ['oil']
+          stock: { oil: 1 }, needs: { oil: 4 }, allowPut: true, accepts: ['oil'], limitToNeed: true
         },
         {
           id: 'warehouse', labelZh: '倉庫', labelKo: '창고', icon: '🏚️', pos: [4, 5],
@@ -226,22 +226,24 @@
         { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 3 },
         { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 },
         { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 4 },
-        { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 }
+        { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 },
+        { type: 'location-at-least', location: 'late-goods', item: 'flour', amount: 1 }
       ],
       goalMarks: [
         { word: '需求', type: 'inspected-all', locations: ['bakery', 'inn', 'oil-stall'] },
         { word: '數量', type: 'inspected', location: 'late-goods' },
-        { word: '剩下', type: 'inspected', location: 'late-goods' },
+        { word: '剩下', type: 'location-at-least', location: 'late-goods', item: 'flour', amount: 1 },
         { word: '補充', type: 'flag', flag: 'replenished', eq: true },
         { word: '分配', type: 'all', conditions: [
           { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 3 },
           { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 },
           { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 4 },
-          { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 }
+          { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 },
+          { type: 'location-at-least', location: 'late-goods', item: 'flour', amount: 1 }
         ] }
       ],
       feedback: {
-        solved: '每樣東西都到了需要的位置。 두 개 부족한 곳과 세 개 부족한 곳을 각각 필요한 양만큼 채우고, 남은 물건도 제자리로 분배했어.'
+        solved: '需要的地方都補好了，還有一袋麵粉剩在原處。 필요한 만큼만 채우고, 남는 밀가루 한 자루는 짐에 그대로 남겨뒀어.'
       }
     }
   });
