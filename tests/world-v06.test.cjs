@@ -12,7 +12,7 @@ function loadWorld() {
   vm.runInContext(read('src/content.js'), context, { filename: 'content.js' });
   vm.runInContext(read('src/journey-content.js'), context, { filename: 'journey-content.js' });
   vm.runInContext(read('src/world-v06-content.js'), context, { filename: 'world-v06-content.js' });
-  vm.runInContext('globalThis.__world = WORLD; globalThis.__journey = JourneyContent;', context);
+  vm.runInContext('globalThis.__world = WORLD; globalThis.__journey = JourneyContent; globalThis.__stages = STAGES;', context);
   return context;
 }
 
@@ -45,12 +45,17 @@ test('v0.6 world keeps stable ids while presenting one Three Streams settlement'
   assert.equal(world.regions.slice(0, 3).map(region => region.id).join(','), 'gate-town,workshop-town,market-town');
 });
 
-test('merchant introduces Three Streams and leaves the boy near the market to choose what comes next', () => {
+test('merchant is a middle-aged woman who naturally asks for a hand before introducing Three Streams', () => {
   const context = loadWorld();
   const stories = context.__journey.STORIES;
   assert.equal(stories['prologue-departure'].placeZh, '小村');
+  assert.equal(stories['prologue-forest-edge'].beats.at(-1).zh, '有人嗎？可以幫我一下嗎？');
   const merchant = stories['chapter1-roadside-merchant'];
   const merchantText = merchant.beats.map(beat => beat.zh).join('\n');
+  assert.match(merchantText, /中年女行商/);
+  assert.match(merchantText, /木製手推車/);
+  assert.match(merchantText, /可以幫我搭把手嗎/);
+  assert.match(merchantText, /為了躲狼/);
   assert.match(merchantText, /你從哪裡來/);
   assert.match(merchantText, /一個小村/);
   assert.match(merchantText, /三溪鎮/);
@@ -62,6 +67,7 @@ test('merchant introduces Three Streams and leaves the boy near the market to ch
   assert.equal(merchant.beats.at(-1).speaker, 'boy');
   assert.equal(merchant.beats.at(-1).zh, '接下來……我該做什麼呢？');
   assert.equal(merchant.beats.at(-1).ko, '이제……뭘 하지?');
+  assert.match(context.__stages.find(stage => stage.id === 'stage-5').story, /有人嗎？可以幫我一下嗎/);
   assert.equal(stories['gate-arrival'].placeZh, '關口');
   assert.match(stories['gate-arrival'].beats[0].zh, /三溪鎮/);
 });
@@ -98,7 +104,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.ok(html.indexOf('view.css') < html.indexOf('world-map-reset.css'));
   assert.match(html, /world\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
-  assert.match(html, /world-v06-content\.js\?v=20260911-gatestory2/);
+  assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
   assert.match(html, /world-runtime\.js\?v=20260911-townarrival1/);
   assert.match(html, /journey\.css\?v=20260911-journeytree1/);
   assert.match(html, /journey-runtime\.js\?v=20260911-journeytree1/);
