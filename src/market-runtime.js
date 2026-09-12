@@ -5,9 +5,11 @@
   const locationCfg = (cfg, id) => cfgLocations(cfg).find(location => location.id === id) || null;
   const number = value => Number.isFinite(Number(value)) ? Number(value) : 0;
   const getQty = (record, item) => number(record?.[item]);
+  const configKey = cfg => `${number(cfg?.revision) || 1}|${cfgLocations(cfg).map(location => location.id).join('|')}`;
 
   function createState(cfg) {
     const marketState = {
+      configKey: configKey(cfg),
       locations: {},
       inventory: { ...(cfg?.initialInventory || {}) },
       coins: number(cfg?.coins),
@@ -105,7 +107,7 @@
   }
 
   globalThis.MarketMechanic = Object.freeze({
-    createState, capacityUsed, capacityLeft, stockAt, needAt, isSufficient, allNeedsMet,
+    configKey, createState, capacityUsed, capacityLeft, stockAt, needAt, isSufficient, allNeedsMet,
     conditionMet, isSolved, inspectLocation, applyAction
   });
 
@@ -118,7 +120,15 @@
   const marketLocationAt = (cfg, pos) => cfgLocations(cfg).find(location => coordKey(location.pos) === coordKey(pos)) || null;
   const ensureMarketState = () => {
     const cfg = cfgFor(current());
-    if (cfg && !state.market) state.market = M.createState(cfg);
+    if (!cfg) return;
+    if (!state.market || state.market.configKey !== M.configKey(cfg)) {
+      state.market = M.createState(cfg);
+      const start = locate(current().grid, 'S');
+      if (start) state.hero = start;
+      state.turn = 0;
+      history = [];
+      inspect = false;
+    }
   };
 
   const baseInitialState = initialState;
