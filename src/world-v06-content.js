@@ -74,15 +74,25 @@
       origin.placeKo = settlement.originKo;
     }
 
+    const forestEdge = stories['prologue-forest-edge'];
+    if (forestEdge?.beats?.length) {
+      forestEdge.beats[forestEdge.beats.length - 1] = {
+        speaker: 'unknown',
+        zh: '有人嗎？可以幫我一下嗎？',
+        ko: '거기 누구 있나요? 잠깐만 도와줄래요?'
+      };
+    }
+
     const merchant = stories['chapter1-roadside-merchant'];
     if (merchant) {
       merchant.placeZh = '三岔路';
       merchant.placeKo = '물길마을 어귀';
       merchant.beats = [
-        { speaker: 'merchant', zh: '剛才有狼！我急著躲開，結果車輪卡住了。', ko: '방금 늑대가 있었어! 급히 피하다가 수레바퀴가 끼고 말았지.' },
-        { speaker: 'boy', zh: '別急。我來幫你推。', ko: '잠깐만요. 제가 밀어볼게요.' },
-        { speaker: 'narrator', zh: '兩人一起用力，總算把車推回了路上。', ko: '둘이 함께 힘을 쓰자 마침내 수레가 길 위로 올라왔다.' },
-        { speaker: 'merchant', zh: '謝謝你！你是第一次來這裡吧？', ko: '고맙구나! 이곳은 처음이지?' },
+        { speaker: 'narrator', zh: '路邊，一位中年女行商正扶著一輛小小的木製手推車。車輪陷在路旁的泥溝裡。', ko: '길가에서 중년의 행상 아주머니가 작은 목제 손수레를 붙잡고 있었다. 바퀴 하나가 길가의 진흙 홈에 빠져 있었다.' },
+        { speaker: 'merchant', zh: '小弟，不好意思，可以幫我搭把手嗎？剛才為了躲狼，我把車推得太靠路邊了。', ko: '얘야, 미안한데 잠깐 손 좀 빌려줄래? 아까 늑대를 피하다가 수레를 길가로 너무 붙여 버렸어.' },
+        { speaker: 'boy', zh: '好。我從這邊推。', ko: '네. 제가 이쪽에서 밀게요.' },
+        { speaker: 'narrator', zh: '婦人扶穩車把，少年從側邊一起用力，木輪終於回到路面。', ko: '아주머니가 손잡이를 단단히 잡고 소년이 옆에서 함께 힘을 쓰자, 나무 바퀴가 마침내 길 위로 올라왔다.' },
+        { speaker: 'merchant', zh: '呼，總算出來了。謝謝你！你是第一次來這裡吧？', ko: '휴, 겨우 빠졌네. 고맙구나! 이곳은 처음이지?' },
         { speaker: 'merchant', zh: '對了，你從哪裡來？', ko: '그러고 보니, 넌 어디서 왔니?' },
         { speaker: 'boy', zh: '森林那邊的一個小村。', ko: '숲 저편의 작은 마을에서 왔어요.' },
         { speaker: 'merchant', zh: '難怪。這裡叫三溪鎮。三條溪在這附近匯在一起，所以人也慢慢多了。', ko: '그렇구나. 여기는 물길마을이야. 세 물줄기가 이 근처에서 만나서, 사람도 차츰 모이게 됐지.' },
@@ -90,11 +100,11 @@
         { speaker: 'merchant', zh: '對。前面的三條路都通往三溪鎮。關口那邊車馬來往多，沿著溪流能到工坊谷，走大路則會到市集。', ko: '그래. 앞의 세 길은 모두 물길마을로 이어져. 관문 쪽은 사람과 수레가 많이 오가고, 물길을 따라가면 장인골이, 큰길로 가면 장터가 나오지.' },
         { speaker: 'merchant', zh: '三條路都走得通。想先看看哪裡，就由你決定吧。', ko: '세 길 모두 갈 수 있어. 어디부터 둘러볼지는 네가 정하렴.' },
         { speaker: 'merchant', zh: '我要去市集交貨。你要進鎮的話，就跟我來吧。', ko: '난 장터에 물건을 넘기러 가야 해. 마을로 들어갈 거면 같이 가자.' },
-        { speaker: 'narrator', zh: '少年跟著行商的車走過橋，來到了市集附近。', ko: '소년은 행상인의 수레를 따라 다리를 건너 장터 근처까지 들어갔다.' },
+        { speaker: 'narrator', zh: '少年跟著行商阿姨和她的小木車走過橋，來到了市集附近。', ko: '소년은 행상 아주머니와 작은 목제 손수레를 따라 다리를 건너 장터 근처까지 들어갔다.' },
         { speaker: 'merchant', zh: '好啦，我得去交貨了。你呢？', ko: '좋아, 난 이제 물건을 넘기러 가야겠다. 넌?' },
         { speaker: 'boy', zh: '我……還沒想好。', ko: '저는……아직 모르겠어요.' },
         { speaker: 'merchant', zh: '那就慢慢看看吧。三溪鎮可不小。', ko: '그럼 천천히 둘러봐. 물길마을은 작지 않으니까.' },
-        { speaker: 'narrator', zh: '行商推著車走進市集。少年一個人站在路邊，看著來往的人。', ko: '행상인은 수레를 끌고 장터 안으로 들어갔다. 소년은 길가에 혼자 서서 오가는 사람들을 바라봤다.' },
+        { speaker: 'narrator', zh: '行商阿姨拉著小木車走進市集。少年一個人站在路邊，看著來往的人。', ko: '행상 아주머니는 작은 목제 손수레를 끌고 장터 안으로 들어갔다. 소년은 길가에 혼자 서서 오가는 사람들을 바라봤다.' },
         { speaker: 'boy', zh: '接下來……我該做什麼呢？', ko: '이제……뭘 하지?' }
       ];
     }
@@ -112,6 +122,11 @@
         ko: '소년은 행상인이 가리킨 길을 따라 물길마을 외곽의 길목에 도착했다.'
       };
     }
+  }
+
+  const tutorialFinale = STAGES.find(stage => stage.id === 'stage-5');
+  if (tutorialFinale) {
+    tutorialFinale.story = '少年離開了熟悉的村子。\n他第一次發現，這個世界的「話」似乎有一種奇怪的力量。\n\n「有人嗎？可以幫我一下嗎？」';
   }
 
   globalThis.WorldV06 = Object.freeze({ settlement, regionPatches });
