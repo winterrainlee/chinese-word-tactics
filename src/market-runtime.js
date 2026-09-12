@@ -36,6 +36,14 @@
     const value = marketState?.decisions?.[requirement.key];
     return Object.prototype.hasOwnProperty.call(requirement, 'value') ? value === requirement.value : value !== undefined;
   };
+  const choiceState = (location, marketState) => {
+    const option = location?.choose;
+    if (!option) return null;
+    const decided = marketState?.decisions?.[option.decisionKey || 'choice'];
+    if (decided === undefined) return 'open';
+    if (decided === option.value) return 'chosen';
+    return option.deferredKey ? 'deferred' : 'closed';
+  };
 
   function conditionMet(condition, marketState, cfg) {
     if (!condition || !marketState) return false;
@@ -95,6 +103,9 @@
       if (getQty(next.inventory, item) < qty) return { state: marketState, changed: false, reason: 'not-held' };
       const before = stockAt(next, location.id, item);
       const need = needAt(cfg, location.id, item);
+      if (location.limitToNeed && need > 0 && before + qty > need) {
+        return { state: marketState, changed: false, reason: 'need-filled', item, qty };
+      }
       next.inventory[item] = getQty(next.inventory, item) - qty;
       locState.stock[item] = before + qty;
       if (need > 0 && before < need && locState.stock[item] >= need) next.flags.replenished = true;
@@ -164,7 +175,7 @@
 
   globalThis.MarketMechanic = Object.freeze({
     configKey, createState, capacityUsed, capacityLimit, capacityLeft, stockAt, needAt, isSufficient, allNeedsMet,
-    decisionRequirementMet, conditionMet, isSolved, inspectLocation, applyAction
+    decisionRequirementMet, choiceState, conditionMet, isSolved, inspectLocation, applyAction
   });
 
   if (typeof document === 'undefined' || typeof current !== 'function' || typeof render !== 'function') return;
@@ -362,13 +373,19 @@
     button.dataset.row = String(r); button.dataset.col = String(c);
     if (location) {
       const inspected = (state.market.inspected || []).includes(location.id);
+      const choice = M.choiceState(location, state.market);
       button.classList.add('market-location');
       if (location.kind) button.classList.add(`market-${location.kind}`);
       if (inspected) button.classList.add('inspected');
+      if (choice === 'deferred') {
+        button.classList.add('market-deferred');
+        button.disabled = true;
+        button.setAttribute('aria-disabled', 'true');
+      }
       if (state.market.focus === location.id) button.classList.add('focused');
-      if (inspect || dist(state.hero, pos) === 1) button.classList.add('interactable');
-      button.setAttribute('aria-label', `${location.labelKo}, ${location.labelZh}`);
-      button.innerHTML = `<span class="market-location-icon" aria-hidden="true">${location.icon || '📦'}</span><small lang="zh-Hant">${location.labelZh}</small>`;
+      if (choice !== 'deferred' && (inspect || dist(state.hero, pos) === 1)) button.classList.add('interactable');
+      button.setAttribute('aria-label', `${location.labelKo}, ${location.labelZh}${choice === 'deferred' ? ', 이번에는 미루고 다음 차례' : ''}`);
+      button.innerHTML = `<span class="market-location-icon" aria-hidden="true">${location.icon || '📦'}</span><small lang="zh-Hant">${location.labelZh}</small>${choice === 'deferred' ? '<span class="market-deferred-tag" aria-hidden="true">放棄</span>' : ''}`;
     } else {
       button.classList.add('market-floor');
       const moveable = !inspect && dist(state.hero, pos) === 1;
@@ -444,6 +461,10 @@
     ensureMarketState();
     const location = marketLocationAt(cfg, pos);
     if (location) {
+      if (M.choiceState(location, state.market) === 'deferred') {
+        setStatus('這一趟先放棄。 이번에는 미뤘어. 다음 차례에 다시 가져오면 돼.', 'info');
+        return;
+      }
       if (!inspect && dist(state.hero, pos) !== 1) {
         setStatus('가까이 가면 그곳의 물건과 필요한 수량을 직접 확인할 수 있어.', 'info');
         return;
@@ -478,6 +499,7 @@
         'choice-locked': '이미 이번 선택을 정했어. 바꾸려면 되돌리기를 사용해.',
         'choice-requires': '두 선택지를 먼저 모두 살펴봐야 해.',
         'needed-here': '這裡剛好需要這些。 여기는 지금 필요한 만큼만 있어서 가져갈 수 없어.',
+        'need-filled': '這裡已經足夠了。 여기는 필요한 만큼 다 채웠어. 남는 물건은 원래 짐에 남겨두거나 다른 필요한 곳을 확인해봐.',
         empty: '여기에는 지금 가져갈 물건이 없어.',
         'wrong-destination': '這裡需要的不是這個。 이 물건은 여기서 필요한 물건이 아니야.',
         'missing-give': '교환하려면 먼저 상대가 원하는 물건을 가지고 있어야 해.',
