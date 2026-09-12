@@ -193,12 +193,12 @@
     win: [],
     story: '늦게 도착한 물건을 각 장소의 필요량에 맞게 여러 번 나누어 보냈다. 남은 천도 창고 제자리로 돌아갔다.',
     market: {
-      revision: 2,
+      revision: 3,
       scene: 'distribution',
       boardLabel: '부족량이 서로 다른 곳에 늦게 온 짐을 나누는 장터',
-      capacity: 2,
+      capacity: 3,
       items,
-      startStatus: '先看每個地方缺多少。 부족한 양이 서로 달라. 현재/필요 수량을 보고 짐을 나누어 보내.',
+      startStatus: '先看每個地方缺多少。 밀가루는 두 개, 등잔기름은 세 개가 부족해. 현재/필요 수량을 보고 이번 운반을 묶어봐.',
       locations: [
         {
           id: 'bakery', labelZh: '麵包坊', labelKo: '빵집', icon: '🥖', pos: [0, 0],
@@ -210,12 +210,12 @@
         },
         {
           id: 'late-goods', labelZh: '晚到的貨', labelKo: '늦게 온 짐', icon: '📦', pos: [2, 3],
-          stock: { flour: 2, vegetable: 1, oil: 2, cloth: 1 }, allowTake: true, allowPut: true,
+          stock: { flour: 2, vegetable: 1, oil: 3, cloth: 1 }, allowTake: true, allowPut: true,
           accepts: ['flour', 'vegetable', 'oil', 'cloth'], stockLabelZh: '剩下', stockLabelKo: '현재 남은 것'
         },
         {
           id: 'oil-stall', labelZh: '燈油攤', labelKo: '등잔기름 좌판', icon: '🪔', pos: [4, 0],
-          stock: { oil: 1 }, needs: { oil: 3 }, allowPut: true, accepts: ['oil']
+          stock: { oil: 1 }, needs: { oil: 4 }, allowPut: true, accepts: ['oil']
         },
         {
           id: 'warehouse', labelZh: '倉庫', labelKo: '창고', icon: '🏚️', pos: [4, 5],
@@ -225,7 +225,7 @@
       predicates: [
         { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 3 },
         { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 },
-        { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 3 },
+        { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 4 },
         { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 }
       ],
       goalMarks: [
@@ -236,12 +236,12 @@
         { word: '分配', type: 'all', conditions: [
           { type: 'location-at-least', location: 'bakery', item: 'flour', amount: 3 },
           { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 },
-          { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 3 },
+          { type: 'location-at-least', location: 'oil-stall', item: 'oil', amount: 4 },
           { type: 'location-at-least', location: 'warehouse', item: 'cloth', amount: 1 }
         ] }
       ],
       feedback: {
-        solved: '每樣東西都到了需要的位置。 두 개씩 모자라던 곳까지 필요한 양만큼 채우고, 남은 물건도 제자리로 분배했어.'
+        solved: '每樣東西都到了需要的位置。 두 개 부족한 곳과 세 개 부족한 곳을 각각 필요한 양만큼 채우고, 남은 물건도 제자리로 분배했어.'
       }
     }
   });
