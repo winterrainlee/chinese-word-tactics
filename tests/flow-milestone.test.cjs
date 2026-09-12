@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 require('../src/journey-content.js');
 require('../src/g7-journey-content.js');
+require('../src/market-journey-content.js');
 require('../src/journey-progress.js');
 
 const data = new Map();
@@ -21,7 +22,10 @@ const element = id => elements.get(id) || elements.set(id, {
   querySelector() { return { textContent: '' }; }
 }).get(id);
 globalThis.document = { getElementById: element, querySelectorAll: () => [] };
-globalThis.STAGES = [{ id: 'gate-stage-7', milestone: 'gate-core', story: '' }];
+globalThis.STAGES = [
+  { id: 'gate-stage-7', milestone: 'gate-core', story: '' },
+  { id: 'market-stage-4', milestone: 'inn-unlocked', story: '' }
+];
 globalThis.StoryRuntime = { stop() {}, play() {} };
 globalThis.JourneyRuntime = { render() {} };
 globalThis.TacticalGame = {
@@ -40,4 +44,16 @@ test('flow records the tactical stage milestone only for first-play completion',
   assert.deepEqual(GameFlow.progress().completedStages, ['gate-stage-7']);
   assert.deepEqual(GameFlow.progress().completedMilestones, ['gate-core']);
   assert.deepEqual(JSON.parse(data.get(JourneyProgress.KEY)).completedMilestones, ['gate-core']);
+});
+
+test('M4 unlocks the inn only on the first campaign clear', () => {
+  GameFlow.recordStageComplete('market-stage-4', { mode: 'replay' });
+  assert.deepEqual(GameFlow.progress().completedMilestones, ['gate-core']);
+
+  GameFlow.recordStageComplete('market-stage-4', { mode: 'first-play' });
+  assert.ok(GameFlow.progress().completedStages.includes('market-stage-4'));
+  assert.deepEqual(GameFlow.progress().completedMilestones, ['gate-core', 'inn-unlocked']);
+
+  GameFlow.recordStageComplete('market-stage-4', { mode: 'first-play' });
+  assert.deepEqual(GameFlow.progress().completedMilestones, ['gate-core', 'inn-unlocked']);
 });
