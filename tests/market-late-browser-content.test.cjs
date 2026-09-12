@@ -72,7 +72,7 @@ test('index loads late market data, continuous flow, state visuals and UX layer 
   assert.ok(marketJourney < lateJourney && lateJourney < continuous && continuous < progress);
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
   assert.ok(marketRuntime < marketVisuals && marketVisuals < flowRuntime && flowRuntime < uxRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-12-uxflow1"/);
+  assert.match(html, /name="cwt-build" content="2026-09-12-uxflow2"/);
   assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/);
   assert.match(html, /market-runtime\.js\?v=20260912-marketm8r3/);
   assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/);
