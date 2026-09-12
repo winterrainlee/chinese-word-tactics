@@ -96,7 +96,7 @@ test('index loads late market data and state visuals in dependency order', () =>
   assert.ok(marketJourney < lateJourney && lateJourney < progress);
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
   assert.ok(marketRuntime < marketVisuals && marketVisuals < flowRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-12-marketm8r3"/);
+  assert.match(html, /name="cwt-build" content="2026-09-12-innroomkey1"/);
   assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/);
   assert.match(html, /market-runtime\.js\?v=20260912-marketm8r3/);
   assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/);
