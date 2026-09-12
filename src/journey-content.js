@@ -185,7 +185,8 @@
         { type: 'stage', id: 'gate-stage-6', requires: ['story:gate-after-narrow-gate'] },
         { type: 'story', id: 'gate-after-leading', requires: ['stage:gate-stage-6'], returnToWorldAfter: true }
       ] },
-      ...['workshop-town', 'market-town'].map(regionId => ({ id: regionId, regionId, plannedStageCount: 7, sequence: [] }))
+      { id: 'workshop-town', regionId: 'workshop-town', plannedStageCount: 7, sequence: [] },
+      { id: 'market-town', regionId: 'market-town', plannedStageCount: 8, sequence: [] }
     ] }
   ];
   globalThis.JourneyContent = Object.freeze({ STORIES, JOURNEY,
