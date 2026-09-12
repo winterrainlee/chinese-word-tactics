@@ -44,6 +44,8 @@ def visible_layout(page):
         'board': '.mapwrap',
         'grid': '#grid',
         'status': '#status',
+        'context': '#contextPanel',
+        'completion': '#completionBar',
         'words': '#words',
         'controls': '.controls',
     }
@@ -67,18 +69,13 @@ def assert_tactical_viewport(layout, *, max_vertical_scroll=0):
     assert document['width'] <= viewport['width'], layout
     overflow = max(0, document['height'] - viewport['height'])
     assert overflow <= max_vertical_scroll, layout
-    if overflow:
-        print(f'WARN UX-01/12 vertical scroll {overflow:.1f}px (allowed {max_vertical_scroll}px)', flush=True)
-
     for name in ('goal', 'grid', 'status', 'words'):
         item = layout[name]
         assert item['x'] >= 0 and item['x'] + item['width'] <= viewport['width'] + 1, (name, layout)
-        assert item['y'] >= 0, (name, layout)
-        assert item['y'] + item['height'] <= document['height'] + 1, (name, layout)
+        assert item['y'] >= 0 and item['y'] + item['height'] <= document['height'] + 1, (name, layout)
     assert layout['goal']['y'] < layout['grid']['y'] < layout['status']['y'] < layout['words']['y'], layout
-    controls = layout['controls']
-    assert layout['words']['y'] < controls['y'], layout
-    assert controls['y'] + controls['height'] <= document['height'] + 1, layout
+    if 'controls' in layout:
+        assert layout['words']['y'] < layout['controls']['y'], layout
 
 
 def assert_touch_targets(page, selector):
@@ -114,13 +111,16 @@ try:
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('response', lambda response: missing.append(response.url) if response.status >= 400 and 'favicon' not in response.url else None)
         page.goto(url)
-        page.wait_for_function('!!window.GameFlow && !!window.TacticalGame')
+        page.wait_for_function('!!window.GameFlow && !!window.TacticalGame && !!window.UXPlay')
 
-        # UX-01/02/12: representative base-grid stage must fit without scrolling.
+        # UX-01/02/12: compact goal and nearby feedback on the base grid.
         page.evaluate('TacticalGame.playStage("gate-stage-1",{mode:"replay",returnTo:"journey"})')
         layout = visible_layout(page)
         assert_tactical_viewport(layout)
-        assert_touch_targets(page, '.wordbtn:visible, .control:visible, .iconbtn:visible')
+        assert layout['goal']['height'] <= 72, layout
+        assert page.locator('#ruleLine').evaluate('(el)=>getComputedStyle(el).display') == 'none'
+        assert page.locator('#goalDetailBtn').is_visible()
+        assert_touch_targets(page, '.wordbtn:visible, .control:visible, .iconbtn:visible, #goalDetailBtn:visible')
         page.screenshot(path=str(OUT / 'ux-01-gate-g1-entry-375x812.png'), full_page=True)
         print('UX_LAYOUT_GATE_G1', json.dumps(layout, ensure_ascii=False), flush=True)
 
@@ -132,38 +132,54 @@ try:
         assert_tactical_viewport(changed_layout)
         page.screenshot(path=str(OUT / 'ux-02-gate-g1-feedback-375x812.png'), full_page=True)
 
-        # UX-01/02/12: richer workshop board must also fit without scrolling.
+        # UX-01/02/12: richer workshop board keeps the same hierarchy.
         page.evaluate('TacticalGame.playStage("workshop-stage-2",{mode:"replay",returnTo:"journey"})')
         workshop_layout = visible_layout(page)
         assert_tactical_viewport(workshop_layout)
-        assert_touch_targets(page, '.workshop-device-controls button:visible, .wordbtn:visible, .control:visible, .iconbtn:visible')
+        assert workshop_layout['goal']['height'] <= 72, workshop_layout
+        assert_touch_targets(page, '.workshop-device-controls button:visible, .wordbtn:visible, .control:visible, .iconbtn:visible, #goalDetailBtn:visible')
         page.screenshot(path=str(OUT / 'ux-01-workshop-w2-entry-375x812.png'), full_page=True)
         print('UX_LAYOUT_WORKSHOP_W2', json.dumps(workshop_layout, ensure_ascii=False), flush=True)
 
-        # UX-01/02/12: M8 is deliberately treated as a measured P1 warning for small vertical scroll.
-        # Horizontal overflow, >96px vertical overflow, or undersized touch targets remain hard failures.
+        # UX-01/02/12: M8 panel is moved below immediate feedback and its initial view no longer exceeds 812px.
         page.evaluate('TacticalGame.playStage("market-stage-8",{mode:"replay",returnTo:"journey"})')
         market_layout = visible_layout(page)
-        page.screenshot(path=str(OUT / 'ux-01-market-m8-entry-375x812.png'), full_page=True)
-        assert_tactical_viewport(market_layout, max_vertical_scroll=96)
+        assert_tactical_viewport(market_layout)
+        assert market_layout['goal']['height'] <= 88, market_layout
+        assert 'context' in market_layout and market_layout['context']['y'] > market_layout['status']['y'], market_layout
+        assert page.locator('#grid .market-panel').count() == 0
+        assert page.locator('#contextPanel .market-panel').count() == 1
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-        assert_touch_targets(page, '.market-cell:visible, .wordbtn:visible, .control:visible, .iconbtn:visible')
+        assert_touch_targets(page, '.market-cell:visible, .wordbtn:visible, .control:visible, .iconbtn:visible, #goalDetailBtn:visible')
+        page.screenshot(path=str(OUT / 'ux-01-market-m8-entry-375x812.png'), full_page=True)
         print('UX_LAYOUT_MARKET_M8', json.dumps(market_layout, ensure_ascii=False), flush=True)
 
-        # UX-06: completion sheet action hierarchy is visible and touchable.
-        page.evaluate('GameFlow.showStageComplete("gate-stage-1",{mode:"first-play",returnTo:"journey"})')
-        assert page.locator('#sheet').is_visible()
-        assert page.locator('#flowRetry').is_visible()
+        # UX-05/06: completion remains on the solved board instead of opening a modal summary.
+        page.evaluate('GameFlow.showStageComplete("market-stage-8",{mode:"replay",returnTo:"journey"})')
+        assert page.locator('#completionBar').is_visible()
         assert page.locator('#flowNext').is_visible()
-        completion_targets = assert_touch_targets(page, '#flowRetry:visible, #flowNext:visible')
-        assert 'secondary' in (page.locator('#flowRetry').get_attribute('class') or '')
-        assert 'secondary' not in (page.locator('#flowNext').get_attribute('class') or '')
-        page.screenshot(path=str(OUT / 'ux-06-completion-sheet-375x812.png'), full_page=True)
-        print('UX_COMPLETION_TARGETS', json.dumps(completion_targets, ensure_ascii=False), flush=True)
+        assert not page.locator('#scrim').evaluate('(el)=>el.classList.contains("open")')
+        assert page.locator('#grid').is_visible()
+        assert not page.locator('.controls').is_visible()
+        assert_touch_targets(page, '#flowNext:visible')
+        page.screenshot(path=str(OUT / 'ux-05-inline-completion-375x812.png'), full_page=True)
 
-        # UX-07/08/09: forward progress must not detour through Journey when a next node exists.
+        # UX-07/09: only the final story in each region returns to the world map.
+        flow_flags = page.evaluate('''() => Object.fromEntries(
+          JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId).map(section => [
+            section.id,
+            section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter])
+          ])
+        )''')
+        for region, stories in flow_flags.items():
+            assert len(stories) > 1, (region, stories)
+            assert all(not flag for _, flag in stories[:-1]), (region, stories)
+            assert stories[-1][1] is True, (region, stories)
+        print('UX_REGION_FLOW', json.dumps(flow_flags, ensure_ascii=False), flush=True)
+
+        # UX-08: fresh story still hands directly to the first stage.
         page.evaluate('localStorage.clear(); location.reload()')
-        page.wait_for_function('!!window.GameFlow && document.querySelector("#storyView") && !document.querySelector("#storyView").hidden')
+        page.wait_for_function('!!window.GameFlow && !!window.UXPlay && document.querySelector("#storyView") && !document.querySelector("#storyView").hidden')
         while page.locator('#storyView').is_visible():
             label = page.locator('#storyNext').inner_text()
             if label == '스테이지 시작':
@@ -183,4 +199,4 @@ try:
 finally:
     server.shutdown()
 
-print(f'PASS: mobile UX browser smoke. Screenshots: {OUT}')
+print(f'PASS: compact mobile UX browser smoke. Screenshots: {OUT}')
