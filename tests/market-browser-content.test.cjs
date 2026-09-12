@@ -23,11 +23,13 @@ test('market content defines M1-M3 and the new target words', () => {
   assert.doesNotMatch(fs.readFileSync(path.join(root, 'src/market-content.js'), 'utf8'), /🛒|送貨車|行商的貨車/);
 });
 
-test('market renderer centers the hero and distinguishes a visible NPC tile', () => {
+test('market renderer centers the hero, distinguishes NPCs, and versions stage-local state', () => {
   const runtime = fs.readFileSync(path.join(root, 'src/market-runtime.js'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'src/market-runtime.css'), 'utf8');
   assert.match(runtime, /hero-here/);
   assert.match(runtime, /market-\$\{location\.kind\}/);
+  assert.match(runtime, /configKey/);
+  assert.match(runtime, /state\.market\.configKey !== M\.configKey\(cfg\)/);
   assert.match(css, /market-floor\.hero-here/);
   assert.match(css, /market-npc/);
   assert.match(css, /market-hero\{[^}]*left:50%[^}]*top:50%[^}]*translate\(-50%,-50%\)/);
@@ -47,6 +49,7 @@ test('main page preserves old stage order while loading market data before journ
   assert.ok(marketContent < journeyContent);
   assert.ok(marketJourney > journeyContent && marketJourney < progress);
   assert.ok(marketRuntime > app && marketRuntime < flow);
-  assert.match(html, /market-runtime\.css\?v=20260912-marketnpc1/);
-  assert.match(html, /market-content\.js\?v=20260912-marketnpc1/);
+  assert.match(html, /market-runtime\.css\?v=\d{8}-[^"<]+/);
+  assert.match(html, /market-runtime\.js\?v=\d{8}-[^"<]+/);
+  assert.match(html, /market-content\.js\?v=\d{8}-[^"<]+/);
 });
