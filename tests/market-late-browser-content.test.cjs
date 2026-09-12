@@ -26,7 +26,19 @@ test('late market content defines M5-M8 and keeps M8 as the market core mileston
   );
 });
 
-test('M7 and M8 use six-column boards with varied replenishment quantities', () => {
+test('M6 visibly deactivates the deferred cargo after a choice', () => {
+  const runtime = read('src/market-runtime.js');
+  const css = read('src/market-state-visuals.css');
+  assert.match(runtime, /choiceState/);
+  assert.match(runtime, /market-deferred/);
+  assert.match(runtime, /button\.disabled = true/);
+  assert.match(runtime, /market-deferred-tag/);
+  assert.match(css, /market-deferred/);
+  assert.match(css, /grayscale/);
+  assert.match(css, /opacity/);
+});
+
+test('M7 and M8 use six-column boards with varied replenishment quantities and surplus stock', () => {
   const sandbox = { WORDS: {}, STAGES: [] };
   vm.runInNewContext(read('src/market-content.js'), sandbox);
   vm.runInNewContext(read('src/market-late-content.js'), sandbox);
@@ -35,15 +47,19 @@ test('M7 and M8 use six-column boards with varied replenishment quantities', () 
   assert.equal(m7.grid[0].length, 6);
   assert.equal(m8.grid[0].length, 6);
   assert.equal(m7.market.capacity, 3);
+  assert.equal(m7.market.revision, 4);
   assert.equal(m7.market.locations.find(location => location.id === 'bakery').needs.flour, 3);
   assert.equal(m7.market.locations.find(location => location.id === 'bakery').stock.flour, 1);
+  assert.equal(m7.market.locations.find(location => location.id === 'bakery').limitToNeed, true);
   assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').needs.oil, 4);
   assert.equal(m7.market.locations.find(location => location.id === 'oil-stall').stock.oil, 1);
-  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.flour, 2);
+  assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.flour, 3);
   assert.equal(m7.market.locations.find(location => location.id === 'late-goods').stock.oil, 3);
+  assert.ok(m7.market.predicates.some(predicate => predicate.type === 'location-at-least' && predicate.location === 'late-goods' && predicate.item === 'flour' && predicate.amount === 1));
   assert.equal(m8.market.locations.find(location => location.id === 'bakery').needs.flour, 2);
   assert.equal(m8.market.locations.find(location => location.id === 'late-goods').stock.flour, 2);
   assert.match(read('src/market-runtime.js'), /market-grid-wide/);
+  assert.match(read('src/market-runtime.js'), /need-filled/);
   assert.match(read('src/market-runtime.css'), /market-grid\.market-grid-wide/);
   assert.match(read('src/market-runtime.css'), /44px/);
 });
@@ -80,10 +96,11 @@ test('index loads late market data and state visuals in dependency order', () =>
   assert.ok(marketJourney < lateJourney && lateJourney < progress);
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
   assert.ok(marketRuntime < marketVisuals && marketVisuals < flowRuntime);
-  assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-marketm8r\d+"/);
-  assert.match(html, /market-late-content\.js\?v=20260912-marketm8r2/);
-  assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r2/);
-  assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r2/);
+  assert.match(html, /name="cwt-build" content="2026-09-12-marketm8r3"/);
+  assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/);
+  assert.match(html, /market-runtime\.js\?v=20260912-marketm8r3/);
+  assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/);
+  assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/);
 });
 
 test('M8 keeps synthesis compact instead of adding a new target vocabulary family', () => {
