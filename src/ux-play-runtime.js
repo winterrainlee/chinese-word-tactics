@@ -8,12 +8,24 @@
   const SHORT_GOALS = Object.freeze({
     'market-stage-8': '開市以前，補齊各處需要的東西。'
   });
+  const LEARNING_FEEDBACK_OVERRIDES = Object.freeze({
+    '아직 비석에 접근하지 않았어.': '還沒接近石碑。 아직 비석에 접근하지 않았어.',
+    '문이 열려 있어. 수레가 지나갈 수 있어.': '門已經打開，貨車可以通過。 문이 열려 있어. 수레가 지나갈 수 있어.'
+  });
 
   function savePendingCompletion(stageId) {
     try { localStorage.setItem(PENDING_COMPLETION_KEY, JSON.stringify({ stageId })); } catch {}
   }
   function clearPendingCompletion() {
     try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {}
+  }
+
+  function normalizeLearningFeedback(message) {
+    const text = String(message || '').trim();
+    if (LEARNING_FEEDBACK_OVERRIDES[text]) return LEARNING_FEEDBACK_OVERRIDES[text];
+    const marketInspect = text.match(/^([\u3400-\u9fff][^—]+)\s*—\s*(.+?)의 현재 상태를 확인했어\.$/u);
+    if (marketInspect) return `已查看${marketInspect[1].trim()}。 ${marketInspect[2].trim()}의 현재 상태를 확인했어.`;
+    return message;
   }
 
   function splitLearningFeedback(message) {
@@ -57,8 +69,9 @@
 
   const baseSetStatus = setStatus;
   setStatus = function uxPlaySetStatus(message, type = '') {
-    baseSetStatus(message, type);
-    renderLearningFeedback(status?.textContent || message);
+    const normalized = normalizeLearningFeedback(message);
+    baseSetStatus(normalized, type);
+    renderLearningFeedback(status?.textContent || normalized);
   };
 
   function ensureSlots() {
@@ -193,5 +206,5 @@
   }
 
   decorate();
-  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion, clearPendingCompletion, splitLearningFeedback, renderLearningFeedback });
+  globalThis.UXPlay = Object.freeze({ ensureSlots, decorate, hideCompletion, clearPendingCompletion, normalizeLearningFeedback, splitLearningFeedback, renderLearningFeedback });
 })();
