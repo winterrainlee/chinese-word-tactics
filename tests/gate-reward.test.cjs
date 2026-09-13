@@ -47,3 +47,9 @@ test('earned reward also appears inside the selected region detail sheet', () =>
   assert.match(css, /worldRewardDetailItem/);
   assert.match(css, /worldRewardDetailSymbol/);
 });
+
+test('inn place sheet is never treated as a selected region reward sheet', () => {
+  const runtime = read('src/world-reward-runtime.js');
+  assert.match(runtime, /const isInnSheet = !!sheet\.querySelector\('\.worldInnPlaceState'\)/);
+  assert.match(runtime, /const isRegionSheet = !!sheet\.querySelector\('\.regionSheetNameZh'\) && !isInnSheet/);
+});
