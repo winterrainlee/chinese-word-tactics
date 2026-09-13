@@ -2,7 +2,8 @@
 (() => {
   const P = JourneyProgress, $ = id => document.getElementById(id);
   const PENDING_COMPLETION_KEY = 'chinese-word-tactics-pending-completion-v1';
-  const RESET_KEYS = [P.KEY, 'chufa-tutorial-v03', 'chinese-word-tactics-world-v1', PENDING_COMPLETION_KEY];
+  const LEXICON_KEY = globalThis.LexiconRuntime?.KEY || 'chinese-word-tactics-lexicon-v1';
+  const RESET_KEYS = [P.KEY, 'chufa-tutorial-v03', 'chinese-word-tactics-world-v1', PENDING_COMPLETION_KEY, LEXICON_KEY];
   const store = P.createStore({ getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) }, () => {
     $('flowNotice').hidden = false;
     $('flowNotice').textContent = '진행 기록을 읽거나 저장하지 못했어. 이 탭에서는 계속할 수 있지만, 새로고침하면 기록을 잃을 수 있어.';
@@ -10,6 +11,7 @@
   let active = null;
   const validOptions = options => ({ mode: options.mode === 'replay' ? 'replay' : 'first-play', returnTo: options.returnTo === 'world' ? 'world' : 'journey' });
   const canVisitWorld = () => store.get().completedStages.includes('stage-5');
+  const recordWordEncounter = id => globalThis.LexiconRuntime?.visitStage(id);
   const nodeRegionId = node => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(section => section.id === node?.sectionId)?.regionId || null;
   const readPendingCompletion = () => {
     try {
@@ -67,6 +69,7 @@
     if (!node || !P.isAvailable(node, store.get())) return false;
     const context = { ...validOptions(options), nodeId: node.nodeId, type: 'stage' };
     if (!TacticalGame.playStage(id, context)) return false;
+    recordWordEncounter(id);
     active = context; StoryRuntime.stop();
     store.locate({ view: 'tactical', nodeId: node.nodeId }, context.mode);
     window.scrollTo(0, 0); return true;
@@ -87,6 +90,7 @@
       if (pending?.stageId === saved.id && saved.type === 'stage' && location?.view === 'tactical') {
         const context = { mode: 'first-play', returnTo: 'journey', nodeId: saved.nodeId, type: 'stage' };
         if (TacticalGame.resumeStage(saved.id, context)) {
+          recordWordEncounter(saved.id);
           active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: saved.nodeId });
           globalThis.__CWT_PENDING_COMPLETION__ = { id: saved.id, context };
           return true;
@@ -101,6 +105,7 @@
     if (node.type === 'story') return playStory(node.id, { beat: location?.nodeId === node.nodeId ? location.beat : 0 });
     const context = { mode: 'first-play', returnTo: 'journey', nodeId: node.nodeId, type: 'stage' };
     if (TacticalGame.resumeStage(node.id, context)) {
+      recordWordEncounter(node.id);
       active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: node.nodeId }); return true;
     }
     return playStage(node.id);
@@ -122,12 +127,19 @@
     $('flowRetry').onclick = () => playStage(id, context);
   }
   function showWords() {
-    TacticalGame.openSheet('<h2>단어장</h2><p class="flowNote">튜토리얼에서 만나는 단어야. 과별 검색과 복습 기록은 다음 단계에서 연결해.</p><div id="flowWordList" class="flowMenu"></div><div class="sheetactions"><button id="flowWordsClose">닫기</button></div>');
-    for (const [word, detail] of Object.entries(WORDS)) {
-      const button = document.createElement('button'); button.textContent = `${word} · ${detail.k}`;
-      button.onclick = () => TacticalGame.showWord(word); $('flowWordList').append(button);
+    if (!globalThis.LexiconRuntime) {
+      TacticalGame.openSheet('<h2>단어장</h2><p class="flowNote">단어장을 불러오지 못했어. 지금은 빠른 단어 목록으로 열게.</p><div id="flowWordList" class="flowMenu"></div><div class="sheetactions"><button id="flowWordsClose">닫기</button></div>');
+      for (const [word, detail] of Object.entries(WORDS)) {
+        const button = document.createElement('button'); button.textContent = `${word} · ${detail.k}`;
+        button.onclick = () => TacticalGame.showWord(word); $('flowWordList').append(button);
+      }
+      $('flowWordsClose').onclick = () => TacticalGame.closeSheet();
+      return false;
     }
-    $('flowWordsClose').onclick = () => TacticalGame.closeSheet();
+    const progress = store.get();
+    active = null; StoryRuntime.stop(); TacticalGame.closeSheet();
+    document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
+    return LexiconRuntime.open({ progress });
   }
   function resetJourney() {
     TacticalGame.openSheet('<h2>여정 초기화</h2><p class="resetWarning">이 브라우저에 저장된 이야기, 튜토리얼 스테이지, 월드 진행을 모두 지우고 <strong>고향을 떠나다</strong>부터 다시 시작해.</p><p class="flowNote">게임의 단어와 콘텐츠 자체는 지워지지 않아.</p><div class="sheetactions"><button id="flowResetCancel" class="secondary">취소</button><button id="flowResetConfirm" class="dangerAction">처음부터 시작</button></div>');
@@ -164,6 +176,6 @@
   else if (TacticalGame.hasSavedGame) {
     const id = TacticalGame.stageId();
     active = { mode: 'first-play', returnTo: 'journey', nodeId: `stage:${id}`, type: 'stage' };
-    TacticalGame.resumeStage(id, active); store.locate({ view: 'tactical', nodeId: active.nodeId });
+    TacticalGame.resumeStage(id, active); recordWordEncounter(id); store.locate({ view: 'tactical', nodeId: active.nodeId });
   } else playStory('prologue-departure');
 })();
