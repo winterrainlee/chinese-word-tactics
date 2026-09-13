@@ -126,16 +126,27 @@
     kicker: '1장 · 장터 2/8',
     grid: ['.....', '.....', '..S..', '.....', '.....'],
     goal: '確認這批貨剩下的數量，把兩箱燈油送回倉庫。',
-    rule: '처음 있던 양(原來數量)과 지금 남은 양(剩下)을 구분해.',
+    rule: '처음 있던 양(原來數量)과 이미 보낸 양(已送出)을 보고 지금 剩下을 확인해.',
     words: ['數量', '剩下'],
     win: [],
     story: '행상 아주머니가 가져온 짐 가운데 실제로 남은 등잔기름 두 상자를 찾아 창고로 돌려보냈다.',
     market: {
+      revision: 2,
       scene: 'merchant-goods',
       boardLabel: '행상 아주머니와 장터 창고',
       capacity: 2,
       items: commonItems,
-      startStatus: '先看看阿姨這批貨還剩下什麼。 아주머니가 가져온 짐에 지금 실제로 무엇이 남았는지 확인해봐.',
+      startStatus: '先看原來數量和已送出的數量。 원래 몇 개였고 이미 몇 개를 보냈는지부터 확인해봐.',
+      remainingInference: {
+        location: 'merchant',
+        flag: 'remainingConfirmed',
+        items: ['cloth', 'oil'],
+        labelZh: '剩下',
+        hiddenHintKo: '原來數量와 已送出을 비교해봐.',
+        confirmLabelZh: '確認剩下',
+        confirmLabelKo: '남은 수량 확인하기',
+        confirmStatus: '原來有三箱燈油，已經送出一箱，所以剩下兩箱。 원래 등잔기름은 3상자였고 1상자를 보냈어. 그래서 2상자가 남았어.'
+      },
       locations: [
         {
           id: 'merchant', kind: 'npc', labelZh: '行商阿姨', labelKo: '행상 아주머니', icon: '👩‍🦱', pos: [0, 2],
@@ -153,12 +164,13 @@
         }
       ],
       predicates: [
+        { type: 'flag', flag: 'remainingConfirmed', eq: true },
         { type: 'location-equals', location: 'merchant', item: 'oil', amount: 0 },
-        { type: 'location-at-least', location: 'warehouse', item: 'oil', amount: 2 }
+        { type: 'location-equals', location: 'warehouse', item: 'oil', amount: 2 }
       ],
       goalMarks: [
         { word: '數量', type: 'inspected', location: 'merchant' },
-        { word: '剩下', type: 'inspected', location: 'merchant' }
+        { word: '剩下', type: 'flag', flag: 'remainingConfirmed', eq: true }
       ],
       feedback: {
         solved: '剩下的兩箱燈油都送回倉庫了。 남아 있던 등잔기름 두 상자를 모두 창고로 돌려보냈어.'
