@@ -107,6 +107,16 @@
   function resume() {
     const progress = store.get(), location = progress.lastLocation, node = P.recommendedNode(progress);
     const saved = P.getNode(location?.nodeId), pending = readPendingCompletion();
+    if (!location && TacticalGame.hasSavedGame) {
+      const stageId = TacticalGame.stageId(), stageNode = P.getNode(`stage:${stageId}`);
+      if (stageNode && P.isAvailable(stageNode, progress) && !P.isComplete(stageNode, progress)) {
+        const context = { mode: 'first-play', returnTo: 'journey', nodeId: stageNode.nodeId, type: 'stage' };
+        if (TacticalGame.resumeStage(stageId, context)) {
+          recordWordEncounter(stageId);
+          active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: stageNode.nodeId }); return true;
+        }
+      }
+    }
     if (saved && P.isComplete(saved, progress)) {
       if (pending?.stageId === saved.id && saved.type === 'stage' && location?.view === 'tactical') {
         const context = { mode: 'first-play', returnTo: 'journey', nodeId: saved.nodeId, type: 'stage' };
