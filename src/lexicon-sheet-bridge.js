@@ -1,9 +1,10 @@
-/* Adds one bridge from the in-stage quick word sheet to the standalone lexicon without changing tactical rendering. */
+/* Lightweight lexicon UI polish: quick-sheet bridge plus learner-facing section copy. */
 (() => {
   const sheet = document.getElementById('sheet');
+  const wordsContent = document.getElementById('wordsContent');
   if (!sheet || !globalThis.LexiconRuntime || typeof WORDS === 'undefined') return;
 
-  function enhance() {
+  function enhanceSheet() {
     const title = sheet.querySelector(':scope > h2');
     const word = title?.textContent?.trim();
     const actions = sheet.querySelector('.sheetactions');
@@ -13,7 +14,7 @@
     link.href = '#';
     link.className = 'lexiconSheetLink';
     link.dataset.openLexiconWord = word;
-    link.textContent = '단어장에서 비교하기';
+    link.textContent = '어떻게 다를까?';
     link.onclick = event => {
       event.preventDefault();
       const stageId = globalThis.TacticalGame?.stageId?.();
@@ -23,6 +24,18 @@
     actions.prepend(link);
   }
 
-  new MutationObserver(enhance).observe(sheet, { childList: true, subtree: true });
-  enhance();
+  function polishLexiconCopy() {
+    if (!wordsContent) return;
+    wordsContent.querySelectorAll('.lexiconCompareNote h2').forEach(heading => {
+      if (heading.textContent.trim() === '비교하면') heading.textContent = '어떻게 다를까?';
+    });
+    wordsContent.querySelectorAll('.lexiconRelated h2, .lexiconRelated h3').forEach(heading => {
+      if (heading.textContent.trim() === '같이 보면') heading.textContent = '이것도 참고하자';
+    });
+  }
+
+  new MutationObserver(enhanceSheet).observe(sheet, { childList: true, subtree: true });
+  if (wordsContent) new MutationObserver(polishLexiconCopy).observe(wordsContent, { childList: true, subtree: true });
+  enhanceSheet();
+  polishLexiconCopy();
 })();
