@@ -58,7 +58,6 @@
       <h2 lang="zh-Hant">${item.zh}</h2>
       <div class="meaning">${item.ko}</div>
       <div class="gamerule">${item.note}</div>
-      <div class="tiny">소년이 여행 중 실제로 받아 방에 남겨 둔 물건</div>
       <div class="sheetactions"><button id="innKeepsakeClose">닫기</button></div>
     `);
     const close = document.getElementById('innKeepsakeClose');
