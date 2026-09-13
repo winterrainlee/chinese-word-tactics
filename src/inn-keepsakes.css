@@ -5,12 +5,17 @@
 .innDeskKeepsake:focus-visible{outline:3px solid #315a70;outline-offset:3px}
 .innDeskKeepsakeHole{position:absolute;left:7%;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#76502f;box-shadow:inset 0 1px 1px rgba(43,28,17,.4)}
 .innDeskKeepsakeMark{font-family:ui-serif,"Songti TC","Noto Serif TC",serif;font-size:clamp(12px,3.6vw,18px);font-weight:700;line-height:1;text-shadow:0 1px rgba(255,239,204,.36)}
-.innDeskKeepsake.west-pass{left:39%;top:23%;transform:translate(-50%,-50%) rotate(-7deg)}
-.innDeskKeepsake.east-pass{left:47%;top:24%;transform:translate(-50%,-50%) rotate(5deg)}
-.innDeskKeepsake.pass-single{left:43%;top:23.5%;transform:translate(-50%,-50%) rotate(-4deg)}
+/* 通行牌: practical travel items kept together on the clothes chest. */
+.innDeskKeepsake.west-pass{left:16.5%;top:49.2%;transform:translate(-50%,-50%) rotate(-8deg)}
+.innDeskKeepsake.east-pass{left:21%;top:50%;transform:translate(-50%,-50%) rotate(5deg)}
+.innDeskKeepsake.pass-single{left:18.7%;top:49.6%;transform:translate(-50%,-50%) rotate(-5deg)}
+/* 貨車引路牌: the representative gate-route reward, hung above the bed. */
+.innDeskKeepsake.guide-plaque{left:43%;top:23.5%;width:clamp(35px,10vw,56px);height:clamp(24px,6.6vw,35px);transform:translate(-50%,-50%) rotate(-3deg);background:linear-gradient(160deg,#d2a66c,#ae733f)}
+/* 修繕牌: kept at the desk as a working credential. */
 .innDeskKeepsake.repair-plaque{left:84%;top:34.5%;width:clamp(34px,9.5vw,54px);height:clamp(23px,6.4vw,34px);transform:translate(-50%,-50%) rotate(-4deg);background:linear-gradient(160deg,#c99b62,#a86f3d)}
-.innDeskKeepsake.west-pass:active{transform:translate(-50%,-50%) rotate(-7deg) scale(.96)}
+.innDeskKeepsake.west-pass:active{transform:translate(-50%,-50%) rotate(-8deg) scale(.96)}
 .innDeskKeepsake.east-pass:active{transform:translate(-50%,-50%) rotate(5deg) scale(.96)}
-.innDeskKeepsake.pass-single:active{transform:translate(-50%,-50%) rotate(-4deg) scale(.96)}
+.innDeskKeepsake.pass-single:active{transform:translate(-50%,-50%) rotate(-5deg) scale(.96)}
+.innDeskKeepsake.guide-plaque:active{transform:translate(-50%,-50%) rotate(-3deg) scale(.96)}
 .innDeskKeepsake.repair-plaque:active{transform:translate(-50%,-50%) rotate(-4deg) scale(.96)}
 @media(max-width:360px){.innDeskKeepsake{border-radius:4px}.innDeskKeepsakeHole{width:4px;height:4px;margin-top:-2px}}
