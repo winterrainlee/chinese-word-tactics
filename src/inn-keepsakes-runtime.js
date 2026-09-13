@@ -1,4 +1,4 @@
-/* Persistent keepsakes placed on the inn-room desk after they are actually received in story. */
+/* Persistent keepsakes placed in the inn room after they are actually received in story. */
 (() => {
   const ROUTE_STORY_ID = 'gate-after-route';
   const ROUTE_STAGE_ID = 'gate-stage-3';
@@ -7,6 +7,7 @@
   const progress = () => globalThis.GameFlow?.progress?.() || {};
   const strings = value => Array.isArray(value) ? [...new Set(value.filter(item => typeof item === 'string'))] : [];
   const hasSeenStory = (storyId, value = progress()) => strings(value.seenStories).includes(storyId);
+  const isPass = item => item?.id === 'west-pass' || item?.id === 'east-pass';
 
   const KEEPERS = Object.freeze({
     'west-pass': Object.freeze({
@@ -48,17 +49,17 @@
       <h2 lang="zh-Hant">${item.zh}</h2>
       <div class="meaning">${item.ko}</div>
       <div class="gamerule">${item.note}</div>
-      <div class="tiny">소년이 여행 중 실제로 받아 책상 위에 둔 물건</div>
+      <div class="tiny">소년이 여행 중 실제로 받아 방에 남겨 둔 물건</div>
       <div class="sheetactions"><button id="innKeepsakeClose">닫기</button></div>
     `);
     const close = document.getElementById('innKeepsakeClose');
     if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
   }
 
-  function createKeepsakeButton(item) {
+  function createKeepsakeButton(item, singlePass = false) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `innDeskKeepsake ${item.id}`;
+    button.className = `innDeskKeepsake ${item.id}${singlePass && isPass(item) ? ' pass-single' : ''}`;
     button.dataset.keepsakeId = item.id;
     button.setAttribute('aria-label', `${item.zh}, ${item.ko}`);
     button.innerHTML = `<span class="innDeskKeepsakeHole" aria-hidden="true"></span><span class="innDeskKeepsakeMark" lang="zh-Hant">${item.mark}</span>`;
@@ -74,7 +75,7 @@
     layer = document.createElement('div');
     layer.className = 'innDeskKeepsakes';
     layer.setAttribute('role', 'group');
-    layer.setAttribute('aria-label', '책상 위 여행의 흔적');
+    layer.setAttribute('aria-label', '방 안 여행의 흔적');
     scene.appendChild(layer);
     return layer;
   }
@@ -83,7 +84,8 @@
     const layer = ensureLayer();
     if (!layer) return [];
     const items = keepsakes(value);
-    layer.replaceChildren(...items.map(createKeepsakeButton));
+    const passCount = items.filter(isPass).length;
+    layer.replaceChildren(...items.map(item => createKeepsakeButton(item, passCount === 1)));
     layer.hidden = items.length === 0;
     return items;
   }
@@ -118,6 +120,6 @@
 
   globalThis.InnKeepsakes = Object.freeze({
     ROUTE_STORY_ID, ROUTE_STAGE_ID, WORKSHOP_STORY_ID, KEEPERS,
-    hasSeenStory, keepsakes, renderDeskKeepsakes, syncVisibleRoom, mutationOpensOrCreatesRoom
+    hasSeenStory, isPass, keepsakes, renderDeskKeepsakes, syncVisibleRoom, mutationOpensOrCreatesRoom
   });
 })();
