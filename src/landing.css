@@ -9,7 +9,8 @@
 .landingPrimary:focus-visible,.landingSecondary button:focus-visible,.landingSettings:focus-visible{outline:3px solid #2c65a2;outline-offset:2px}
 .landingSecondary{min-height:44px;display:flex;align-items:center;justify-content:center;gap:13px;color:var(--muted)}
 .landingSecondary button{min-height:44px;padding:0 4px;border:0;background:transparent;color:#5f584e;font-weight:720}
-.landingSecondaryMark{font-size:12px;color:#aaa296;user-select:none}
+.landingSecondaryMark{display:none}
+#landingWords:not([hidden])::before{content:"·";margin-right:13px;color:#aaa296;font-weight:400}
 .landingSettings{position:absolute;top:4px;right:0}
 .landingSecondary[hidden],.landingSecondary button[hidden],.landingSettings[hidden]{display:none!important}
 @media(max-height:650px){.landingShell{padding-top:10px;padding-bottom:8px}.landingTitle{font-size:31px}.landingScene{max-height:43svh}.landingSceneWrap{padding:2px 0 7px}.landingActions{gap:7px}.landingPrimary{min-height:48px}}
