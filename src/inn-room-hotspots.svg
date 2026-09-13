@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1536" role="img" aria-labelledby="title desc">
+  <title id="title">여관 방 상호작용 레이어</title>
+  <desc id="desc">침대, 책상, 의자, 옷상자, 문을 위한 SVG 핫스팟 레이어</desc>
+  <defs>
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2d241c" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g fill="none" stroke="none" class="inn-room-hotspots">
+    <g id="hotspot-bed" data-word="床" data-ko="침대" tabindex="0" role="button" aria-label="침대, 床">
+      <rect x="58" y="430" width="410" height="395" rx="28" fill="transparent"/>
+      <circle cx="278" cy="642" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/>
+      <path d="M261 650v-16m34 16v-16M260 638h36v12h-36zM263 632v-8h12v8m9 0v-8h10v8" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="hotspot-desk" data-word="桌子" data-ko="책상" tabindex="0" role="button" aria-label="책상, 桌子">
+      <rect x="636" y="440" width="290" height="300" rx="24" fill="transparent"/>
+      <circle cx="785" cy="570" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/>
+      <path d="M767 562h36M771 562v20m28-20v20m-22-20v8h16v-8" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="hotspot-chair" data-word="椅子" data-ko="의자" tabindex="0" role="button" aria-label="의자, 椅子">
+      <rect x="690" y="520" width="220" height="250" rx="24" fill="transparent"/>
+      <circle cx="815" cy="690" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/>
+      <path d="M804 676v28m22-28v28m-22-16h22m-18-20v20m14-20v20m-14-20h14" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="hotspot-chest" data-word="箱子" data-ko="상자" tabindex="0" role="button" aria-label="옷상자, 箱子">
+      <rect x="48" y="700" width="300" height="330" rx="28" fill="transparent"/>
+      <circle cx="190" cy="865" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/>
+      <path d="M172 861h36v17h-36zM176 854h28l4 7h-36zM190 861v17" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="hotspot-door" data-action="leave-room" tabindex="0" role="button" aria-label="방에서 나가기">
+      <rect x="888" y="520" width="136" height="1016" rx="28" fill="transparent"/>
+      <circle cx="938" cy="830" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/>
+      <path d="M929 819l18 11-18 11M947 830h-25" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>
