@@ -69,8 +69,8 @@ test('all earned keepsakes can share the inn desk without inventing a new save k
   assert.match(runtime, /stageOutcomes/);
   assert.match(css, /\.innDeskKeepsakes\{position:absolute/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque/);
-  assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes1/);
-  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes1/);
+  assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes2/);
+  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes2/);
 });
 
 test('inn keepsakes render when the room view is first created as well as when it becomes visible', () => {
