@@ -22,7 +22,7 @@ const WORDS={
 
 const STAGES=[
   {id:'stage-0',title:'出發',subtitle:'마을 밖으로',grid:['.E.','...','...','.S.'],goal:'到村口去。',words:[],win:['at_exit'],story:'소년은 뒤를 돌아보았다.\n익숙한 마을은 이제 조금씩 멀어지고 있었다.'},
-  {id:'stage-1',title:'接近',subtitle:'낡은 비석',grid:['##E##','#...#','##G##','#...#','#K..#','#...#','##S##'],goal:'接近石碑。',goalAfter:'走到出口。',words:['接近'],win:['stone','at_exit'],story:'「방금… 글자가 빛난 건가?」'},
+  {id:'stage-1',title:'接近',subtitle:'낡은 비석',grid:['###E#','#...#','###G#','#...#','#K#.#','#...#','###S#'],goal:'接近石碑。',goalAfter:'走到出口。',words:['接近'],win:['stone','at_exit'],story:'「방금… 글자가 빛난 건가?」'},
   {id:'stage-2',title:'遠離',subtitle:'늑대와의 거리',grid:['##E##','.....','.#.#.','...W.','.#.#.','.....','##S##'],goal:'遠離野狼，走到出口。',words:['遠離'],win:['at_exit'],wolf:{cycle:[[3,3],[3,4]],radius:1},story:'가장 짧은 길이 언제나 좋은 길은 아니었다.'},
   {id:'stage-3',title:'通過・到達',subtitle:'폐허를 지나서',grid:['#..E#','#.#.#','#R#.#','#R#.#','#R#.#','#.#.#','#..S#'],goal:'通過遺跡，然後到達出口。',words:['通過','到達'],win:['crossed','at_exit'],ruin:{portals:[[1,1],[5,1]]},story:'지나가는 것과 도착하는 것.\n비슷해 보여도 길 위에서는 전혀 다른 일이었다.'},
   {id:'stage-4',title:'避開',subtitle:'가시 사이의 길',grid:['##E##','.....','.X.X.','..X..','.X.X.','.....','##S##'],goal:'避開危險，到達出口。',words:['避開','到達'],win:['at_exit'],story:'목적지만큼, 그곳까지 가는 길도 중요했다.'},
