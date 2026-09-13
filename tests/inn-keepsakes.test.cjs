@@ -53,7 +53,7 @@ test('workshop repair plaque appears after the workshop finale story', () => {
   assert.equal(items[0].zh, '修繕牌');
 });
 
-test('all earned keepsakes can share the inn desk without inventing a new save key', () => {
+test('all earned keepsakes can share the inn room without inventing a new save key', () => {
   const progress = {
     seenStories: ['gate-after-route', 'workshop-finale'],
     stageOutcomes: { 'gate-stage-3': { viaIds: ['east-post'] } }
@@ -67,10 +67,22 @@ test('all earned keepsakes can share the inn desk without inventing a new save k
   assert.doesNotMatch(runtime, /localStorage|setItem|removeItem/);
   assert.match(runtime, /seenStories/);
   assert.match(runtime, /stageOutcomes/);
-  assert.match(css, /\.innDeskKeepsakes\{position:absolute/);
+  assert.match(css, /\.innDeskKeepsakes\{position:absolute;inset:0/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque/);
-  assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes2/);
-  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes2/);
+  assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes3/);
+  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes3/);
+});
+
+test('pass plaques live on the bed wall while the repair plaque stays on the desk', () => {
+  const css = read('src/inn-keepsakes.css');
+  const runtime = read('src/inn-keepsakes-runtime.js');
+  assert.match(css, /\.innDeskKeepsake\.west-pass\{left:39%;top:23%/);
+  assert.match(css, /\.innDeskKeepsake\.east-pass\{left:47%;top:24%/);
+  assert.match(css, /\.innDeskKeepsake\.pass-single\{left:43%;top:23\.5%/);
+  assert.match(css, /\.innDeskKeepsake\.repair-plaque\{left:84%;top:34\.5%/);
+  assert.match(runtime, /const passCount = items\.filter\(isPass\)\.length/);
+  assert.match(runtime, /passCount === 1/);
+  assert.match(runtime, /방 안 여행의 흔적/);
 });
 
 test('inn keepsakes render when the room view is first created as well as when it becomes visible', () => {
