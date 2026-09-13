@@ -59,7 +59,8 @@
     if (!map || !sheet) return;
 
     const existing = sheet.querySelector('.worldRewardDetail');
-    const isRegionSheet = !!sheet.querySelector('.regionSheetNameZh');
+    const isInnSheet = !!sheet.querySelector('.worldInnPlaceState');
+    const isRegionSheet = !!sheet.querySelector('.regionSheetNameZh') && !isInnSheet;
     if (!isRegionSheet) {
       existing?.remove();
       return;
