@@ -55,6 +55,7 @@ class FakeElement {
 function loadInn(initialMilestones = []) {
   const map = new FakeElement('section');
   const closeButton = new FakeElement('button');
+  const enterButton = new FakeElement('button');
   const state = {
     progress: { completedMilestones: [...initialMilestones] },
     sheet: '',
@@ -71,7 +72,7 @@ function loadInn(initialMilestones = []) {
     },
     document: {
       createElement: tagName => new FakeElement(tagName),
-      getElementById: id => id === 'worldRegions' ? map : id === 'worldInnClose' ? closeButton : null
+      getElementById: id => id === 'worldRegions' ? map : id === 'worldInnClose' ? closeButton : id === 'worldInnEnter' ? enterButton : null
     },
     MutationObserver: class { observe() {} },
     setTimeout: callback => { callback(); return 1; },
@@ -79,7 +80,7 @@ function loadInn(initialMilestones = []) {
   };
   sandbox.window = { addEventListener() {} };
   vm.runInNewContext(read('src/world-inn-runtime.js'), sandbox, { filename: 'world-inn-runtime.js' });
-  return { map, closeButton, state, WorldInn: sandbox.WorldInn };
+  return { map, closeButton, enterButton, state, WorldInn: sandbox.WorldInn };
 }
 
 test('inn marker stays absent before inn-unlocked, including a market-core-only save', () => {
@@ -122,21 +123,26 @@ test('market-core upgrades the existing inn marker and can resync without replac
   assert.equal(marker.classList.contains('has-room-key'), false);
 });
 
-test('inn detail sheet uses warm place copy at M4 and room-key copy at M8 without unlock UI', () => {
-  const { map, closeButton, state, WorldInn } = loadInn(['inn-unlocked']);
+test('inn detail sheet offers room entry at M4 and room-key copy at M8', () => {
+  const { map, closeButton, enterButton, state, WorldInn } = loadInn(['inn-unlocked']);
   const marker = map.querySelector('.worldInnMarker');
 
   marker.onclick();
   assert.match(state.sheet, /오늘부터 돌아올 수 있는 곳/);
   assert.match(state.sheet, /빈방 하나를 남겨 두었어/);
+  assert.match(state.sheet, /id="worldInnClose">닫기/);
+  assert.match(state.sheet, /id="worldInnEnter">들어가기/);
+  assert.equal(typeof closeButton.onclick, 'function');
+  assert.equal(typeof enterButton.onclick, 'function');
   assert.doesNotMatch(state.sheet, /방 열쇠가 생긴|✓|잠금 해제/);
 
   state.progress = { completedMilestones: ['inn-unlocked', 'market-core'] };
   WorldInn.syncInnMarker();
   marker.onclick();
   assert.match(state.sheet, /방 열쇠가 생긴 돌아올 곳/);
-  assert.match(state.sheet, /작은 나무패와 황동 열쇠/);
-  assert.match(state.sheet, /마을 일을 마치고 돌아오는 자리/);
+  assert.match(state.sheet, /남는 방 하나를 맡겨 두었어/);
+  assert.match(state.sheet, /자기 물건을 둘 수 있는 자리/);
+  assert.match(state.sheet, /들어가기/);
   assert.doesNotMatch(state.sheet, /✓|잠금 해제/);
 
   closeButton.onclick();
@@ -156,8 +162,27 @@ test('inn presentation adds no save key and preserves the existing mobile marker
   assert.match(css, /worldInnBuilding\{[^}]*width:32px;height:32px/);
   assert.match(css, /worldInnKeyCharm\{[^}]*width:15px;height:18px/);
   assert.match(css, /@media\(max-width:360px\)\{\.worldInnMarker\{width:64px\}/);
-  assert.match(html, /world-inn\.css\?v=20260912-innroomkey1/);
-  assert.match(html, /world-inn-runtime\.js\?v=20260912-innroomkey1/);
+  assert.match(html, /world-inn\.css\?v=20260913-innroom3/);
+  assert.match(html, /world-inn-runtime\.js\?v=20260913-innroom3/);
+});
+
+test('room background chunks reconstruct one valid WebP payload', () => {
+  const dir = path.join(root, 'images/inn/room-v0.2');
+  const files = fs.readdirSync(dir).filter(name => /^\d\d\.txt$/.test(name)).sort();
+  assert.deepEqual(files, ['00.txt', '01.txt', '02.txt']);
+  const encoded = files.map(name => fs.readFileSync(path.join(dir, name), 'utf8')).join('').replace(/\s+/g, '');
+  const bytes = Buffer.from(encoded, 'base64');
+  assert.equal(bytes.subarray(0, 4).toString('ascii'), 'RIFF');
+  assert.equal(bytes.subarray(8, 12).toString('ascii'), 'WEBP');
+  assert.equal(bytes.readUInt32LE(4) + 8, bytes.length);
+  assert.ok(bytes.length > 20000);
+});
+
+test('room hotspot SVG keeps the four starter objects and doorway exit separate from the raster art', () => {
+  const svg = read('src/inn-room-hotspots.svg');
+  for (const word of ['床', '桌子', '椅子', '箱子']) assert.match(svg, new RegExp(`data-word="${word}"`));
+  assert.match(svg, /data-action="leave-room"/);
+  assert.doesNotMatch(svg, /<script|<foreignObject|javascript:/i);
 });
 
 test('new inn and key SVGs are small self-contained world assets', () => {
