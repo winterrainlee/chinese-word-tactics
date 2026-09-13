@@ -9,17 +9,18 @@
     const actions = sheet.querySelector('.sheetactions');
     if (!word || !WORDS[word] || !actions || actions.querySelector('[data-open-lexicon-word]')) return;
 
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'secondary';
-    button.dataset.openLexiconWord = word;
-    button.textContent = '단어장에서 비교하기';
-    button.onclick = () => {
+    const link = document.createElement('a');
+    link.href = '#';
+    link.className = 'lexiconSheetLink';
+    link.dataset.openLexiconWord = word;
+    link.textContent = '단어장에서 비교하기';
+    link.onclick = event => {
+      event.preventDefault();
       const stageId = globalThis.TacticalGame?.stageId?.();
       if (stageId) LexiconRuntime.visitStage(stageId);
       LexiconRuntime.open({ word, progress: globalThis.GameFlow?.progress?.() });
     };
-    actions.prepend(button);
+    actions.prepend(link);
   }
 
   new MutationObserver(enhance).observe(sheet, { childList: true, subtree: true });
