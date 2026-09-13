@@ -124,6 +124,11 @@
           recordWordEncounter(saved.id);
           active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: saved.nodeId });
           globalThis.__CWT_PENDING_COMPLETION__ = { id: saved.id, context };
+          const completion = globalThis.GameFlow?.showStageComplete;
+          if (typeof completion === 'function' && completion !== showStageComplete) {
+            completion(saved.id, context);
+            delete globalThis.__CWT_PENDING_COMPLETION__;
+          }
           return true;
         }
       }
