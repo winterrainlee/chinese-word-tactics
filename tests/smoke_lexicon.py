@@ -31,6 +31,9 @@ def assert_touch_targets(page, selector):
     assert targets, selector
     assert all(item['width'] >= 44 and item['height'] >= 44 for item in targets), targets
 
+def flat_surface_styles(page, selector):
+    return page.locator(selector).evaluate_all('''nodes => nodes.map(node => { const style=getComputedStyle(node), box=node.getBoundingClientRect(); return {radius:style.borderRadius,bg:style.backgroundColor,height:box.height}; })''')
+
 try:
     with sync_playwright() as pw:
         executable = os.environ.get('CHROMIUM_PATH')
@@ -50,11 +53,14 @@ try:
         page.locator('.wordbtn', has_text='買').click()
         bridge = page.locator('[data-open-lexicon-word="買"]')
         assert bridge.is_visible()
+        assert bridge.inner_text() == '어떻게 다를까?'
         assert_touch_targets(page, '[data-open-lexicon-word="買"]:visible, .sheetactions button:visible')
         bridge.click()
         assert page.locator('#wordsView').is_visible()
         assert page.locator('#wordsTitle').inner_text() == '買'
         assert '我買了一份菜。' in page.locator('#wordsContent').inner_text()
+        detail_sections = flat_surface_styles(page, '.lexiconWordDetail section')
+        assert detail_sections and all(item['radius'] == '0px' and item['bg'] == 'rgba(0, 0, 0, 0)' for item in detail_sections), detail_sections
         page.screenshot(path=str(OUT/'lexicon-00-quick-sheet-bridge-375x812.png'),full_page=True)
         page.evaluate('GameFlow.showJourney()')
 
@@ -71,7 +77,12 @@ try:
         region_text = page.locator('.lexiconRegionList').inner_text()
         for name in ['길목','장인골','장터']: assert name in region_text
         assert '발견 3 / 15' in page.locator('[data-lexicon-region="market-town"]').inner_text()
-        assert_touch_targets(page, '.lexiconRegionCard:visible, .flowNav button:visible, .iconbtn:visible')
+        chapter_width = page.locator('#wordsChapterSelect').bounding_box()['width']
+        content_width = page.locator('#wordsContent').bounding_box()['width']
+        assert chapter_width < content_width * .8, (chapter_width, content_width)
+        region_styles = flat_surface_styles(page, '.lexiconRegionCard')
+        assert all(item['radius'] == '0px' and item['bg'] == 'rgba(0, 0, 0, 0)' and item['height'] <= 70 for item in region_styles), region_styles
+        assert_touch_targets(page, '.lexiconRegionCard:visible, #wordsChapterSelect:visible, .flowNav button:visible, .iconbtn:visible')
         page.screenshot(path=str(OUT/'lexicon-01-home-375x812.png'),full_page=True)
 
         page.locator('[data-lexicon-region="market-town"]').click()
@@ -81,6 +92,8 @@ try:
         # 價值 belongs to a future stage, so the Chinese word itself must not leak yet.
         assert '價值' not in page.locator('#wordsContent').inner_text()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        group_styles = flat_surface_styles(page, '.lexiconGroupCard')
+        assert group_styles and all(item['radius'] == '0px' and item['bg'] == 'rgba(0, 0, 0, 0)' for item in group_styles), group_styles
         assert_touch_targets(page, '.lexiconGroupCard:visible, .lexiconAllButton:visible, .iconbtn:visible')
         page.screenshot(path=str(OUT/'lexicon-02-market-groups-375x812.png'),full_page=True)
 
@@ -88,6 +101,9 @@ try:
         comparison = page.locator('#wordsContent').inner_text()
         assert '買' in comparison and '賣' in comparison
         assert '같은 거래를 구매자 쪽에서 보면 買, 판매자 쪽에서 보면 賣' in comparison
+        assert '어떻게 다를까?' in comparison
+        compare_styles = flat_surface_styles(page, '.lexiconCompareWord')
+        assert compare_styles and all(item['radius'] == '0px' and item['bg'] == 'rgba(0, 0, 0, 0)' for item in compare_styles), compare_styles
         assert_touch_targets(page, '.lexiconCompareWord:visible, .lexiconRelated button:visible, .iconbtn:visible')
         page.screenshot(path=str(OUT/'lexicon-03-comparison-375x812.png'),full_page=True)
 
@@ -96,6 +112,9 @@ try:
         assert 'ㄇㄞˇ' in detail and '사다, 구입하다' in detail
         assert '我買了一份菜。' in detail and '나는 채소 한 몫을 샀다.' in detail
         assert '장터 · 오늘 저녁거리' in detail
+        assert '이것도 참고하자' in detail
+        detail_sections = flat_surface_styles(page, '.lexiconWordDetail section')
+        assert detail_sections and all(item['radius'] == '0px' and item['bg'] == 'rgba(0, 0, 0, 0)' for item in detail_sections), detail_sections
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         page.screenshot(path=str(OUT/'lexicon-04-word-detail-375x812.png'),full_page=True)
 
@@ -106,6 +125,8 @@ try:
         assert page.locator('#lexiconSearchResults [data-lexicon-word="價值"]').count() == 0
         search.fill('ㄐㄧㄚˋㄍㄜˊ')
         assert page.locator('#lexiconSearchResults [data-lexicon-word="價格"]').count() == 1
+        row_styles = flat_surface_styles(page, '.lexiconWordRow')
+        assert row_styles and all(item['radius'] == '0px' and item['bg'] == 'rgba(0, 0, 0, 0)' for item in row_styles), row_styles
         assert_touch_targets(page, '.lexiconWordRow:visible, .iconbtn:visible')
         page.screenshot(path=str(OUT/'lexicon-05-search-375x812.png'),full_page=True)
 
