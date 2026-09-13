@@ -45,6 +45,19 @@ try:
         page.goto(url)
         page.wait_for_function('!!window.GameFlow && !!window.LexiconRuntime && !!window.TacticalGame')
 
+        # The compact in-stage sheet remains useful, but can jump into the full word entry.
+        page.evaluate('TacticalGame.playStage("market-stage-4",{mode:"replay",returnTo:"journey"})')
+        page.locator('.wordbtn', has_text='買').click()
+        bridge = page.locator('[data-open-lexicon-word="買"]')
+        assert bridge.is_visible()
+        assert_touch_targets(page, '[data-open-lexicon-word="買"]:visible, .sheetactions button:visible')
+        bridge.click()
+        assert page.locator('#wordsView').is_visible()
+        assert page.locator('#wordsTitle').inner_text() == '買'
+        assert '我買了一份菜。' in page.locator('#wordsContent').inner_text()
+        page.screenshot(path=str(OUT/'lexicon-00-quick-sheet-bridge-375x812.png'),full_page=True)
+        page.evaluate('GameFlow.showJourney()')
+
         # Simulate words actually encountered in several stages. Later words must remain hidden.
         page.evaluate('''() => {
           ['stage-1','stage-3','gate-stage-1','gate-stage-3','workshop-stage-2','market-stage-4']
@@ -62,6 +75,7 @@ try:
         page.screenshot(path=str(OUT/'lexicon-01-home-375x812.png'),full_page=True)
 
         page.locator('[data-lexicon-region="market-town"]').click()
+        assert page.locator('#wordsChapterBar').is_hidden()
         assert page.locator('[data-lexicon-group="market-buy-sell"]').is_visible()
         assert page.locator('[data-lexicon-group="market-price-value"]').is_visible()
         # 價值 belongs to a future stage, so the Chinese word itself must not leak yet.
