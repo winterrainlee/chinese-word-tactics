@@ -2,8 +2,8 @@
 (() => {
   const MILESTONE = 'inn-unlocked';
   const ROOM_KEY_MILESTONE = 'market-core';
-  const ROOM_CHUNK_BASE = './images/inn/room-v0.1';
-  const ROOM_CHUNK_COUNT = 14;
+  const ROOM_CHUNK_BASE = './images/inn/room-v0.2';
+  const ROOM_CHUNK_COUNT = 3;
   let roomObjectUrl = null;
 
   const progress = () => globalThis.GameFlow?.progress?.() || {};
