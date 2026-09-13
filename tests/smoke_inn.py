@@ -1,4 +1,4 @@
-"""375x812 browser smoke for the inn room entry, raster background, and SVG hotspots."""
+"""375x812 browser smoke for preloaded inn room art and inline SVG hotspots."""
 import http.server
 import os
 from pathlib import Path
@@ -30,17 +30,29 @@ try:
         context = browser.new_context(viewport={'width': 375, 'height': 812}, device_scale_factor=1, is_mobile=True, has_touch=True)
         page = context.new_page()
         page.set_default_timeout(5000)
-        errors, missing = [], []
+        errors, missing, requests = [], [], []
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('response', lambda response: missing.append(response.url) if response.status >= 400 and 'favicon' not in response.url else None)
+        page.on('request', lambda request: requests.append(request.url))
 
         page.goto(url)
         page.wait_for_function('!!window.GameFlow && !!window.TacticalGame && !!window.WorldInn')
+
+        # Warm the room exactly as the unlocked world-map marker does.
+        page.evaluate('WorldInn.preloadRoomBackground()')
+        warm_room_requests = [item for item in requests if '/images/inn/room-v0.2/' in item]
+        assert len(warm_room_requests) == 3, warm_room_requests
+        assert not any('inn-room-hotspots.svg' in item for item in requests), requests
+
+        before_open_count = len(requests)
         page.evaluate('WorldInn.openRoom()')
         page.locator('#innRoomView').wait_for(state='visible')
         page.wait_for_function('document.querySelector("#innRoomBackdrop")?.dataset.loaded === "true"')
         page.wait_for_function('document.querySelector("#innRoomHotspots")?.dataset.loaded === "true"')
 
+        # Opening a warmed room should not start any new asset request.
+        room_requests_after_open = [item for item in requests[before_open_count:] if '/images/inn/room-v0.2/' in item or 'inn-room-hotspots.svg' in item]
+        assert room_requests_after_open == [], room_requests_after_open
         assert page.locator('#innRoomBackdrop').is_visible()
         assert page.locator('#innRoomHotspots [data-word]').count() == 4
         assert page.locator('#innRoomHotspots [data-action="leave-room"]').count() == 1
@@ -63,4 +75,4 @@ try:
 finally:
     server.shutdown()
 
-print(f'PASS: inn room browser smoke. Screenshot: {OUT / "ux-inn-room-375x812.png"}')
+print(f'PASS: preloaded inn room browser smoke. Screenshot: {OUT / "ux-inn-room-375x812.png"}')
