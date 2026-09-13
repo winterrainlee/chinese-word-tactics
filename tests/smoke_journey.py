@@ -68,7 +68,7 @@ def assert_view(page, view):
     assert page.locator('.appView:visible').count() == 1
     assert page.locator(f'#{view}View').is_visible()
 
-def finish_story(page):
+def finish_current_story(page):
     for _ in range(20):
         if not page.locator('#storyView').is_visible():
             return
@@ -153,7 +153,11 @@ def passed(name):
 
 try:
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH', '/usr/bin/chromium'), args=['--no-sandbox'])
+        executable = os.environ.get('CHROMIUM_PATH')
+        launch = {'args': ['--no-sandbox']}
+        if executable:
+            launch['executable_path'] = executable
+        browser = pw.chromium.launch(**launch)
         context = browser.new_context(viewport={'width':375,'height':812}, device_scale_factor=1, is_mobile=True, has_touch=True)
         page = context.new_page(); errors=[]; missing=[]
         page.on('pageerror', lambda error: errors.append(str(error)))
@@ -182,7 +186,7 @@ try:
         page.locator('[data-journey-filter="story"]').click()
         assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes().filter(node => node.type === "story").length')
         page.locator('#journeyContinue').click(); assert page.locator('#storyCount').inner_text()=='2 / 4'
-        finish_story(page); assert_view(page,'tutorial')
+        finish_current_story(page); assert_view(page,'tutorial')
         passed('journey filters, future locks, story exit and continuation')
         # The entire first-play campaign uses real grid taps, not direct wins.
         paths=[]
@@ -190,13 +194,13 @@ try:
             assert page.evaluate('current().id')==f'stage-{index}'
             paths.append(solve(page)); page.locator('#flowNext').click()
         assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='숲 너머의 목소리'
-        finish_story(page); assert page.locator('#storyTitle').inner_text()=='길가의 행상인'
+        finish_current_story(page); assert page.locator('#storyTitle').inner_text()=='길가의 행상인'
         assert page.locator('#storyPortrait').is_hidden()
         page.locator('#storyNext').click()
         assert page.locator('#storyPortrait').is_visible()
         assert page.locator('#storyPortrait').get_attribute('data-speaker') == 'merchant'
         page.screenshot(path=str(OUT/'merchant-story-375.png'))
-        finish_story(page); assert_view(page,'world')
+        finish_current_story(page); assert_view(page,'world')
         assert page.evaluate('GameFlow.progress().completedStages.length')==6
         assert page.evaluate('GameFlow.progress().seenStories.length')==3
         passed(f'first-play: departure → six solved stages {paths} → two stories → world')
@@ -231,7 +235,7 @@ try:
         assert page.locator('#worldPlaceGo').is_visible()
         page.locator('#worldPlaceGo').click()
         assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='관문에 도착하다'
-        finish_story(page); assert_view(page,'tutorial'); assert page.evaluate('current().id')=='gate-stage-1'
+        finish_current_story(page); assert_view(page,'tutorial'); assert page.evaluate('current().id')=='gate-stage-1'
         page.screenshot(path=str(OUT/'gate-g1-375.png'))
         cols=page.evaluate('current().grid[0].length')
         for idx in [27,22,17,22,27]: page.locator('#grid .cell').nth(idx).click()
@@ -244,7 +248,8 @@ try:
         for idx in [18,17,22,27]: page.locator('#grid .cell').nth(idx).click()
         page.locator('#flowNext').wait_for(state='visible'); assert page.evaluate('state.exited')
         page.locator('#flowNext').click(); assert page.locator('#storyTitle').inner_text()=='관문에 울린 종소리'
-        finish_story(page); assert_view(page,'world')
+        finish_current_story(page); assert_view(page,'story')
+        assert page.locator('#storyTitle').inner_text()=='종소리는 어디까지 들릴까'
         assert page.evaluate('GameFlow.progress().completedStages.length')==7
         assert page.evaluate('GameFlow.progress().seenStories.length')==5
         page.evaluate('GameFlow.showJourney()')
@@ -252,7 +257,7 @@ try:
         gate_story_count = page.evaluate('JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(section => section.id === "gate-town").sequence.filter(node => node.type === "story").length')
         assert '스테이지 1/7' in gate_progress and f'이야기 2/{gate_story_count}' in gate_progress
         page.evaluate('GameFlow.showWorld()')
-        passed('gate-town G1: region choice → story → enter/inspect/exit → story → world')
+        passed('gate-town G1: region choice → story → enter/inspect/exit → next story')
         before=page.evaluate('localStorage.getItem("'+KEY+'")'); legacy_before=page.evaluate('localStorage.getItem("'+LEGACY+'")')
         page.evaluate('GameFlow.showJourney()'); page.locator('[data-journey-filter="all"]').click()
         page.screenshot(path=str(OUT/'journey-375.png'),full_page=True)

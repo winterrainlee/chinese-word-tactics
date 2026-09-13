@@ -57,12 +57,26 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_ux.py
 
+      - name: Run journey browser regression
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/journey-screenshots
+        run: python tests/smoke_journey.py
+
       - name: Upload UX screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ux-screenshots
           path: ${{ runner.temp }}/ux-screenshots
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload journey screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: journey-screenshots
+          path: ${{ runner.temp }}/journey-screenshots
           if-no-files-found: ignore
           retention-days: 7
 
