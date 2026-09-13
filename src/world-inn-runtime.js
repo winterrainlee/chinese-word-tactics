@@ -34,7 +34,8 @@
       <p id="innRoomHint" class="innRoomHint">눈에 들어오는 물건을 눌러봐.</p>
     `;
     document.getElementById('app')?.appendChild(view);
-    view.querySelector('#innRoomBack').onclick = () => globalThis.GameFlow?.showWorld?.();
+    const back = view.querySelector('#innRoomBack');
+    if (back) back.onclick = () => globalThis.GameFlow?.showWorld?.();
     return view;
   }
 
@@ -59,7 +60,7 @@
       };
       image.src = roomObjectUrl;
     } catch (error) {
-      loading.textContent = '방 그림을 불러오지 못했어.';
+      if (loading) loading.textContent = '방 그림을 불러오지 못했어.';
       console.warn('여관 방 배경을 불러오지 못했어.', error);
     }
   }
@@ -74,7 +75,8 @@
       '箱子': 'ㄒㄧㄤ ㄗ˙'
     }[word] || '';
     globalThis.TacticalGame?.openSheet?.(`<h2 lang="zh-Hant">${word}</h2><div class="pinyin">${pronunciation}</div><div class="meaning">${ko}</div><div class="tiny">여관 방에서 발견한 생활 단어</div><div class="sheetactions"><button id="innRoomWordClose">닫기</button></div>`);
-    document.getElementById('innRoomWordClose')?.addEventListener('click', () => globalThis.TacticalGame?.closeSheet?.());
+    const close = document.getElementById('innRoomWordClose');
+    if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
   }
 
   function bindHotspot(group) {
@@ -128,8 +130,10 @@
       ? '<strong>방 열쇠</strong><br>여관 주인이 남는 방 하나를 맡겨 두었어. 화려하진 않지만, 이제 소년이 돌아와 자기 물건을 둘 수 있는 자리야.'
       : '<strong>지금은</strong><br>장터 일을 더 둘러봐도 괜찮아. 여관 주인이 빈방 하나를 남겨 두었어.';
     globalThis.TacticalGame?.openSheet?.(`<h2>여관</h2><div class="regionSheetNameZh">客棧</div><div class="meaning">${meaning}</div><div class="worldInnPlaceState${roomKey ? ' has-room-key' : ''}">${state}</div><div class="gamerule">${detail}</div><div class="sheetactions"><button class="secondary" id="worldInnClose">닫기</button><button id="worldInnEnter">들어가기</button></div>`);
-    document.getElementById('worldInnClose')?.addEventListener('click', () => globalThis.TacticalGame?.closeSheet?.());
-    document.getElementById('worldInnEnter')?.addEventListener('click', openRoom);
+    const close = document.getElementById('worldInnClose');
+    if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
+    const enter = document.getElementById('worldInnEnter');
+    if (enter) enter.onclick = openRoom;
   }
 
   function createMarker() {
