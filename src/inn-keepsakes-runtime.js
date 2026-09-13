@@ -97,7 +97,6 @@
   const app = document.getElementById('app');
   if (app) {
     new MutationObserver(syncVisibleRoom).observe(app, {
-      childList: true,
       subtree: true,
       attributes: true,
       attributeFilter: ['hidden']
