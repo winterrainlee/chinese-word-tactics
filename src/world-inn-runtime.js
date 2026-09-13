@@ -119,7 +119,7 @@
       '椅子': 'ㄧˇ ㄗ˙',
       '箱子': 'ㄒㄧㄤ ㄗ˙'
     }[word] || '';
-    globalThis.TacticalGame?.openSheet?.(`<h2 lang="zh-Hant">${word}</h2><div class="pinyin">${pronunciation}</div><div class="meaning">${ko}</div><div class="tiny">여관 방에서 발견한 생활 단어</div><div class="sheetactions"><button id="innRoomWordClose">닫기</button></div>`);
+    globalThis.TacticalGame?.openSheet?.(`<h2 lang="zh-Hant">${word}</h2><div class="pinyin">${pronunciation}</div><div class="meaning">${ko}</div><div class="sheetactions"><button id="innRoomWordClose">닫기</button></div>`);
     const close = document.getElementById('innRoomWordClose');
     if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
   }
