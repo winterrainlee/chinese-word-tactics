@@ -20,17 +20,27 @@
 
   function ensureActions() {
     const continueButton = $('journeyContinue');
-    let actions = $('journeyActions');
-    if (!actions) {
-      actions = make('div', 'journeyActions'); actions.id = 'journeyActions';
-      continueButton.before(actions); actions.append(continueButton);
+    const root = $('journeyList');
+
+    const legacyActions = $('journeyActions');
+    if (legacyActions) {
+      legacyActions.before(continueButton);
+      legacyActions.remove();
     }
+
     let reset = $('journeyReset');
     if (!reset) {
       reset = make('button', 'journeyReset', '여정 초기화');
       reset.id = 'journeyReset'; reset.type = 'button'; reset.onclick = () => GameFlow.resetJourney();
     }
-    if (reset.parentElement !== actions) actions.append(reset);
+
+    let resetRow = $('journeyResetRow');
+    if (!resetRow) {
+      resetRow = make('div', 'journeyResetRow');
+      resetRow.id = 'journeyResetRow';
+    }
+    if (reset.parentElement !== resetRow) resetRow.append(reset);
+    if (root.nextElementSibling !== resetRow) root.after(resetRow);
   }
 
   function chapterDisplay(chapter) {
@@ -50,7 +60,7 @@
     return { title: chapter.titleKo, meta: chapter.tag || '' };
   }
 
-  function appendTimeline(container, section, progress) {
+  function appendTimeline(container, section, progress, recommendedId) {
     const list = make('ol', 'journeyTimeline');
     for (const node of section.sequence) {
       if (filter !== 'all' && filter !== node.type) continue;
@@ -62,6 +72,7 @@
       const button = make('button', 'journeyNode');
       button.type = 'button'; button.disabled = !open; button.dataset.nodeId = id;
       button.dataset.state = done ? 'complete' : open ? 'available' : 'locked';
+      button.dataset.current = String(id === recommendedId);
       const labels = [make('span', 'journeyType', node.type === 'story' ? '이야기' : '스테이지'),
         make('strong', 'journeyNodeTitle', open ? title : '???')];
       if (open && node.type === 'stage') labels.push(make('span', 'journeyNodeTerms', content.title.replaceAll('・', ' · ')));
@@ -75,7 +86,7 @@
     if (list.children.length) container.append(list);
   }
 
-  function appendRegion(chapterBody, chapter, section, progress) {
+  function appendRegion(chapterBody, chapter, section, progress, recommendedId) {
     const region = WORLD.regions.find(r => r.id === section.regionId);
     if (!region) return;
 
@@ -104,7 +115,7 @@
     if (!section.sequence.length) {
       regionBody.append(make('p', 'journeyRegionEmpty', '의뢰 준비 중'));
     } else {
-      appendTimeline(regionBody, section, progress);
+      appendTimeline(regionBody, section, progress, recommendedId);
     }
     regionDetails.append(regionBody);
     chapterBody.append(regionDetails);
@@ -116,6 +127,7 @@
     const allNodes = JourneyProgress.nodes();
     const implementedStages = allNodes.filter(n => n.type === 'stage');
     const recommended = JourneyProgress.recommendedNode(progress);
+    const recommendedId = recommended ? JourneyProgress.nodeId(recommended) : null;
     $('journeyContinue').textContent = recommended ? '이어서 여행하기' : '월드맵으로';
     $('journeySummary').textContent = `스테이지 ${implementedStages.filter(n => JourneyProgress.isComplete(n, progress)).length}/${implementedStages.length} · 이야기 ${Object.keys(JourneyContent.STORIES).filter(id => progress.seenStories.includes(id)).length}/${Object.keys(JourneyContent.STORIES).length}`;
     document.querySelectorAll('[data-journey-filter]').forEach(button => {
@@ -138,11 +150,11 @@
       const chapterBody = make('div', 'journeyChapterBody');
       for (const section of chapter.sections) {
         if (section.regionId) {
-          appendRegion(chapterBody, chapter, section, progress);
+          appendRegion(chapterBody, chapter, section, progress, recommendedId);
           continue;
         }
         const directSection = make('div', 'journeySection journeySectionDirect');
-        appendTimeline(directSection, section, progress);
+        appendTimeline(directSection, section, progress, recommendedId);
         if (directSection.children.length) chapterBody.append(directSection);
       }
       chapterDetails.append(chapterBody);
