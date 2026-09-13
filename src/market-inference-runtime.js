@@ -52,7 +52,7 @@
     if (!state?.market || isConfirmed(cfg, state.market)) return;
     const location = locationFor(stage, cfg.location);
     if (!location || dist(state.hero, location.pos) !== 1) {
-      setStatus('아주머니 가까이에서 원래 수량과 이미 보낸 수량을 다시 확인해봐.', 'info');
+      setStatus('走近阿姨，再確認原來數量和已送出的數量。 아주머니 가까이에서 원래 수량과 이미 보낸 수량을 다시 확인해봐.', 'info');
       return;
     }
     history.push(clone(state));
