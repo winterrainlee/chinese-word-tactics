@@ -40,7 +40,12 @@
 .journeyType,.journeyNodeState{font-size:11px;color:var(--muted);line-height:1.35}.journeyType{font-weight:650}
 .journeyNode[data-state="complete"]::before{border-color:var(--accent);background:var(--accent)}.journeyNode[data-state="complete"] .journeyNodeState{color:var(--accent)}
 .journeyNode[data-state="available"]::before{border-color:var(--accent);background:var(--paper);box-shadow:0 0 0 3px var(--accent-soft)}
-.journeyNode[data-current="true"] .journeyNodeTitle{font-weight:850}.journeyNode[data-current="true"]::before{background:var(--accent)}
+
+/* The recommended unfinished node is the quiet “you are here” marker. */
+.journeyNode[data-current="true"]{background:linear-gradient(90deg,color-mix(in srgb,var(--accent-soft) 58%,transparent),transparent 88%)}
+.journeyNode[data-current="true"]::before{left:4px;top:12px;width:14px;height:14px;border:2px solid var(--accent);background:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent-soft) 74%,transparent)}
+.journeyNode[data-current="true"] .journeyNodeTitle{font-weight:900}.journeyNode[data-current="true"] .journeyType,.journeyNode[data-current="true"] .journeyNodeState{color:var(--accent);font-weight:800}
+
 .journeyNode[data-state="locked"]{background:transparent;border:0;color:var(--muted);opacity:.72}.journeyNode[data-state="locked"]::before{background:var(--bg);border-color:color-mix(in srgb,var(--muted) 48%,var(--line))}
 .journeyNode:disabled{cursor:default}
 
