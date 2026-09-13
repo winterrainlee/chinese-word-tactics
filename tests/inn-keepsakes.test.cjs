@@ -85,11 +85,12 @@ test('all earned keepsakes can share the inn room without inventing a new save k
   assert.match(runtime, /seenStories/);
   assert.match(runtime, /stageOutcomes/);
   assert.match(runtime, /GUIDE_STORY_ID = 'gate-after-convoy'/);
+  assert.doesNotMatch(runtime, /소년이 여행 중 실제로 받아 방에 남겨 둔 물건/);
   assert.match(css, /\.innDeskKeepsakes\{position:absolute;inset:0/);
   assert.match(css, /\.innDeskKeepsake\.guide-plaque/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque/);
   assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes4/);
-  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes4/);
+  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes5/);
 });
 
 test('travel passes live on the clothes chest, guide plaque on the wall, repair plaque on the desk', () => {
