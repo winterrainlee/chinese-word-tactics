@@ -96,7 +96,9 @@
 
   const app = document.getElementById('app');
   if (app) {
-    new MutationObserver(syncVisibleRoom).observe(app, {
+    new MutationObserver(records => {
+      if (records.some(record => record.target?.id === 'innRoomView')) syncVisibleRoom();
+    }).observe(app, {
       subtree: true,
       attributes: true,
       attributeFilter: ['hidden']
