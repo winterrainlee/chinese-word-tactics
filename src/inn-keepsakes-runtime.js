@@ -2,6 +2,7 @@
 (() => {
   const ROUTE_STORY_ID = 'gate-after-route';
   const ROUTE_STAGE_ID = 'gate-stage-3';
+  const GUIDE_STORY_ID = 'gate-after-convoy';
   const WORKSHOP_STORY_ID = 'workshop-finale';
 
   const progress = () => globalThis.GameFlow?.progress?.() || {};
@@ -15,14 +16,21 @@
       mark: '西',
       zh: '西哨通行牌',
       ko: '서쪽 초소 통행패',
-      note: '서쪽 길을 거쳐 북쪽 출구까지 왔다는 것을 보여주는 나무패야.'
+      note: '서쪽 초소를 지나갈 수 있다는 뜻으로 받은 실용적인 통행패야.'
     }),
     'east-pass': Object.freeze({
       id: 'east-pass',
       mark: '東',
       zh: '東哨通行牌',
       ko: '동쪽 초소 통행패',
-      note: '동쪽 길을 거쳐 북쪽 출구까지 왔다는 것을 보여주는 나무패야.'
+      note: '동쪽 초소를 지나갈 수 있다는 뜻으로 받은 실용적인 통행패야.'
+    }),
+    'guide-plaque': Object.freeze({
+      id: 'guide-plaque',
+      mark: '引',
+      zh: '貨車引路牌',
+      ko: '짐수레 길잡이패',
+      note: '길목 일을 마친 뒤, 앞으로 짐수레를 이끌고 북쪽 길을 갈 때 보여주라며 받은 길잡이패야.'
     }),
     'repair-plaque': Object.freeze({
       id: 'repair-plaque',
@@ -40,6 +48,7 @@
       if (viaIds.includes('west-post')) result.push(KEEPERS['west-pass']);
       if (viaIds.includes('east-post')) result.push(KEEPERS['east-pass']);
     }
+    if (hasSeenStory(GUIDE_STORY_ID, value)) result.push(KEEPERS['guide-plaque']);
     if (hasSeenStory(WORKSHOP_STORY_ID, value)) result.push(KEEPERS['repair-plaque']);
     return result;
   }
@@ -119,7 +128,7 @@
   setTimeout(syncVisibleRoom, 0);
 
   globalThis.InnKeepsakes = Object.freeze({
-    ROUTE_STORY_ID, ROUTE_STAGE_ID, WORKSHOP_STORY_ID, KEEPERS,
+    ROUTE_STORY_ID, ROUTE_STAGE_ID, GUIDE_STORY_ID, WORKSHOP_STORY_ID, KEEPERS,
     hasSeenStory, isPass, keepsakes, renderDeskKeepsakes, syncVisibleRoom, mutationOpensOrCreatesRoom
   });
 })();
