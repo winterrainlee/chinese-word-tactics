@@ -20,6 +20,27 @@
     } catch { return null; }
   };
   const clearPendingCompletion = () => { try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {} };
+  const hasJourneyProgress = progress => Boolean(
+    progress?.lastLocation ||
+    progress?.completedStages?.length ||
+    progress?.seenStories?.length ||
+    TacticalGame.hasSavedGame
+  );
+  function showLanding() {
+    active = null; StoryRuntime.stop(); TacticalGame.closeSheet(); TacticalGame.showView('landing');
+    const progress = store.get(), started = hasJourneyProgress(progress);
+    const lexicon = globalThis.LexiconRuntime?.snapshot?.();
+    const hasWords = !!lexicon?.discovered?.length;
+    const primary = $('landingPrimary'), secondary = $('landingSecondary');
+    primary.textContent = started ? '이어서 여행하기' : '여행 시작';
+    primary.onclick = () => started ? resume() : playStory('prologue-departure');
+    secondary.hidden = !started;
+    $('landingJourney').hidden = !started;
+    $('landingWords').hidden = !hasWords;
+    $('landingJourney').onclick = showJourney;
+    $('landingWords').onclick = showWords;
+    window.scrollTo(0, 0); return true;
+  }
   function showJourney() {
     active = null; StoryRuntime.stop(); TacticalGame.showView('journey'); JourneyRuntime.render({ focusCurrent: true });
     document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
@@ -156,26 +177,18 @@
     };
   }
   function showMenu() {
-    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button></div><div class="sheetactions"><button id="flowMenuClose">닫기</button></div>');
+    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowTitle">타이틀 화면</button></div><div class="sheetactions"><button id="flowMenuClose">닫기</button></div>');
     $('flowResume').onclick = () => resume();
     $('flowWorld').disabled = !canVisitWorld();
     if (!canVisitWorld()) $('flowWorld').textContent = '월드맵 · 숲을 빠져나오면 열려';
     $('flowWorld').onclick = showWorld; $('flowJourney').onclick = showJourney;
-    $('flowWords').onclick = showWords; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
+    $('flowWords').onclick = showWords; $('flowTitle').onclick = showLanding; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
   }
-  globalThis.GameFlow = Object.freeze({ showWorld, showJourney, playStory, playStage, continueFromNode, enterRegion,
+  globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, playStory, playStage, continueFromNode, enterRegion,
     resume, showMenu, showWords, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
   document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
   $('journeyReset')?.addEventListener('click', resetJourney);
   $('worldContinue').onclick = resume;
   $('worldBackBtn').onclick = showJourney; $('worldBackBtn').setAttribute('aria-label', '여정으로');
-  const progress = store.get();
-  if (progress.lastLocation?.view === 'world') showWorld();
-  else if (progress.lastLocation) resume();
-  else if (progress.completedStages.includes('stage-5')) showJourney();
-  else if (TacticalGame.hasSavedGame) {
-    const id = TacticalGame.stageId();
-    active = { mode: 'first-play', returnTo: 'journey', nodeId: `stage:${id}`, type: 'stage' };
-    TacticalGame.resumeStage(id, active); recordWordEncounter(id); store.locate({ view: 'tactical', nodeId: active.nodeId });
-  } else playStory('prologue-departure');
+  showLanding();
 })();

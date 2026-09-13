@@ -1,0 +1,16 @@
+.landingShell{position:relative;width:min(100%,430px);min-height:calc(100svh - max(10px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:clamp(18px,4svh,34px) 8px 18px}
+.landingHeader{text-align:center;padding-top:clamp(8px,2svh,18px)}
+.landingTitle{margin:0;font-size:clamp(32px,9.5vw,42px);font-weight:760;letter-spacing:-.055em;line-height:1.15}
+.landingSceneWrap{min-height:0;display:flex;align-items:center;justify-content:center;padding:8px 0 14px}
+.landingScene{display:block;width:min(100%,360px);height:auto;max-height:50svh;object-fit:contain}
+.landingActions{display:grid;justify-items:center;gap:13px;padding-bottom:max(4px,env(safe-area-inset-bottom))}
+.landingPrimary{width:min(100%,286px);min-height:52px;border:0;border-radius:14px;background:var(--accent);color:#fff;font-weight:800;font-size:17px;box-shadow:0 4px 14px rgba(45,98,72,.13)}
+.landingPrimary:active{transform:translateY(1px)}
+.landingPrimary:focus-visible,.landingSecondary button:focus-visible,.landingSettings:focus-visible{outline:3px solid #2c65a2;outline-offset:2px}
+.landingSecondary{min-height:44px;display:flex;align-items:center;justify-content:center;gap:13px;color:var(--muted)}
+.landingSecondary button{min-height:44px;padding:0 4px;border:0;background:transparent;color:#5f584e;font-weight:720}
+.landingSecondaryMark{font-size:12px;color:#aaa296;user-select:none}
+.landingSettings{position:absolute;top:4px;right:0}
+.landingSecondary[hidden],.landingSecondary button[hidden],.landingSettings[hidden]{display:none!important}
+@media(max-height:650px){.landingShell{padding-top:10px;padding-bottom:8px}.landingTitle{font-size:31px}.landingScene{max-height:43svh}.landingSceneWrap{padding:2px 0 7px}.landingActions{gap:7px}.landingPrimary{min-height:48px}}
+@media(prefers-reduced-motion:no-preference){.landingScene{animation:landing-arrive .45s ease-out both}.landingActions{animation:landing-arrive .35s .08s ease-out both}@keyframes landing-arrive{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}}
