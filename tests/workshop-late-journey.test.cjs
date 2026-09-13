@@ -55,6 +55,6 @@ test('W7 setup shows earned trust and finale awards repair token and first wage 
   assert.match(finaleZh, /工錢/);
   assert.match(finaleZh, /學術塔/);
   assert.match(finaleZh, /不急/);
-  assert.match(finaleKo, /수선패/);
+  assert.match(finaleKo, /공방 수리패/);
   assert.match(finaleKo, /품삯/);
 });

@@ -41,7 +41,7 @@
       { target: 'O', label: '돌 치우기', action: 'g7-clear-obstacle', priority: 100, requires: 'g7ObstacleIdentified', unless: 'g7ObstacleCleared' }
     ],
     milestone: 'gate-core',
-    story: '소년은 두 대의 수레를 이끌고 초소를 거쳐 북쪽 길에 도착했다.'
+    story: '소년의 뒤로 수레 두 대가 차례차례 줄을 맞췄다.'
   });
 
   const gate = WORLD?.regions?.find(region => region.id === 'gate-town');

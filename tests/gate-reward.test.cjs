@@ -14,7 +14,7 @@ test('G7 epilogue awards the cart guide pass with a signpost mark', () => {
   const story = S.resolve(base, { stageOutcomes: { 'gate-stage-7': { viaIds: ['west-post'] } } });
   const text = story.beats.map(beat => `${beat.zh} ${beat.ko}`).join(' ');
   assert.match(text, /貨車引路牌/);
-  assert.match(text, /푯말 기호/);
+  assert.match(text, /길표지 모양/);
   assert.equal(story.beats.filter(beat => beat.zh?.includes('貨車引路牌')).length, 2);
 });
 
@@ -25,7 +25,7 @@ test('world reward badges are tied to finishing each award story and use the sig
   assert.match(runtime, /'gate-town':\s*{[\s\S]*storyId: 'gate-after-convoy'/);
   assert.match(runtime, /'workshop-town':\s*{[\s\S]*storyId: 'workshop-finale'/);
   assert.match(runtime, /nameZh: '修繕牌'/);
-  assert.match(runtime, /nameKo: '수선패'/);
+  assert.match(runtime, /nameKo: '공방 수리패'/);
   assert.equal((runtime.match(/symbol: '🪧'/g) || []).length, 2);
   assert.match(runtime, /seenStories/);
   assert.match(runtime, /regionRewardBadge/);

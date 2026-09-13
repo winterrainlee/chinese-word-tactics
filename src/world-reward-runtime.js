@@ -11,7 +11,7 @@
       storyId: 'workshop-finale',
       symbol: '🪧',
       nameZh: '修繕牌',
-      nameKo: '수선패'
+      nameKo: '공방 수리패'
     }
   };
 

@@ -213,7 +213,7 @@
           target: true, visual: 'coupling', trackUntouched: true
         },
         {
-          id: 'hoistLink', labelZh: '右吊輪', labelKo: '오른쪽 빈 권양기', kind: 'toggle', initial: true,
+          id: 'hoistLink', labelZh: '右吊輪', labelKo: '오른쪽 빈 도르래', kind: 'toggle', initial: true,
           target: false, visual: 'coupling'
         }
       ],
@@ -265,8 +265,8 @@
           },
           'hoistLink:toggle': {
             values: {
-              'false': { text: '不用的吊輪和主軸分開了，停了下來。 빈 권양기가 주축에서 분리되어 멈췄어.', type: 'good' },
-              'true': { text: '吊輪又連接上了，開始一起轉。 빈 권양기가 다시 연결되어 같이 돌기 시작했어.', type: 'info' }
+              'false': { text: '不用的吊輪和主軸分開了，停了下來。 빈 도르래가 주축에서 분리되어 멈췄어.', type: 'good' },
+              'true': { text: '吊輪又連接上了，開始一起轉。 빈 도르래가 다시 연결되어 같이 돌기 시작했어.', type: 'info' }
             }
           }
         }
