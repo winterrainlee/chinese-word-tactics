@@ -163,7 +163,20 @@ test('inn presentation adds no save key and preserves the existing mobile marker
   assert.match(css, /worldInnKeyCharm\{[^}]*width:15px;height:18px/);
   assert.match(css, /@media\(max-width:360px\)\{\.worldInnMarker\{width:64px\}/);
   assert.match(html, /world-inn\.css\?v=20260913-innroom2/);
-  assert.match(html, /world-inn-runtime\.js\?v=20260913-innroom3/);
+  assert.match(html, /world-inn-runtime\.js\?v=20260913-innroom4/);
+});
+
+test('inn room fetch is deferred until the player interacts with the inn', () => {
+  const runtime = read('src/world-inn-runtime.js');
+  assert.match(runtime, /function preloadRoomBackground\(\)/);
+  assert.match(runtime, /fetch\(url, \{ cache: 'force-cache' \}\)/);
+  assert.doesNotMatch(runtime, /syncMarkerState\(existing, value\);\s*preloadRoomBackground\(\);/);
+  assert.match(runtime, /function openInnSheet\(\) \{\s*preloadRoomBackground\(\);/);
+  assert.match(runtime, /function openRoom\(\)[\s\S]*loadRoomBackground\(\);/);
+  assert.match(runtime, /const ROOM_HOTSPOTS_SVG = `<svg/);
+  assert.doesNotMatch(runtime, /fetch\('\.\/src\/inn-room-hotspots\.svg/);
+  for (const word of ['床', '桌子', '椅子', '箱子']) assert.match(runtime, new RegExp(`data-word="${word}"`));
+  assert.match(runtime, /data-action="leave-room"/);
 });
 
 test('room background chunks reconstruct one valid WebP payload', () => {
@@ -176,17 +189,6 @@ test('room background chunks reconstruct one valid WebP payload', () => {
   assert.equal(bytes.subarray(8, 12).toString('ascii'), 'WEBP');
   assert.equal(bytes.readUInt32LE(4) + 8, bytes.length);
   assert.ok(bytes.length > 20000);
-});
-
-test('unlocked inn preloads the room and keeps hotspots inline for warm entry', () => {
-  const runtime = read('src/world-inn-runtime.js');
-  assert.match(runtime, /function preloadRoomBackground\(\)/);
-  assert.match(runtime, /fetch\(url, \{ cache: 'force-cache' \}\)/);
-  assert.match(runtime, /syncMarkerState\(existing, value\);\s*preloadRoomBackground\(\);/);
-  assert.match(runtime, /const ROOM_HOTSPOTS_SVG = `<svg/);
-  assert.doesNotMatch(runtime, /fetch\('\.\/src\/inn-room-hotspots\.svg/);
-  for (const word of ['床', '桌子', '椅子', '箱子']) assert.match(runtime, new RegExp(`data-word="${word}"`));
-  assert.match(runtime, /data-action="leave-room"/);
 });
 
 test('room hotspot SVG source keeps the four starter objects as the editable reference', () => {
