@@ -21,7 +21,7 @@
   };
   const clearPendingCompletion = () => { try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {} };
   function showJourney() {
-    active = null; StoryRuntime.stop(); TacticalGame.showView('journey'); JourneyRuntime.render();
+    active = null; StoryRuntime.stop(); TacticalGame.showView('journey'); JourneyRuntime.render({ focusCurrent: true });
     document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
     window.scrollTo(0, 0);
   }
