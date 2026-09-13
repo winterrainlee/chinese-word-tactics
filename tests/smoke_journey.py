@@ -68,6 +68,10 @@ def assert_view(page, view):
     assert page.locator('.appView:visible').count() == 1
     assert page.locator(f'#{view}View').is_visible()
 
+def enter_from_title(page):
+    assert_view(page, 'landing')
+    page.locator('#landingPrimary').click()
+
 def finish_current_story(page):
     for _ in range(20):
         if not page.locator('#storyView').is_visible():
@@ -164,6 +168,9 @@ try:
         page.on('response', lambda response: missing.append(response.url) if response.status>=400 and 'favicon' not in response.url else None)
         page.set_default_timeout(5000)
         (page.set_content(memory_document({})) if MEMORY else page.goto(URL)); page.wait_for_function('!!window.GameFlow')
+        assert_view(page,'landing'); assert page.locator('#landingTitle').inner_text()=='따라온 단어들'
+        assert page.locator('#landingPrimary').inner_text()=='여행 시작'; assert page.locator('#landingSettings').is_hidden()
+        enter_from_title(page)
         assert_view(page,'story'); assert page.locator('#storyKo').is_hidden(); assert page.locator('#storySkip').is_hidden()
         assert page.locator('#storyPortrait').is_hidden()
         page.locator('#storyTranslate').click(); assert page.locator('#storyKo').is_visible()
@@ -172,9 +179,10 @@ try:
         assert page.locator('#storyPortrait').is_visible()
         assert page.locator('#storyPortrait').get_attribute('data-speaker') == 'boy'
         page.locator('#storyPrev').click(); assert page.locator('#storyCount').inner_text()=='1 / 4'
-        page.locator('#storyNext').click(); page=reload_app(page, context); assert page.locator('#storyCount').inner_text()=='2 / 4'
+        page.locator('#storyNext').click(); page=reload_app(page, context); assert page.locator('#landingPrimary').inner_text()=='이어서 여행하기'
+        enter_from_title(page); assert page.locator('#storyCount').inner_text()=='2 / 4'
         assert page.evaluate('GameFlow.progress().seenStories.length')==0
-        passed('fresh story, translation reset, previous beat and refresh resume')
+        passed('title entry, fresh story, translation reset, previous beat and refresh resume')
         page.locator('#storyMenu').click(); page.locator('#flowJourney').click(); assert_view(page,'journey')
         assert page.locator('[data-node-id="stage:stage-1"]').is_disabled()
         first_stage = page.locator('[data-node-id="stage:stage-0"]')
@@ -305,16 +313,18 @@ try:
             page.screenshot(path=str(OUT/f'story-{width}x{height}.png'))
             page.evaluate('GameFlow.showJourney()'); assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
         passed('360–390px layouts: no horizontal overflow and 44px+ story actions in viewport')
-        # Existing graduate with old-key-only data gets new stories, not a tutorial reset.
+        # Existing graduate with old-key-only data continues through the title into new stories.
         old=json.loads(legacy_before); old['completed']=[f'stage-{i}' for i in range(6)]
         page.evaluate('([k,v])=>{localStorage.clear();localStorage.setItem(k,v)}',[LEGACY,json.dumps(old)])
-        page=reload_app(page, context); assert_view(page,'journey'); assert page.evaluate('GameFlow.progress().seenStories.length')==0
-        page.locator('#journeyContinue').click(); assert page.locator('#storyTitle').inner_text()=='숲 너머의 목소리'
-        passed('old-key-only graduate keeps all clears and starts the unseen epilogue')
-        # Legacy partial campaign: replay must restore its original exact tactical position.
+        page=reload_app(page, context); assert page.locator('#landingPrimary').inner_text()=='이어서 여행하기'
+        enter_from_title(page); assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='숲 너머의 목소리'
+        assert page.evaluate('GameFlow.progress().seenStories.length')==0
+        passed('old-key-only graduate keeps all clears and continues into the unseen epilogue from title')
+        # Legacy partial campaign: title resume must restore its original exact tactical position.
         partial={'stageIndex':0,'state':{'hero':[2,1],'phase':0,'stone':False,'crossed':False,'entry':None,'turn':1},'history':[],'selected':True,'inspect':False,'completed':[]}
         page.evaluate('([k,v])=>{localStorage.clear();localStorage.setItem(k,v)}',[LEGACY,json.dumps(partial)])
-        page=reload_app(page, context); assert_view(page,'tutorial')
+        page=reload_app(page, context); assert page.locator('#landingPrimary').inner_text()=='이어서 여행하기'
+        enter_from_title(page); assert_view(page,'tutorial'); assert page.evaluate('state.hero')==[2,1]
         page.evaluate('GameFlow.showJourney()'); page.locator('[data-journey-filter="all"]').click()
         page.locator('[data-node-id="stage:stage-0"]').click(); solve(page); page.locator('#flowNext').click()
         page.locator('#journeyContinue').click(); assert page.evaluate('state.hero')==[2,1]
@@ -340,14 +350,15 @@ try:
         passed('journey reset has an explicit destructive confirmation and cancel path')
         if not MEMORY:
             page.locator('#journeyReset').click(); page.locator('#flowResetConfirm').click()
-            page.wait_for_function('!!window.GameFlow')
-            assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='고향을 떠나다'
+            page.wait_for_function('!!window.GameFlow && !document.querySelector("#landingView").hidden')
+            assert_view(page,'landing'); assert page.locator('#landingPrimary').inner_text()=='여행 시작'
             assert page.evaluate('GameFlow.progress().completedStages.length')==0
             reset_tactical = json.loads(page.evaluate('localStorage.getItem("chufa-tutorial-v03")'))
             reset_world = json.loads(page.evaluate('localStorage.getItem("chinese-word-tactics-world-v1")'))
             assert reset_tactical['completed'] == []
             assert reset_world == {'visited': [], 'completedMilestones': []}
-            passed('journey reset clears all campaign saves and restarts at P-01')
+            page.locator('#landingPrimary').click(); assert_view(page,'story'); assert page.locator('#storyTitle').inner_text()=='고향을 떠나다'
+            passed('journey reset clears all campaign saves, returns to title, and restarts at P-01')
         page.evaluate("""() => {
           Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem(){throw Error('denied')},setItem(){throw Error('full')}}});
           GameFlow.playStory('prologue-departure');
