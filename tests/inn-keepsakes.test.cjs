@@ -46,6 +46,23 @@ test('east and west passage plaques both remain visible when both were received'
   assert.deepEqual(Array.from(items, item => item.zh), ['西哨通行牌', '東哨通行牌']);
 });
 
+test('cart guide plaque appears only after the G7 reward story', () => {
+  const beforeReward = {
+    seenStories: ['gate-after-route'],
+    stageOutcomes: { 'gate-stage-3': { viaIds: ['west-post'] } }
+  };
+  assert.deepEqual(Array.from(loadKeepsakes(beforeReward).keepsakes(beforeReward), item => item.id), ['west-pass']);
+
+  const rewarded = {
+    seenStories: ['gate-after-route', 'gate-after-convoy'],
+    stageOutcomes: { 'gate-stage-3': { viaIds: ['west-post'] } }
+  };
+  const items = loadKeepsakes(rewarded).keepsakes(rewarded);
+  assert.deepEqual(Array.from(items, item => item.id), ['west-pass', 'guide-plaque']);
+  assert.equal(items[1].zh, '貨車引路牌');
+  assert.equal(items[1].ko, '짐수레 길잡이패');
+});
+
 test('workshop repair plaque appears after the workshop finale story', () => {
   const progress = { seenStories: ['workshop-finale'] };
   const items = loadKeepsakes(progress).keepsakes(progress);
@@ -55,7 +72,7 @@ test('workshop repair plaque appears after the workshop finale story', () => {
 
 test('all earned keepsakes can share the inn room without inventing a new save key', () => {
   const progress = {
-    seenStories: ['gate-after-route', 'workshop-finale'],
+    seenStories: ['gate-after-route', 'gate-after-convoy', 'workshop-finale'],
     stageOutcomes: { 'gate-stage-3': { viaIds: ['east-post'] } }
   };
   const runtime = read('src/inn-keepsakes-runtime.js');
@@ -63,22 +80,25 @@ test('all earned keepsakes can share the inn room without inventing a new save k
   const html = read('index.html');
   const items = loadKeepsakes(progress).keepsakes(progress);
 
-  assert.deepEqual(Array.from(items, item => item.id), ['east-pass', 'repair-plaque']);
+  assert.deepEqual(Array.from(items, item => item.id), ['east-pass', 'guide-plaque', 'repair-plaque']);
   assert.doesNotMatch(runtime, /localStorage|setItem|removeItem/);
   assert.match(runtime, /seenStories/);
   assert.match(runtime, /stageOutcomes/);
+  assert.match(runtime, /GUIDE_STORY_ID = 'gate-after-convoy'/);
   assert.match(css, /\.innDeskKeepsakes\{position:absolute;inset:0/);
+  assert.match(css, /\.innDeskKeepsake\.guide-plaque/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque/);
-  assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes3/);
-  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes3/);
+  assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes4/);
+  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes4/);
 });
 
-test('pass plaques live on the bed wall while the repair plaque stays on the desk', () => {
+test('travel passes live on the clothes chest, guide plaque on the wall, repair plaque on the desk', () => {
   const css = read('src/inn-keepsakes.css');
   const runtime = read('src/inn-keepsakes-runtime.js');
-  assert.match(css, /\.innDeskKeepsake\.west-pass\{left:39%;top:23%/);
-  assert.match(css, /\.innDeskKeepsake\.east-pass\{left:47%;top:24%/);
-  assert.match(css, /\.innDeskKeepsake\.pass-single\{left:43%;top:23\.5%/);
+  assert.match(css, /\.innDeskKeepsake\.west-pass\{left:16\.5%;top:49\.2%/);
+  assert.match(css, /\.innDeskKeepsake\.east-pass\{left:21%;top:50%/);
+  assert.match(css, /\.innDeskKeepsake\.pass-single\{left:18\.7%;top:49\.6%/);
+  assert.match(css, /\.innDeskKeepsake\.guide-plaque\{left:43%;top:23\.5%/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque\{left:84%;top:34\.5%/);
   assert.match(runtime, /const passCount = items\.filter\(isPass\)\.length/);
   assert.match(runtime, /passCount === 1/);
