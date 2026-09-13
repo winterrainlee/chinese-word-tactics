@@ -163,7 +163,7 @@ test('inn presentation adds no save key and preserves the existing mobile marker
   assert.match(css, /worldInnKeyCharm\{[^}]*width:15px;height:18px/);
   assert.match(css, /@media\(max-width:360px\)\{\.worldInnMarker\{width:64px\}/);
   assert.match(html, /world-inn\.css\?v=20260913-innroom2/);
-  assert.match(html, /world-inn-runtime\.js\?v=20260913-innroom4/);
+  assert.match(html, /world-inn-runtime\.js\?v=20260913-innroom5/);
 });
 
 test('inn room fetch is deferred until the player interacts with the inn', () => {
@@ -175,6 +175,7 @@ test('inn room fetch is deferred until the player interacts with the inn', () =>
   assert.match(runtime, /function openRoom\(\)[\s\S]*loadRoomBackground\(\);/);
   assert.match(runtime, /const ROOM_HOTSPOTS_SVG = `<svg/);
   assert.doesNotMatch(runtime, /fetch\('\.\/src\/inn-room-hotspots\.svg/);
+  assert.doesNotMatch(runtime, /여관 방에서 발견한 생활 단어/);
   for (const word of ['床', '桌子', '椅子', '箱子']) assert.match(runtime, new RegExp(`data-word="${word}"`));
   assert.match(runtime, /data-action="leave-room"/);
 });
