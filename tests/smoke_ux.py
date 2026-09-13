@@ -67,6 +67,14 @@ try:
         page.on('response', lambda response: missing.append(response.url) if response.status >= 400 and 'favicon' not in response.url else None)
         page.goto(url); page.wait_for_function('!!window.GameFlow && !!window.TacticalGame && !!window.UXPlay')
 
+        assert page.locator('#landingView').is_visible() and not page.locator('#tutorialView').is_visible()
+        assert page.locator('#landingTitle').inner_text() == '따라온 단어들'
+        assert page.locator('#landingPrimary').inner_text() == '여행 시작'
+        assert page.locator('.landingScene').is_visible()
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        assert_touch_targets(page, '#landingPrimary:visible')
+        page.screenshot(path=str(OUT/'ux-00-title-375x812.png'),full_page=True)
+
         page.evaluate('TacticalGame.playStage("gate-stage-1",{mode:"replay",returnTo:"journey"})')
         layout = visible_layout(page); assert_tactical_viewport(layout)
         assert layout['goal']['height'] <= 72, layout
@@ -136,7 +144,11 @@ try:
             assert len(stories)>1,(region,stories); assert all(not flag for _,flag in stories[:-1]),(region,stories); assert stories[-1][1] is True,(region,stories)
         print('UX_REGION_FLOW',json.dumps(flow_flags,ensure_ascii=False),flush=True)
 
-        page.evaluate('localStorage.clear(); location.reload()'); page.wait_for_function('!!window.GameFlow && !!window.UXPlay && document.querySelector("#storyView") && !document.querySelector("#storyView").hidden')
+        page.evaluate('localStorage.clear(); location.reload()')
+        page.wait_for_function('!!window.GameFlow && !!window.UXPlay && document.querySelector("#landingView") && !document.querySelector("#landingView").hidden')
+        assert page.locator('#landingPrimary').inner_text() == '여행 시작'
+        page.locator('#landingPrimary').click()
+        page.wait_for_function('document.querySelector("#storyView") && !document.querySelector("#storyView").hidden')
         while page.locator('#storyView').is_visible():
             label=page.locator('#storyNext').inner_text()
             if label=='스테이지 시작': break
@@ -152,7 +164,10 @@ try:
         assert page.evaluate('JSON.parse(localStorage.getItem("chinese-word-tactics-pending-completion-v1")).stageId')=='stage-0'
         page.screenshot(path=str(OUT/'ux-11-stage0-complete-before-refresh-375x812.png'),full_page=True)
 
-        page.reload(); page.wait_for_function('!!window.GameFlow && !!window.UXPlay && !document.querySelector("#tutorialView").hidden')
+        page.reload(); page.wait_for_function('!!window.GameFlow && !!window.UXPlay && document.querySelector("#landingView") && !document.querySelector("#landingView").hidden')
+        assert page.locator('#landingPrimary').inner_text() == '이어서 여행하기'
+        page.locator('#landingPrimary').click()
+        page.wait_for_function('document.querySelector("#tutorialView") && !document.querySelector("#tutorialView").hidden')
         assert page.evaluate('current().id')=='stage-0' and page.locator('#completionBar').is_visible()
         assert page.locator('#status').evaluate('(el)=>el.classList.contains("good")')
         assert page.evaluate('JSON.parse(localStorage.getItem("chinese-word-tactics-pending-completion-v1")).stageId')=='stage-0'
