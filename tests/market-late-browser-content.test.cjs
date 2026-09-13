@@ -37,14 +37,15 @@ test('market state visuals keep inspected stock and need counts on the board and
 
 test('index loads market, lexicon, continuous flow, state visuals and UX layers in dependency order', () => {
   const html = read('index.html');
-  const market = html.indexOf('./src/market-content.js'), late = html.indexOf('./src/market-late-content.js'), lexiconContent = html.indexOf('./src/lexicon-content.js'), journey = html.indexOf('./src/journey-content.js'), marketJourney = html.indexOf('./src/market-journey-content.js'), lateJourney = html.indexOf('./src/market-late-journey-content.js'), continuous = html.indexOf('./src/continuous-region-flow.js'), progress = html.indexOf('./src/journey-progress.js'), baseOutcome = html.indexOf('./src/story-outcome-content.js'), marketOutcome = html.indexOf('./src/market-story-outcome-content.js'), storyRuntime = html.indexOf('./src/story-runtime.js'), appRuntime = html.indexOf('./src/app.js'), lexiconRuntime = html.indexOf('./src/lexicon-runtime.js'), marketRuntime = html.indexOf('./src/market-runtime.js'), marketVisuals = html.indexOf('./src/market-state-visuals.js'), flowRuntime = html.indexOf('./src/flow-runtime.js'), uxRuntime = html.indexOf('./src/ux-play-runtime.js');
+  const market = html.indexOf('./src/market-content.js'), late = html.indexOf('./src/market-late-content.js'), lexiconContent = html.indexOf('./src/lexicon-content.js'), journey = html.indexOf('./src/journey-content.js'), marketJourney = html.indexOf('./src/market-journey-content.js'), lateJourney = html.indexOf('./src/market-late-journey-content.js'), continuous = html.indexOf('./src/continuous-region-flow.js'), progress = html.indexOf('./src/journey-progress.js'), baseOutcome = html.indexOf('./src/story-outcome-content.js'), marketOutcome = html.indexOf('./src/market-story-outcome-content.js'), storyRuntime = html.indexOf('./src/story-runtime.js'), appRuntime = html.indexOf('./src/app.js'), lexiconRuntime = html.indexOf('./src/lexicon-runtime.js'), marketRuntime = html.indexOf('./src/market-runtime.js'), marketVisuals = html.indexOf('./src/market-state-visuals.js'), marketInference = html.indexOf('./src/market-inference-runtime.js'), flowRuntime = html.indexOf('./src/flow-runtime.js'), uxRuntime = html.indexOf('./src/ux-play-runtime.js');
   assert.ok(market < late && late < lexiconContent && lexiconContent < journey);
   assert.ok(marketJourney < lateJourney && lateJourney < continuous && continuous < progress);
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
   assert.ok(appRuntime < lexiconRuntime && lexiconRuntime < marketRuntime);
-  assert.ok(marketRuntime < marketVisuals && marketVisuals < flowRuntime && flowRuntime < uxRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-13-landing1"/);
+  assert.ok(marketRuntime < marketVisuals && marketVisuals < marketInference && marketInference < flowRuntime && flowRuntime < uxRuntime);
+  assert.match(html, /name="cwt-build" content="2026-09-13-marketm2qty1"/);
   assert.match(html, /lexicon-content\.js\?v=20260913-lexicon1/); assert.match(html, /lexicon-runtime\.js\?v=20260913-lexicon1/); assert.match(html, /lexicon\.css\?v=20260913-lexicon2/);
+  assert.match(html, /market-content\.js\?v=20260913-marketm2qty1/); assert.match(html, /market-inference-runtime\.js\?v=20260913-marketm2qty1/);
   assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/); assert.match(html, /market-runtime\.js\?v=20260912-marketm8r3/); assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/); assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/); assert.match(html, /continuous-region-flow\.js\?v=20260912-uxflow1/); assert.match(html, /ux-play-runtime\.js\?v=20260912-uxflow3/);
 });
 
