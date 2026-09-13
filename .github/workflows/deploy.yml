@@ -57,6 +57,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_ux.py
 
+      - name: Run mobile lexicon browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_lexicon.py
+
       - name: Run journey browser regression
         env:
           TEST_OUTPUT: ${{ runner.temp }}/journey-screenshots
