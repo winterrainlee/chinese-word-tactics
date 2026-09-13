@@ -57,6 +57,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_ux.py
 
+      - name: Run inn room browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_inn.py
+
       - name: Run mobile lexicon browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
