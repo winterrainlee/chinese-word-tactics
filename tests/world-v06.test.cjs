@@ -106,8 +106,8 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
   assert.match(html, /world-runtime\.js\?v=20260911-townarrival1/);
-  assert.match(html, /journey\.css\?v=20260911-journeytree1/);
-  assert.match(html, /journey-runtime\.js\?v=20260911-journeytree1/);
+  assert.match(html, /journey\.css\?v=20260913-journey2/);
+  assert.match(html, /journey-runtime\.js\?v=20260913-journey2/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);
 
   const runtime = read('src/world-runtime.js');
@@ -138,7 +138,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(reset, /regionCard::before/);
 });
 
-test('journey view uses collapsible chapters, collapsible regions, and visible hierarchy indentation', () => {
+test('journey view keeps collapsible hierarchy while presenting events as a flat timeline', () => {
   const runtime = read('src/journey-runtime.js');
   assert.match(runtime, /collapsedChapters/);
   assert.match(runtime, /collapsedRegions/);
@@ -150,8 +150,10 @@ test('journey view uses collapsible chapters, collapsible regions, and visible h
   assert.match(runtime, /journeyRegionBody/);
 
   const css = read('src/journey.css');
-  assert.match(css, /journeyChapterBody\{[^}]*padding:[^}]*14px[^}]*border-left:2px solid/);
-  assert.match(css, /journeyRegionBody\{[^}]*padding:[^}]*14px[^}]*border-left:1px solid/);
+  assert.match(css, /journeyChapterBody\{[^}]*margin:[^}]*24px[^}]*border-left:0/);
+  assert.match(css, /journeyRegionBody\{[^}]*padding:0;[^}]*border-left:0/);
+  assert.match(css, /journeyTimeline>li::before/);
+  assert.match(css, /journeyNode\{[^}]*border:0;[^}]*border-radius:0;[^}]*background:transparent/);
   assert.match(css, /journeyChapter\[open\]>\.journeyChapterSummary::before/);
   assert.match(css, /journeyRegion\[open\]>\.journeyRegionSummary::before/);
 });
