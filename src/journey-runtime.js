@@ -104,7 +104,7 @@
     if (list.children.length) container.append(list);
   }
 
-  function appendRegion(chapterBody, chapter, section, progress, recommendedId, current) {
+  function appendRegion(chapterBody, chapter, section, progress, recommendedId, current, forceCurrentOpen) {
     const region = WORLD.regions.find(r => r.id === section.regionId);
     if (!region) return;
 
@@ -115,7 +115,7 @@
 
     const regionDetails = make('details', 'journeyRegion');
     const regionKey = `${chapter.id}:${section.id}`;
-    rememberDisclosure(regionDetails, regionKey, collapsedRegions, current.sectionId === section.id);
+    rememberDisclosure(regionDetails, regionKey, collapsedRegions, forceCurrentOpen && current.sectionId === section.id);
 
     const summary = make('summary', 'journeyRegionSummary');
     const names = make('span', 'journeyRegionHead');
@@ -156,6 +156,7 @@
     const recommended = JourneyProgress.recommendedNode(progress);
     const recommendedId = recommended ? JourneyProgress.nodeId(recommended) : null;
     const current = currentLocation(recommendedId);
+    const forceCurrentOpen = Boolean(options.focusCurrent && recommendedId);
     $('journeyContinue').textContent = recommended ? '이어서 여행하기' : '월드맵으로';
     $('journeySummary').textContent = `스테이지 ${implementedStages.filter(n => JourneyProgress.isComplete(n, progress)).length}/${implementedStages.length} · 이야기 ${Object.keys(JourneyContent.STORIES).filter(id => progress.seenStories.includes(id)).length}/${Object.keys(JourneyContent.STORIES).length}`;
     document.querySelectorAll('[data-journey-filter]').forEach(button => {
@@ -165,7 +166,7 @@
     for (const chapter of JourneyContent.JOURNEY) {
       const chapterDetails = make('details', 'journeyChapter');
       chapterDetails.dataset.chapterId = chapter.id;
-      rememberDisclosure(chapterDetails, chapter.id, collapsedChapters, current.chapterId === chapter.id);
+      rememberDisclosure(chapterDetails, chapter.id, collapsedChapters, forceCurrentOpen && current.chapterId === chapter.id);
 
       const display = chapterDisplay(chapter);
       const summary = make('summary', 'journeyChapterSummary');
@@ -178,7 +179,7 @@
       const chapterBody = make('div', 'journeyChapterBody');
       for (const section of chapter.sections) {
         if (section.regionId) {
-          appendRegion(chapterBody, chapter, section, progress, recommendedId, current);
+          appendRegion(chapterBody, chapter, section, progress, recommendedId, current, forceCurrentOpen);
           continue;
         }
         const directSection = make('div', 'journeySection journeySectionDirect');
@@ -188,7 +189,7 @@
       chapterDetails.append(chapterBody);
       root.append(chapterDetails);
     }
-    if (options.focusCurrent && recommendedId) focusCurrentNode();
+    if (forceCurrentOpen) focusCurrentNode();
   }
 
   document.querySelectorAll('[data-journey-filter]').forEach(button => {
