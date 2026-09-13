@@ -4,13 +4,67 @@
   const ROOM_KEY_MILESTONE = 'market-core';
   const ROOM_CHUNK_BASE = './images/inn/room-v0.2';
   const ROOM_CHUNK_COUNT = 3;
+  const ROOM_HOTSPOTS_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1536" role="img" aria-label="침대, 책상, 의자, 옷상자, 문을 위한 상호작용 레이어">
+    <defs><filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2d241c" flood-opacity="0.28"/></filter></defs>
+    <g fill="none" stroke="none" class="inn-room-hotspots">
+      <g id="hotspot-bed" data-word="床" data-ko="침대" tabindex="0" role="button" aria-label="침대, 床"><rect x="58" y="430" width="410" height="395" rx="28" fill="transparent"/><circle cx="278" cy="642" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/><path d="M261 650v-16m34 16v-16M260 638h36v12h-36zM263 632v-8h12v8m9 0v-8h10v8" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="hotspot-desk" data-word="桌子" data-ko="책상" tabindex="0" role="button" aria-label="책상, 桌子"><rect x="636" y="440" width="290" height="300" rx="24" fill="transparent"/><circle cx="785" cy="570" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/><path d="M767 562h36M771 562v20m28-20v20m-22-20v8h16v-8" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="hotspot-chair" data-word="椅子" data-ko="의자" tabindex="0" role="button" aria-label="의자, 椅子"><rect x="690" y="520" width="220" height="250" rx="24" fill="transparent"/><circle cx="815" cy="690" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/><path d="M804 676v28m22-28v28m-22-16h22m-18-20v20m14-20v20m-14-20h14" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="hotspot-chest" data-word="箱子" data-ko="상자" tabindex="0" role="button" aria-label="옷상자, 箱子"><rect x="48" y="700" width="300" height="330" rx="28" fill="transparent"/><circle cx="190" cy="865" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/><path d="M172 861h36v17h-36zM176 854h28l4 7h-36zM190 861v17" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="hotspot-door" data-action="leave-room" tabindex="0" role="button" aria-label="방에서 나가기"><rect x="888" y="520" width="136" height="1016" rx="28" fill="transparent"/><circle cx="938" cy="830" r="28" fill="#f3ebdd" fill-opacity="0.92" stroke="#6d5640" stroke-width="2" filter="url(#softShadow)"/><path d="M929 819l18 11-18 11M947 830h-25" stroke="#55473b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+  </svg>`;
+
   let roomObjectUrl = null;
+  let roomAssetPromise = null;
 
   const progress = () => globalThis.GameFlow?.progress?.() || {};
   const hasMilestone = (milestone, value = progress()) =>
     Array.isArray(value.completedMilestones) && value.completedMilestones.includes(milestone);
   const unlocked = (value = progress()) => hasMilestone(MILESTONE, value);
   const hasRoomKey = (value = progress()) => unlocked(value) && hasMilestone(ROOM_KEY_MILESTONE, value);
+
+  function roomChunkUrls() {
+    return Array.from({ length: ROOM_CHUNK_COUNT }, (_, index) => `${ROOM_CHUNK_BASE}/${String(index).padStart(2, '0')}.txt`);
+  }
+
+  async function decodeRoomObjectUrl(url) {
+    if (typeof Image !== 'function') return;
+    const preload = new Image();
+    preload.decoding = 'async';
+    preload.src = url;
+    if (typeof preload.decode === 'function') {
+      try { await preload.decode(); return; } catch {}
+    }
+    await new Promise((resolve, reject) => {
+      preload.onload = resolve;
+      preload.onerror = reject;
+    });
+  }
+
+  function preloadRoomBackground() {
+    if (roomObjectUrl) return Promise.resolve(roomObjectUrl);
+    if (roomAssetPromise) return roomAssetPromise;
+    if (typeof fetch !== 'function' || typeof atob !== 'function' || typeof Blob === 'undefined' || !globalThis.URL?.createObjectURL) {
+      return Promise.resolve(null);
+    }
+    roomAssetPromise = (async () => {
+      const responses = await Promise.all(roomChunkUrls().map(url => fetch(url, { cache: 'force-cache' })));
+      if (responses.some(response => !response.ok)) throw new Error('room image chunk request failed');
+      const parts = await Promise.all(responses.map(response => response.text()));
+      const binary = atob(parts.join('').replace(/\s+/g, ''));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      roomObjectUrl = URL.createObjectURL(new Blob([bytes], { type: 'image/webp' }));
+      await decodeRoomObjectUrl(roomObjectUrl);
+      return roomObjectUrl;
+    })().catch(error => {
+      roomAssetPromise = null;
+      console.warn('여관 방 배경을 미리 불러오지 못했어.', error);
+      return null;
+    });
+    return roomAssetPromise;
+  }
 
   function ensureRoomView() {
     let view = document.getElementById('innRoomView');
@@ -43,26 +97,17 @@
     const image = document.getElementById('innRoomBackdrop');
     const loading = document.getElementById('innRoomLoading');
     if (!image || image.dataset.loaded === 'true') return;
-    try {
-      const urls = Array.from({ length: ROOM_CHUNK_COUNT }, (_, index) => `${ROOM_CHUNK_BASE}/${String(index).padStart(2, '0')}.txt`);
-      const responses = await Promise.all(urls.map(url => fetch(url)));
-      if (responses.some(response => !response.ok)) throw new Error('room image chunk request failed');
-      const parts = await Promise.all(responses.map(response => response.text()));
-      const encoded = parts.join('').replace(/\s+/g, '');
-      const binary = atob(encoded);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      if (roomObjectUrl) URL.revokeObjectURL(roomObjectUrl);
-      roomObjectUrl = URL.createObjectURL(new Blob([bytes], { type: 'image/webp' }));
-      image.onload = () => {
-        image.dataset.loaded = 'true';
-        loading.hidden = true;
-      };
-      image.src = roomObjectUrl;
-    } catch (error) {
+    const url = await preloadRoomBackground();
+    if (!url) {
       if (loading) loading.textContent = '방 그림을 불러오지 못했어.';
-      console.warn('여관 방 배경을 불러오지 못했어.', error);
+      return;
     }
+    image.src = url;
+    if (typeof image.decode === 'function') {
+      try { await image.decode(); } catch {}
+    }
+    image.dataset.loaded = 'true';
+    if (loading) loading.hidden = true;
   }
 
   function showRoomWord(group) {
@@ -96,31 +141,25 @@
     });
   }
 
-  async function loadRoomHotspots() {
+  function loadRoomHotspots() {
     const host = document.getElementById('innRoomHotspots');
     if (!host || host.dataset.loaded === 'true') return;
-    try {
-      const response = await fetch('./src/inn-room-hotspots.svg?v=20260913-innroom1');
-      if (!response.ok) throw new Error('room hotspot SVG request failed');
-      const text = await response.text();
-      host.innerHTML = text;
-      host.dataset.loaded = 'true';
-      host.querySelectorAll('[data-word],[data-action]').forEach(bindHotspot);
-    } catch (error) {
-      console.warn('여관 방 SVG 레이어를 불러오지 못했어.', error);
-    }
+    host.innerHTML = ROOM_HOTSPOTS_SVG;
+    host.dataset.loaded = 'true';
+    host.querySelectorAll('[data-word],[data-action]').forEach(bindHotspot);
   }
 
   function openRoom() {
     ensureRoomView();
     globalThis.TacticalGame?.closeSheet?.();
     globalThis.TacticalGame?.showView?.('innRoom');
-    loadRoomBackground();
     loadRoomHotspots();
+    loadRoomBackground();
     window.scrollTo(0, 0);
   }
 
   function openInnSheet() {
+    preloadRoomBackground();
     const roomKey = hasRoomKey();
     const meaning = roomKey
       ? '장터 일을 함께 마친 뒤, 소년에게 방 열쇠가 맡겨진 생활 거점이야.'
@@ -168,6 +207,7 @@
       map.appendChild(existing);
     }
     syncMarkerState(existing, value);
+    preloadRoomBackground();
   }
 
   const map = document.getElementById('worldRegions');
@@ -176,6 +216,7 @@
   setTimeout(syncInnMarker, 0);
 
   globalThis.WorldInn = Object.freeze({
-    MILESTONE, ROOM_KEY_MILESTONE, unlocked, hasRoomKey, syncMarkerState, syncInnMarker, openInnSheet, openRoom
+    MILESTONE, ROOM_KEY_MILESTONE, unlocked, hasRoomKey, preloadRoomBackground,
+    syncMarkerState, syncInnMarker, openInnSheet, openRoom
   });
 })();
