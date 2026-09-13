@@ -207,7 +207,6 @@
       map.appendChild(existing);
     }
     syncMarkerState(existing, value);
-    preloadRoomBackground();
   }
 
   const map = document.getElementById('worldRegions');
