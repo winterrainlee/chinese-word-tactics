@@ -94,11 +94,20 @@
     renderDeskKeepsakes();
   }
 
+  function mutationOpensOrCreatesRoom(record) {
+    if (record.type === 'attributes') return record.target?.id === 'innRoomView';
+    if (record.type !== 'childList') return false;
+    return Array.from(record.addedNodes || []).some(node =>
+      node?.id === 'innRoomView' || node?.querySelector?.('#innRoomView')
+    );
+  }
+
   const app = document.getElementById('app');
   if (app) {
     new MutationObserver(records => {
-      if (records.some(record => record.target?.id === 'innRoomView')) syncVisibleRoom();
+      if (records.some(mutationOpensOrCreatesRoom)) syncVisibleRoom();
     }).observe(app, {
+      childList: true,
       subtree: true,
       attributes: true,
       attributeFilter: ['hidden']
@@ -109,6 +118,6 @@
 
   globalThis.InnKeepsakes = Object.freeze({
     ROUTE_STORY_ID, ROUTE_STAGE_ID, WORKSHOP_STORY_ID, KEEPERS,
-    hasSeenStory, keepsakes, renderDeskKeepsakes, syncVisibleRoom
+    hasSeenStory, keepsakes, renderDeskKeepsakes, syncVisibleRoom, mutationOpensOrCreatesRoom
   });
 })();
