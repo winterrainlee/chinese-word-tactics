@@ -25,7 +25,9 @@ test('journey regions and events are flat timeline records, not rounded cards', 
 
 test('journey highlights the recommended current point without changing replay logic', () => {
   assert.match(runtime, /const recommendedId = recommended \? JourneyProgress\.nodeId\(recommended\) : null/);
-  assert.match(runtime, /button\.dataset\.current = String\(id === recommendedId\)/);
+  assert.match(runtime, /const id = JourneyProgress\.nodeId\(node\), current = id === recommendedId/);
+  assert.match(runtime, /button\.dataset\.current = String\(current\)/);
+  assert.match(runtime, /aria-current', 'step'/);
   assert.match(css, /\.journeyNode\[data-current="true"\]/);
 });
 
@@ -38,6 +40,7 @@ test('journey reset is separated from the primary continue action', () => {
 });
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
-  assert.match(html, /journey\.css\?v=20260913-journey2/);
-  assert.match(html, /journey-runtime\.js\?v=20260913-journey2/);
+  assert.match(html, /journey\.css\?v=20260913-journey3/);
+  assert.match(html, /journey-runtime\.js\?v=20260913-journey3/);
+  assert.match(html, /flow-runtime\.js\?v=20260913-journeycurrent1/);
 });
