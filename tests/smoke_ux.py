@@ -139,7 +139,8 @@ try:
         assert page.locator('#grid').is_visible() and not page.locator('.controls').is_visible()
         assert_touch_targets(page,'#flowNext:visible'); page.screenshot(path=str(OUT/'ux-05-inline-completion-375x812.png'),full_page=True)
 
-        flow_flags=page.evaluate('''() => Object.fromEntries(JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId).map(section=>[section.id,section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter])]))''')
+        # Only ordinary regional chains use the multi-story handoff contract. Hidden sections are explicit place-driven flows (C06/C08).
+        flow_flags=page.evaluate('''() => Object.fromEntries(JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId && !s.hiddenFromJourney).map(section=>[section.id,section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter])]))''')
         for region, stories in flow_flags.items():
             assert len(stories)>1,(region,stories); assert all(not flag for _,flag in stories[:-1]),(region,stories); assert stories[-1][1] is True,(region,stories)
         print('UX_REGION_FLOW',json.dumps(flow_flags,ensure_ascii=False),flush=True)
