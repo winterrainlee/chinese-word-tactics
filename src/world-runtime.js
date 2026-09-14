@@ -100,6 +100,7 @@
   function showRegionInfo(region) {
     selectMarker(region.id);
     const locked = isLocked(region);
+    const complete = isComplete(region);
     const recommendation = recommendationNeeded(region) ? region.recommendation : '';
     const overview = `<div class="meaning worldPlaceSummary">${region.summary || region.note}</div>`;
     const advice = recommendation ? `<div class="gamerule worldAdvice"><strong>권장</strong><br>${recommendation}</div>` : '';
@@ -107,7 +108,7 @@
     const action = locked
       ? '<button id="worldPlaceClose">확인</button>'
       : hasJourneyContent(region)
-        ? '<button class="secondary" id="worldPlaceClose">닫기</button><button id="worldPlaceGo">이곳으로 가기</button>'
+        ? `<button class="secondary" id="worldPlaceClose">닫기</button><button id="worldPlaceGo">${complete ? '다시 연습하기' : '이곳으로 가기'}</button>`
         : '<button class="secondary" id="worldPlaceClose">닫기</button><button disabled>의뢰 준비 중</button>';
 
     globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}<div class="sheetactions">${action}</div>`);
@@ -117,6 +118,10 @@
     const go = document.getElementById('worldPlaceGo');
     if (go) go.onclick = () => {
       globalThis.TacticalGame?.closeSheet?.();
+      if (complete) {
+        globalThis.GameFlow?.showRegionPractice?.(region.id);
+        return;
+      }
       if (!globalThis.GameFlow?.enterRegion?.(region.id)) {
         globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div><p class="flowNote">지금 이어서 할 새 의뢰는 아직 준비 중이야.</p><div class="sheetactions"><button id="worldNoQuestClose">확인</button></div>`);
         const noQuestClose = document.getElementById('worldNoQuestClose');

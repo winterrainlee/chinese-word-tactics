@@ -48,7 +48,10 @@ try:
                 'gate-after-convoy', 'workshop-finale', 'market-after-m8',
                 'chapter1-inn-convergence', 'chapter1-room-finale'
             ],
-            'completedStages': ['stage-5'],
+            'completedStages': ['stage-5'] +
+                [f'gate-stage-{index}' for index in range(1, 8)] +
+                [f'workshop-stage-{index}' for index in range(1, 8)] +
+                [f'market-stage-{index}' for index in range(1, 9)],
             'completedMilestones': [
                 'inn-unlocked', 'gate-core', 'workshop-core', 'market-core', 'chapter1-complete'
             ],
@@ -269,6 +272,7 @@ try:
             'council-town': '마을 사람들이 함께 의논하는 곳이야.',
             'research-city': '오래된 기술과 기록이 모이는 탑이야.'
         }
+        completed_region_ids = {'gate-town', 'workshop-town', 'market-town'}
         for region_id, summary in place_summaries.items():
             page.locator(f'.regionCard[data-region-id="{region_id}"]').click()
             page.locator('#worldPlaceClose').wait_for(state='visible')
@@ -277,10 +281,31 @@ try:
             assert '핵심 의뢰를 완료했어' not in place_text, (region_id, place_text)
             assert page.locator('#sheet .pinyin').count() == 0, region_id
             assert page.locator('#sheet .worldPlaceState').count() == 0, region_id
+            if region_id in completed_region_ids:
+                assert page.locator('#worldPlaceGo').inner_text() == '다시 연습하기', region_id
+            else:
+                assert page.locator('#worldPlaceGo').count() == 0, region_id
+                assert page.locator('#sheet .sheetactions button:disabled').inner_text() == '의뢰 준비 중', region_id
             sheet_height = page.locator('#sheet').evaluate('(el)=>el.getBoundingClientRect().height')
             assert sheet_height < 400, (region_id, sheet_height)
             page.screenshot(path=str(OUT / f'ux-place-{region_id}-summary-375x812.png'), full_page=True)
             page.locator('#worldPlaceClose').click()
+
+        # Practice opens the chosen completed region instead of looking for a new quest.
+        page.locator('.regionCard[data-region-id="market-town"]').click()
+        page.locator('#worldPlaceGo').click()
+        page.locator('#journeyView').wait_for(state='visible')
+        market_practice = page.locator('.journeyRegion[data-journey-region-id="market-town"]')
+        assert market_practice.is_visible()
+        assert market_practice.evaluate('(el)=>el.open') is True
+        assert page.locator('[data-journey-filter="stage"]').get_attribute('aria-pressed') == 'true'
+        assert market_practice.locator('.journeyNode[data-node-id^="stage:"][data-state="complete"]').count() == 8
+        page.wait_for_timeout(500)
+        market_box = market_practice.bounding_box()
+        assert market_box and -1 <= market_box['y'] < page.viewport_size['height'], market_box
+        page.screenshot(path=str(OUT / 'ux-place-market-practice-list-375x812.png'))
+        page.evaluate('GameFlow.showWorld()')
+        page.locator('#worldView').wait_for(state='visible')
 
         page.locator('.worldForestQuestMarker').click()
         forest_text = page.locator('#sheet').inner_text()

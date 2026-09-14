@@ -20,7 +20,7 @@ test('journey foregrounds only the recommended unfinished node and focuses it on
   assert.match(runtime, /scrollIntoView\(\{ block: 'center'/);
   assert.match(runtime, /if \(forceCurrentOpen\) focusCurrentNode\(\)/);
 
-  assert.match(flow, /JourneyRuntime\.render\(\{ focusCurrent: true \}\)/);
+  assert.match(flow, /JourneyRuntime\.render\(focusRegionId \? \{ focusRegionId \} : \{ focusCurrent: true \}\)/);
 
   assert.match(css, /journeyNode\[data-current="true"\]\{background:linear-gradient/);
   assert.match(css, /journeyNode\[data-current="true"\]::before\{[^}]*width:14px[^}]*height:14px[^}]*box-shadow/);

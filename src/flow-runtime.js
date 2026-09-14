@@ -41,11 +41,14 @@
     $('landingWords').onclick = showWords;
     window.scrollTo(0, 0); return true;
   }
-  function showJourney() {
-    active = null; StoryRuntime.stop(); TacticalGame.showView('journey'); JourneyRuntime.render({ focusCurrent: true });
+  function showJourney(options = {}) {
+    const focusRegionId = typeof options?.focusRegionId === 'string' ? options.focusRegionId : null;
+    active = null; StoryRuntime.stop(); TacticalGame.showView('journey');
+    JourneyRuntime.render(focusRegionId ? { focusRegionId } : { focusCurrent: true });
     document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
     window.scrollTo(0, 0);
   }
+  function showRegionPractice(regionId) { return showJourney({ focusRegionId: regionId }); }
   function showWorld() {
     if (!canVisitWorld()) { showJourney(); return false; }
     active = null; StoryRuntime.stop(); TacticalGame.showWorld();
@@ -199,7 +202,7 @@
     $('flowWorld').onclick = showWorld; $('flowJourney').onclick = showJourney;
     $('flowWords').onclick = showWords; $('flowTitle').onclick = showLanding; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
   }
-  globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, playStory, playStage, continueFromNode, enterRegion,
+  globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, playStory, playStage, continueFromNode, enterRegion,
     resume, showMenu, showWords, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
   document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
   $('journeyReset')?.addEventListener('click', resetJourney);

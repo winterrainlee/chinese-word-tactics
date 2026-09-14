@@ -31,6 +31,16 @@ test('journey highlights the recommended current point without changing replay l
   assert.match(css, /\.journeyNode\[data-current="true"\]/);
 });
 
+test('completed world regions can open their own replay list', () => {
+  const flow = read('src/flow-runtime.js');
+  assert.match(runtime, /regionDetails\.dataset\.journeyRegionId = section\.regionId/);
+  assert.match(runtime, /if \(focusRegionId\) filter = 'stage'/);
+  assert.match(runtime, /focusRegionId === section\.regionId/);
+  assert.match(runtime, /focusRegion\(focusRegionId\)/);
+  assert.match(flow, /function showRegionPractice\(regionId\)/);
+  assert.match(flow, /JourneyRuntime\.render\(focusRegionId \? \{ focusRegionId \} : \{ focusCurrent: true \}\)/);
+});
+
 test('journey reset is separated from the primary continue action', () => {
   assert.match(runtime, /resetRow\.id = 'journeyResetRow'/);
   assert.match(runtime, /root\.after\(resetRow\)/);
@@ -41,6 +51,6 @@ test('journey reset is separated from the primary continue action', () => {
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
   assert.match(html, /journey\.css\?v=20260913-journey3/);
-  assert.match(html, /journey-runtime\.js\?v=20260913-journey3/);
-  assert.match(html, /flow-runtime\.js\?v=20260913-landing1/);
+  assert.match(html, /journey-runtime\.js\?v=20260914-regionreplay1/);
+  assert.match(html, /flow-runtime\.js\?v=20260914-regionreplay1/);
 });
