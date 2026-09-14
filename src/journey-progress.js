@@ -22,9 +22,11 @@
     return result;
   };
   const nodeId = node => `${node.type}:${node.id}`;
-  const nodes = () => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections.flatMap(section =>
-    section.sequence.map(node => ({ ...node, nodeId: nodeId(node), chapterId: chapter.id, sectionId: section.id }))));
-  const getNode = id => nodes().find(node => node.nodeId === id);
+  const allNodes = () => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections.flatMap(section =>
+    section.sequence.map(node => ({ ...node, nodeId: nodeId(node), chapterId: chapter.id, sectionId: section.id,
+      hiddenFromJourney: Boolean(section.hiddenFromJourney || node.hiddenFromJourney) }))));
+  const nodes = () => allNodes().filter(node => !node.hiddenFromJourney);
+  const getNode = id => allNodes().find(node => node.nodeId === id);
   function normalize(raw) {
     raw = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
     const location = raw.lastLocation;
@@ -73,6 +75,7 @@
       const intro = getNode('story:chapter1-roadside-merchant');
       if (!isComplete(intro, progress)) return intro;
     }
+    // Internal place stories such as the inn finale are entered from their world place, not generic resume.
     return nodes().find(node => isAvailable(node, progress) && !isComplete(node, progress)) || null;
   }
   function getHeroRole(completedMilestones = []) {
@@ -126,6 +129,6 @@
       }
     });
   }
-  globalThis.JourneyProgress = Object.freeze({ KEY, nodeId, nodes, getNode, normalize, isComplete,
+  globalThis.JourneyProgress = Object.freeze({ KEY, nodeId, allNodes, nodes, getNode, normalize, isComplete,
     isAvailable, nextNode, recommendedNode, getHeroRole, createStore });
 })();
