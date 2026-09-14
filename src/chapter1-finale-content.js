@@ -43,6 +43,7 @@
   chapter.sections.push({
     id: 'chapter1-finale',
     regionId: 'inn',
+    hiddenFromJourney: true,
     sequence: [
       {
         type: 'story', id: 'chapter1-inn-convergence',
