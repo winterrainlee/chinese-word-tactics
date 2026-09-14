@@ -287,7 +287,9 @@ try:
         page.locator('#words button').first.click(); assert page.locator('#sheet .pinyin').inner_text(); page.locator('#sheet button').click()
         assert page.locator('#inspectBtn').inner_text() == '살펴보기'
         assert page.locator('#inspectBtn').is_hidden()
-        page.locator('.cell:has(.wolf)').click(); assert '위험 범위' in page.locator('#sheet').inner_text()
+        page.locator('.cell:has(.wolf)').click(); wolf_sheet = page.locator('#sheet').inner_text()
+        assert '위험 범위' in wolf_sheet and '행동할 때마다' in wolf_sheet
+        assert '다음 행동' not in wolf_sheet and '여기서 기다림' not in wolf_sheet and '로 이동' not in wolf_sheet
         assert not page.evaluate('inspect')
         page.locator('#sheet button').click()
         page.evaluate('''key => localStorage.setItem(key, JSON.stringify({

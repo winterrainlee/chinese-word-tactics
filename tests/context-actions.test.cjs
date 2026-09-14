@@ -78,6 +78,11 @@ test('the shared tactical runtime has no global inspect-mode toggle or mode prom
   assert.match(interactionRuntime, /button\.hidden = actions\.length === 0/);
 });
 
+test('wolf inspection states the movement rule without revealing the next action', () => {
+  assert.match(app, /늑대는 행동할 때마다 순찰 경로를 따라 한 칸 움직여/);
+  assert.doesNotMatch(app, /다음 행동:|여기서 기다림/);
+});
+
 test('an adjacent thorn remains a rejected move while a distant thorn can be read', () => {
   const hazard = { grid: ['X..'] };
   assert.equal(C.isDirectInformationTarget(hazard, [0, 0], { hero: [0, 1] }), false);
@@ -85,7 +90,8 @@ test('an adjacent thorn remains a rejected move while a distant thorn can be rea
 });
 
 test('changed direct-inspection runtimes use a shared cache version', () => {
-  for (const file of ['app', 'interaction-runtime', 'first-free-quest-runtime', 'range-runtime', 'follower-runtime', 'follower-chain-runtime', 'market-runtime']) {
+  assert.match(index, /app\.js\?v=20260914-wolfobserve1/);
+  for (const file of ['interaction-runtime', 'first-free-quest-runtime', 'range-runtime', 'follower-runtime', 'follower-chain-runtime', 'market-runtime']) {
     assert.match(index, new RegExp(`${file}\\.js\\?v=20260914-directinspect1`), file);
   }
   assert.match(index, /first-free-quest-content\.js\?v=20260914-directinspect1/);
