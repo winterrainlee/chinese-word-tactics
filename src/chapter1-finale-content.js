@@ -51,7 +51,8 @@
       {
         type: 'story', id: 'chapter1-room-finale',
         requires: ['story:chapter1-inn-convergence'],
-        milestone: 'chapter1-complete'
+        milestone: 'chapter1-complete',
+        returnToWorldAfter: true
       }
     ]
   });
