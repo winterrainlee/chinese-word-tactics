@@ -31,9 +31,9 @@ test('world reward badges are tied to finishing each award story and use the sig
   assert.match(runtime, /regionRewardBadge/);
   assert.match(css, /regionRewardBadge/);
   assert.match(html, /gate-reward-story-content\.js\?v=20260911-gatereward1/);
-  assert.match(html, /world-reward-runtime\.js\?v=20260913-worldreward2/);
+  assert.match(html, /world-reward-runtime\.js\?v=20260914-inncopy1/);
   assert.match(html, /world-reward\.css\?v=20260911-gatereward2/);
-  assert.ok(html.indexOf('world-runtime.js?v=20260911-townarrival1') < html.indexOf('world-reward-runtime.js?v=20260913-worldreward2'));
+  assert.ok(html.indexOf('world-runtime.js?v=20260914-placecopy1') < html.indexOf('world-reward-runtime.js?v=20260914-inncopy1'));
 });
 
 test('earned reward also appears inside the selected region detail sheet', () => {
@@ -50,6 +50,6 @@ test('earned reward also appears inside the selected region detail sheet', () =>
 
 test('inn place sheet is never treated as a selected region reward sheet', () => {
   const runtime = read('src/world-reward-runtime.js');
-  assert.match(runtime, /const isInnSheet = !!sheet\.querySelector\('\.worldInnPlaceState'\)/);
+  assert.match(runtime, /const isInnSheet = !!sheet\.querySelector\('\.worldInnPlaceState, \.worldInnPlaceSummary'\)/);
   assert.match(runtime, /const isRegionSheet = !!sheet\.querySelector\('\.regionSheetNameZh'\) && !isInnSheet/);
 });

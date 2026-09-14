@@ -245,6 +245,12 @@ try:
         # Only after the report does the inn gain a persistent quest-board entry.
         page.locator('.worldInnMarker').click()
         page.locator('#questBoardOpen').wait_for(state='visible')
+        inn_sheet_text = page.locator('#sheet').inner_text()
+        assert '소년의 방이 있는 여관이야.' in inn_sheet_text
+        assert '장터 일을 함께 마친 뒤' not in inn_sheet_text
+        assert '방 열쇠가 생긴 돌아올 곳' not in inn_sheet_text
+        assert '자기 물건을 둘 수 있는 자리' not in inn_sheet_text
+        page.screenshot(path=str(OUT / 'ux-c08-inn-summary-375x812.png'), full_page=True)
         page.locator('#questBoardOpen').click()
         assert page.locator('#sheet h2').inner_text() == '의뢰 게시판'
         board_text = page.locator('#sheet').inner_text()
@@ -252,6 +258,37 @@ try:
         assert '완료' in board_text
         assert '지금은 새로 적힌 부탁이 없다' in board_text
         page.screenshot(path=str(OUT / 'ux-c08-quest-board-375x812.png'), full_page=True)
+        page.locator('#questBoardClose').click()
+
+        # At the settled Chapter 1 state, every map place uses one short description.
+        place_summaries = {
+            'gate-town': '마을 밖 길로 이어지는 관문이야.',
+            'workshop-town': '수차와 공방이 모여 있는 골짜기야.',
+            'market-town': '사람과 물건이 모이는 장터야.',
+            'border-village': '물길마을 밖으로 이어지는 다음 정착지야.',
+            'council-town': '마을 사람들이 함께 의논하는 곳이야.',
+            'research-city': '오래된 기술과 기록이 모이는 탑이야.'
+        }
+        for region_id, summary in place_summaries.items():
+            page.locator(f'.regionCard[data-region-id="{region_id}"]').click()
+            page.locator('#worldPlaceClose').wait_for(state='visible')
+            place_text = page.locator('#sheet').inner_text()
+            assert summary in place_text, (region_id, place_text)
+            assert '핵심 의뢰를 완료했어' not in place_text, (region_id, place_text)
+            assert page.locator('#sheet .pinyin').count() == 0, region_id
+            assert page.locator('#sheet .worldPlaceState').count() == 0, region_id
+            sheet_height = page.locator('#sheet').evaluate('(el)=>el.getBoundingClientRect().height')
+            assert sheet_height < 400, (region_id, sheet_height)
+            page.screenshot(path=str(OUT / f'ux-place-{region_id}-summary-375x812.png'), full_page=True)
+            page.locator('#worldPlaceClose').click()
+
+        page.locator('.worldForestQuestMarker').click()
+        forest_text = page.locator('#sheet').inner_text()
+        assert '물길마을 북쪽에 있는 숲이야.' in forest_text
+        assert '첫 자유 의뢰에서 다녀온 북쪽 숲이야' not in forest_text
+        assert '지금은 새로 맡은 일이 없어' not in forest_text
+        page.screenshot(path=str(OUT / 'ux-place-north-forest-summary-375x812.png'), full_page=True)
+        page.locator('#northForestClose').click()
 
         assert not errors, errors
         assert not missing, missing

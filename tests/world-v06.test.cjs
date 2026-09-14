@@ -41,6 +41,12 @@ test('v0.6 world keeps stable ids while presenting one Three Streams settlement'
   assert.equal(byId['market-town'].name, '市集');
   assert.equal(byId['council-town'].name, '會議所');
   assert.equal(byId['research-city'].name, '學術塔');
+  assert.equal(byId['gate-town'].summary, '마을 밖 길로 이어지는 관문이야.');
+  assert.equal(byId['workshop-town'].summary, '수차와 공방이 모여 있는 골짜기야.');
+  assert.equal(byId['market-town'].summary, '사람과 물건이 모이는 장터야.');
+  assert.equal(byId['border-village'].summary, '물길마을 밖으로 이어지는 다음 정착지야.');
+  assert.equal(byId['council-town'].summary, '마을 사람들이 함께 의논하는 곳이야.');
+  assert.equal(byId['research-city'].summary, '오래된 기술과 기록이 모이는 탑이야.');
   assert.equal(byId['border-village'].map.kind, 'outside');
   assert.equal(world.regions.slice(0, 3).map(region => region.id).join(','), 'gate-town,workshop-town,market-town');
 });
@@ -105,7 +111,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
-  assert.match(html, /world-runtime\.js\?v=20260911-townarrival1/);
+  assert.match(html, /world-runtime\.js\?v=20260914-placecopy1/);
   assert.match(html, /journey\.css\?v=20260913-journey3/);
   assert.match(html, /journey-runtime\.js\?v=20260913-journey3/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);
@@ -119,6 +125,9 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(runtime, /regionIconWrap/);
   assert.match(runtime, /card\.disabled = false/);
   assert.match(runtime, /showRegionInfo/);
+  assert.match(runtime, /region\.summary \|\| region\.note/);
+  assert.match(runtime, /worldPlaceSummary/);
+  assert.doesNotMatch(runtime, /핵심 의뢰를 완료했어/);
   assert.doesNotMatch(runtime, /mapRiverWest/);
 
   const css = read('src/world.css');

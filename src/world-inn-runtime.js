@@ -160,15 +160,7 @@
 
   function openInnSheet() {
     preloadRoomBackground();
-    const roomKey = hasRoomKey();
-    const meaning = roomKey
-      ? '장터 일을 함께 마친 뒤, 소년에게 방 열쇠가 맡겨진 생활 거점이야.'
-      : '장터 일을 도운 뒤 생긴 소년의 첫 머물 곳이야.';
-    const state = roomKey ? '방 열쇠가 생긴 돌아올 곳' : '오늘부터 돌아올 수 있는 곳';
-    const detail = roomKey
-      ? '<strong>방 열쇠</strong><br>여관 주인이 남는 방 하나를 맡겨 두었어. 화려하진 않지만, 이제 소년이 돌아와 자기 물건을 둘 수 있는 자리야.'
-      : '<strong>지금은</strong><br>장터 일을 더 둘러봐도 괜찮아. 여관 주인이 빈방 하나를 남겨 두었어.';
-    globalThis.TacticalGame?.openSheet?.(`<h2>여관</h2><div class="regionSheetNameZh">客棧</div><div class="meaning">${meaning}</div><div class="worldInnPlaceState${roomKey ? ' has-room-key' : ''}">${state}</div><div class="gamerule">${detail}</div><div class="sheetactions"><button class="secondary" id="worldInnClose">닫기</button><button id="worldInnEnter">들어가기</button></div>`);
+    globalThis.TacticalGame?.openSheet?.(`<h2>여관</h2><div class="regionSheetNameZh">客棧</div><div class="meaning worldInnPlaceSummary">소년의 방이 있는 여관이야.</div><div class="sheetactions"><button class="secondary" id="worldInnClose">닫기</button><button id="worldInnEnter">들어가기</button></div>`);
     const close = document.getElementById('worldInnClose');
     if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
     const enter = document.getElementById('worldInnEnter');

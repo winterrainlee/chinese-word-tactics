@@ -123,27 +123,25 @@ test('market-core upgrades the existing inn marker and can resync without replac
   assert.equal(marker.classList.contains('has-room-key'), false);
 });
 
-test('inn detail sheet offers room entry at M4 and room-key copy at M8', () => {
+test('inn detail sheet keeps the settled place copy short at M4 and M8', () => {
   const { map, closeButton, enterButton, state, WorldInn } = loadInn(['inn-unlocked']);
   const marker = map.querySelector('.worldInnMarker');
 
   marker.onclick();
-  assert.match(state.sheet, /오늘부터 돌아올 수 있는 곳/);
-  assert.match(state.sheet, /빈방 하나를 남겨 두었어/);
+  assert.match(state.sheet, /소년의 방이 있는 여관이야\./);
+  assert.match(state.sheet, /class="meaning worldInnPlaceSummary"/);
   assert.match(state.sheet, /id="worldInnClose">닫기/);
   assert.match(state.sheet, /id="worldInnEnter">들어가기/);
   assert.equal(typeof closeButton.onclick, 'function');
   assert.equal(typeof enterButton.onclick, 'function');
-  assert.doesNotMatch(state.sheet, /방 열쇠가 생긴|✓|잠금 해제/);
+  assert.doesNotMatch(state.sheet, /장터 일|방 열쇠|돌아올 곳|✓|잠금 해제/);
 
   state.progress = { completedMilestones: ['inn-unlocked', 'market-core'] };
   WorldInn.syncInnMarker();
   marker.onclick();
-  assert.match(state.sheet, /방 열쇠가 생긴 돌아올 곳/);
-  assert.match(state.sheet, /남는 방 하나를 맡겨 두었어/);
-  assert.match(state.sheet, /자기 물건을 둘 수 있는 자리/);
+  assert.match(state.sheet, /소년의 방이 있는 여관이야\./);
   assert.match(state.sheet, /들어가기/);
-  assert.doesNotMatch(state.sheet, /✓|잠금 해제/);
+  assert.doesNotMatch(state.sheet, /장터 일|방 열쇠|돌아올 곳|✓|잠금 해제/);
 
   closeButton.onclick();
   assert.equal(state.closeCount, 1);
@@ -163,7 +161,7 @@ test('inn presentation adds no save key and preserves the existing mobile marker
   assert.match(css, /worldInnKeyCharm\{[^}]*width:15px;height:18px/);
   assert.match(css, /@media\(max-width:360px\)\{\.worldInnMarker\{width:64px\}/);
   assert.match(html, /world-inn\.css\?v=20260913-innroom2/);
-  assert.match(html, /world-inn-runtime\.js\?v=20260913-innroom5/);
+  assert.match(html, /world-inn-runtime\.js\?v=20260914-inncopy1/);
 });
 
 test('inn room fetch is deferred until the player interacts with the inn', () => {

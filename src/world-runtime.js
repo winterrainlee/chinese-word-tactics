@@ -100,9 +100,8 @@
   function showRegionInfo(region) {
     selectMarker(region.id);
     const locked = isLocked(region);
-    const complete = isComplete(region);
     const recommendation = recommendationNeeded(region) ? region.recommendation : '';
-    const status = complete ? '<div class="worldPlaceState done">✓ 핵심 의뢰를 완료했어.</div>' : '';
+    const overview = `<div class="meaning worldPlaceSummary">${region.summary || region.note}</div>`;
     const advice = recommendation ? `<div class="gamerule worldAdvice"><strong>권장</strong><br>${recommendation}</div>` : '';
     const lock = locked ? `<div class="gamerule worldLockReason"><strong>아직 갈 수 없어</strong><br>${region.lockHint || '앞선 의뢰를 마치면 이곳으로 이어지는 길이 열려.'}</div>` : '';
     const action = locked
@@ -111,7 +110,7 @@
         ? '<button class="secondary" id="worldPlaceClose">닫기</button><button id="worldPlaceGo">이곳으로 가기</button>'
         : '<button class="secondary" id="worldPlaceClose">닫기</button><button disabled>의뢰 준비 중</button>';
 
-    globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div><div class="pinyin">${region.subtitle}</div><div class="meaning">${region.note}</div>${status}${advice}${lock}<div class="sheetactions">${action}</div>`);
+    globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}<div class="sheetactions">${action}</div>`);
 
     const close = document.getElementById('worldPlaceClose');
     if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();

@@ -80,7 +80,7 @@
       ? '여관 주인이 부탁한 월백버섯 세 개를 찾을 수 있는 북쪽 숲이야.'
       : !board
         ? '월백버섯 세 개를 찾았다. 이제 여관 주인에게 가져가면 돼.'
-        : '첫 자유 의뢰에서 다녀온 북쪽 숲이야. 지금은 새로 맡은 일이 없어.';
+        : '물길마을 북쪽에 있는 숲이야.';
     const action = !done
       ? '<button class="secondary" id="northForestClose">닫기</button><button id="northForestGo">숲으로 들어가기</button>'
       : board
@@ -164,7 +164,7 @@
   function injectBoardEntry() {
     if (!boardUnlocked(progress())) return;
     const sheet = $('sheet');
-    if (!sheet?.querySelector('.worldInnPlaceState') || sheet.querySelector('#questBoardOpen')) return;
+    if (!sheet?.querySelector('.worldInnPlaceSummary') || sheet.querySelector('#questBoardOpen')) return;
     const actions = sheet.querySelector('.sheetactions');
     if (!actions) return;
     const button = document.createElement('button');

@@ -177,7 +177,9 @@ test('world runtime reveals the existing northern forest only after acceptance a
   assert.match(runtime, /enterRegion\?\.\('north-forest'\)/);
   assert.match(runtime, /enterRegion\?\.\('inn-first-quest-report'\)/);
   assert.match(runtime, /나중에/);
+  assert.match(runtime, /물길마을 북쪽에 있는 숲이야\./);
   assert.match(runtime, /지금은 새로 적힌 부탁이 없다/);
+  assert.doesNotMatch(runtime, /첫 자유 의뢰에서 다녀온 북쪽 숲이야/);
   assert.doesNotMatch(runtime, /localStorage|setItem|removeItem|Date\(|new Date|24시간|하루 뒤/);
   assert.match(css, /\.worldForestQuestMarker\{[^}]*left:57\.5%;top:28\.5%/);
   assert.doesNotMatch(read('src/interaction-runtime.js'), /지형이나 늑대/);
