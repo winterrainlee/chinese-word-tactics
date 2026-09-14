@@ -62,6 +62,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_inn.py
 
+      - name: Run C08 first free quest browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_first_free_quest.py
+
       - name: Run mobile lexicon browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
