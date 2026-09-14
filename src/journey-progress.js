@@ -112,8 +112,10 @@
           const clean = cleanOutcome(outcome);
           if (clean) progress.stageOutcomes[node.id] = clean;
         }
-        if (node.type === 'stage' && typeof milestone === 'string') {
-          progress.completedMilestones = strings([...progress.completedMilestones, milestone]);
+        const earnedMilestone = typeof milestone === 'string' ? milestone :
+          (typeof node.milestone === 'string' ? node.milestone : null);
+        if (earnedMilestone) {
+          progress.completedMilestones = strings([...progress.completedMilestones, earnedMilestone]);
         }
         persist();
       },
