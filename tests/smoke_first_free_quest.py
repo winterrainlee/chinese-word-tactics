@@ -140,6 +140,7 @@ try:
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         assert '늑대' not in page.locator('#tutorialView').inner_text()
         assert '野狼' not in page.locator('#tutorialView').inner_text()
+        assert page.locator('#inspectBtn').is_hidden()
 
         # Reused words keep shared pronunciation/meaning while C08 supplies its own example and stage rule.
         card_text = []
@@ -160,28 +161,37 @@ try:
         assert '繩子' not in card_text and '밧줄' not in card_text and '交換' not in card_text
         assert '關口' not in card_text and '관문' not in card_text
 
-        # Entering the shared inspection mode must not name an object that is absent from C08.
-        page.locator('#inspectBtn').click()
-        inspect_status = page.locator('#status').text_content()
-        assert '살펴볼 대상을 눌러봐' in inspect_status
-        assert '늑대' not in inspect_status and '野狼' not in inspect_status
-        assert '유적' not in inspect_status and '관문' not in inspect_status
-        page.locator('#inspectBtn').click()
-
-        # Select the boy, verify the non-target patch result is self-contained, then approach A from the east.
+        # Select the boy and approach B. Its contextual inspection remains available after the first look.
         click_cell(page, 5, 3)
         click_cell(page, 4, 3)
+        assert page.locator('#inspectBtn').is_visible()
         assert page.locator('#inspectBtn').inner_text() == '버섯 살펴보기'
+        assert page.locator('#inspectBtn').is_enabled()
         page.locator('#inspectBtn').click()
         gray_status = page.locator('#status').text_content()
         assert '灰帽菇 ×1' in gray_status
         assert '月白菇와 다른 버섯' in gray_status
         assert '늑대' not in gray_status and '野狼' not in gray_status
+        gray_state = page.evaluate('JSON.stringify(state)')
+        gray_history = page.evaluate('history.length')
+        gray_progress = page.evaluate('JSON.stringify(GameFlow.progress())')
+        assert page.locator('#inspectBtn').is_visible()
+        assert page.locator('#inspectBtn').inner_text() == '버섯 살펴보기'
+        assert page.locator('#inspectBtn').is_enabled()
+        page.locator('#inspectBtn').click()
+        assert '灰帽菇 ×1' in page.locator('#status').text_content()
+        assert page.evaluate('JSON.stringify(state)') == gray_state
+        assert page.evaluate('history.length') == gray_history
+        assert page.evaluate('JSON.stringify(GameFlow.progress())') == gray_progress
+
+        # Target patches still switch from inspection to collection after their first look.
         for row, col in [(4,2), (3,2), (2,2), (1,2)]: click_cell(page, row, col)
+        assert page.locator('#inspectBtn').is_visible()
         assert page.locator('#inspectBtn').inner_text() == '버섯 살펴보기'
         page.locator('#inspectBtn').click()
         assert '月白菇' in page.locator('#status').inner_text()
         assert '×2' in page.locator('#status').inner_text()
+        assert page.locator('#inspectBtn').is_visible()
         assert page.locator('#inspectBtn').inner_text() == '월백버섯 챙기기'
         page.locator('#inspectBtn').click()
         assert page.evaluate('state.forestCount') == 2
@@ -189,10 +199,12 @@ try:
 
         # Cross to the second target patch C, inspect it, and reach the requested total of three.
         for row, col in [(1,3), (1,4)]: click_cell(page, row, col)
+        assert page.locator('#inspectBtn').is_visible()
         assert page.locator('#inspectBtn').inner_text() == '버섯 살펴보기'
         page.locator('#inspectBtn').click()
         assert '月白菇' in page.locator('#status').inner_text()
         assert '×1' in page.locator('#status').inner_text()
+        assert page.locator('#inspectBtn').is_visible()
         assert page.locator('#inspectBtn').inner_text() == '월백버섯 챙기기'
         page.locator('#inspectBtn').click()
         assert page.evaluate('state.forestCount') == 3

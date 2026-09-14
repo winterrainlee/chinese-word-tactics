@@ -62,7 +62,7 @@
       contextActions: [
         { target: 'A', label: '버섯 살펴보기', action: 'forest-inspect-a', unless: 'forestPatchAObserved', priority: 10 },
         { target: 'A', label: '월백버섯 챙기기', action: 'forest-collect-a', requires: 'forestPatchAObserved', unless: 'forestPatchACollected', priority: 10 },
-        { target: 'B', label: '버섯 살펴보기', action: 'forest-inspect-b', unless: 'forestPatchBObserved', priority: 10 },
+        { target: 'B', label: '버섯 살펴보기', action: 'forest-inspect-b', priority: 10 },
         { target: 'C', label: '버섯 살펴보기', action: 'forest-inspect-c', unless: 'forestPatchCObserved', priority: 10 },
         { target: 'C', label: '월백버섯 챙기기', action: 'forest-collect-c', requires: 'forestPatchCObserved', unless: 'forestPatchCCollected', priority: 10 }
       ],

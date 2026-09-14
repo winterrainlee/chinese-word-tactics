@@ -188,13 +188,15 @@
   const ensureMarketState = () => {
     const cfg = cfgFor(current());
     if (!cfg) return;
+    // Market locations are inspected directly. Clear legacy saved mode state so
+    // it cannot suppress movement or turn the board into a second input mode.
+    if (inspect) inspect = false;
     if (!state.market || state.market.configKey !== M.configKey(cfg)) {
       state.market = M.createState(cfg);
       const start = locate(current().grid, 'S');
       if (start) state.hero = start;
       state.turn = 0;
       history = [];
-      inspect = false;
     }
   };
 
@@ -352,7 +354,7 @@
 
   function renderPanel(cfg) {
     const focus = locationCfg(cfg, state.market.focus);
-    if (!focus) return `<section class="market-panel market-panel-empty"><div class="market-carry">${inventoryText(cfg)}</div><p>${inspect ? '살펴보기 모드에서는 멀리 있는 좌판이나 사람도 눌러 정보를 확인할 수 있어.' : '좌판·사람·짐·창고 가까이 가서 눌러봐.'}</p></section>`;
+    if (!focus) return `<section class="market-panel market-panel-empty"><div class="market-carry">${inventoryText(cfg)}</div><p>좌판·사람·짐·창고를 누르면 정보를 확인할 수 있어. 실제 행동은 가까이 가서 해.</p></section>`;
     const adjacent = dist(state.hero, focus.pos) === 1;
     return `<section class="market-panel" data-focus="${focus.id}">
       <div class="market-carry">${inventoryText(cfg)}</div>
@@ -383,12 +385,12 @@
         button.setAttribute('aria-disabled', 'true');
       }
       if (state.market.focus === location.id) button.classList.add('focused');
-      if (choice !== 'deferred' && (inspect || dist(state.hero, pos) === 1)) button.classList.add('interactable');
+      if (choice !== 'deferred') button.classList.add('interactable');
       button.setAttribute('aria-label', `${location.labelKo}, ${location.labelZh}${choice === 'deferred' ? ', 이번에는 미루고 다음 차례' : ''}`);
       button.innerHTML = `<span class="market-location-icon" aria-hidden="true">${location.icon || '📦'}</span><small lang="zh-Hant">${location.labelZh}</small>${choice === 'deferred' ? '<span class="market-deferred-tag" aria-hidden="true">放棄</span>' : ''}`;
     } else {
       button.classList.add('market-floor');
-      const moveable = !inspect && dist(state.hero, pos) === 1;
+      const moveable = dist(state.hero, pos) === 1;
       if (moveable) button.classList.add('moveable');
       button.setAttribute('aria-label', `${String.fromCharCode(65 + c)}${r + 1}, 장터 길`);
       if (moveable) button.innerHTML = `<span class="move-arrow" aria-hidden="true">${arrowFor(pos)}</span>`;
@@ -447,12 +449,10 @@
 
     const controls = $('.controls');
     $('#waitBtn').hidden = true;
-    $('#inspectBtn').hidden = false;
-    $('#inspectBtn').textContent = inspect ? '이동으로' : '살펴보기';
-    $('#inspectBtn').className = 'control' + (inspect ? ' mode' : '');
+    $('#inspectBtn').hidden = true;
     $('#undoBtn').hidden = false;
     $('#undoBtn').disabled = !history.length;
-    controls.style.gridTemplateColumns = '1fr 1fr';
+    controls.style.gridTemplateColumns = '1fr';
   };
 
   function marketTap(pos) {
@@ -465,18 +465,10 @@
         setStatus('這一趟先放棄。 이번에는 미뤘어. 다음 차례에 다시 가져오면 돼.', 'info');
         return;
       }
-      if (!inspect && dist(state.hero, pos) !== 1) {
-        setStatus('가까이 가면 그곳의 물건과 필요한 수량을 직접 확인할 수 있어.', 'info');
-        return;
-      }
       const result = M.inspectLocation(cfg, state.market, location.id);
       state.market = result.state;
       save(); render();
       setStatus(`${location.labelZh} — ${location.labelKo}의 현재 상태를 확인했어.`, 'info');
-      return;
-    }
-    if (inspect) {
-      setStatus('여기는 장터의 길이야. 좌판이나 사람, 짐을 눌러 정보를 살펴봐.', 'info');
       return;
     }
     if (dist(state.hero, pos) !== 1) {
@@ -543,6 +535,11 @@
     const stage = current(), cfg = cfgFor(stage);
     if (!cfg || screen !== 'tutorial' || isWin()) return;
     ensureMarketState();
+    const location = locationCfg(cfg, action?.location);
+    if (!location || dist(state.hero, location.pos) !== 1) {
+      setStatus('물건을 주고받거나 선택하려면 그 장소 가까이 가야 해.', 'info');
+      return;
+    }
     const result = M.applyAction(cfg, state.market, action);
     if (!result.changed) {
       setStatus(actionFeedback(cfg, action, result, false), 'info');

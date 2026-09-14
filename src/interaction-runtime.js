@@ -17,12 +17,34 @@
     const top = Math.max(...items.map(item => priorityOf(item.action)));
     return items.filter(item => priorityOf(item.action) === top);
   }
+  const samePosition = (a, b) => Array.isArray(a) && Array.isArray(b) && a[0] === b[0] && a[1] === b[1];
+  function isDirectInformationTarget(stage, pos, s) {
+    if (!stage?.grid || !Array.isArray(pos)) return false;
+    const ch = stage.grid[pos[0]]?.[pos[1]], distance = Array.isArray(s?.hero) ? manhattan(s.hero, pos) : Infinity;
+    const wolf = stage.wolf?.cycle?.[s?.phase];
+    if (samePosition(pos, wolf)) return true;
+    if (ch === 'K') return true;
+    if (ch === 'X') return distance > 1;
+    if (stage.ruin && ch === 'R') return distance > 1;
+    if (stage.rangeSource) {
+      if (ch === stage.rangeSource.source) return true;
+      if (ch === (stage.rangeSource.pointChar || 'P')) return distance > 1;
+    }
+    if (stage.route?.waypoints?.[ch]) return distance > 1;
+    if (stage.follower) {
+      if (samePosition(pos, s?.followerPos)) return true;
+      if (ch === stage.follower.narrowChar) return distance > 1;
+    }
+    if (stage.followerChain && Array.isArray(s?.followerPositions) && s.followerPositions.some(item => samePosition(pos, item))) return true;
+    return false;
+  }
 
-  globalThis.ContextActionLogic = Object.freeze({ manhattan, priorityOf, enabled, actionsForPosition, primaryActionForPosition, highestPriorityActions });
+  globalThis.ContextActionLogic = Object.freeze({ manhattan, priorityOf, enabled, actionsForPosition, primaryActionForPosition, highestPriorityActions, isDirectInformationTarget });
 
   if (typeof document === 'undefined' || typeof render !== 'function') return;
   const button = document.getElementById('inspectBtn');
   const grid = document.getElementById('grid');
+  const controls = document.querySelector('.controls');
   if (!button || !grid) return;
 
   function runAction(action, pos) {
@@ -54,11 +76,20 @@
 
   function enhance() {
     const actions = nearbyActions();
-    if (inspect || actions.length !== 1) return;
-    button.textContent = actions[0].action.label;
-    const [r, c] = actions[0].pos;
-    const index = r * current().grid[0].length + c;
-    grid.children[index]?.classList.add('inspectable');
+    inspect = false;
+    button.hidden = actions.length === 0;
+    button.disabled = actions.length !== 1;
+    button.textContent = actions.length === 1 ? actions[0].action.label : actions.length > 1 ? '대상 선택' : '살펴보기';
+    if (controls) {
+      const hasWait = !document.getElementById('waitBtn')?.hidden;
+      const count = 1 + (hasWait ? 1 : 0) + (actions.length ? 1 : 0);
+      controls.style.gridTemplateColumns = `repeat(${count},1fr)`;
+    }
+    for (const item of actions) {
+      const [r, c] = item.pos;
+      const index = r * current().grid[0].length + c;
+      grid.children[index]?.classList.add('inspectable');
+    }
   }
 
   const baseRender = render;
@@ -67,21 +98,20 @@
     enhance();
   };
 
-  button.onclick = () => {
-    if (inspect) {
-      inspect = false;
-      setStatus('이동 모드로 돌아왔어.', 'info');
-      render();
-      return;
-    }
+  const baseTapCell = tapCell;
+  tapCell = function contextualTapCell(pos) {
     const actions = nearbyActions();
-    if (actions.length === 1) {
-      actions[0].action.run();
-      return;
+    if (actions.length > 1) {
+      const selected = actions.find(item => samePosition(item.pos, pos));
+      if (selected) return selected.action.run();
     }
-    inspect = true;
-    setStatus('請按想查看的對象。 살펴볼 대상을 눌러봐.', 'info');
-    render();
+    if (isDirectInformationTarget(current(), pos, state)) return showInspect(pos);
+    return baseTapCell(pos);
+  };
+
+  button.onclick = () => {
+    const actions = nearbyActions();
+    if (actions.length === 1) actions[0].action.run();
   };
 
   enhance();

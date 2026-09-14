@@ -122,9 +122,17 @@ try:
         page.screenshot(path=str(OUT/'ux-01-market-m8-entry-375x812.png'),full_page=True)
         print('UX_LAYOUT_MARKET_M8',json.dumps(market_layout,ensure_ascii=False),flush=True)
 
-        page.locator('#inspectBtn').click(); location_count=page.locator('.market-location').count(); selected_layouts=[]
+        assert page.locator('#inspectBtn').is_hidden()
+        page.evaluate('inspect=true; render()')
+        assert page.evaluate('inspect') is False
+        assert page.locator('#inspectBtn').is_hidden()
+        assert page.locator('.market-floor.moveable').count() > 0
+
+        location_count=page.locator('.market-location').count(); selected_layouts=[]
         for index in range(location_count):
             cell=page.locator('.market-location').nth(index); label=cell.get_attribute('aria-label') or f'location-{index}'; cell.click(); selected=visible_layout(page)
+            assert page.locator('#contextPanel .market-panel-actions').count() == 0, label
+            assert '가까이 가면' in page.locator('#contextPanel .market-action-hint').inner_text(), label
             assert selected['document']['width'] <= selected['viewport']['width'],(label,selected)
             assert selected['context']['y'] >= selected['status']['y'] + selected['status']['height'],(label,selected)
             overflow=max(0,selected['document']['height']-selected['viewport']['height']); assert overflow <= 240,(label,selected)
@@ -132,6 +140,11 @@ try:
         worst=max(selected_layouts,key=lambda item:(item['overflow'],item['contextHeight'])); page.locator('.market-location').nth(worst['index']).click()
         page.screenshot(path=str(OUT/'ux-02-market-m8-selected-context-375x812.png'),full_page=True)
         print('UX_MARKET_SELECTED',json.dumps(selected_layouts,ensure_ascii=False),flush=True)
+
+        page.locator('.market-cell[data-row="1"][data-col="2"]').click()
+        page.locator('.market-cell[data-row="0"][data-col="2"]').click()
+        assert page.locator('#contextPanel .market-panel-actions').count() == 1
+        assert page.locator('#contextPanel [data-market-action="exchange"]').count() == 1
 
         page.evaluate('GameFlow.showStageComplete("market-stage-8",{mode:"replay",returnTo:"journey"})')
         assert page.locator('#completionBar').is_visible() and page.locator('#flowNext').is_visible()

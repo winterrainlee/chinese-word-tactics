@@ -190,19 +190,4 @@
   handlers['forest-inspect-b'] = () => inspectPatch('B');
   handlers['forest-inspect-c'] = () => inspectPatch('C');
   handlers['forest-collect-c'] = () => collectPatch('C');
-
-  if (typeof showInspect === 'function') {
-    const baseShowInspect = showInspect;
-    showInspect = function firstQuestShowInspect(pos) {
-      const st = current(), cfg = cfgFor(st), ch = tileAt(pos), patch = cfg && patchFor(st, ch);
-      if (!patch) return baseShowInspect(pos);
-      if (dist(state.hero, pos) !== 1) {
-        setStatus('버섯 종류와 數量을 확인하려면 가까이 가야 해.', 'info');
-        return;
-      }
-      if (!patchObserved(patch)) return inspectPatch(ch);
-      const collected = patch.target && patchCollected(patch);
-      setStatus(collected ? `${patch.nameZh}를 이미 챙겼어.` : `${patch.nameZh} ×${patch.quantity}。`, 'info');
-    };
-  }
 })();

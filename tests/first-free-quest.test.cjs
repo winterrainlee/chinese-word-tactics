@@ -93,6 +93,28 @@ test('the northern forest quest deliberately reuses chapter-one vocabulary inste
   assert.match(snapshot.wordContext['退出'].ex + snapshot.wordContext['退出'].rule, /回到入口退出森林|입구.*숲 밖/);
 });
 
+test('C08 keeps repeatable non-target inspection contextual while target patches switch to collection', () => {
+  const context = contentContext();
+  const actions = vm.runInContext(`(() => {
+    const stage = STAGES.find(item => item.id === 'first-free-quest-forest');
+    return stage.contextActions;
+  })()`, context);
+  const byAction = Object.fromEntries(plain(actions).map(action => [action.action, action]));
+
+  assert.equal(byAction['forest-inspect-b'].target, 'B');
+  assert.equal(byAction['forest-inspect-b'].unless, undefined);
+  assert.equal(byAction['forest-inspect-b'].requires, undefined);
+  for (const patch of ['a', 'c']) {
+    assert.equal(byAction[`forest-inspect-${patch}`].unless, `forestPatch${patch.toUpperCase()}Observed`);
+    assert.equal(byAction[`forest-collect-${patch}`].requires, `forestPatch${patch.toUpperCase()}Observed`);
+    assert.equal(byAction[`forest-collect-${patch}`].unless, `forestPatch${patch.toUpperCase()}Collected`);
+  }
+
+  const runtime = read('src/first-free-quest-runtime.js');
+  assert.match(runtime, /if \(!state\[observedFlag\]\) history\.push\(clone\(state\)\)/);
+  assert.doesNotMatch(runtime, /showInspect\s*=/);
+});
+
 test('C08 acceptance remembers the route through the forest and the report reflects leaving that route', () => {
   const context = contentContext();
   const snapshot = vm.runInContext(`(() => {

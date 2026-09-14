@@ -1,7 +1,12 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 require('../src/interaction-runtime.js');
 const C = globalThis.ContextActionLogic;
+const index = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf8');
+const app = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'app.js'), 'utf8');
+const interactionRuntime = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'interaction-runtime.js'), 'utf8');
 
 const stage = {
   grid: ['...', '.CO', '...'],
@@ -47,4 +52,41 @@ test('equal-priority actions remain together so the player can choose', () => {
     { pos: [1, 2], action: { label: '오른쪽 살펴보기' } }
   ];
   assert.equal(C.highestPriorityActions(candidates).length, 2);
+});
+
+test('useful information targets can be tapped directly without a global inspect mode', () => {
+  const wolfStage = { grid: ['.W.'], wolf: { cycle: [[0, 1], [0, 2]] } };
+  assert.equal(C.isDirectInformationTarget(wolfStage, [0, 1], { hero: [0, 0], phase: 0 }), true);
+
+  const rangeStage = { grid: ['BP.'], rangeSource: { source: 'B', pointChar: 'P' } };
+  assert.equal(C.isDirectInformationTarget(rangeStage, [0, 0], { hero: [0, 2] }), true);
+  assert.equal(C.isDirectInformationTarget(rangeStage, [0, 1], { hero: [0, 2] }), false, 'an adjacent passable marker remains a movement target');
+  assert.equal(C.isDirectInformationTarget(rangeStage, [0, 1], { hero: [0, 3] }), true);
+});
+
+test('ordinary floor and walls never become direct information targets', () => {
+  const plain = { grid: ['.#.'] };
+  assert.equal(C.isDirectInformationTarget(plain, [0, 0], { hero: [0, 2] }), false);
+  assert.equal(C.isDirectInformationTarget(plain, [0, 1], { hero: [0, 2] }), false);
+  assert.equal(C.isDirectInformationTarget(plain, [0, 0]), false);
+});
+
+test('the shared tactical runtime has no global inspect-mode toggle or mode prompt', () => {
+  const sharedRuntime = `${app}\n${interactionRuntime}`;
+  assert.doesNotMatch(sharedRuntime, /inspect\s*=\s*!inspect/);
+  assert.doesNotMatch(sharedRuntime, /살펴보기 모드|살펴볼 대상을 눌러봐|이동으로/);
+  assert.match(interactionRuntime, /button\.hidden = actions\.length === 0/);
+});
+
+test('an adjacent thorn remains a rejected move while a distant thorn can be read', () => {
+  const hazard = { grid: ['X..'] };
+  assert.equal(C.isDirectInformationTarget(hazard, [0, 0], { hero: [0, 1] }), false);
+  assert.equal(C.isDirectInformationTarget(hazard, [0, 0], { hero: [0, 2] }), true);
+});
+
+test('changed direct-inspection runtimes use a shared cache version', () => {
+  for (const file of ['app', 'interaction-runtime', 'first-free-quest-runtime', 'range-runtime', 'follower-runtime', 'follower-chain-runtime', 'market-runtime']) {
+    assert.match(index, new RegExp(`${file}\\.js\\?v=20260914-directinspect1`), file);
+  }
+  assert.match(index, /first-free-quest-content\.js\?v=20260914-directinspect1/);
 });

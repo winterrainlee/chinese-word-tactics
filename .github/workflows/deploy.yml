@@ -57,6 +57,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_ux.py
 
+      - name: Run gate tactical browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_gate_tactical.py
+
       - name: Run inn room browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots

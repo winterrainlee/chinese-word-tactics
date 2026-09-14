@@ -250,6 +250,8 @@ try:
         assert page.evaluate('state.entered') and not page.evaluate('state.exited')
         assert '路標還沒看' in page.locator('#status').inner_text()
         for idx in [22,17,18,13]: page.locator('#grid .cell').nth(idx).click()
+        assert page.locator('#inspectBtn').inner_text() == '길표지 살펴보기'
+        assert page.locator('#inspectBtn').is_enabled()
         page.locator('#inspectBtn').click()
         assert page.evaluate('state.inspected'); assert '北門' in page.locator('#sheet').inner_text()
         page.locator('#sheet button').click()
@@ -283,9 +285,17 @@ try:
         page.locator('#waitBtn').click(); assert page.evaluate('state.turn')==1
         page.locator('#undoBtn').click(); assert page.evaluate('JSON.stringify(state)')==state_before
         page.locator('#words button').first.click(); assert page.locator('#sheet .pinyin').inner_text(); page.locator('#sheet button').click()
-        page.locator('#inspectBtn').click(); page.locator('.cell:has(.wolf)').click(); assert '위험 범위' in page.locator('#sheet').inner_text()
-        page.locator('#sheet button').click(); page.locator('#inspectBtn').click()
-        passed('waiting, undo, word cards and wolf inspection remain functional')
+        assert page.locator('#inspectBtn').inner_text() == '살펴보기'
+        assert page.locator('#inspectBtn').is_hidden()
+        page.locator('.cell:has(.wolf)').click(); assert '위험 범위' in page.locator('#sheet').inner_text()
+        assert not page.evaluate('inspect')
+        page.locator('#sheet button').click()
+        page.evaluate('''key => localStorage.setItem(key, JSON.stringify({
+          stageIndex, state, history, selected, inspect: true, completed: [...completed]
+        }))''', LEGACY)
+        page.reload(); page.wait_for_function('!!window.GameFlow && typeof inspect !== "undefined"')
+        assert not page.evaluate('inspect')
+        passed('waiting, undo, word cards and direct wolf inspection remain functional without an inspect mode')
         for stage_id, positions in [('stage-4',[27,22,17]),('stage-2',[27,22,17])]:
             page.evaluate('(id)=>GameFlow.playStage(id,{mode:"replay"})',stage_id)
             for cell in positions[:2]: page.locator('#grid .cell').nth(cell).click()

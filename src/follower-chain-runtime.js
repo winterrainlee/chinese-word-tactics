@@ -203,10 +203,7 @@
   tapCell = function followerChainTapCell(pos) {
     const cfg = cfgFor(current());
     if (!cfg || inspect) return baseTapCell(pos);
-    if (positions().some(follower => samePosition(pos, follower))) {
-      setStatus('이번에도 소년만 움직여. 첫 수레가 소년을, 둘째 수레가 첫 수레를 따라와.', 'info');
-      return;
-    }
+    if (positions().some(follower => samePosition(pos, follower))) return showInspect(pos);
     return baseTapCell(pos);
   };
 })();

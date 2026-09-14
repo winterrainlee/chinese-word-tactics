@@ -40,10 +40,11 @@ def background_asset(page, selector, filename, pseudo=None):
 
 try:
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(
-            executable_path=os.environ.get('CHROMIUM_PATH', '/usr/bin/chromium'),
-            args=['--no-sandbox'],
-        )
+        executable = os.environ.get('CHROMIUM_PATH')
+        launch = {'args': ['--no-sandbox']}
+        if executable:
+            launch['executable_path'] = executable
+        browser = playwright.chromium.launch(**launch)
         context = browser.new_context(
             viewport={'width': 375, 'height': 812},
             device_scale_factor=1,
@@ -89,6 +90,13 @@ try:
         background_asset(page, '.investigation-crate-mark', 'crate.svg')
         background_asset(page, '.investigation-rock-mark', 'obstacle-rock.svg')
         page.screenshot(path=str(OUT / 'gate-g4-objects-375.png'))
+        page.evaluate('state.hero=[2,1];render()')
+        assert page.locator('#inspectBtn').inner_text() == '대상 선택'
+        assert page.locator('#inspectBtn').is_disabled()
+        assert page.locator('.cell.inspectable').count() == 2
+        page.locator('#grid .cell').nth(16).click()
+        assert page.evaluate('state.surroundingsObserved')
+        assert not page.evaluate('inspect')
         page.evaluate('state.obstacleCleared=true;render()')
         assert page.locator('.investigation-rock-mark').count() == 0
 
@@ -108,6 +116,8 @@ try:
         assert not page.evaluate('state.doorOpen')
         page.evaluate('state.hero=[1,1];render()')
         assert page.evaluate('state.doorClear')
+        assert page.locator('#inspectBtn').inner_text() == '문 열기'
+        assert page.locator('#inspectBtn').is_enabled()
         page.screenshot(path=str(OUT / 'gate-g5-cart-375.png'))
         page.evaluate('ContextActionHandlers["g5-open-door"]([1,2])')
         assert page.evaluate('state.doorOpen')
@@ -147,6 +157,9 @@ try:
         })''')
         assert all(target['inside'] for target in badge_targets), badge_targets
         assert all(target['width'] >= 18 and target['height'] >= 18 for target in badge_targets), badge_targets
+        page.evaluate('state.hero=[4,1];render()')
+        assert page.locator('#inspectBtn').inner_text() == '돌 살펴보기'
+        assert page.locator('#inspectBtn').is_enabled()
         action_targets = page.locator('.wordbtn:visible, .control:visible, .iconbtn:visible').evaluate_all('''buttons => buttons.map(button => {
           const box = button.getBoundingClientRect();
           return {text: button.textContent.trim(), className: button.className, width: box.width, height: box.height};
@@ -154,6 +167,7 @@ try:
         assert len(action_targets) == 8, action_targets
         assert all(target['width'] >= 44 and target['height'] >= 44 for target in action_targets), action_targets
         assert page.locator('.route-waypoint-mark').count() == 2
+        page.evaluate('state.hero=[4,2];state.followerPositions=[[5,2],[6,2]];render()')
         page.evaluate('attemptMove([4,3],false);attemptMove([3,3],false)')
         first_cart = page.locator('#grid .cell').nth(23).locator('.follower-chain-mark')
         second_cart = page.locator('#grid .cell').nth(22).locator('.follower-chain-mark')

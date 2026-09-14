@@ -60,7 +60,6 @@
   render = function rangeRender() {
     baseRender();
     const st = current(), cfg = st.rangeSource, inspectButton = $('#inspectBtn');
-    if (inspectButton) inspectButton.disabled = false;
     if (!cfg) return;
 
     const source = sourcePosition(st), cols = st.grid[0].length;

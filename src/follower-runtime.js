@@ -186,10 +186,7 @@
   tapCell = function followerTapCell(pos) {
     const st = current(), cfg = cfgFor(st);
     if (!cfg || inspect) return baseTapCell(pos);
-    if (samePosition(pos, currentFollower())) {
-      setStatus('這次不用直接移動貨車。少年走在前面，貨車會跟隨。 이번에는 소년만 움직여.', 'info');
-      return;
-    }
+    if (samePosition(pos, currentFollower())) return showInspect(pos);
     return baseTapCell(pos);
   };
 })();

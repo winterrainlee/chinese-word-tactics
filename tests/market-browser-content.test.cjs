@@ -43,6 +43,16 @@ test('market renderer centers the hero, distinguishes NPCs, versions stage-local
   assert.match(css, /market-hero\{[^}]*left:50%[^}]*top:50%[^}]*translate\(-50%,-50%\)/);
 });
 
+test('market locations use direct inspection without a shared inspection mode', () => {
+  const runtime = fs.readFileSync(path.join(root, 'src/market-runtime.js'), 'utf8');
+  assert.match(runtime, /if \(inspect\) inspect = false/);
+  assert.match(runtime, /if \(choice !== 'deferred'\) button\.classList\.add\('interactable'\)/);
+  assert.match(runtime, /\$\('#inspectBtn'\)\.hidden = true/);
+  assert.match(runtime, /dist\(state\.hero, location\.pos\) !== 1/);
+  assert.doesNotMatch(runtime, /살펴보기 모드에서는 멀리 있는/);
+  assert.doesNotMatch(runtime, /if \(!inspect && dist\(state\.hero, pos\) !== 1\)/);
+});
+
 test('main page preserves old stage order while loading market and inn support in safe order', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const g7Content = html.indexOf('./src/g7-content.js');
