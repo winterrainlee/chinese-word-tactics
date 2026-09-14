@@ -11,7 +11,7 @@
     driver: './icons/characters/character-driver.svg',
     resident: './icons/characters/character-resident.svg'
   });
-  const backgrounds = { origin: 'region-origin', forest: 'region-origin', roadside: 'region-gate-town', gate: 'region-gate-town', workshop: 'region-workshop-town', market: 'region-market-town' };
+  const backgrounds = { origin: 'region-origin', forest: 'region-origin', roadside: 'region-gate-town', gate: 'region-gate-town', workshop: 'region-workshop-town', market: 'region-market-town', inn: 'subplace-inn' };
   let session = null;
   function render() {
     if (!session) return;
