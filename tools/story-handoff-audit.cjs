@@ -17,6 +17,8 @@ const files = [
   'src/market-journey-content.js',
   'src/market-late-journey-content.js',
   'src/continuous-region-flow.js',
+  'src/chapter1-finale-content.js',
+  'src/first-free-quest-content.js',
   'src/story-outcome-content.js',
   'src/market-story-outcome-content.js',
   'src/g7-story-outcome-content.js'

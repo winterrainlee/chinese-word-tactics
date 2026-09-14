@@ -80,7 +80,7 @@
       return;
     }
     inspect = true;
-    setStatus(actions.length ? '살펴볼 곳을 눌러봐.' : '살펴보기 모드야. 지형이나 늑대를 눌러봐.', 'info');
+    setStatus('請按想查看的對象。 살펴볼 대상을 눌러봐.', 'info');
     render();
   };
 

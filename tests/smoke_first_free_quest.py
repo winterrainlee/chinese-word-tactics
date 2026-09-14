@@ -91,7 +91,19 @@ try:
         page.locator('#firstQuestAccept').click()
         page.locator('#storyView').wait_for(state='visible')
         assert page.locator('#storyTitle').inner_text() == '북쪽 숲으로'
-        finish_story(page)
+        accepted_zh, accepted_ko = [], []
+        for _ in range(20):
+            if not page.locator('#storyView').is_visible():
+                break
+            accepted_zh.append(page.locator('#storyZh').inner_text())
+            accepted_ko.append(page.locator('#storyKo').text_content())
+            page.locator('#storyNext').click()
+        else:
+            raise AssertionError('acceptance story did not finish')
+        accepted_zh = ' '.join(accepted_zh)
+        accepted_ko = ' '.join(accepted_ko)
+        assert '三溪鎮' in accepted_zh and '走過那裡' in accepted_zh and '只是沿著路走' in accepted_zh
+        assert '물길마을에 올 때' in accepted_ko and '길만 따라' in accepted_ko
 
         # Acceptance reveals the already illustrated northern forest as a playable destination.
         page.locator('#worldView').wait_for(state='visible')
@@ -101,8 +113,20 @@ try:
         assert '北邊森林' in marker.inner_text()
         box = marker.evaluate('(el)=>el.getBoundingClientRect().toJSON()')
         world = page.locator('#worldRegions').evaluate('(el)=>el.getBoundingClientRect().toJSON()')
+        marker_center_x = box['x'] + box['width'] / 2
         marker_center_y = box['y'] + box['height'] / 2
-        assert marker_center_y < world['y'] + world['height'] * 0.38, (box, world)
+        x_ratio = (marker_center_x - world['x']) / world['width']
+        y_ratio = (marker_center_y - world['y']) / world['height']
+        assert abs(x_ratio - 0.575) < 0.02, (x_ratio, box, world)
+        assert abs(y_ratio - 0.285) < 0.02, (y_ratio, box, world)
+        for region_marker in page.locator('.regionCard').all():
+            region_id = region_marker.get_attribute('data-region-id')
+            region = region_marker.evaluate('(el)=>el.getBoundingClientRect().toJSON()')
+            overlaps = not (
+                box['right'] <= region['left'] or box['left'] >= region['right'] or
+                box['bottom'] <= region['top'] or box['top'] >= region['bottom']
+            )
+            assert not overlaps, (region_id, box, region)
         assert page.evaluate("GameFlow.progress().seenStories.includes('first-free-quest-accepted')")
         page.screenshot(path=str(OUT / 'ux-c08-north-forest-marker-375x812.png'), full_page=True)
 
@@ -114,10 +138,46 @@ try:
         assert page.evaluate("current().id === 'first-free-quest-forest'")
         assert page.locator('#grid .cell').count() == 49
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        assert '늑대' not in page.locator('#tutorialView').inner_text()
+        assert '野狼' not in page.locator('#tutorialView').inner_text()
 
-        # Select the boy and walk around B so the first target patch A is approached from the east.
+        # Reused words keep shared pronunciation/meaning while C08 supplies its own example and stage rule.
+        card_text = []
+        for word in ('範圍', '數量', '不足', '足夠', '獲得', '退出'):
+            expected = page.evaluate("""word => ({
+                base: { p: WORDS[word].p, k: WORDS[word].k },
+                context: current().wordContext[word]
+            })""", word)
+            page.locator('#words .wordbtn').filter(has_text=word).click()
+            assert page.locator('#sheet .pinyin').inner_text() == expected['base']['p']
+            assert page.locator('#sheet .meaning').inner_text() == expected['base']['k']
+            assert page.locator('#sheet .example').inner_text() == expected['context']['ex']
+            assert expected['context']['rule'] in page.locator('#sheet .gamerule').inner_text()
+            card_text.append(page.locator('#sheet').inner_text())
+            page.locator('#sheet .sheetactions button').click()
+        card_text = '\n'.join(card_text)
+        assert '鐘聲' not in card_text and '종소리' not in card_text
+        assert '繩子' not in card_text and '밧줄' not in card_text and '交換' not in card_text
+        assert '關口' not in card_text and '관문' not in card_text
+
+        # Entering the shared inspection mode must not name an object that is absent from C08.
+        page.locator('#inspectBtn').click()
+        inspect_status = page.locator('#status').text_content()
+        assert '살펴볼 대상을 눌러봐' in inspect_status
+        assert '늑대' not in inspect_status and '野狼' not in inspect_status
+        assert '유적' not in inspect_status and '관문' not in inspect_status
+        page.locator('#inspectBtn').click()
+
+        # Select the boy, verify the non-target patch result is self-contained, then approach A from the east.
         click_cell(page, 5, 3)
-        for row, col in [(4,3), (4,2), (3,2), (2,2), (1,2)]: click_cell(page, row, col)
+        click_cell(page, 4, 3)
+        assert page.locator('#inspectBtn').inner_text() == '버섯 살펴보기'
+        page.locator('#inspectBtn').click()
+        gray_status = page.locator('#status').text_content()
+        assert '灰帽菇 ×1' in gray_status
+        assert '月白菇와 다른 버섯' in gray_status
+        assert '늑대' not in gray_status and '野狼' not in gray_status
+        for row, col in [(4,2), (3,2), (2,2), (1,2)]: click_cell(page, row, col)
         assert page.locator('#inspectBtn').inner_text() == '버섯 살펴보기'
         page.locator('#inspectBtn').click()
         assert '月白菇' in page.locator('#status').inner_text()

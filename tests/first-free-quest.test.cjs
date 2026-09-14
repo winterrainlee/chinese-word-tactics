@@ -60,7 +60,7 @@ test('the northern forest quest deliberately reuses chapter-one vocabulary inste
   const context = contentContext();
   const snapshot = vm.runInContext(`(() => {
     const stage = STAGES.find(item => item.id === 'first-free-quest-forest');
-    return { words: stage.words, goal: stage.goal, required: stage.forestQuest.required, patches: stage.forestQuest.patches, allWords: Object.keys(WORDS) };
+    return { words: stage.words, wordContext: stage.wordContext, goal: stage.goal, required: stage.forestQuest.required, patches: stage.forestQuest.patches, allWords: Object.keys(WORDS) };
   })()`, context);
 
   assert.deepEqual(plain(snapshot.words), ['範圍', '數量', '不足', '足夠', '獲得', '退出']);
@@ -73,6 +73,48 @@ test('the northern forest quest deliberately reuses chapter-one vocabulary inste
   assert.match(snapshot.goal, /範圍/);
   assert.match(snapshot.goal, /數量足夠/);
   assert.match(snapshot.goal, /退出/);
+  assert.deepEqual(Object.keys(snapshot.wordContext), plain(snapshot.words));
+  for (const [word, detail] of Object.entries(snapshot.wordContext)) {
+    assert.deepEqual(Object.keys(detail).sort(), ['ex', 'rule'], `${word} must override only ex/rule`);
+    assert.ok(detail.ex && detail.rule, `${word} context must include both fields`);
+  }
+  assert.doesNotMatch(snapshot.wordContext['範圍'].ex + snapshot.wordContext['範圍'].rule, /鐘聲|종소리/);
+  assert.match(snapshot.wordContext['範圍'].ex + snapshot.wordContext['範圍'].rule, /淺色|연하게/);
+  assert.match(snapshot.wordContext['範圍'].rule, /채집 구역.*버섯 자리/);
+  assert.doesNotMatch(snapshot.wordContext['數量'].rule, /原來數量|剩下/);
+  assert.match(snapshot.wordContext['數量'].ex + snapshot.wordContext['數量'].rule, /種類和數量|종류와 數量/);
+  assert.match(snapshot.wordContext['不足'].ex + snapshot.wordContext['不足'].rule, /不到三個|세 개보다 적/);
+  assert.match(snapshot.wordContext['不足'].rule, /다른 종류 버섯.*포함되지 않아/);
+  assert.match(snapshot.wordContext['足夠'].ex + snapshot.wordContext['足夠'].rule, /三個就足夠|세 개가 되면 足夠/);
+  assert.match(snapshot.wordContext['足夠'].rule, /더 많이 모을 필요는 없어/);
+  assert.doesNotMatch(snapshot.wordContext['獲得'].ex + snapshot.wordContext['獲得'].rule, /交換|繩子|밧줄/);
+  assert.match(snapshot.wordContext['獲得'].ex + snapshot.wordContext['獲得'].rule, /持有的數量|보유 수량/);
+  assert.doesNotMatch(snapshot.wordContext['退出'].ex + snapshot.wordContext['退出'].rule, /關口|관문/);
+  assert.match(snapshot.wordContext['退出'].ex + snapshot.wordContext['退出'].rule, /回到入口退出森林|입구.*숲 밖/);
+});
+
+test('C08 acceptance remembers the route through the forest and the report reflects leaving that route', () => {
+  const context = contentContext();
+  const snapshot = vm.runInContext(`(() => {
+    const accepted = JourneyContent.STORIES['first-free-quest-accepted'].beats;
+    const report = JourneyContent.STORIES['first-free-quest-report'].beats;
+    return {
+      acceptedZh: accepted.map(beat => beat.zh).join(' '),
+      acceptedKo: accepted.map(beat => beat.ko).join(' '),
+      reportZh: report.map(beat => beat.zh).join(' '),
+      reportKo: report.map(beat => beat.ko).join(' ')
+    };
+  })()`, context);
+
+  assert.match(snapshot.acceptedZh, /三溪鎮/);
+  assert.match(snapshot.acceptedZh, /走過那裡/);
+  assert.match(snapshot.acceptedZh, /只是沿著路走/);
+  assert.match(snapshot.acceptedKo, /물길마을에 올 때/);
+  assert.match(snapshot.acceptedKo, /길만 따라/);
+  assert.match(snapshot.reportZh, /離開原來那條路一點/);
+  assert.match(snapshot.reportKo, /원래 길에서 조금만 벗어나도/);
+  assert.doesNotMatch(snapshot.reportZh, /沒有很遠/);
+  assert.doesNotMatch(snapshot.reportKo, /멀지 않/);
 });
 
 test('first quest completion and quest-board unlock persist as separate milestones', () => {
@@ -115,9 +157,11 @@ test('world runtime reveals the existing northern forest only after acceptance a
   assert.match(runtime, /나중에/);
   assert.match(runtime, /지금은 새로 적힌 부탁이 없다/);
   assert.doesNotMatch(runtime, /localStorage|setItem|removeItem|Date\(|new Date|24시간|하루 뒤/);
-  assert.match(css, /\.worldForestQuestMarker\{[^}]*left:50%;top:24%/);
+  assert.match(css, /\.worldForestQuestMarker\{[^}]*left:57\.5%;top:28\.5%/);
+  assert.doesNotMatch(read('src/interaction-runtime.js'), /지형이나 늑대/);
   assert.ok(html.indexOf('chapter1-finale-content.js') < html.indexOf('first-free-quest-content.js'));
   assert.ok(html.indexOf('first-free-quest-content.js') < html.indexOf('journey-progress.js'));
+  assert.ok(html.indexOf('word-context.js') < html.indexOf('app.js'));
   assert.ok(html.indexOf('interaction-runtime.js') < html.indexOf('first-free-quest-runtime.js'));
   assert.ok(html.indexOf('chapter1-finale-runtime.js') < html.indexOf('first-free-quest-world-runtime.js'));
 });
