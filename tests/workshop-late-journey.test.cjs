@@ -31,13 +31,15 @@ test('workshop journey runs continuously from W1 through W7 with world pauses', 
   }
 });
 
-test('W4-W6 stories hand off the learning idea to the next stage', () => {
+test('W4-W6 stories hand off the learning idea without pre-reading the next board', () => {
   const stories = globalThis.JourneyContent.STORIES;
   const w4 = stories['workshop-w4-setup'].beats.map(beat => beat.zh).join('\n');
   const w5after = stories['workshop-after-w5'].beats.map(beat => beat.zh).join('\n');
   const w6 = stories['workshop-w6-setup'].beats.map(beat => beat.zh).join('\n');
   assert.match(w4, /三個條件都對了/);
-  assert.match(w4, /哪個條件已經符合/);
+  assert.match(w4, /各有自己的要求/);
+  assert.match(w4, /照著工作臺旁的標示判斷/);
+  assert.doesNotMatch(w4, /水量要剛好，工作軸要連接，火爐要關掉/);
   assert.match(w5after, /不是直接碰結果/);
   assert.match(w6, /真的損壞了/);
   assert.match(w6, /先看，再決定要不要修/);
@@ -51,6 +53,7 @@ test('W7 setup shows earned trust and finale awards repair token and first wage 
   assert.match(setupZh, /第一次來時/);
   assert.match(setupZh, /現在不一樣/);
   assert.match(setupZh, /你先自己判斷/);
+  assert.match(setupZh, /我不提醒你哪裡要動/);
   assert.match(finaleZh, /修繕牌/);
   assert.match(finaleZh, /工錢/);
   assert.match(finaleZh, /學術塔/);
