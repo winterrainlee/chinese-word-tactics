@@ -231,16 +231,18 @@
       }
     };
   }
+  function showSettings() { return globalThis.SettingsRuntime?.open?.() || false; }
   function showMenu() {
-    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowTitle">타이틀 화면</button></div><div class="sheetactions"><button id="flowMenuClose">닫기</button></div>');
+    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">타이틀 화면</button></div><div class="sheetactions"><button id="flowMenuClose">닫기</button></div>');
     $('flowResume').onclick = () => resume();
     $('flowWorld').disabled = !canVisitWorld();
     if (!canVisitWorld()) $('flowWorld').textContent = '월드맵 · 숲을 빠져나오면 열려';
     $('flowWorld').onclick = showWorld; $('flowJourney').onclick = showJourney;
-    $('flowWords').onclick = showWords; $('flowTitle').onclick = showLanding; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
+    $('flowWords').onclick = showWords; $('flowSettings').onclick = showSettings;
+    $('flowTitle').onclick = showLanding; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
   }
   globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, playStory, playStage, continueFromNode, enterRegion,
-    continueCampaign, resume, showMenu, showWords, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
+    continueCampaign, resume, showMenu, showWords, showSettings, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
   document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
   $('journeyReset')?.addEventListener('click', resetJourney);
   $('worldContinue').onclick = resume;
