@@ -22,10 +22,37 @@
     return result;
   };
   const nodeId = node => `${node.type}:${node.id}`;
-  const allNodes = () => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections.flatMap(section =>
-    section.sequence.map(node => ({ ...node, nodeId: nodeId(node), chapterId: chapter.id, sectionId: section.id,
-      hiddenFromJourney: Boolean(section.hiddenFromJourney || node.hiddenFromJourney) }))));
-  const nodes = () => allNodes().filter(node => !node.hiddenFromJourney);
+  const containers = () => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections.flatMap(section => {
+    if (Array.isArray(section.quests)) {
+      return section.quests.map(quest => ({ chapter, section, quest, sequence: quest.sequence || [] }));
+    }
+    return [{ chapter, section, quest: null, sequence: section.sequence || [] }];
+  }));
+  const allNodes = () => containers().flatMap(({ chapter, section, quest, sequence }) => sequence.map(node => ({
+    ...node,
+    nodeId: nodeId(node),
+    chapterId: chapter.id,
+    chapterKind: chapter.kind || 'campaign',
+    sectionId: section.id,
+    questId: quest?.id || null,
+    entryRegionId: node.entryRegionId || quest?.entryRegionId || section.entryRegionId || section.regionId || null,
+    journeyRevealRequires: strings([
+      ...strings(section.revealRequires),
+      ...strings(quest?.revealRequires),
+      ...strings(node.journeyRevealRequires)
+    ]),
+    hiddenFromJourney: Boolean(chapter.hiddenFromJourney || section.hiddenFromJourney ||
+      quest?.hiddenFromJourney || node.hiddenFromJourney)
+  })));
+  const journeyRequirementMet = (id, progress) => {
+    const required = getNode(id);
+    return Boolean(required && (isComplete(required, progress) || progress.acknowledgedNodes.includes(id)));
+  };
+  const isJourneyVisible = (node, progress) => !node.hiddenFromJourney &&
+    (node.journeyRevealRequires || []).every(id => journeyRequirementMet(id, progress));
+  const nodes = progress => allNodes().filter(node => !node.hiddenFromJourney &&
+    (!progress || isJourneyVisible(node, progress)));
+  const campaignNodes = progress => nodes(progress).filter(node => node.chapterKind !== 'quest-collection');
   const getNode = id => allNodes().find(node => node.nodeId === id);
   function normalize(raw) {
     raw = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
@@ -51,23 +78,28 @@
   function nextNode(id, progress) {
     const current = getNode(id);
     if (!current) return null;
-    const sections = JourneyContent.JOURNEY.flatMap(chapter => chapter.sections);
-    let section = sections.find(s => s.id === current.sectionId), after = id;
+    const allContainers = containers();
+    let container = allContainers.find(item => item.chapter.id === current.chapterId &&
+      item.section.id === current.sectionId && (item.quest?.id || null) === current.questId);
+    let after = id;
     const visited = new Set();
     // Only explicit section links advance the campaign. Parallel regions never auto-chain.
-    while (section && !visited.has(section.id)) {
-      visited.add(section.id);
-      const index = after ? section.sequence.findIndex(n => nodeId(n) === after) : -1;
-      const candidate = section.sequence.slice(index + 1).map(n => getNode(nodeId(n)))
+    while (container && !visited.has(`${container.chapter.id}:${container.section.id}:${container.quest?.id || ''}`)) {
+      visited.add(`${container.chapter.id}:${container.section.id}:${container.quest?.id || ''}`);
+      const index = after ? container.sequence.findIndex(n => nodeId(n) === after) : -1;
+      const candidate = container.sequence.slice(index + 1).map(n => getNode(nodeId(n)))
         .find(n => isAvailable(n, progress) && !isComplete(n, progress));
       if (candidate) return candidate;
-      section = sections.find(s => s.id === section.nextSectionId); after = null;
+      if (container.quest) return null;
+      const nextSectionId = container.section.nextSectionId;
+      container = nextSectionId ? allContainers.find(item => !item.quest && item.section.id === nextSectionId) : null;
+      after = null;
     }
     return null;
   }
   function recommendedNode(progress) {
     const saved = getNode(progress.lastLocation?.nodeId);
-    if (saved && isAvailable(saved, progress) && !isComplete(saved, progress)) return saved;
+    if (saved && saved.chapterKind !== 'quest-collection' && isAvailable(saved, progress) && !isComplete(saved, progress)) return saved;
     // Old tutorial graduates are invited to the new epilogue, not forced back to stage 0.
     if (progress.completedStages.includes('stage-5')) {
       const epilogue = getNode('story:prologue-forest-edge');
@@ -76,7 +108,11 @@
       if (!isComplete(intro, progress)) return intro;
     }
     // Internal place stories such as the inn finale are entered from their world place, not generic resume.
-    return nodes().find(node => isAvailable(node, progress) && !isComplete(node, progress)) || null;
+    return campaignNodes(progress).find(node => isAvailable(node, progress) && !isComplete(node, progress)) || null;
+  }
+  function resumeNode(progress) {
+    const saved = getNode(progress.lastLocation?.nodeId);
+    return saved && isAvailable(saved, progress) && !isComplete(saved, progress) ? saved : recommendedNode(progress);
   }
   function getHeroRole(completedMilestones = []) {
     const milestones = strings(completedMilestones);
@@ -129,6 +165,6 @@
       }
     });
   }
-  globalThis.JourneyProgress = Object.freeze({ KEY, nodeId, allNodes, nodes, getNode, normalize, isComplete,
-    isAvailable, nextNode, recommendedNode, getHeroRole, createStore });
+  globalThis.JourneyProgress = Object.freeze({ KEY, nodeId, allNodes, nodes, campaignNodes, getNode, normalize,
+    isComplete, isAvailable, isJourneyVisible, nextNode, recommendedNode, resumeNode, getHeroRole, createStore });
 })();

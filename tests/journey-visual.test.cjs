@@ -53,10 +53,26 @@ test('journey keeps one future lock visible and folds the remaining locked nodes
 
 test('journey highlights the recommended current point without changing replay logic', () => {
   assert.match(runtime, /const recommendedId = recommended \? JourneyProgress\.nodeId\(recommended\) : null/);
-  assert.match(runtime, /const id = JourneyProgress\.nodeId\(node\), current = id === recommendedId/);
-  assert.match(runtime, /button\.dataset\.current = String\(current\)/);
+  assert.match(runtime, /campaignCurrent = id === recommendedId/);
+  assert.match(runtime, /questCurrent = id === questCurrentId/);
+  assert.match(runtime, /button\.dataset\.current = String\(campaignCurrent\)/);
+  assert.match(runtime, /button\.dataset\.questCurrent = String\(questCurrent\)/);
   assert.match(runtime, /aria-current', 'step'/);
   assert.match(css, /\.journeyNode\[data-current="true"\]/);
+  assert.match(css, /\.journeyNode\[data-quest-current="true"\]/);
+});
+
+test('optional requests render as collection, place, request, and event levels', () => {
+  assert.match(runtime, /chapter\.kind !== 'quest-collection'/);
+  assert.match(runtime, /function appendQuestLocation\(/);
+  assert.match(runtime, /section\.quests/);
+  assert.match(runtime, /journeyQuestLocation/);
+  assert.match(runtime, /journeyQuestSummary/);
+  assert.match(runtime, /journeyQuestBody/);
+  assert.match(runtime, /entry\.done \? '완료' : '진행 중'/);
+  assert.match(css, /\.journeyQuestSummary\{[^}]*min-height:48px/s);
+  assert.match(css, /\.journeyQuestBody\{/);
+  assert.match(css, /\.journeyQuestSummary:focus-visible[^\{]*\{outline:3px solid var\(--blue\)/);
 });
 
 test('completed world regions can open their own replay list', () => {
@@ -78,7 +94,8 @@ test('journey reset is separated from the primary continue action', () => {
 });
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
-  assert.match(html, /journey\.css\?v=20260915-icons1/);
-  assert.match(html, /journey-runtime\.js\?v=20260915-icons1/);
-  assert.match(html, /flow-runtime\.js\?v=20260914-regionreplay1/);
+  assert.match(html, /journey\.css\?v=20260915-quests1/);
+  assert.match(html, /journey-runtime\.js\?v=20260915-quests1/);
+  assert.match(html, /journey-progress\.js\?v=20260915-quests1/);
+  assert.match(html, /flow-runtime\.js\?v=20260915-quests1/);
 });

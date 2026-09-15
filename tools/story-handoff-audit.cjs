@@ -33,6 +33,9 @@ const stages = vm.runInContext('STAGES', sandbox);
 const stageById = new Map(stages.map(stage => [stage.id, stage]));
 const stories = sandbox.JourneyContent.STORIES;
 const sections = sandbox.JourneyContent.JOURNEY.flatMap(chapter => chapter.sections || []);
+const sequences = sections.flatMap(section => Array.isArray(section.quests)
+  ? section.quests.map(quest => ({ sectionId: `${section.id}:${quest.id}`, sequence: quest.sequence || [] }))
+  : [{ sectionId: section.id, sequence: section.sequence || [] }]);
 
 function normalize(text) {
   return String(text || '')
@@ -90,21 +93,21 @@ function addCandidate(kind, sectionId, leftId, rightId, left, right, variant = '
   candidates.push({ kind, sectionId, leftId, rightId, variant, zh, ko, score: Math.max(zh, ko), left, right });
 }
 
-for (const section of sections) {
-  const sequence = section.sequence || [];
+for (const item of sequences) {
+  const sequence = item.sequence;
   for (let i = 0; i < sequence.length - 1; i++) {
     const leftNode = sequence[i], rightNode = sequence[i + 1];
     if (leftNode.type === 'stage' && rightNode.type === 'story') {
       const stage = stageById.get(leftNode.id), story = stories[rightNode.id];
-      if (stage && story) addCandidate('completion→after-story', section.id, leftNode.id, rightNode.id, completionText(stage), beatsText(story.beats, 'start'));
+      if (stage && story) addCandidate('completion→after-story', item.sectionId, leftNode.id, rightNode.id, completionText(stage), beatsText(story.beats, 'start'));
     }
     if (leftNode.type === 'story' && rightNode.type === 'story') {
       const leftStory = stories[leftNode.id], rightStory = stories[rightNode.id];
-      if (leftStory && rightStory) addCandidate('story→story', section.id, leftNode.id, rightNode.id, beatsText(leftStory.beats, 'end'), beatsText(rightStory.beats, 'start'));
+      if (leftStory && rightStory) addCandidate('story→story', item.sectionId, leftNode.id, rightNode.id, beatsText(leftStory.beats, 'end'), beatsText(rightStory.beats, 'start'));
     }
     if (leftNode.type === 'story' && rightNode.type === 'stage') {
       const story = stories[leftNode.id], stage = stageById.get(rightNode.id);
-      if (story && stage) addCandidate('setup→stage', section.id, leftNode.id, rightNode.id, beatsText(story.beats, 'end'), setupText(stage));
+      if (story && stage) addCandidate('setup→stage', item.sectionId, leftNode.id, rightNode.id, beatsText(story.beats, 'end'), setupText(stage));
     }
   }
 }

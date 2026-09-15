@@ -11,17 +11,23 @@ test('journey foregrounds only the recommended unfinished node and focuses it on
   const css = read('src/journey.css');
 
   assert.match(runtime, /recommended \? JourneyProgress\.nodeId\(recommended\) : null/);
-  assert.match(runtime, /button\.dataset\.current = String\(current\)/);
+  assert.match(runtime, /button\.dataset\.current = String\(campaignCurrent\)/);
+  assert.match(runtime, /button\.dataset\.questCurrent = String\(questCurrent\)/);
   assert.match(runtime, /aria-current', 'step'/);
   assert.match(runtime, /진행 중/);
   assert.match(runtime, /이어서 플레이/);
   assert.match(runtime, /이어서 보기/);
-  assert.match(runtime, /forceCurrentOpen = Boolean\(options\.focusCurrent && recommendedId\)/);
+  assert.match(runtime, /forceCurrentOpen = Boolean\(options\.focusCurrent && focusNodeId\)/);
+  assert.match(runtime, /data-quest-current="true"/);
   assert.match(runtime, /scrollIntoView\(\{ block: 'center'/);
   assert.match(runtime, /if \(forceCurrentOpen\) focusCurrentNode\(\)/);
 
   assert.match(flow, /JourneyRuntime\.render\(focusRegionId \? \{ focusRegionId \} : \{ focusCurrent: true \}\)/);
+  assert.match(flow, /function continueCampaign\(\)/);
+  assert.match(flow, /node = P\.resumeNode\(progress\)/);
 
-  assert.match(css, /journeyNode\[data-current="true"\]\{[^}]*background:linear-gradient/);
-  assert.match(css, /journeyNode\[data-current="true"\]::before\{[^}]*width:14px[^}]*height:14px[^}]*box-shadow/);
+  assert.match(css, /journeyNode\[data-current="true"\][^{]*\{[^}]*background:linear-gradient/);
+  assert.match(css, /journeyNode\[data-quest-current="true"\]\{[^}]*background:linear-gradient/);
+  assert.match(css, /journeyNode\[data-current="true"\]::before[^\{]*\{[^}]*width:14px[^}]*height:14px[^}]*box-shadow/);
+  assert.match(css, /journeyNode\[data-quest-current="true"\]::before[^\{]*\{[^}]*border:2px solid var\(--blue\)/);
 });

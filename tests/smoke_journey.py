@@ -209,9 +209,9 @@ try:
 
         page.screenshot(path=str(OUT/'journey-titles-375.png'))
         page.locator('[data-journey-filter="stage"]').click()
-        assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes().filter(node => node.type === "stage").length')
+        assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes(GameFlow.progress()).filter(node => node.type === "stage").length')
         page.locator('[data-journey-filter="story"]').click()
-        assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes().filter(node => node.type === "story").length')
+        assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes(GameFlow.progress()).filter(node => node.type === "story").length')
         page.locator('#journeyContinue').click(); assert page.locator('#storyCount').inner_text()=='2 / 4'
         finish_current_story(page); assert_view(page,'tutorial')
         passed('journey filters, future locks, story exit and continuation')

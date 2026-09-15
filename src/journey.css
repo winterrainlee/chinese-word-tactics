@@ -11,12 +11,12 @@
 
 /* Chapters and regions behave like headings in a travel record. */
 .journeyChapter{margin:5px 0 10px}
-.journeyChapterSummary,.journeyRegionSummary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.journeyChapterSummary::-webkit-details-marker,.journeyRegionSummary::-webkit-details-marker{display:none}
+.journeyChapterSummary,.journeyRegionSummary,.journeyQuestSummary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.journeyChapterSummary::-webkit-details-marker,.journeyRegionSummary::-webkit-details-marker,.journeyQuestSummary::-webkit-details-marker{display:none}
 .journeyChapterSummary{min-height:54px;display:grid;grid-template-columns:18px minmax(0,1fr);align-items:center;gap:8px;padding:8px 2px;border-radius:0}
-.journeyChapterSummary::before,.journeyRegionSummary::before{content:'›';display:block;color:var(--muted);font-size:22px;line-height:1;transform:rotate(0deg);transform-origin:center;transition:transform .16s ease}
-.journeyChapter[open]>.journeyChapterSummary::before,.journeyRegion[open]>.journeyRegionSummary::before{transform:rotate(90deg)}
-.journeyChapterSummary:active,.journeyRegionSummary:active{background:var(--accent-soft)}
+.journeyChapterSummary::before,.journeyRegionSummary::before,.journeyQuestSummary::before{content:'›';display:block;color:var(--muted);font-size:22px;line-height:1;transform:rotate(0deg);transform-origin:center;transition:transform .16s ease}
+.journeyChapter[open]>.journeyChapterSummary::before,.journeyRegion[open]>.journeyRegionSummary::before,.journeyQuest[open]>.journeyQuestSummary::before{transform:rotate(90deg)}
+.journeyChapterSummary:active,.journeyRegionSummary:active,.journeyQuestSummary:active{background:var(--accent-soft)}
 .journeyChapterHeading{display:grid;gap:1px;min-width:0}.journeyChapterTitle{font-size:18px;line-height:1.35}.journeyChapterMeta{font-size:12px;color:var(--muted);font-weight:500}
 .journeyChapterBody{margin:0 0 14px 24px;padding:0;border-left:0}
 .journeySectionDirect{padding:0}
@@ -27,6 +27,14 @@
 .journeyRegionHead{display:flex;align-items:baseline;gap:7px;min-width:0;flex-wrap:wrap}.journeyRegionKo{font-size:15px}.journeyRegionZh{font-size:12px;color:var(--muted);font-weight:650}
 .journeyRegionProgress{grid-column:2;font-size:11px;color:var(--muted);line-height:1.35}
 .journeyRegionBody{margin:1px 0 3px 8px;padding:0;border-left:0}.journeyRegionEmpty{font-size:12px;color:var(--muted);margin:4px 0 8px 26px}
+
+/* Optional requests add one semantic level: collection → place → request → events. */
+.journeyQuestLocationBody{margin-left:5px}
+.journeyQuest{margin:3px 0 10px}
+.journeyQuest+.journeyQuest{padding-top:4px;border-top:1px solid color-mix(in srgb,var(--line) 58%,transparent)}
+.journeyQuestSummary{min-height:48px;display:grid;grid-template-columns:15px minmax(0,1fr) auto;align-items:center;gap:5px 7px;padding:5px 0;border:0;border-radius:0;background:transparent}
+.journeyQuestHead{display:grid;gap:0;min-width:0}.journeyQuestKo{font-size:14px;line-height:1.35}.journeyQuestZh{font-size:11px;line-height:1.35;color:var(--muted);font-weight:600}
+.journeyQuestState{font-size:11px;line-height:1.35;color:var(--muted);font-weight:700;white-space:nowrap}.journeyQuestBody{margin-left:6px}
 
 /* Each event is one point on a continuous timeline rather than an isolated card. */
 .journeyTimeline{list-style:none;padding:0;margin:0;display:grid;gap:0}
@@ -48,6 +56,9 @@
 .journeyNode[data-current="true"]{background:linear-gradient(90deg,color-mix(in srgb,var(--accent-soft) 58%,transparent),transparent 88%)}
 .journeyNode[data-current="true"]::before{left:4px;top:16px;width:14px;height:14px;border:2px solid var(--accent);background:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent-soft) 74%,transparent)}
 .journeyNode[data-current="true"] .journeyNodeTitle{font-weight:900}.journeyNode[data-current="true"] .journeyType,.journeyNode[data-current="true"] .journeyNodeState{color:var(--accent);font-weight:800}
+.journeyNode[data-quest-current="true"]{background:linear-gradient(90deg,color-mix(in srgb,var(--blue) 13%,transparent),transparent 88%)}
+.journeyNode[data-quest-current="true"]::before{left:4px;top:16px;width:14px;height:14px;border:2px solid var(--blue);background:var(--blue);box-shadow:0 0 0 5px color-mix(in srgb,var(--blue) 14%,transparent)}
+.journeyNode[data-quest-current="true"] .journeyNodeTitle{font-weight:900}.journeyNode[data-quest-current="true"] .journeyType,.journeyNode[data-quest-current="true"] .journeyNodeState{color:var(--blue);font-weight:800}
 
 .journeyNode[data-state="locked"]{background:transparent;border:0;color:var(--muted);opacity:.72}.journeyNode[data-state="locked"]::before{background:var(--bg);border-color:color-mix(in srgb,var(--muted) 48%,var(--line))}
 .journeyNode:disabled{cursor:default}
@@ -65,6 +76,6 @@
 .flowNav button[aria-current="page"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
 .flowNote{font-size:12px;color:var(--muted);line-height:1.5;margin:-2px 2px 0}.flowNotice{padding:10px 16px;background:var(--danger-soft);color:var(--danger);font-size:14px}.flowNotice[hidden]{display:none!important}
 .flowMenu{display:grid;gap:8px}.flowMenu button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);text-align:left;padding:10px 14px}.flowMenu button:disabled{color:var(--muted)}
-.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible,.journeyLockedSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible,.journeyQuestSummary:focus-visible,.journeyLockedSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
 @media(max-width:390px){.journeyShell{gap:11px}.journeyFilters{gap:18px}.journeyChapterBody{margin-left:21px}.journeyNode{padding-right:2px}}

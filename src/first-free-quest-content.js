@@ -74,7 +74,7 @@
   Object.assign(stories, {
     'first-free-quest-accepted': {
       id: 'first-free-quest-accepted',
-      chapterId: 'chapter-1-three-roads',
+      chapterId: 'waterway-side-quests',
       titleKo: '북쪽 숲으로',
       background: 'inn', placeZh: '客棧', placeKo: '여관 1층',
       beats: [
@@ -88,7 +88,7 @@
     },
     'first-free-quest-report': {
       id: 'first-free-quest-report',
-      chapterId: 'chapter-1-three-roads',
+      chapterId: 'waterway-side-quests',
       titleKo: '버섯을 가져오다',
       background: 'inn', placeZh: '客棧', placeKo: '여관 1층',
       beats: [
@@ -100,7 +100,7 @@
     },
     'quest-board-installed': {
       id: 'quest-board-installed',
-      chapterId: 'chapter-1-three-roads',
+      chapterId: 'waterway-side-quests',
       titleKo: '부탁을 적어 두는 곳',
       background: 'inn', placeZh: '客棧', placeKo: '여관 1층',
       beats: [
@@ -112,53 +112,66 @@
     }
   });
 
-  const chapter = globalThis.JourneyContent.JOURNEY.find(item => item.id === 'chapter-1-three-roads');
-  if (!chapter) return;
+  const journey = globalThis.JourneyContent.JOURNEY;
+  let collection = journey.find(item => item.id === 'waterway-side-quests');
+  if (!collection) {
+    collection = {
+      id: 'waterway-side-quests',
+      kind: 'quest-collection',
+      titleKo: '자유 의뢰 · 물길마을 주변',
+      tag: '선택 의뢰',
+      sections: []
+    };
+    journey.push(collection);
+  }
 
-  const addSection = section => {
-    if (!chapter.sections.some(item => item.id === section.id)) chapter.sections.push(section);
-  };
+  let forest = collection.sections.find(item => item.id === 'north-forest');
+  if (!forest) {
+    forest = {
+      id: 'north-forest',
+      regionId: 'north-forest',
+      nameKo: '북쪽 숲',
+      nameZh: '北邊森林',
+      quests: []
+    };
+    collection.sections.push(forest);
+  }
 
-  addSection({
-    id: 'first-free-quest-offer',
-    regionId: 'inn-first-quest',
-    hiddenFromJourney: true,
-    sequence: [{
-      type: 'story', id: 'first-free-quest-accepted',
-      requires: ['story:chapter1-room-finale'],
-      returnToWorldAfter: true
-    }]
-  });
-
-  addSection({
-    id: 'first-free-quest-forest',
-    regionId: 'north-forest',
-    hiddenFromJourney: true,
-    sequence: [{
-      type: 'stage', id: STAGE_ID,
-      requires: ['story:first-free-quest-accepted'],
-      returnToWorldAfter: true
-    }]
-  });
-
-  addSection({
-    id: 'first-free-quest-report',
-    regionId: 'inn-first-quest-report',
-    hiddenFromJourney: true,
-    sequence: [
-      {
-        type: 'story', id: 'first-free-quest-report',
-        requires: ['stage:first-free-quest-forest'],
-        milestone: 'first-free-quest-completed'
-      },
-      {
-        type: 'story', id: 'quest-board-installed',
-        requires: ['story:first-free-quest-report'],
-        milestone: 'quest-board-unlocked',
-        returnToWorldAfter: true
-      }
-    ]
-  });
+  if (!forest.quests.some(item => item.id === 'north-forest-mushrooms')) {
+    forest.quests.push({
+      id: 'north-forest-mushrooms',
+      titleKo: '북쪽 숲의 버섯',
+      titleZh: '北邊森林的蘑菇',
+      revealRequires: ['story:first-free-quest-accepted'],
+      sequence: [
+        {
+          type: 'story', id: 'first-free-quest-accepted',
+          entryRegionId: 'inn-first-quest',
+          requires: ['story:chapter1-room-finale'],
+          returnToWorldAfter: true
+        },
+        {
+          type: 'stage', id: STAGE_ID,
+          entryRegionId: 'north-forest',
+          requires: ['story:first-free-quest-accepted'],
+          returnToWorldAfter: true
+        },
+        {
+          type: 'story', id: 'first-free-quest-report',
+          entryRegionId: 'inn-first-quest-report',
+          requires: ['stage:first-free-quest-forest'],
+          milestone: 'first-free-quest-completed'
+        },
+        {
+          type: 'story', id: 'quest-board-installed',
+          entryRegionId: 'inn-first-quest-report',
+          requires: ['story:first-free-quest-report'],
+          milestone: 'quest-board-unlocked',
+          returnToWorldAfter: true
+        }
+      ]
+    });
+  }
 
   globalThis.FirstFreeQuestContent = Object.freeze({
     STAGE_ID,

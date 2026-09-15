@@ -12,7 +12,7 @@
   const validOptions = options => ({ mode: options.mode === 'replay' ? 'replay' : 'first-play', returnTo: options.returnTo === 'world' ? 'world' : 'journey' });
   const canVisitWorld = () => store.get().completedStages.includes('stage-5');
   const recordWordEncounter = id => globalThis.LexiconRuntime?.visitStage(id);
-  const nodeRegionId = node => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(section => section.id === node?.sectionId)?.regionId || null;
+  const nodeRegionId = node => node?.entryRegionId || null;
   const readPendingCompletion = () => {
     try {
       const value = JSON.parse(localStorage.getItem(PENDING_COMPLETION_KEY) || 'null');
@@ -100,15 +100,25 @@
   }
   function playNode(node) { return node.type === 'story' ? playStory(node.id) : playStage(node.id); }
   function enterRegion(regionId) {
-    const section = JourneyContent.JOURNEY.flatMap(chapter => chapter.sections).find(item => item.regionId === regionId);
-    if (!section) return false;
     const progress = store.get();
-    const node = section.sequence.map(item => P.getNode(P.nodeId(item))).find(item => item && P.isAvailable(item, progress) && !P.isComplete(item, progress));
+    const candidates = P.allNodes().filter(item => item.entryRegionId === regionId &&
+      P.isAvailable(item, progress) && !P.isComplete(item, progress));
+    const activeQuestIds = new Set(candidates.filter(item => item.questId).map(item => item.questId));
+    // A shared quest place needs an explicit quest picker once more than one request is active.
+    if (activeQuestIds.size > 1) return false;
+    const node = candidates[0];
     if (!node) return false;
     return playNode(node);
   }
+  function continueCampaign() {
+    const progress = store.get(), node = P.recommendedNode(progress);
+    if (!node) return showWorld();
+    if (progress.lastLocation?.nodeId === node.nodeId) return resume();
+    if (nodeRegionId(node)) return showWorld();
+    return playNode(node);
+  }
   function resume() {
-    const progress = store.get(), location = progress.lastLocation, node = P.recommendedNode(progress);
+    const progress = store.get(), location = progress.lastLocation, node = P.resumeNode(progress);
     const saved = P.getNode(location?.nodeId), pending = readPendingCompletion();
     if (!location && TacticalGame.hasSavedGame) {
       const stageId = TacticalGame.stageId(), stageNode = P.getNode(`stage:${stageId}`);
@@ -203,7 +213,7 @@
     $('flowWords').onclick = showWords; $('flowTitle').onclick = showLanding; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
   }
   globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, playStory, playStage, continueFromNode, enterRegion,
-    resume, showMenu, showWords, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
+    continueCampaign, resume, showMenu, showWords, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
   document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
   $('journeyReset')?.addEventListener('click', resetJourney);
   $('worldContinue').onclick = resume;

@@ -32,28 +32,65 @@ function contentContext() {
   return context;
 }
 
-test('C08 starts only after the chapter ending and keeps offer, forest, and report out of generic journey', () => {
+test('C08 becomes one revealed request under the reusable northern forest journey place', () => {
   const context = contentContext();
   const snapshot = vm.runInContext(`(() => {
-    const chapter = JourneyContent.JOURNEY.find(item => item.id === 'chapter-1-three-roads');
-    const ids = ['first-free-quest-offer','first-free-quest-forest','first-free-quest-report'];
-    return ids.map(id => {
-      const section = chapter.sections.find(item => item.id === id);
-      return { id, regionId: section.regionId, hidden: section.hiddenFromJourney, sequence: section.sequence };
+    const collection = JourneyContent.JOURNEY.find(item => item.id === 'waterway-side-quests');
+    const forest = collection.sections.find(item => item.id === 'north-forest');
+    const quest = forest.quests.find(item => item.id === 'north-forest-mushrooms');
+    const mainNodes = JourneyProgress.allNodes().filter(node => node.chapterKind !== 'quest-collection');
+    const before = JourneyProgress.normalize({
+      seenStories: mainNodes.filter(node => node.type === 'story').map(node => node.id),
+      completedStages: mainNodes.filter(node => node.type === 'stage').map(node => node.id)
     });
+    const after = JourneyProgress.normalize({ ...before, seenStories: [...before.seenStories, 'first-free-quest-accepted'] });
+    const activeCheckpoint = JourneyProgress.normalize({ ...after,
+      lastLocation: { view: 'tactical', nodeId: 'stage:first-free-quest-forest' } });
+    return {
+      collection: { kind: collection.kind, titleKo: collection.titleKo, tag: collection.tag },
+      forest: { regionId: forest.regionId, nameKo: forest.nameKo, nameZh: forest.nameZh, questCount: forest.quests.length },
+      quest: { id: quest.id, titleKo: quest.titleKo, titleZh: quest.titleZh, revealRequires: quest.revealRequires,
+        sequence: quest.sequence },
+      beforeVisible: JourneyProgress.nodes(before).filter(node => node.questId).map(node => node.nodeId),
+      afterVisible: JourneyProgress.nodes(after).filter(node => node.questId).map(node => node.nodeId),
+      recommendedAfter: JourneyProgress.recommendedNode(after)?.nodeId || null,
+      recommendedAtCheckpoint: JourneyProgress.recommendedNode(activeCheckpoint)?.nodeId || null,
+      resumeAtCheckpoint: JourneyProgress.resumeNode(activeCheckpoint)?.nodeId || null,
+      nextAfterOffer: JourneyProgress.nextNode('story:first-free-quest-accepted', after)?.nodeId || null
+    };
   })()`, context);
 
-  assert.deepEqual(plain(snapshot.map(item => [item.id, item.regionId, item.hidden])), [
-    ['first-free-quest-offer', 'inn-first-quest', true],
-    ['first-free-quest-forest', 'north-forest', true],
-    ['first-free-quest-report', 'inn-first-quest-report', true]
+  assert.deepEqual(plain(snapshot.collection), {
+    kind: 'quest-collection', titleKo: '자유 의뢰 · 물길마을 주변', tag: '선택 의뢰'
+  });
+  assert.deepEqual(plain(snapshot.forest), {
+    regionId: 'north-forest', nameKo: '북쪽 숲', nameZh: '北邊森林', questCount: 1
+  });
+  assert.equal(snapshot.quest.id, 'north-forest-mushrooms');
+  assert.equal(snapshot.quest.titleKo, '북쪽 숲의 버섯');
+  assert.equal(snapshot.quest.titleZh, '北邊森林的蘑菇');
+  assert.deepEqual(plain(snapshot.quest.revealRequires), ['story:first-free-quest-accepted']);
+  assert.deepEqual(plain(snapshot.quest.sequence.map(node => [node.type, node.id, node.entryRegionId])), [
+    ['story', 'first-free-quest-accepted', 'inn-first-quest'],
+    ['stage', 'first-free-quest-forest', 'north-forest'],
+    ['story', 'first-free-quest-report', 'inn-first-quest-report'],
+    ['story', 'quest-board-installed', 'inn-first-quest-report']
   ]);
-  assert.deepEqual(plain(snapshot[0].sequence[0].requires), ['story:chapter1-room-finale']);
-  assert.deepEqual(plain(snapshot[1].sequence[0].requires), ['story:first-free-quest-accepted']);
-  assert.deepEqual(plain(snapshot[2].sequence[0].requires), ['stage:first-free-quest-forest']);
-  assert.equal(snapshot[2].sequence[0].milestone, 'first-free-quest-completed');
-  assert.equal(snapshot[2].sequence[1].milestone, 'quest-board-unlocked');
-  assert.equal(snapshot[2].sequence[1].returnToWorldAfter, true);
+  assert.deepEqual(plain(snapshot.quest.sequence[0].requires), ['story:chapter1-room-finale']);
+  assert.deepEqual(plain(snapshot.quest.sequence[1].requires), ['story:first-free-quest-accepted']);
+  assert.deepEqual(plain(snapshot.quest.sequence[2].requires), ['stage:first-free-quest-forest']);
+  assert.equal(snapshot.quest.sequence[2].milestone, 'first-free-quest-completed');
+  assert.equal(snapshot.quest.sequence[3].milestone, 'quest-board-unlocked');
+  assert.equal(snapshot.quest.sequence[3].returnToWorldAfter, true);
+  assert.deepEqual(plain(snapshot.beforeVisible), []);
+  assert.deepEqual(plain(snapshot.afterVisible), [
+    'story:first-free-quest-accepted', 'stage:first-free-quest-forest',
+    'story:first-free-quest-report', 'story:quest-board-installed'
+  ]);
+  assert.equal(snapshot.recommendedAfter, null);
+  assert.equal(snapshot.recommendedAtCheckpoint, null);
+  assert.equal(snapshot.resumeAtCheckpoint, 'stage:first-free-quest-forest');
+  assert.equal(snapshot.nextAfterOffer, 'stage:first-free-quest-forest');
 });
 
 test('the northern forest quest deliberately reuses chapter-one vocabulary instead of adding a new word family', () => {
@@ -91,6 +128,38 @@ test('the northern forest quest deliberately reuses chapter-one vocabulary inste
   assert.match(snapshot.wordContext['獲得'].ex + snapshot.wordContext['獲得'].rule, /持有的數量|보유 수량/);
   assert.doesNotMatch(snapshot.wordContext['退出'].ex + snapshot.wordContext['退出'].rule, /關口|관문/);
   assert.match(snapshot.wordContext['退出'].ex + snapshot.wordContext['退出'].rule, /回到入口退出森林|입구.*숲 밖/);
+});
+
+test('a future northern forest request stays a sibling quest instead of merging timelines', () => {
+  const context = contentContext();
+  const snapshot = vm.runInContext(`(() => {
+    JourneyContent.STORIES['north-forest-signs-accepted'] = {
+      id: 'north-forest-signs-accepted', chapterId: 'waterway-side-quests', titleKo: '숲길 표식 조사',
+      beats: [{ speaker: 'narrator', zh: '看看路標。', ko: '길표지를 살펴보자.' }]
+    };
+    const forest = JourneyContent.JOURNEY.find(item => item.id === 'waterway-side-quests')
+      .sections.find(item => item.id === 'north-forest');
+    forest.quests.push({
+      id: 'north-forest-signs', titleKo: '숲길 표식 조사', titleZh: '森林路標調查',
+      revealRequires: ['story:north-forest-signs-accepted'],
+      sequence: [{ type: 'story', id: 'north-forest-signs-accepted', entryRegionId: 'north-forest',
+        requires: ['story:first-free-quest-accepted'] }]
+    });
+    const progress = JourneyProgress.normalize({
+      seenStories: ['first-free-quest-accepted', 'first-free-quest-report', 'quest-board-installed', 'north-forest-signs-accepted'],
+      completedStages: ['first-free-quest-forest']
+    });
+    return {
+      questIds: JourneyProgress.nodes(progress).filter(node => node.sectionId === 'north-forest').map(node => node.questId),
+      firstQuestNext: JourneyProgress.nextNode('story:quest-board-installed', progress)?.nodeId || null
+    };
+  })()`, context);
+
+  assert.deepEqual(plain(snapshot.questIds), [
+    'north-forest-mushrooms', 'north-forest-mushrooms', 'north-forest-mushrooms', 'north-forest-mushrooms',
+    'north-forest-signs'
+  ]);
+  assert.equal(snapshot.firstQuestNext, null);
 });
 
 test('C08 keeps repeatable non-target inspection contextual while target patches switch to collection', () => {
@@ -164,6 +233,7 @@ test('world runtime reveals the existing northern forest only after acceptance a
   const runtime = read('src/first-free-quest-world-runtime.js');
   const content = read('src/first-free-quest-content.js');
   const css = read('src/first-free-quest.css');
+  const flow = read('src/flow-runtime.js');
   const html = read('index.html');
 
   assert.match(runtime, /chapter1-complete/);
@@ -176,6 +246,9 @@ test('world runtime reveals the existing northern forest only after acceptance a
   assert.match(runtime, /北邊森林/);
   assert.match(runtime, /enterRegion\?\.\('north-forest'\)/);
   assert.match(runtime, /enterRegion\?\.\('inn-first-quest-report'\)/);
+  assert.match(flow, /activeQuestIds\.size > 1/);
+  assert.match(flow, /function continueCampaign\(\)/);
+  assert.match(flow, /P\.resumeNode\(progress\)/);
   assert.match(runtime, /나중에/);
   assert.match(runtime, /물길마을 북쪽에 있는 숲이야\./);
   assert.match(runtime, /지금은 새로 적힌 부탁이 없다/);

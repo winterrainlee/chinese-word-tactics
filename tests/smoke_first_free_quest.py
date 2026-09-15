@@ -77,6 +77,12 @@ try:
 
         # Before the innkeeper asks, the northern forest is only map scenery: no quest marker yet.
         assert page.locator('.worldForestQuestMarker').count() == 0
+        campaign_before_acceptance = page.evaluate("JourneyProgress.recommendedNode(GameFlow.progress())?.nodeId || null")
+        page.evaluate('GameFlow.showJourney()')
+        page.locator('#journeyView').wait_for(state='visible')
+        assert page.locator('.journeyChapter[data-chapter-id="waterway-side-quests"]').count() == 0
+        page.evaluate('GameFlow.showWorld()')
+        page.locator('#worldView').wait_for(state='visible')
 
         # The request can be postponed without changing progress or installing a marker.
         page.locator('.worldInnMarker').click()
@@ -132,6 +138,34 @@ try:
             assert not overlaps, (region_id, box, region)
         assert page.evaluate("GameFlow.progress().seenStories.includes('first-free-quest-accepted')")
         page.screenshot(path=str(OUT / 'ux-c08-north-forest-marker-375x812.png'), full_page=True)
+
+        # Accepted requests appear under a reusable place without taking over the campaign recommendation.
+        assert page.evaluate("JourneyProgress.recommendedNode(GameFlow.progress())?.nodeId || null") == campaign_before_acceptance
+        page.evaluate('GameFlow.showJourney()')
+        page.locator('#journeyView').wait_for(state='visible')
+        page.evaluate('''() => {
+          for (const selector of [
+            '.journeyChapter[data-chapter-id="waterway-side-quests"]',
+            '.journeyRegion[data-journey-region-id="north-forest"]',
+            '.journeyQuest[data-journey-quest-id="north-forest-mushrooms"]'
+          ]) document.querySelector(selector).open = true;
+          document.querySelector('.journeyNode[data-quest-current="true"]')?.scrollIntoView({block:'center'});
+        }''')
+        collection = page.locator('.journeyChapter[data-chapter-id="waterway-side-quests"]')
+        forest_journey = collection.locator('.journeyRegion[data-journey-region-id="north-forest"]')
+        mushroom_quest = forest_journey.locator('.journeyQuest[data-journey-quest-id="north-forest-mushrooms"]')
+        assert collection.locator(':scope > .journeyChapterSummary .journeyChapterTitle').inner_text() == '자유 의뢰 · 물길마을 주변'
+        assert forest_journey.locator(':scope > .journeyRegionSummary').inner_text().startswith('북쪽 숲')
+        assert '北邊森林' in forest_journey.locator(':scope > .journeyRegionSummary').inner_text()
+        assert '북쪽 숲의 버섯' in mushroom_quest.locator(':scope > .journeyQuestSummary').inner_text()
+        assert '진행 중' in mushroom_quest.locator(':scope > .journeyQuestSummary').inner_text()
+        active_quest_node = mushroom_quest.locator('.journeyNode[data-quest-current="true"]')
+        assert active_quest_node.get_attribute('data-node-id') == 'stage:first-free-quest-forest'
+        assert active_quest_node.is_enabled()
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        page.screenshot(path=str(OUT / 'ux-c08-journey-active-quest-375x812.png'))
+        page.evaluate('GameFlow.showWorld()')
+        page.locator('#worldView').wait_for(state='visible')
 
         marker.click()
         assert page.locator('#sheet h2').inner_text() == '북쪽 숲'
@@ -262,6 +296,54 @@ try:
         assert '지금은 새로 적힌 부탁이 없다' in board_text
         page.screenshot(path=str(OUT / 'ux-c08-quest-board-375x812.png'), full_page=True)
         page.locator('#questBoardClose').click()
+
+        # The completed request keeps its four-event history under the same permanent place.
+        page.evaluate('GameFlow.showJourney()')
+        page.locator('#journeyView').wait_for(state='visible')
+        page.evaluate('''() => {
+          for (const selector of [
+            '.journeyChapter[data-chapter-id="waterway-side-quests"]',
+            '.journeyRegion[data-journey-region-id="north-forest"]',
+            '.journeyQuest[data-journey-quest-id="north-forest-mushrooms"]'
+          ]) document.querySelector(selector).open = true;
+        }''')
+        completed_quest = page.locator('.journeyQuest[data-journey-quest-id="north-forest-mushrooms"]')
+        assert '완료' in completed_quest.locator(':scope > .journeyQuestSummary').inner_text()
+        assert completed_quest.locator('.journeyNode').count() == 4
+        assert completed_quest.locator('.journeyNode[data-state="complete"]').count() == 4
+        page.screenshot(path=str(OUT / 'ux-c08-journey-completed-quest-375x812.png'))
+
+        # A future request is a sibling under northern forest, never appended to the first timeline.
+        page.evaluate('''() => {
+          JourneyContent.STORIES['north-forest-signs-accepted'] = {
+            id: 'north-forest-signs-accepted', chapterId: 'waterway-side-quests',
+            titleKo: '숲길 표식을 살피다', beats: []
+          };
+          const forest = JourneyContent.JOURNEY.find(chapter => chapter.id === 'waterway-side-quests')
+            .sections.find(section => section.id === 'north-forest');
+          forest.quests.push({
+            id: 'north-forest-signs', titleKo: '북쪽 숲길의 표식', titleZh: '北邊森林的路標',
+            revealRequires: ['story:first-free-quest-accepted'],
+            sequence: [{
+              type: 'story', id: 'north-forest-signs-accepted', entryRegionId: 'north-forest',
+              requires: ['story:first-free-quest-accepted']
+            }]
+          });
+          JourneyRuntime.render();
+          for (const selector of [
+            '.journeyChapter[data-chapter-id="waterway-side-quests"]',
+            '.journeyRegion[data-journey-region-id="north-forest"]'
+          ]) document.querySelector(selector).open = true;
+        }''')
+        sibling_ids = page.locator('.journeyRegion[data-journey-region-id="north-forest"] .journeyQuest').evaluate_all(
+            '(items) => items.map(item => item.dataset.journeyQuestId)')
+        assert sibling_ids == ['north-forest-mushrooms', 'north-forest-signs'], sibling_ids
+        assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-mushrooms"] .journeyNode').count() == 4
+        assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-signs"] .journeyNode').count() == 1
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        page.screenshot(path=str(OUT / 'ux-c08-journey-sibling-quests-375x812.png'))
+        page.evaluate('GameFlow.showWorld()')
+        page.locator('#worldView').wait_for(state='visible')
 
         # At the settled Chapter 1 state, every map place uses one short description.
         place_summaries = {
