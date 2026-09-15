@@ -54,7 +54,7 @@ test('valid backup produces a safe summary before restore', () => {
 
 test('restore replaces only known game keys and leaves unrelated same-origin data alone', () => {
   const backup = SaveData.createBackup(storage(validSeed()), { createdAt: '2026-09-15T12:00:00.000Z' });
-  const target = storage({ other-project: 'keep-me', [K.journey]: JSON.stringify({ broken: true }) });
+  const target = storage({ 'other-project': 'keep-me', [K.journey]: JSON.stringify({ broken: true }) });
   SaveData.restoreBackup(target, backup);
   const dump = target.dump();
   assert.equal(dump['other-project'], 'keep-me');
