@@ -169,7 +169,7 @@ try:
         page.set_default_timeout(5000)
         (page.set_content(memory_document({})) if MEMORY else page.goto(URL)); page.wait_for_function('!!window.GameFlow')
         assert_view(page,'landing'); assert page.locator('#landingTitle').inner_text()=='따라온 단어들'
-        assert page.locator('#landingPrimary').inner_text()=='여행 시작'; assert page.locator('#landingSettings').is_hidden()
+        assert page.locator('#landingPrimary').inner_text()=='여행 시작'; assert page.locator('#landingSettings').is_visible()
         enter_from_title(page)
         assert_view(page,'story'); assert page.locator('#storyKo').is_hidden(); assert page.locator('#storySkip').is_hidden()
         assert page.locator('#storyPortrait').is_hidden()
