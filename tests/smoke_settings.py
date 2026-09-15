@@ -80,7 +80,7 @@ try:
             'mimeType': 'application/json',
             'buffer': exported.encode('utf-8')
         })
-        assert page.locator('#settingsRestorePreview').is_visible()
+        page.locator('#settingsRestorePreview').wait_for(state='visible')
         assert '진행 중인 기록' in page.locator('#settingsRestoreSummary').inner_text()
         assert_touch_targets(page, '#settingsRestoreConfirm:visible')
         page.screenshot(path=str(OUT/'ux-00-settings-backup-375x812.png'), full_page=True)
@@ -89,8 +89,9 @@ try:
         page.locator('#settingsImportFile').set_input_files({
             'name': 'not-this-game.json', 'mimeType': 'application/json', 'buffer': foreign.encode('utf-8')
         })
+        page.locator('#settingsMessage').wait_for(state='visible')
+        page.wait_for_function("document.getElementById('settingsMessage').textContent.includes('따라온 단어들의 저장 파일이 아니야.')")
         assert page.locator('#settingsRestorePreview').is_hidden()
-        assert '따라온 단어들의 저장 파일이 아니야.' in page.locator('#settingsMessage').inner_text()
         assert 'bad' in (page.locator('#settingsMessage').get_attribute('class') or '')
 
         page.locator('#settingsBack').click()
