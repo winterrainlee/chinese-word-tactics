@@ -246,7 +246,9 @@ test('world runtime reveals the existing northern forest only after acceptance a
   assert.match(runtime, /北邊森林/);
   assert.match(runtime, /enterRegion\?\.\('north-forest'\)/);
   assert.match(runtime, /enterRegion\?\.\('inn-first-quest-report'\)/);
-  assert.match(flow, /activeQuestIds\.size > 1/);
+  assert.match(flow, /activeQuestIds\.size > 1\) return openQuestPicker\(regionId, candidates\)/);
+  assert.match(flow, /function openQuestPicker\(regionId, candidates\)/);
+  assert.match(flow, /id="flowQuestChoices"/);
   assert.match(flow, /function continueCampaign\(\)/);
   assert.match(flow, /P\.resumeNode\(progress\)/);
   assert.match(runtime, /나중에/);

@@ -99,13 +99,40 @@
     window.scrollTo(0, 0); return true;
   }
   function playNode(node) { return node.type === 'story' ? playStory(node.id) : playStage(node.id); }
+  function openQuestPicker(regionId, candidates) {
+    const section = JourneyContent.JOURNEY.flatMap(chapter => chapter.sections || [])
+      .find(item => item.regionId === regionId && Array.isArray(item.quests));
+    if (!section) return false;
+    const firstByQuest = new Map();
+    for (const node of candidates) {
+      if (node.questId && !firstByQuest.has(node.questId)) firstByQuest.set(node.questId, node);
+    }
+    const choices = section.quests.filter(quest => firstByQuest.has(quest.id));
+    if (choices.length < 2) return false;
+
+    TacticalGame.openSheet('<h2>이어갈 의뢰</h2><p class="flowNote">이 장소에서 진행할 의뢰를 골라줘.</p><div id="flowQuestChoices" class="flowMenu"></div><div class="sheetactions"><button id="flowQuestPickerClose" class="secondary">닫기</button></div>');
+    const list = $('flowQuestChoices');
+    for (const quest of choices) {
+      const node = firstByQuest.get(quest.id);
+      const content = node.type === 'story' ? JourneyContent.STORIES[node.id] : STAGES.find(stage => stage.id === node.id);
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'flowQuestChoice';
+      const title = document.createElement('strong'); title.textContent = quest.titleKo;
+      const detail = document.createElement('small');
+      detail.textContent = [quest.titleZh, content?.titleKo || content?.subtitle].filter(Boolean).join(' · ');
+      button.append(title, detail);
+      button.onclick = () => { TacticalGame.closeSheet(); playNode(node); };
+      list.append(button);
+    }
+    $('flowQuestPickerClose').onclick = () => TacticalGame.closeSheet();
+    return true;
+  }
   function enterRegion(regionId) {
     const progress = store.get();
     const candidates = P.allNodes().filter(item => item.entryRegionId === regionId &&
       P.isAvailable(item, progress) && !P.isComplete(item, progress));
     const activeQuestIds = new Set(candidates.filter(item => item.questId).map(item => item.questId));
-    // A shared quest place needs an explicit quest picker once more than one request is active.
-    if (activeQuestIds.size > 1) return false;
+    if (activeQuestIds.size > 1) return openQuestPicker(regionId, candidates);
     const node = candidates[0];
     if (!node) return false;
     return playNode(node);

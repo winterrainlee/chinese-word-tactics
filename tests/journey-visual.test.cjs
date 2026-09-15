@@ -73,6 +73,9 @@ test('optional requests render as collection, place, request, and event levels',
   assert.match(css, /\.journeyQuestSummary\{[^}]*min-height:48px/s);
   assert.match(css, /\.journeyQuestBody\{/);
   assert.match(css, /\.journeyQuestSummary:focus-visible[^\{]*\{outline:3px solid var\(--blue\)/);
+  assert.match(read('src/flow-runtime.js'), /flowQuestChoice/);
+  assert.match(css, /\.flowQuestChoice strong,/);
+  assert.match(css, /\.flowQuestChoice:focus-visible/);
 });
 
 test('completed world regions can open their own replay list', () => {

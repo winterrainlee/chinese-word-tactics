@@ -313,22 +313,36 @@ try:
         assert completed_quest.locator('.journeyNode[data-state="complete"]').count() == 4
         page.screenshot(path=str(OUT / 'ux-c08-journey-completed-quest-375x812.png'))
 
-        # A future request is a sibling under northern forest, never appended to the first timeline.
+        # Future requests are siblings under northern forest, never appended to the first timeline.
         page.evaluate('''() => {
           JourneyContent.STORIES['north-forest-signs-accepted'] = {
             id: 'north-forest-signs-accepted', chapterId: 'waterway-side-quests',
             titleKo: '숲길 표식을 살피다', beats: []
           };
+          JourneyContent.STORIES['north-forest-stream-accepted'] = {
+            id: 'north-forest-stream-accepted', chapterId: 'waterway-side-quests',
+            titleKo: '숲의 물길을 찾다', beats: []
+          };
           const forest = JourneyContent.JOURNEY.find(chapter => chapter.id === 'waterway-side-quests')
             .sections.find(section => section.id === 'north-forest');
-          forest.quests.push({
-            id: 'north-forest-signs', titleKo: '북쪽 숲길의 표식', titleZh: '北邊森林的路標',
-            revealRequires: ['story:first-free-quest-accepted'],
-            sequence: [{
-              type: 'story', id: 'north-forest-signs-accepted', entryRegionId: 'north-forest',
-              requires: ['story:first-free-quest-accepted']
-            }]
-          });
+          forest.quests.push(
+            {
+              id: 'north-forest-signs', titleKo: '북쪽 숲길의 표식', titleZh: '北邊森林的路標',
+              revealRequires: ['story:first-free-quest-accepted'],
+              sequence: [{
+                type: 'story', id: 'north-forest-signs-accepted', entryRegionId: 'north-forest',
+                requires: ['story:first-free-quest-accepted']
+              }]
+            },
+            {
+              id: 'north-forest-stream', titleKo: '북쪽 숲의 물길', titleZh: '北邊森林的水路',
+              revealRequires: ['story:first-free-quest-accepted'],
+              sequence: [{
+                type: 'story', id: 'north-forest-stream-accepted', entryRegionId: 'north-forest',
+                requires: ['story:first-free-quest-accepted']
+              }]
+            }
+          );
           JourneyRuntime.render();
           for (const selector of [
             '.journeyChapter[data-chapter-id="waterway-side-quests"]',
@@ -337,11 +351,25 @@ try:
         }''')
         sibling_ids = page.locator('.journeyRegion[data-journey-region-id="north-forest"] .journeyQuest').evaluate_all(
             '(items) => items.map(item => item.dataset.journeyQuestId)')
-        assert sibling_ids == ['north-forest-mushrooms', 'north-forest-signs'], sibling_ids
+        assert sibling_ids == ['north-forest-mushrooms', 'north-forest-signs', 'north-forest-stream'], sibling_ids
         assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-mushrooms"] .journeyNode').count() == 4
         assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-signs"] .journeyNode').count() == 1
+        assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-stream"] .journeyNode').count() == 1
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         page.screenshot(path=str(OUT / 'ux-c08-journey-sibling-quests-375x812.png'))
+
+        # Entering a place with two active requests opens a picker instead of choosing by data order.
+        assert page.evaluate("GameFlow.enterRegion('north-forest')") is True
+        assert page.locator('#sheet h2').inner_text() == '이어갈 의뢰'
+        quest_choices = page.locator('#flowQuestChoices .flowQuestChoice')
+        assert quest_choices.count() == 2
+        assert quest_choices.evaluate_all('(items) => items.map(item => item.querySelector("strong").textContent)') == [
+            '북쪽 숲길의 표식', '북쪽 숲의 물길'
+        ]
+        assert all(box['height'] >= 48 for box in quest_choices.evaluate_all(
+            '(items) => items.map(item => item.getBoundingClientRect().toJSON())'))
+        page.screenshot(path=str(OUT / 'ux-c08-shared-place-picker-375x812.png'))
+        page.locator('#flowQuestPickerClose').click()
         page.evaluate('GameFlow.showWorld()')
         page.locator('#worldView').wait_for(state='visible')
 

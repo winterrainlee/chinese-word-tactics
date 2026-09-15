@@ -76,6 +76,7 @@
 .flowNav button[aria-current="page"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
 .flowNote{font-size:12px;color:var(--muted);line-height:1.5;margin:-2px 2px 0}.flowNotice{padding:10px 16px;background:var(--danger-soft);color:var(--danger);font-size:14px}.flowNotice[hidden]{display:none!important}
 .flowMenu{display:grid;gap:8px}.flowMenu button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);text-align:left;padding:10px 14px}.flowMenu button:disabled{color:var(--muted)}
-.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible,.journeyQuestSummary:focus-visible,.journeyLockedSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.flowQuestChoice strong,.flowQuestChoice small{display:block}.flowQuestChoice small{margin-top:2px;color:var(--muted);font-size:12px;line-height:1.35}
+.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.flowQuestChoice:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible,.journeyQuestSummary:focus-visible,.journeyLockedSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
 @media(max-width:390px){.journeyShell{gap:11px}.journeyFilters{gap:18px}.journeyChapterBody{margin-left:21px}.journeyNode{padding-right:2px}}
