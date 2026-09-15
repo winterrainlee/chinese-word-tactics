@@ -71,7 +71,8 @@
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 0);
+      // Give iOS Safari enough time to hand the blob to its download/file flow.
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
       setMessage('현재 진행 기록을 저장 파일로 만들었어.');
     } catch (error) {
       setMessage(error?.message || '진행 기록을 내보내지 못했어.', 'bad');
