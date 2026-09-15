@@ -1,8 +1,8 @@
 (() => {
   const $ = id => document.getElementById(id);
   let filter = 'all';
-  const collapsedChapters = new Set();
-  const collapsedRegions = new Set();
+  const chapterOpenStates = new Map();
+  const regionOpenStates = new Map();
 
   const make = (tag, className, text) => {
     const el = document.createElement(tag); el.className = className;
@@ -10,12 +10,17 @@
     return el;
   };
 
-  function rememberDisclosure(details, key, collapsedSet, forceOpen = false) {
-    if (forceOpen) collapsedSet.delete(key);
-    details.open = forceOpen || !collapsedSet.has(key);
+  function rememberDisclosure(details, key, openStates, defaultOpen = false, forceOpen = false) {
+    details.open = forceOpen || (openStates.has(key) ? openStates.get(key) : defaultOpen);
+    let userTogglePending = false;
+    details.addEventListener('click', event => {
+      const summary = event.target.closest('summary');
+      if (summary?.parentElement === details) userTogglePending = true;
+    });
     details.addEventListener('toggle', () => {
-      if (details.open) collapsedSet.delete(key);
-      else collapsedSet.add(key);
+      if (!userTogglePending) return;
+      userTogglePending = false;
+      openStates.set(key, details.open);
     });
   }
 
@@ -73,34 +78,70 @@
     return { chapterId: null, sectionId: null };
   }
 
+  function makeTimelineItem(node, content, progress, recommendedId) {
+    const done = JourneyProgress.isComplete(node, progress), open = JourneyProgress.isAvailable(node, progress);
+    const id = JourneyProgress.nodeId(node), current = id === recommendedId;
+    const title = node.type === 'story' ? content.titleKo : content.subtitle;
+    const typeLabel = node.type === 'story' ? '이야기' : '스테이지';
+    const terms = open && node.type === 'stage' ? content.title.replaceAll('・', ' · ') : '';
+    const stateLabel = current
+      ? (node.type === 'stage' ? '진행 중 · 이어서 플레이' : '진행 중 · 이어서 보기')
+      : done ? (node.type === 'stage' ? '완료 · 다시 플레이' : '완료 · 다시 보기')
+        : open ? (node.type === 'stage' ? '열림 · 연습하기' : '새 이야기 · 보기') : '아직 잠김';
+    const actionLabel = current ? '계속' : done ? '다시' : open ? (node.type === 'stage' ? '연습' : '보기') : '잠김';
+    const button = make('button', 'journeyNode');
+    button.type = 'button'; button.disabled = !open; button.dataset.nodeId = id;
+    button.dataset.state = done ? 'complete' : open ? 'available' : 'locked';
+    button.dataset.current = String(current);
+    if (current) button.setAttribute('aria-current', 'step');
+    button.setAttribute('aria-label', [stateLabel, typeLabel, open ? title : '제목 비공개', terms].filter(Boolean).join(' · '));
+
+    const meta = make('span', 'journeyNodeMeta');
+    meta.append(make('span', 'journeyType', typeLabel));
+    if (terms) meta.append(make('span', 'journeyNodeTerms', terms));
+    const state = make('span', 'journeyNodeState');
+    const action = make('span', 'journeyNodeAction', current || done ? undefined : actionLabel);
+    if (current || done) {
+      action.dataset.icon = current ? 'continue' : 'replay';
+      action.setAttribute('aria-hidden', 'true');
+    }
+    state.append(action);
+    button.append(make('strong', 'journeyNodeTitle', open ? title : '???'), meta, state);
+    button.onclick = () => node.type === 'stage' ? GameFlow.playStage(node.id, { mode: 'replay', returnTo: 'journey' }) :
+      GameFlow.playStory(node.id, { mode: done ? 'replay' : 'first-play', returnTo: 'journey' });
+    const item = make('li', ''); item.append(button);
+    return { item, open };
+  }
+
   function appendTimeline(container, section, progress, recommendedId) {
     const list = make('ol', 'journeyTimeline');
+    let firstLockedSeen = false;
+    let lockedDetails = null;
+    let lockedList = null;
+    let lockedSummary = null;
+    let lockedCount = 0;
+
     for (const node of section.sequence) {
       if (filter !== 'all' && filter !== node.type) continue;
-      const done = JourneyProgress.isComplete(node, progress), open = JourneyProgress.isAvailable(node, progress);
-      const id = JourneyProgress.nodeId(node), current = id === recommendedId;
       const content = node.type === 'story' ? JourneyContent.STORIES[node.id] : STAGES.find(s => s.id === node.id);
       if (!content) continue;
-      const title = node.type === 'story' ? content.titleKo : content.subtitle;
-      const button = make('button', 'journeyNode');
-      button.type = 'button'; button.disabled = !open; button.dataset.nodeId = id;
-      button.dataset.state = done ? 'complete' : open ? 'available' : 'locked';
-      button.dataset.current = String(current);
-      if (current) button.setAttribute('aria-current', 'step');
-      const typeLabel = current ? `${node.type === 'story' ? '이야기' : '스테이지'} · 진행 중` : (node.type === 'story' ? '이야기' : '스테이지');
-      const labels = [make('span', 'journeyType', typeLabel),
-        make('strong', 'journeyNodeTitle', open ? title : '???')];
-      if (open && node.type === 'stage') labels.push(make('span', 'journeyNodeTerms', content.title.replaceAll('・', ' · ')));
-      const stateLabel = current
-        ? (node.type === 'stage' ? '이어서 플레이' : '이어서 보기')
-        : done ? '완료 · 다시 보기' : open ? (node.type === 'stage' ? '열림 · 연습하기' : '새 이야기') : '아직 잠김';
-      labels.push(make('span', 'journeyNodeState', stateLabel));
-      button.append(...labels);
-      if (done && node.type === 'stage') button.lastChild.textContent = '완료 · 다시 플레이';
-      button.onclick = () => node.type === 'stage' ? GameFlow.playStage(node.id, { mode: 'replay', returnTo: 'journey' }) :
-        GameFlow.playStory(node.id, { mode: done ? 'replay' : 'first-play', returnTo: 'journey' });
-      const item = make('li', ''); item.append(button); list.append(item);
+      const entry = makeTimelineItem(node, content, progress, recommendedId);
+      if (!entry.open && firstLockedSeen) {
+        if (!lockedDetails) {
+          const groupItem = make('li', 'journeyLockedGroupItem');
+          lockedDetails = make('details', 'journeyLockedGroup');
+          lockedSummary = make('summary', 'journeyLockedSummary');
+          lockedList = make('ol', 'journeyTimeline journeyLockedTimeline');
+          lockedDetails.append(lockedSummary, lockedList);
+          groupItem.append(lockedDetails); list.append(groupItem);
+        }
+        lockedList.append(entry.item); lockedCount += 1;
+        continue;
+      }
+      if (!entry.open) firstLockedSeen = true;
+      list.append(entry.item);
     }
+    if (lockedSummary) lockedSummary.textContent = `잠긴 항목 ${lockedCount}개`;
     if (list.children.length) container.append(list);
   }
 
@@ -116,7 +157,8 @@
     const regionDetails = make('details', 'journeyRegion');
     regionDetails.dataset.journeyRegionId = section.regionId;
     const regionKey = `${chapter.id}:${section.id}`;
-    rememberDisclosure(regionDetails, regionKey, collapsedRegions, forceOpen);
+    const defaultOpen = section.sequence.some(node => JourneyProgress.nodeId(node) === recommendedId);
+    rememberDisclosure(regionDetails, regionKey, regionOpenStates, defaultOpen, forceOpen);
 
     const summary = make('summary', 'journeyRegionSummary');
     const names = make('span', 'journeyRegionHead');
@@ -125,7 +167,7 @@
     summary.append(names);
 
     const progressText = !section.sequence.length
-      ? `준비 중 · ${section.plannedStageCount}판`
+      ? `준비 중 · 스테이지 ${section.plannedStageCount}개`
       : `스테이지 ${doneStages}/${section.plannedStageCount} · 이야기 ${doneStories}/${storyNodes.length}`;
     summary.append(make('span', 'journeyRegionProgress', progressText));
     regionDetails.append(summary);
@@ -176,8 +218,9 @@
       const chapterDetails = make('details', 'journeyChapter');
       chapterDetails.dataset.chapterId = chapter.id;
       const containsFocusedRegion = chapter.sections.some(section => section.regionId === focusRegionId);
-      rememberDisclosure(chapterDetails, chapter.id, collapsedChapters,
-        (forceCurrentOpen && current.chapterId === chapter.id) || containsFocusedRegion);
+      const forceChapterOpen = (forceCurrentOpen && current.chapterId === chapter.id) || containsFocusedRegion;
+      rememberDisclosure(chapterDetails, chapter.id, chapterOpenStates,
+        current.chapterId === chapter.id, forceChapterOpen);
 
       const display = chapterDisplay(chapter);
       const summary = make('summary', 'journeyChapterSummary');

@@ -33,21 +33,25 @@
 .journeyTimeline>li{position:relative;min-width:0}
 .journeyTimeline>li::before{content:'';position:absolute;left:11px;top:0;bottom:0;width:1px;background:var(--line);pointer-events:none}
 .journeyTimeline>li:first-child::before{top:19px}.journeyTimeline>li:last-child::before{bottom:calc(100% - 19px)}
-.journeyNode{appearance:none;-webkit-appearance:none;position:relative;display:grid;grid-template-columns:1fr;gap:3px;text-align:left;width:100%;min-height:72px;border:0;border-radius:0;padding:10px 4px 12px 34px;background:transparent;color:var(--ink)}
+.journeyNode{appearance:none;-webkit-appearance:none;position:relative;display:grid;grid-template-columns:minmax(0,1fr) 48px;grid-template-areas:'title state' 'meta state';align-items:center;column-gap:6px;row-gap:1px;text-align:left;width:100%;min-height:58px;border:0;border-radius:0;padding:6px 0 6px 34px;background:transparent;color:var(--ink)}
 .journeyNode::before{content:'';position:absolute;left:6px;top:14px;width:10px;height:10px;box-sizing:border-box;border:2px solid var(--line);border-radius:50%;background:var(--bg);z-index:1}
 .journeyNode:not(:disabled):active{background:var(--accent-soft)}
-.journeyNodeTitle{font-size:16px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}.journeyNodeTerms{font-size:13px;line-height:1.35;color:#62594d;letter-spacing:.02em;word-break:keep-all}
-.journeyType,.journeyNodeState{font-size:11px;color:var(--muted);line-height:1.35}.journeyType{font-weight:650}
+.journeyNodeTitle{grid-area:title;font-size:16px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}.journeyNodeMeta{grid-area:meta;display:flex;align-items:baseline;gap:6px;min-width:0}.journeyNodeTerms{font-size:13px;line-height:1.35;color:#62594d;letter-spacing:.02em;word-break:keep-all}
+.journeyType,.journeyNodeState{font-size:11px;color:var(--muted);line-height:1.35}.journeyType{font-weight:650;white-space:nowrap}.journeyNodeTerms::before{content:'·';margin-right:6px;color:var(--muted)}
+.journeyNodeState{grid-area:state;justify-self:end;width:48px;min-height:44px;display:grid;place-content:center;text-align:center;font-weight:700;word-break:keep-all}.journeyNodeAction{font-size:11px}
+.journeyNodeAction[data-icon]{display:block;width:19px;height:19px;background-color:currentColor;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;-webkit-mask-size:contain;mask-repeat:no-repeat;mask-position:center;mask-size:contain}
+.journeyNodeAction[data-icon="replay"]{-webkit-mask-image:url('../icons/ui/ui-restart.svg');mask-image:url('../icons/ui/ui-restart.svg')}.journeyNodeAction[data-icon="continue"]{-webkit-mask-image:url('../icons/ui/ui-continue.svg');mask-image:url('../icons/ui/ui-continue.svg')}
 .journeyNode[data-state="complete"]::before{border-color:var(--accent);background:var(--accent)}.journeyNode[data-state="complete"] .journeyNodeState{color:var(--accent)}
 .journeyNode[data-state="available"]::before{border-color:var(--accent);background:var(--paper);box-shadow:0 0 0 3px var(--accent-soft)}
 
 /* The recommended unfinished node is the quiet “you are here” marker. */
 .journeyNode[data-current="true"]{background:linear-gradient(90deg,color-mix(in srgb,var(--accent-soft) 58%,transparent),transparent 88%)}
-.journeyNode[data-current="true"]::before{left:4px;top:12px;width:14px;height:14px;border:2px solid var(--accent);background:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent-soft) 74%,transparent)}
+.journeyNode[data-current="true"]::before{left:4px;top:16px;width:14px;height:14px;border:2px solid var(--accent);background:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent-soft) 74%,transparent)}
 .journeyNode[data-current="true"] .journeyNodeTitle{font-weight:900}.journeyNode[data-current="true"] .journeyType,.journeyNode[data-current="true"] .journeyNodeState{color:var(--accent);font-weight:800}
 
 .journeyNode[data-state="locked"]{background:transparent;border:0;color:var(--muted);opacity:.72}.journeyNode[data-state="locked"]::before{background:var(--bg);border-color:color-mix(in srgb,var(--muted) 48%,var(--line))}
 .journeyNode:disabled{cursor:default}
+.journeyLockedGroup{margin:0}.journeyLockedSummary{list-style:none;position:relative;min-height:44px;display:grid;grid-template-columns:minmax(0,1fr) 20px;align-items:center;padding:0 4px 0 34px;color:var(--muted);font-size:11px;font-weight:650;cursor:pointer;-webkit-tap-highlight-color:transparent}.journeyLockedSummary::-webkit-details-marker{display:none}.journeyLockedSummary::before{content:'';position:absolute;left:7px;top:17px;width:8px;height:8px;box-sizing:border-box;border:1px solid color-mix(in srgb,var(--muted) 48%,var(--line));border-radius:50%;background:var(--bg);z-index:1}.journeyLockedSummary::after{content:'›';grid-column:2;font-size:18px;line-height:1;transform-origin:center;transition:transform .16s ease}.journeyLockedGroup[open]>.journeyLockedSummary::after{transform:rotate(90deg)}.journeyLockedSummary:active{background:var(--accent-soft)}
 
 /* Reset is a quiet maintenance action at the end of the record. */
 .journeyResetRow{display:flex;justify-content:flex-end;align-items:center;margin:1px 0 3px;padding-top:8px;border-top:1px solid color-mix(in srgb,var(--line) 62%,transparent)}
@@ -61,6 +65,6 @@
 .flowNav button[aria-current="page"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
 .flowNote{font-size:12px;color:var(--muted);line-height:1.5;margin:-2px 2px 0}.flowNotice{padding:10px 16px;background:var(--danger-soft);color:var(--danger);font-size:14px}.flowNotice[hidden]{display:none!important}
 .flowMenu{display:grid;gap:8px}.flowMenu button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);text-align:left;padding:10px 14px}.flowMenu button:disabled{color:var(--muted)}
-.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible,.journeyLockedSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
 @media(max-width:390px){.journeyShell{gap:11px}.journeyFilters{gap:18px}.journeyChapterBody{margin-left:21px}.journeyNode{padding-right:2px}}

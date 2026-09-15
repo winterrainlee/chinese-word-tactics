@@ -112,8 +112,8 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
   assert.match(html, /world-runtime\.js\?v=20260914-regionreplay1/);
-  assert.match(html, /journey\.css\?v=20260913-journey3/);
-  assert.match(html, /journey-runtime\.js\?v=20260914-regionreplay1/);
+  assert.match(html, /journey\.css\?v=20260915-icons1/);
+  assert.match(html, /journey-runtime\.js\?v=20260915-icons1/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);
 
   const runtime = read('src/world-runtime.js');
@@ -151,8 +151,9 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
 
 test('journey view keeps collapsible hierarchy while presenting events as a flat timeline', () => {
   const runtime = read('src/journey-runtime.js');
-  assert.match(runtime, /collapsedChapters/);
-  assert.match(runtime, /collapsedRegions/);
+  assert.match(runtime, /chapterOpenStates/);
+  assert.match(runtime, /regionOpenStates/);
+  assert.match(runtime, /openStates\.has\(key\) \? openStates\.get\(key\) : defaultOpen/);
   assert.match(runtime, /make\('details', 'journeyChapter'\)/);
   assert.match(runtime, /make\('summary', 'journeyChapterSummary'\)/);
   assert.match(runtime, /make\('details', 'journeyRegion'\)/);

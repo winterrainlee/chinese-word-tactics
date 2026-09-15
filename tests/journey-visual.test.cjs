@@ -8,6 +8,7 @@ const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 const css = read('src/journey.css');
 const runtime = read('src/journey-runtime.js');
 const html = read('index.html');
+const continueIcon = read('icons/ui/ui-continue.svg');
 
 test('journey filters render as text tabs instead of segmented cards', () => {
   assert.match(css, /\.journeyFilters button\{[^}]*border:0;[^}]*border-bottom:2px solid transparent;[^}]*border-radius:0;[^}]*background:transparent/s);
@@ -21,6 +22,33 @@ test('journey regions and events are flat timeline records, not rounded cards', 
   assert.match(css, /\.journeyNode::before\{/);
   assert.match(css, /\.journeyNode\[data-state="complete"\]::before/);
   assert.match(css, /\.journeyNode\[data-state="locked"\]::before/);
+});
+
+test('journey rows keep full type labels while compacting status actions by state', () => {
+  assert.match(runtime, /typeLabel = node\.type === 'story' \? '이야기' : '스테이지'/);
+  assert.match(runtime, /`준비 중 · 스테이지 \$\{section\.plannedStageCount\}개`/);
+  assert.match(runtime, /make\('span', 'journeyNodeMeta'\)/);
+  assert.match(runtime, /const actionLabel = current \? '계속' : done \? '다시'/);
+  assert.match(runtime, /action\.dataset\.icon = current \? 'continue' : 'replay'/);
+  assert.match(runtime, /action\.setAttribute\('aria-hidden', 'true'\)/);
+  assert.doesNotMatch(runtime, /journeyNodeNow|'지금'/);
+  assert.match(runtime, /button\.setAttribute\('aria-label'/);
+  assert.match(css, /\.journeyNode\{[^}]*grid-template-areas:'title state' 'meta state'[^}]*min-height:58px/s);
+  assert.match(css, /\.journeyNodeState\{[^}]*width:48px[^}]*min-height:44px/s);
+  assert.match(css, /\.journeyNodeAction\[data-icon\]\{[^}]*width:19px[^}]*height:19px[^}]*background-color:currentColor/s);
+  assert.match(css, /data-icon="replay"[^}]*ui-restart\.svg/s);
+  assert.match(css, /data-icon="continue"[^}]*ui-continue\.svg/s);
+  assert.match(continueIcon, /viewBox="0 0 24 24"/);
+  assert.match(continueIcon, /<path fill="currentColor"/);
+  assert.doesNotMatch(continueIcon, /<(?:script|foreignObject|image|text|style|animate|animateTransform)\b/i);
+});
+
+test('journey keeps one future lock visible and folds the remaining locked nodes', () => {
+  assert.match(runtime, /firstLockedSeen/);
+  assert.match(runtime, /make\('details', 'journeyLockedGroup'\)/);
+  assert.match(runtime, /`잠긴 항목 \$\{lockedCount\}개`/);
+  assert.match(css, /\.journeyLockedSummary\{[^}]*min-height:44px/s);
+  assert.match(css, /\.journeyLockedSummary:focus-visible\{outline:3px solid var\(--blue\)/);
 });
 
 test('journey highlights the recommended current point without changing replay logic', () => {
@@ -50,7 +78,7 @@ test('journey reset is separated from the primary continue action', () => {
 });
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
-  assert.match(html, /journey\.css\?v=20260913-journey3/);
-  assert.match(html, /journey-runtime\.js\?v=20260914-regionreplay1/);
+  assert.match(html, /journey\.css\?v=20260915-icons1/);
+  assert.match(html, /journey-runtime\.js\?v=20260915-icons1/);
   assert.match(html, /flow-runtime\.js\?v=20260914-regionreplay1/);
 });

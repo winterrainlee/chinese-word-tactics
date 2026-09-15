@@ -188,6 +188,25 @@ try:
         first_stage = page.locator('[data-node-id="stage:stage-0"]')
         assert first_stage.locator('.journeyNodeTitle').inner_text() == '마을 밖으로'
         assert first_stage.locator('.journeyNodeTerms').inner_text() == '出發'
+        assert first_stage.locator('.journeyType').inner_text() == '스테이지'
+        assert '스테이지' in first_stage.get_attribute('aria-label')
+        assert 58 <= first_stage.bounding_box()['height'] < 76
+        assert page.locator('.journeyChapter[open]').count() == 1
+        assert page.locator('.journeyLockedGroup:not([open])').count() > 0
+
+        locked_toggle = page.evaluate('''() => {
+          const group = [...document.querySelectorAll('.journeyLockedGroup')]
+            .find(item => item.querySelector('.journeyLockedSummary').offsetParent !== null);
+          const summary = group?.querySelector('.journeyLockedSummary');
+          const nodes = [...(group?.querySelectorAll('.journeyNode') || [])];
+          if (!group || !summary || !nodes.length) return { opened: false, closed: false };
+          summary.click();
+          const opened = group.open && nodes[0].offsetParent !== null;
+          summary.click();
+          return { opened, closed: !group.open };
+        }''')
+        assert locked_toggle == { 'opened': True, 'closed': True }
+
         page.screenshot(path=str(OUT/'journey-titles-375.png'))
         page.locator('[data-journey-filter="stage"]').click()
         assert page.locator('.journeyNode').count() == page.evaluate('JourneyProgress.nodes().filter(node => node.type === "stage").length')
@@ -270,7 +289,22 @@ try:
         passed('gate-town G1: region choice → story → enter/inspect/exit → next story')
         before=page.evaluate('localStorage.getItem("'+KEY+'")'); legacy_before=page.evaluate('localStorage.getItem("'+LEGACY+'")')
         page.evaluate('GameFlow.showJourney()'); page.locator('[data-journey-filter="all"]').click()
+        current_action = page.locator('.journeyNode[data-current="true"] .journeyNodeAction')
+        replay_action = page.locator('.journeyNode[data-state="complete"]:not([data-current="true"]) .journeyNodeAction').first
+        assert current_action.get_attribute('data-icon') == 'continue'
+        assert replay_action.get_attribute('data-icon') == 'replay'
+        assert current_action.inner_text() == '' and replay_action.inner_text() == ''
+        assert '진행 중 · 이어서 ' in current_action.locator('xpath=../..').get_attribute('aria-label')
+        assert '완료 · 다시 ' in replay_action.locator('xpath=../..').get_attribute('aria-label')
+        assert page.locator('.journeyNodeNow').count() == 0
+        icon_metrics = current_action.evaluate('''element => {
+          const style = getComputedStyle(element);
+          return { width: style.width, height: style.height, mask: style.webkitMaskImage || style.maskImage };
+        }''')
+        assert icon_metrics['width'] == '19px' and icon_metrics['height'] == '19px'
+        assert 'ui-continue.svg' in icon_metrics['mask']
         page.screenshot(path=str(OUT/'journey-375.png'),full_page=True)
+        page.locator('.journeyChapter[data-chapter-id="prologue"] > .journeyChapterSummary').click()
         page.locator('[data-node-id="story:prologue-departure"]').click(); assert page.locator('#storySkip').is_visible()
         page.locator('#storySkip').click(); assert_view(page,'journey')
         for index in range(6):

@@ -47,6 +47,7 @@ test('tactical and journey views present Korean stage titles before Chinese labe
   const journey = read('src/journey-runtime.js');
   assert.match(app, /stageTitle'\)\.textContent=st\.subtitle/);
   assert.match(journey, /node\.type === 'story' \? content\.titleKo : content\.subtitle/);
-  assert.match(journey, /journeyNodeTerms[\s\S]*content\.title\.replaceAll/);
+  assert.match(journey, /const terms = open && node\.type === 'stage' \? content\.title\.replaceAll/);
+  assert.match(journey, /journeyNodeMeta[\s\S]*journeyNodeTerms/);
   assert.match(read('src/journey.css'), /\.journeyNodeTerms\{/);
 });
