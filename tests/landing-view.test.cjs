@@ -8,6 +8,7 @@ const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 const html = read('index.html');
 const css = read('src/landing.css');
 const flow = read('src/flow-runtime.js');
+const settings = read('src/settings-runtime.js');
 const art = read('images/title-departure.svg');
 
 test('title view is the initial visible app surface', () => {
@@ -37,6 +38,9 @@ test('secondary record links unlock only after they have something to show', () 
   assert.match(flow, /LexiconRuntime\?\.snapshot\?\.\(\)/);
 });
 
-test('future settings slot exists without exposing an empty control', () => {
-  assert.match(html, /id="landingSettings"[^>]*aria-label="설정" hidden/);
+test('settings is available from the title even before a journey starts', () => {
+  assert.match(html, /id="landingSettings"[^>]*aria-label="설정"/);
+  assert.doesNotMatch(html, /id="landingSettings"[^>]*hidden/);
+  assert.match(html, /id="settingsView" class="settingsShell appView" hidden/);
+  assert.match(settings, /landingSettings.*addEventListener\('click', open\)/);
 });
