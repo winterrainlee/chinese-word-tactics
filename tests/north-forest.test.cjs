@@ -212,6 +212,20 @@ test('story keeps the northern forest local and ends with the chapter-opening ca
   assert.match(read('src/story-runtime.js'), /character-collector\.svg/);
 });
 
+test('the innkeeper states the marker request and clearly sends the boy to the collector', () => {
+  const story = plain(snapshot().stories['north-forest-signs-request']);
+  const innkeeper = story.beats.filter(beat => beat.speaker === 'innkeeper').map(beat => `${beat.zh} ${beat.ko}`).join(' ');
+  const exchange = story.beats.map(beat => `${beat.zh} ${beat.ko}`).join(' ');
+  assert.match(innkeeper, /三個標記.*方向/);
+  assert.match(innkeeper, /표식 세 개.*방향/);
+  assert.match(innkeeper, /窗邊/);
+  assert.match(innkeeper, /창가/);
+  assert.match(exchange, /少年走到窗邊/);
+  assert.match(exchange, /소년은 창가로 가서/);
+  assert.match(exchange, /到了森林以後.*確認什麼/);
+  assert.match(exchange, /숲에 가면 무엇을 확인/);
+});
+
 test('northern forest art is local, lightweight, vector-only, and wired at mobile tile scale', () => {
   const directory = path.join(root, 'icons/tactical/north-forest');
   const files = fs.readdirSync(directory).filter(file => file.endsWith('.svg'));
