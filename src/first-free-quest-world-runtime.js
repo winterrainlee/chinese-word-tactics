@@ -74,6 +74,7 @@
   function openForestSheet() {
     const value = progress();
     if (!accepted(value)) return false;
+    if (boardUnlocked(value) && globalThis.NorthForestWorld?.openForestSheet) return globalThis.NorthForestWorld.openForestSheet();
     const done = forestDone(value);
     const board = boardUnlocked(value);
     const meaning = !done
@@ -138,14 +139,16 @@
     }
     const done = forestDone(value);
     marker.classList.toggle('completed', done);
-    marker.classList.toggle('active-quest', questActive(value));
+    const expandedActive = questActive(value) || !!globalThis.NorthForestWorld?.hasActiveForest?.(value);
+    marker.classList.toggle('active-quest', expandedActive);
     marker.setAttribute('aria-label', done
-      ? `북쪽 숲, 北邊森林. ${boardUnlocked(value) ? '첫 의뢰 완료. 다시 살펴볼 수 있음.' : '월백버섯 세 개를 찾음. 여관으로 돌아갈 차례.'}`
+      ? `북쪽 숲, 北邊森林. ${!boardUnlocked(value) ? '월백버섯 세 개를 찾음. 여관으로 돌아갈 차례.' : expandedActive ? '진행 가능한 후속 의뢰가 있음.' : '완료한 의뢰를 다시 살펴볼 수 있음.'}`
       : '북쪽 숲, 北邊森林. 여관 주인의 부탁을 수행할 장소.');
   }
 
   function openBoardSheet() {
     if (!boardUnlocked(progress())) return false;
+    if (globalThis.NorthForestWorld?.openBoardSheet) return globalThis.NorthForestWorld.openBoardSheet();
     globalThis.TacticalGame?.openSheet?.(`
       <h2>의뢰 게시판</h2>
       <div class="regionSheetNameZh" lang="zh-Hant">委託板</div>

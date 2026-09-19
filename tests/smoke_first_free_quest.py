@@ -293,7 +293,9 @@ try:
         board_text = page.locator('#sheet').inner_text()
         assert '북쪽 숲의 버섯' in board_text
         assert '완료' in board_text
-        assert '지금은 새로 적힌 부탁이 없다' in board_text
+        assert '숲길의 표식' in board_text
+        assert '장인이 찾는 재료' in board_text
+        assert board_text.count('새 의뢰') == 2
         page.screenshot(path=str(OUT / 'ux-c08-quest-board-375x812.png'), full_page=True)
         page.locator('#questBoardClose').click()
 
@@ -313,36 +315,19 @@ try:
         assert completed_quest.locator('.journeyNode[data-state="complete"]').count() == 4
         page.screenshot(path=str(OUT / 'ux-c08-journey-completed-quest-375x812.png'))
 
-        # Future requests are siblings under northern forest, never appended to the first timeline.
+        # The two real follow-up requests are accepted independently from the board.
+        page.evaluate('GameFlow.showWorld()')
+        for quest_id in ['north-forest-signs', 'north-forest-materials']:
+            page.locator('.worldInnMarker').click()
+            page.locator('#questBoardOpen').click()
+            page.locator(f'[data-quest-id="{quest_id}"]').click()
+            assert page.locator('#storyView').is_visible()
+            finish_story(page)
+            assert page.locator('#worldView').is_visible()
+
+        # Requests remain siblings under the permanent northern-forest place.
+        page.evaluate('GameFlow.showJourney()')
         page.evaluate('''() => {
-          JourneyContent.STORIES['north-forest-signs-accepted'] = {
-            id: 'north-forest-signs-accepted', chapterId: 'waterway-side-quests',
-            titleKo: '숲길 표식을 살피다', beats: []
-          };
-          JourneyContent.STORIES['north-forest-stream-accepted'] = {
-            id: 'north-forest-stream-accepted', chapterId: 'waterway-side-quests',
-            titleKo: '숲의 물길을 찾다', beats: []
-          };
-          const forest = JourneyContent.JOURNEY.find(chapter => chapter.id === 'waterway-side-quests')
-            .sections.find(section => section.id === 'north-forest');
-          forest.quests.push(
-            {
-              id: 'north-forest-signs', titleKo: '북쪽 숲길의 표식', titleZh: '北邊森林的路標',
-              revealRequires: ['story:first-free-quest-accepted'],
-              sequence: [{
-                type: 'story', id: 'north-forest-signs-accepted', entryRegionId: 'north-forest',
-                requires: ['story:first-free-quest-accepted']
-              }]
-            },
-            {
-              id: 'north-forest-stream', titleKo: '북쪽 숲의 물길', titleZh: '北邊森林的水路',
-              revealRequires: ['story:first-free-quest-accepted'],
-              sequence: [{
-                type: 'story', id: 'north-forest-stream-accepted', entryRegionId: 'north-forest',
-                requires: ['story:first-free-quest-accepted']
-              }]
-            }
-          );
           JourneyRuntime.render();
           for (const selector of [
             '.journeyChapter[data-chapter-id="waterway-side-quests"]',
@@ -351,10 +336,10 @@ try:
         }''')
         sibling_ids = page.locator('.journeyRegion[data-journey-region-id="north-forest"] .journeyQuest').evaluate_all(
             '(items) => items.map(item => item.dataset.journeyQuestId)')
-        assert sibling_ids == ['north-forest-mushrooms', 'north-forest-signs', 'north-forest-stream'], sibling_ids
+        assert sibling_ids == ['north-forest-mushrooms', 'north-forest-signs', 'north-forest-materials'], sibling_ids
         assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-mushrooms"] .journeyNode').count() == 4
-        assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-signs"] .journeyNode').count() == 1
-        assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-stream"] .journeyNode').count() == 1
+        assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-signs"] .journeyNode').count() == 5
+        assert page.locator('.journeyQuest[data-journey-quest-id="north-forest-materials"] .journeyNode').count() == 5
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         page.screenshot(path=str(OUT / 'ux-c08-journey-sibling-quests-375x812.png'))
 
@@ -364,7 +349,7 @@ try:
         quest_choices = page.locator('#flowQuestChoices .flowQuestChoice')
         assert quest_choices.count() == 2
         assert quest_choices.evaluate_all('(items) => items.map(item => item.querySelector("strong").textContent)') == [
-            '북쪽 숲길의 표식', '북쪽 숲의 물길'
+            '숲길의 표식', '장인이 찾는 재료'
         ]
         assert all(box['height'] >= 48 for box in quest_choices.evaluate_all(
             '(items) => items.map(item => item.getBoundingClientRect().toJSON())'))
@@ -419,7 +404,7 @@ try:
 
         page.locator('.worldForestQuestMarker').click()
         forest_text = page.locator('#sheet').inner_text()
-        assert '물길마을 북쪽에 있는 숲이야.' in forest_text
+        assert '진행할 수 있는 의뢰가 2개' in forest_text
         assert '첫 자유 의뢰에서 다녀온 북쪽 숲이야' not in forest_text
         assert '지금은 새로 맡은 일이 없어' not in forest_text
         page.screenshot(path=str(OUT / 'ux-place-north-forest-summary-375x812.png'), full_page=True)

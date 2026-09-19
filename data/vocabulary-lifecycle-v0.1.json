@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotDate": "2026-09-13",
+  "snapshotDate": "2026-09-19",
   "canonicalWordList": "src/lexicon-content.js",
   "stageSources": [
     "src/content.js",
@@ -8,7 +8,8 @@
     "src/workshop-content.js",
     "src/workshop-late-content.js",
     "src/market-content.js",
-    "src/market-late-content.js"
+    "src/market-late-content.js",
+    "src/north-forest-content.js"
   ],
   "reusePolicy": {
     "oneOffThreshold": 1,
@@ -68,6 +69,26 @@
     "選擇": { "regionId": "market-town", "targetStageIds": ["market-stage-5", "market-stage-6"], "reuseScope": "unclassified" },
     "放棄": { "regionId": "market-town", "targetStageIds": ["market-stage-6"], "reuseScope": "unclassified" },
     "分配": { "regionId": "market-town", "targetStageIds": ["market-stage-7", "market-stage-8"], "reuseScope": "unclassified" },
-    "補充": { "regionId": "market-town", "targetStageIds": ["market-stage-7"], "reuseScope": "unclassified" }
+    "補充": { "regionId": "market-town", "targetStageIds": ["market-stage-7"], "reuseScope": "unclassified" },
+    "標記": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-2"], "reuseScope": "region" },
+    "方向": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-2"], "reuseScope": "region" },
+    "確認": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-2"], "reuseScope": "region" },
+    "正確": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-3"], "reuseScope": "region" },
+    "指示": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-3"], "reuseScope": "region" },
+    "特徵": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
+    "相似": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
+    "分辨": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
+    "材料": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },
+    "適合": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },
+    "生長": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },
+    "遺失": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-6"], "reuseScope": "region" },
+    "尋找": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-6"], "reuseScope": "region" },
+    "痕跡": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-6"], "reuseScope": "region" },
+    "發現": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-7"], "reuseScope": "region" },
+    "附近": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-7"], "reuseScope": "region" },
+    "留下": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-7"], "reuseScope": "region" },
+    "情況": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
+    "安全": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
+    "危險": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" }
   }
 }

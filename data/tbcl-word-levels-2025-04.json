@@ -6,8 +6,8 @@
     "snapshot": "2025-04",
     "entryCountInSnapshot": 14452,
     "url": "https://coct.naer.edu.tw/file/files/14452%E8%A9%9E%E8%AA%9E%E8%A1%A8202504.pdf",
-    "verifiedAt": "2026-09-13",
-    "note": "게임에 쓰인 48개 표제어만 공식 2025-04 목록에서 대조한 개발용 부분 메타데이터다. 런타임 원자료가 아니다."
+    "verifiedAt": "2026-09-19",
+    "note": "게임에 쓰인 68개 표제어만 공식 2025-04 목록에서 대조한 개발용 부분 메타데이터다. 런타임 원자료가 아니다."
   },
   "words": {
     "接近": { "level": "4*", "status": "listed" },
@@ -57,6 +57,26 @@
     "選擇": { "level": "3*", "status": "listed" },
     "放棄": { "level": "4", "status": "listed" },
     "分配": { "level": "5", "status": "listed" },
-    "補充": { "level": "5", "status": "listed" }
+    "補充": { "level": "5", "status": "listed" },
+    "標記": { "level": "6", "status": "listed" },
+    "方向": { "level": "3*", "status": "listed" },
+    "確認": { "level": "5", "status": "listed" },
+    "正確": { "level": "4", "status": "listed" },
+    "指示": { "level": "5", "status": "listed" },
+    "特徵": { "level": "5", "status": "listed" },
+    "相似": { "level": "5", "status": "listed" },
+    "分辨": { "level": "5", "status": "listed" },
+    "材料": { "level": "4", "status": "listed" },
+    "適合": { "level": "3", "status": "listed" },
+    "生長": { "level": "4*", "status": "listed" },
+    "遺失": { "level": "6", "status": "listed" },
+    "尋找": { "level": "5", "status": "listed" },
+    "痕跡": { "level": "5", "status": "listed" },
+    "發現": { "level": "2", "status": "listed" },
+    "附近": { "level": "1*", "status": "listed" },
+    "留下": { "level": "3*", "status": "listed" },
+    "情況": { "level": "4", "status": "listed" },
+    "安全": { "level": "3", "status": "listed" },
+    "危險": { "level": "3", "status": "listed" }
   }
 }

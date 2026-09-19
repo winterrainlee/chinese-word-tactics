@@ -71,9 +71,9 @@
   descTile = function followerDescTile(ch, pos) {
     const st = current(), cfg = cfgFor(st);
     if (!cfg) return baseDescTile(ch, pos);
-    if (samePosition(pos, currentFollower())) return '소년을 따라오는 짐수레';
+    if (samePosition(pos, currentFollower())) return cfg.cartLabel || '소년을 따라오는 짐수레';
     if (ch === cfg.char) return '길';
-    if (ch === cfg.narrowChar) return '사람은 지나갈 수 있지만 짐수레는 지나갈 수 없는 좁은 길';
+    if (ch === cfg.narrowChar) return cfg.narrowLabel || '사람은 지나갈 수 있지만 짐수레는 지나갈 수 없는 좁은 길';
     return baseDescTile(ch, pos);
   };
 
@@ -81,7 +81,7 @@
     if (stageSession.mode !== 'replay') completed.add(st.id);
     window.GameFlow?.recordStageComplete(st.id, stageSession);
     save(); render();
-    setStatus('少年帶領貨車到了北口。貨車一路跟隨少年。 소년이 수레를 북쪽 길까지 이끌었어.', 'good');
+    setStatus(st.follower?.goalMessage || '少年帶領貨車到了北口。貨車一路跟隨少年。 소년이 수레를 북쪽 길까지 이끌었어.', 'good');
     clearTimeout(completionTimer);
     completionTimer = setTimeout(() => {
       if (screen === 'tutorial' && current().id === st.id && isWin()) showComplete();
@@ -125,7 +125,7 @@
     if (step.moved) {
       setStatus(hadFollowed ? '貨車跟隨少年，又往前走了一格。 수레가 소년의 자취를 한 칸 따라왔어.' : '貨車跟隨少年。少年正在帶領貨車。 수레가 소년의 자취를 따라오기 시작했어.', 'good');
     } else if (step.reason === 'blocked' && step.tile === cfg.narrowChar) {
-      setStatus('貨車沒有跟上。這條窄路人能走，貨車不能走。 수레도 지나갈 수 있는 길로 다시 이끌어야 해.', 'info');
+      setStatus(cfg.narrowMessage || '貨車沒有跟上。這條窄路人能走，貨車不能走。 수레도 지나갈 수 있는 길로 다시 이끌어야 해.', 'info');
     } else if (step.reason === 'disconnected') {
       setStatus('貨車還沒跟上。 수레와 자취가 끊겼어. 수레 가까이 돌아가 통과할 수 있는 길에서 다시 앞장서봐.', 'info');
     } else {
@@ -172,11 +172,11 @@
     const st = current(), cfg = cfgFor(st);
     if (!cfg) return baseShowInspect(pos);
     if (tileAt(pos) === cfg.narrowChar) {
-      openSheet('<h2>窄路</h2><div class="meaning">좁은 지름길</div><div class="gamerule"><strong>이 길의 성질</strong><br>人可以通過，貨車不能通過。<br>사람은 지나갈 수 있지만 짐수레는 지나갈 수 없어.</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>');
+      openSheet(`<h2>窄路</h2><div class="meaning">${cfg.narrowLabel || '좁은 지름길'}</div><div class="gamerule"><strong>이 길의 성질</strong><br>人可以通過，貨車不能通過。<br>사람은 지나갈 수 있지만 짐수레는 지나갈 수 없어.</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
       return;
     }
     if (samePosition(pos, currentFollower())) {
-      openSheet('<h2>貨車</h2><div class="meaning">따라오는 짐수레</div><div class="gamerule">이번 판에서는 수레를 직접 조작하지 않아. 소년이 통과 가능한 길을 앞장서면 수레가 소년이 방금 떠난 칸을 따라와.</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>');
+      openSheet(`<h2>貨車</h2><div class="meaning">${cfg.cartLabel || '따라오는 짐수레'}</div><div class="gamerule">이번 판에서는 수레를 직접 조작하지 않아. 소년이 통과 가능한 길을 앞장서면 수레가 소년이 방금 떠난 칸을 따라와.</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
       return;
     }
     return baseShowInspect(pos);

@@ -12,6 +12,12 @@
       titleKo: '1장 · 물길마을',
       subtitleKo: '지역에서 겪은 일을 단어 관계로 다시 본다.',
       regions: ['gate-town', 'workshop-town', 'market-town']
+    },
+    {
+      id: 'waterway-side-quests',
+      titleKo: '자유 의뢰 · 물길마을 주변',
+      subtitleKo: '익숙해진 생활권에서 관찰하고 판단한 말',
+      regions: ['north-forest']
     }
   ];
 
@@ -35,6 +41,11 @@
       id: 'market-town', chapterId: 'chapter-1', nameKo: '장터', nameZh: '市集',
       axisKo: '필요 · 거래 · 선택 · 분배', descriptionKo: '필요한 양을 보고 사고팔고 나누며 선택의 결과를 살펴본다.',
       stagePrefixes: ['market-stage-']
+    },
+    {
+      id: 'north-forest', chapterId: 'waterway-side-quests', nameKo: '북쪽 숲', nameZh: '北邊森林',
+      axisKo: '관찰 · 비교 · 흔적 · 안전', descriptionKo: '장터·여관·장인골과 이어지는 생활 숲에서 작은 차이와 현재 상황을 읽는다.',
+      stagePrefixes: ['north-forest-stage-']
     }
   ];
 
@@ -185,6 +196,48 @@
       words: ['分配', '補充'], related: ['需求', '不足', '剩下'],
       noteKo: '分配는 여러 목적지에 필요한 자원을 나누어 보내는 일이고, 補充은 한 목적지의 부족분을 채우는 일이다.',
       gameNoteKo: '도착한 물건을 필요한 곳마다 分配하고 실제로 모자란 만큼만 補充했다.'
+    },
+    {
+      id: 'north-forest-marker', chapterId: 'waterway-side-quests', regionId: 'north-forest',
+      titleKo: '표식을 읽고 바로잡기', type: 'sequence', displayZh: '標記 · 方向 · 確認 → 正確指示',
+      words: ['標記', '方向', '確認', '正確', '指示'], related: ['路線'],
+      noteKo: '표식이 향한 방향을 먼저 확인하고 실제 길과 비교해야 올바른 안내인지 판단할 수 있다.',
+      gameNoteKo: '가려진 표식까지 확인한 뒤, 돌아간 표지판을 실제 장터 길에 맞췄다.'
+    },
+    {
+      id: 'north-forest-features', chapterId: 'waterway-side-quests', regionId: 'north-forest',
+      titleKo: '닮은 것 구별하기', type: 'sequence', displayZh: '特徵 → 相似 → 分辨',
+      words: ['特徵', '相似', '分辨'], related: ['條件'],
+      noteKo: '비슷해 보여도 색·길이·끝 모양 같은 특징을 여럿 비교하면 구별할 수 있다.',
+      gameNoteKo: '深綠色·長·尖 세 특징이 모두 같은 식물을 골랐다.'
+    },
+    {
+      id: 'north-forest-materials', chapterId: 'waterway-side-quests', regionId: 'north-forest',
+      titleKo: '쓸 곳에 맞는 재료', type: 'condition', displayZh: '材料 · 生長位置 → 適合',
+      words: ['材料', '生長', '適合'], related: ['符合'],
+      noteKo: '같은 재료 계열이라도 모양과 자라는 위치가 이번 용도에 맞아야 적합하다.',
+      gameNoteKo: '長·細이고 물가에서 자란 덩굴 두 개만 챙겼다.'
+    },
+    {
+      id: 'north-forest-lost', chapterId: 'waterway-side-quests', regionId: 'north-forest',
+      titleKo: '잃어버린 것을 찾는 순서', type: 'sequence', displayZh: '遺失 → 尋找 → 痕跡',
+      words: ['遺失', '尋找', '痕跡'], related: ['位置'],
+      noteKo: '분실한 물건은 마지막 위치에서 시작해 서로 다른 흔적의 관련성을 비교하며 찾는다.',
+      gameNoteKo: '동물 발자국과 바퀴 자국을 거르고 파란 실과 끌린 자국을 이었다.'
+    },
+    {
+      id: 'north-forest-discovery', chapterId: 'waterway-side-quests', regionId: 'north-forest',
+      titleKo: '근처에 남은 단서', type: 'sequence', displayZh: '留下 → 附近 → 發現',
+      words: ['留下', '附近', '發現'], related: ['周圍'],
+      noteKo: '무언가 남긴 마지막 흔적의 근처를 조사하면 숨은 대상을 발견할 수 있다.',
+      gameNoteKo: '마지막 파란 실 가까이의 낮은 덤불에서 꾸러미를 발견했다.'
+    },
+    {
+      id: 'north-forest-safety', chapterId: 'waterway-side-quests', regionId: 'north-forest',
+      titleKo: '오늘의 길 상태', type: 'contrast', displayZh: '情況 → 安全 / 危險',
+      words: ['情況', '安全', '危險'], related: ['障礙', '帶領', '跟隨'],
+      noteKo: '길의 안전은 이름이나 거리보다 오늘의 젖음·폭·장애물과 지나갈 대상에 따라 달라진다.',
+      gameNoteKo: '세 길의 상황을 확인하고 작은 수레가 안전하게 지날 길을 골랐다.'
     }
   ];
 
@@ -236,7 +289,27 @@
     '選擇': { exampleKo: '두 도구를 다 본 뒤 선택한다.' },
     '放棄': { exampleKo: '이번에는 등잔기름을 미루고 다음에 보낸다.', usageKo: '일반적으로는 포기하거나 내려놓는 뜻이다. 현재 장터 판에서는 이번 차례에 고르지 않는 맥락으로 좁혀 쓴다.' },
     '分配': { exampleKo: '각 곳에 무엇이 모자란지 본 뒤 물건을 나누어 보낸다.', usageKo: '여러 대상이나 목적지에 자원을 나누어 배치하는 데 초점이 있다.' },
-    '補充': { exampleKo: '모자란 두 몫을 더 채운다.', usageKo: '이미 있는 것에 부족한 만큼을 더해서 필요한 상태를 만든다.' }
+    '補充': { exampleKo: '모자란 두 몫을 더 채운다.', usageKo: '이미 있는 것에 부족한 만큼을 더해서 필요한 상태를 만든다.' },
+    '標記': { exampleKo: '숲 바깥쪽에 나무 표식이 세 개 있다.' },
+    '方向': { exampleKo: '먼저 각 표식의 방향을 살펴본다.' },
+    '確認': { exampleKo: '보이는 방향을 하나씩 확인한다.' },
+    '正確': { exampleKo: '실제 길과 같아야 올바른 방향이다.' },
+    '指示': { exampleKo: '표식이 장터로 돌아가는 길을 가리킨다.' },
+    '特徵': { exampleKo: '색과 길이와 잎끝은 모두 특징이다.' },
+    '相似': { exampleKo: '이 잎들은 서로 아주 비슷해 보인다.' },
+    '分辨': { exampleKo: '특징을 비교하면 서로 구별할 수 있다.' },
+    '材料': { exampleKo: '장인에게 쓸 재료 두 개가 필요하다.' },
+    '適合': { exampleKo: '길고 가는 물가 덩굴이 이 작업에 알맞다.' },
+    '生長': { exampleKo: '이 덩굴은 물가에서 자란다.' },
+    '遺失': { exampleKo: '채집인이 작은 꾸러미 하나를 잃어버렸다.' },
+    '尋找': { exampleKo: '마지막으로 본 자리부터 찾기 시작한다.' },
+    '痕跡': { exampleKo: '가지에 파란 실 흔적이 남아 있다.' },
+    '發現': { exampleKo: '낮은 덤불 아래에서 꾸러미를 발견했다.' },
+    '附近': { exampleKo: '마지막 흔적의 근처부터 살펴본다.' },
+    '留下': { exampleKo: '꾸러미가 가지에 파란 실을 남겼다.' },
+    '情況': { exampleKo: '먼저 각 길의 현재 상황을 확인한다.' },
+    '安全': { exampleKo: '마르고 넓은 길은 작은 수레에 안전하다.' },
+    '危險': { exampleKo: '젖고 좁은 길은 작은 수레에 위험하다.' }
   };
 
   const stageRegionId = stageId => {

@@ -77,6 +77,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_first_free_quest.py
 
+      - name: Run northern forest F2-F8 browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_north_forest.py
+
       - name: Run mobile lexicon browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots

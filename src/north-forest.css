@@ -1,0 +1,48 @@
+/* Northern forest objects stay readable at the 44–46px tactical tile size. */
+.northForestStage{--cell:min(46px,calc((100vw - 48px)/7));gap:2px;padding:4px;background:#d8d4c5}
+.northForestStage .cell{border-radius:9px}
+.northForestStage .floor{background:#e7e8d8}
+.northForestStage .wall{background:#4f6652}
+.forest-object-mark,.forest-bundle-mark{position:absolute;inset:2px;z-index:2;pointer-events:none;background-position:center;background-repeat:no-repeat;background-size:contain}
+.forest-object-confirmed{box-shadow:inset 0 0 0 2px rgba(48,91,65,.36)}
+.forest-object-confirmed:after{content:"✓";position:absolute;right:2px;top:1px;z-index:3;width:14px;height:14px;border-radius:50%;background:#f7f2df;color:#356246;font-size:10px;font-weight:900;line-height:14px}
+
+.forest-object-plant-long-pointed-dark{background-image:url("../icons/tactical/north-forest/plant-long-pointed-dark.svg")}
+.forest-object-plant-long-round-dark{background-image:url("../icons/tactical/north-forest/plant-long-round-dark.svg")}
+.forest-object-plant-long-pointed-light{background-image:url("../icons/tactical/north-forest/plant-long-pointed-light.svg")}
+.forest-object-plant-short-pointed-dark{background-image:url("../icons/tactical/north-forest/plant-short-pointed-dark.svg")}
+.forest-object-vine-long-thin{background-image:url("../icons/tactical/north-forest/vine-long-thin.svg")}
+.forest-object-vine-long-thick{background-image:url("../icons/tactical/north-forest/vine-long-thick.svg")}
+.forest-object-vine-short-thin{background-image:url("../icons/tactical/north-forest/vine-short-thin.svg")}
+.forest-object-trace-blue-thread{background-image:url("../icons/tactical/north-forest/trace-blue-thread.svg")}
+.forest-object-trace-animal{background-image:url("../icons/tactical/north-forest/trace-animal.svg")}
+.forest-object-trace-wheel{background-image:url("../icons/tactical/north-forest/trace-wheel.svg")}
+.forest-object-trace-drag{background-image:url("../icons/tactical/north-forest/trace-drag.svg")}
+.forest-object-tree-large{background-image:url("../icons/tactical/north-forest/tree-large.svg")}
+.forest-object-rock-round{background-image:url("../icons/tactical/north-forest/rock-round.svg")}
+.forest-object-bush-low{background-image:url("../icons/tactical/north-forest/bush-low.svg")}
+.forest-object-last-seen{background-image:url("../icons/tactical/north-forest/trace-blue-thread.svg");opacity:.55}
+.forest-object-small-stream{background-image:url("../icons/tactical/north-forest/trace-drag.svg");opacity:.55}
+.forest-bundle-mark{inset:13px 2px 0 12px;background-image:url("../icons/tactical/north-forest/bundle.svg");z-index:3}
+
+.forest-object-marker{inset:0}
+.forest-object-marker i{position:absolute;inset:2px;background-position:center;background-repeat:no-repeat;background-size:contain}
+.forest-marker-post{background-image:url("../icons/tactical/north-forest/marker-post.svg")}
+.forest-marker-pointer{background-image:url("../icons/tactical/north-forest/marker-pointer.svg");transform:rotate(var(--marker-angle));transform-origin:50% 48%}
+.forest-marker-leaves{background-image:url("../icons/tactical/north-forest/marker-leaves.svg")}
+.forest-object-route-reference:before{content:"路";position:absolute;inset:8px;border:2px solid #8b7758;border-radius:6px;background:#d9c9a5;color:#514633;font-size:18px;font-weight:900;display:grid;place-items:center}
+.forest-object-route-west:before,.forest-object-route-middle:before,.forest-object-route-east:before{content:"路況";position:absolute;left:2px;right:2px;bottom:2px;border-radius:5px;background:rgba(255,253,247,.84);color:#425544;font-size:9px;font-weight:900;padding:1px}
+
+.forest-stream{background:#c9dcd5!important}
+.forest-stream:before{content:"";position:absolute;inset:9px -4px;border-top:2px solid rgba(57,107,117,.42);border-bottom:2px solid rgba(57,107,117,.3);transform:rotate(-10deg)}
+.forest-path-dry{background:#e4d9c2!important}
+.forest-path-dry:before{content:"";position:absolute;inset:7px 5px;border-top:1px dashed rgba(120,91,54,.45);border-bottom:1px dashed rgba(120,91,54,.35)}
+.forest-path-wide{box-shadow:inset 3px 0 rgba(154,128,86,.12),inset -3px 0 rgba(154,128,86,.12)}
+.forest-path-wet{background:#becfca!important}
+.forest-path-wet:before{content:"";position:absolute;left:12px;right:12px;top:3px;bottom:3px;border-left:3px double rgba(60,97,101,.38);border-right:3px double rgba(60,97,101,.38);border-radius:40%}
+.forest-path-narrow{box-shadow:inset 10px 0 rgba(73,100,71,.18),inset -10px 0 rgba(73,100,71,.18)}
+.g7-obstacle-branch .forest-branch-mark{position:absolute;inset:1px;background:url("../icons/tactical/north-forest/branch-obstacle.svg") center/contain no-repeat}
+.g7-obstacle-branch.g7-obstacle-cleared:after{content:"";position:absolute;inset:14px 2px 1px 18px;background:url("../icons/tactical/north-forest/branch-obstacle.svg") center/contain no-repeat;opacity:.45;transform:rotate(18deg)}
+.northForest-route-cart .follower-cart-mark{background:#af7d52;color:#fff4de;border-color:#79553b}
+
+@media(max-width:360px){.northForestStage{--cell:min(44px,calc((100vw - 42px)/7))}}

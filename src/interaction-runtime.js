@@ -36,6 +36,12 @@
       if (ch === stage.follower.narrowChar) return distance > 1;
     }
     if (stage.followerChain && Array.isArray(s?.followerPositions) && s.followerPositions.some(item => samePosition(pos, item))) return true;
+    const forestObject = stage.northForest?.observables?.find(item => item.char === ch);
+    if (forestObject) {
+      if (forestObject.passableWhen && s?.[forestObject.passableWhen]) return false;
+      if (forestObject.blocking === false && Array.isArray(forestObject.directSets) && forestObject.directSets.every(flag => !!s?.[flag])) return false;
+      return true;
+    }
     return false;
   }
 
