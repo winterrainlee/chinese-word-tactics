@@ -218,10 +218,10 @@ test('the innkeeper states the marker request and clearly sends the boy to the c
   const exchange = story.beats.map(beat => `${beat.zh} ${beat.ko}`).join(' ');
   assert.match(innkeeper, /三個標記.*方向/);
   assert.match(innkeeper, /표식 세 개.*방향/);
-  assert.match(innkeeper, /窗邊/);
-  assert.match(innkeeper, /창가/);
-  assert.match(exchange, /少年走到窗邊/);
-  assert.match(exchange, /소년은 창가로 가서/);
+  assert.match(innkeeper, /客棧窗邊/);
+  assert.match(innkeeper, /여관 창가/);
+  assert.match(exchange, /少年走到客棧窗邊/);
+  assert.match(exchange, /소년은 여관 창가로 가서/);
   assert.match(exchange, /到了森林以後.*確認什麼/);
   assert.match(exchange, /숲에 가면 무엇을 확인/);
 });
