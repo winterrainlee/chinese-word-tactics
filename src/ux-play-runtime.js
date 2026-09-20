@@ -209,14 +209,18 @@
 
     function showStageComplete(id, context = {}) {
       const { completion } = ensureSlots();
+      const stage = STAGES.find(candidate => candidate.id === id) || current();
       closeSheet();
       shell?.classList.add('stageComplete');
       if (context.mode !== 'replay') savePendingCompletion(id);
       if (!status?.classList.contains('good')) setStatus('目標完成。 이번 목표를 끝냈어. 결과를 확인하고 다음으로 넘어가자.', 'good');
       completion.hidden = false;
-      completion.innerHTML = `<strong>✓ 스테이지 완료</strong><button id="flowNext" type="button"></button>`;
+      completion.innerHTML = `<strong></strong><button id="flowNext" type="button"></button>`;
+      completion.querySelector('strong').textContent = stage?.completionTitle || '✓ 스테이지 완료';
       const next = $('flowNext');
-      next.textContent = completionLabel(id, context);
+      next.textContent = context.mode !== 'replay' && stage?.completionAction
+        ? stage.completionAction
+        : completionLabel(id, context);
       next.onclick = () => {
         clearPendingCompletion();
         hideCompletion();

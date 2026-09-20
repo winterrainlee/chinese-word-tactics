@@ -15,12 +15,19 @@
     return values.length ? values[(index + 1 + values.length) % values.length] : currentValue;
   }
   function nearby(center, position, radius = 1) { return manhattan(center, position) <= radius; }
+  function terrainConnectionDirections(terrain, position) {
+    const positions = list(terrain?.positions);
+    const neighbors = { n: [-1, 0], e: [0, 1], s: [1, 0], w: [0, -1] };
+    return Object.entries(neighbors)
+      .filter(([, offset]) => positions.some(candidate => samePosition(candidate, [position[0] + offset[0], position[1] + offset[1]])))
+      .map(([direction]) => direction);
+  }
   function completionFor(stage, s, atExit = false) {
     const cfg = stage?.northForest;
     if (!cfg) return true;
     if (cfg.kind === 'markers') return cfg.observables.every(item => !item.confirmedFlag || !!s?.[item.confirmedFlag]);
     if (cfg.kind === 'discrete') return flagsMet(s, cfg.discrete.referenceFlags || cfg.discrete.referenceFlag) && s?.[cfg.discrete.stateFlag] === cfg.discrete.target;
-    if (cfg.kind === 'attributes') return s?.selectedPatch === cfg.targetId && list(s?.comparedPatchIds).length >= (cfg.minimumComparisons || 1);
+    if (cfg.kind === 'attributes') return s?.selectedPatch === cfg.targetId && s?.collectedPatch === cfg.targetId && list(s?.comparedPatchIds).length >= (cfg.minimumComparisons || 1);
     if (cfg.kind === 'materials') {
       const byId = new Map(cfg.observables.map(item => [item.id, item]));
       const suitable = list(s?.carriedMaterials).filter(id => materialSuitable(byId.get(id)?.attributes, cfg.requirements));
@@ -47,7 +54,8 @@
 
   globalThis.NorthForestMechanics = Object.freeze({
     list, samePosition, manhattan, flagsMet, observableVisible, attributeDifferences,
-    attributesMatch, materialSuitable, nextDiscreteState, nearby, completionFor, routeSafety, retreatFollower
+    attributesMatch, materialSuitable, nextDiscreteState, nearby, terrainConnectionDirections,
+    completionFor, routeSafety, retreatFollower
   });
 
   if (typeof document === 'undefined' || typeof current !== 'function' || typeof render !== 'function') return;
@@ -137,7 +145,7 @@
     }
     if (cfg.kind === 'clue-path' && !samePosition(oldHero, state.hero) && tileAt(state.hero) === 'Q' && state.relatedTraceConfirmed) {
       state.reachedClearing = true;
-      if (!completeFromAction('痕跡을 따라 작은 빈터까지 도착했어.')) { save(); render(); }
+      if (!completeFromAction(cfg.clearingMessage || '痕跡을 따라 작은 빈터까지 도착했어.')) { save(); render(); }
     }
     return result;
   };
@@ -147,7 +155,7 @@
     if (!differences.length) return '顏色、長度、葉尖都和樣本相同。 세 특징이 모두 견본과 같아.';
     const key = differences[0], label = attributeLabels[key] || key;
     const value = item.attributes?.[key], expected = cfg.reference?.[key];
-    return `很相似，但是${label}是${value}，樣本是${expected}。 비슷하지만 ${label} 특징이 달라.`;
+    return `很相似，但是${label}不同：這裡是${value}，樣本是${expected}。 비슷하지만 ${label} 특징은 달라.`;
   }
 
   const handlers = globalThis.ContextActionHandlers = globalThis.ContextActionHandlers || {};
@@ -170,22 +178,31 @@
       state.comparedPatchIds = [...new Set([...list(state.comparedPatchIds), item.id])];
       if (attributesMatch(cfg.reference, item.attributes, cfg.attributeKeys)) {
         state.selectedPatch = item.id;
+        state.matchingPlantConfirmed = true;
       } else {
-        state.selectedPatch = null; type = 'info';
+        state.selectedPatch = null; state.matchingPlantConfirmed = false; state.differentObserved = true; type = 'info';
       }
       message = feedbackForDifference(cfg, item);
       if (item.id === cfg.targetId && state.comparedPatchIds.length < (cfg.minimumComparisons || 1)) {
         message += ' 다른 후보 하나와도 비교하면 分辨을 마칠 수 있어.';
       }
+    } else if (action.operation === 'collect-attribute' && item) {
+      if (item.id !== cfg.targetId || !state.matchingPlantConfirmed) return;
+      checkpoint(); state.collectedPatch = item.id; state.plantCollected = true;
+      message = '把確認過的植物收好了。 확인한 식물을 한 포기 챙겼어.';
     } else if (action.operation === 'take-material' && item) {
       checkpoint();
       const carried = new Set(list(state.carriedMaterials)); carried.add(item.id); state.carriedMaterials = [...carried];
       state[`material${item.char}Held`] = true;
       const suitable = materialSuitable(item.attributes, cfg.requirements);
       type = suitable ? 'good' : 'info';
-      message = suitable
-        ? `${attributeText(item.attributes)}。 세 조건에 맞는 材料를 챙겼어.`
-        : `${attributeText(item.attributes)}。 챙길 수는 있지만 이번 조건과 다른 특징이 있어. 다시 놓고 고를 수 있어.`;
+      if (suitable) {
+        message = `${attributeText(item.attributes)}。 세 조건에 맞는 材料를 챙겼어.`;
+      } else {
+        const key = attributeDifferences(cfg.requirements, item.attributes, Object.keys(cfg.requirements || {}))[0];
+        const label = attributeLabels[key] || key;
+        message = `${attributeText(item.attributes)}。 ${label} 조건이 不同해. 다시 놓고 고를 수 있어.`;
+      }
     } else if (action.operation === 'return-material' && item) {
       checkpoint();
       state.carriedMaterials = list(state.carriedMaterials).filter(id => id !== item.id);
@@ -202,10 +219,13 @@
       const discrete = cfg.discrete, oldValue = state[discrete.stateFlag];
       state[discrete.stateFlag] = nextDiscreteState(discrete.states, oldValue);
       const correct = state[discrete.stateFlag] === discrete.target;
-      message = correct
+      const referenceSeen = flagsMet(state, discrete.referenceFlags || discrete.referenceFlag);
+      message = correct && referenceSeen
         ? `標記現在指向${discrete.target}，和實際路線一致。 正確한 指示가 됐어.`
+        : correct
+          ? `標記現在指向${discrete.target}。 실제 장터 길과 맞는지는 길을 확인해 보자.`
         : `標記現在指向${state[discrete.stateFlag]}。 실제 길과 비교해 더 돌려볼 수 있어.`;
-      type = correct ? 'good' : 'info';
+      type = correct && referenceSeen ? 'good' : 'info';
     } else if (action.operation === 'retreat-cart') {
       if (!samePosition(pos, state.followerPos) || st.grid[state.hero[0]]?.[state.hero[1]] !== '~') {
         setStatus('貨車還不需要後退。 수레가 젖은 길 앞에서 멈췄을 때 함께 물러날 수 있어.', 'info');
@@ -230,16 +250,18 @@
     if (item) {
       if (!observableVisible(item, state)) return '아직 드러나지 않은 숲 바닥';
       if (cfg.kind === 'materials' && list(state.carriedMaterials).includes(item.id)) return '재료를 챙긴 자리';
+      if (cfg.kind === 'attributes' && state.collectedPatch === item.id) return '식물을 챙긴 자리';
       if (cfg.kind === 'clue-nearby' && item.id === 'low-bush' && state.bundleDiscovered && !state.bundleCollected) return '파란 끈 꾸러미가 드러난 낮은 덤불';
       return item.labelKo;
     }
+    if (ch === 'E' && cfg.exitLabelKo) return `${cfg.exitLabelKo}${cfg.exitLabelZh ? `, ${cfg.exitLabelZh}` : ''}`;
     const terrain = terrainAt(st, pos);
     return terrain?.labelKo ? `${terrain.labelKo}${terrain.labelZh ? `, ${terrain.labelZh}` : ''}` : baseDescTile(ch, pos);
   };
 
   function syncReferenceCard(cfg) {
     let card = document.getElementById('northForestReference');
-    if (!cfg?.referenceCard) {
+    if (!cfg?.referenceCard && !cfg?.workOrder) {
       if (card) card.hidden = true;
       return;
     }
@@ -249,17 +271,20 @@
       card.className = 'northForestReference';
       document.querySelector('.goalbox')?.insertAdjacentElement('afterend', card);
     }
-    const reference = cfg.reference || {}, meta = cfg.referenceCard;
-    card.setAttribute('aria-label', `${meta.labelKo || '견본'}: ${attributeText(reference)}`);
+    const reference = cfg.reference || {}, meta = cfg.referenceCard || cfg.workOrder;
+    const values = cfg.workOrder?.values || Object.values(reference);
+    card.className = `northForestReference${cfg.workOrder ? ' northForestWorkOrder' : ''}`;
+    card.setAttribute('aria-label', `${meta.labelKo || '견본'}: ${values.join(' · ')}`);
     card.innerHTML = `<span class="northForestReferenceLabel"><b lang="zh-Hant">${escapeHtml(meta.labelZh || '樣本')}</b><small>${escapeHtml(meta.labelKo || '견본')}</small></span>` +
-      `<span class="northForestReferenceArt forest-object-${escapeHtml(meta.variant || '')}" aria-hidden="true"></span>` +
-      `<span class="northForestReferenceAttributes" lang="zh-Hant">${Object.values(reference).map(value => `<i>${escapeHtml(value)}</i>`).join('')}</span>`;
+      (cfg.referenceCard ? `<span class="northForestReferenceArt forest-object-${escapeHtml(meta.variant || '')}" aria-hidden="true"></span>` : '') +
+      `<span class="northForestReferenceAttributes" lang="zh-Hant">${values.map(value => `<i>${escapeHtml(value)}</i>`).join('')}</span>`;
     card.hidden = false;
   }
 
   function addObjectMark(cell, item, st) {
     if (!cell || !item || !observableVisible(item, state)) return;
     if (st.northForest.kind === 'materials' && list(state.carriedMaterials).includes(item.id)) return;
+    if (st.northForest.kind === 'attributes' && state.collectedPatch === item.id) return;
     const mark = document.createElement('span');
     mark.className = `forest-object-mark forest-object-${item.variant || item.id}`;
     mark.setAttribute('aria-hidden', 'true');
@@ -283,7 +308,11 @@
     gridEl.classList.add('northForestStage', `northForest-${cfg.kind}`);
     const cols = st.grid[0].length;
     for (const terrain of list(cfg.terrain)) for (const pos of list(terrain.positions)) {
-      gridEl.children[pos[0] * cols + pos[1]]?.classList.add(...String(terrain.className).split(/\s+/));
+      const cell = gridEl.children[pos[0] * cols + pos[1]];
+      cell?.classList.add(...String(terrain.className).split(/\s+/));
+      if (cfg.kind === 'route-cart' && String(terrain.className).includes('forest-path-')) {
+        cell?.classList.add('forest-path-cell', ...terrainConnectionDirections(terrain, pos).map(direction => `forest-path-${direction}`));
+      }
     }
     for (const item of list(cfg.observables)) {
       const pos = positionOfChar(st, item.char), cell = pos && gridEl.children[pos[0] * cols + pos[1]];
@@ -299,7 +328,9 @@
       const word = button.textContent;
       const done = (word === '確認' && completionFor(st, state, atExit())) ||
         (word === '正確' && cfg.kind === 'discrete' && state[cfg.discrete.stateFlag] === cfg.discrete.target) ||
-        (word === '分辨' && state.selectedPatch === cfg.targetId) ||
+        (word === '相似' && state.comparedSimilar) ||
+        (word === '不同' && state.differentObserved) ||
+        (word === '分辨' && state.matchingPlantConfirmed) ||
         (word === '材料' && list(state.carriedMaterials).length >= (cfg.required || Infinity)) ||
         (word === '痕跡' && state.relatedTraceConfirmed) || (word === '發現' && state.bundleDiscovered) ||
         (word === '安全' && cfg.kind === 'route-cart' && completionFor(st, state, atExit()));

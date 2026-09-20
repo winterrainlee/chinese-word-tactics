@@ -18,6 +18,7 @@
     '指示': { p: 'ㄓˇ ㄕˋ', k: '가리키다, 안내하다', ex: '標記指示回市集的路。', rule: '표식이 어느 쪽으로 가야 하는지 사람에게 알려 주는 기능을 말해.' },
     '特徵': { p: 'ㄊㄜˋ ㄓㄥ', k: '특징', ex: '顏色、長度和葉尖都是特徵。', rule: '색·길이·끝 모양처럼 대상을 구별할 때 함께 보는 정보야.' },
     '相似': { p: 'ㄒㄧㄤ ㄙˋ', k: '비슷하다', ex: '這些葉子看起來很相似。', rule: '일부 특징이 같아도 모든 조건이 같은 것은 아니야.' },
+    '不同': { p: 'ㄅㄨˋ ㄊㄨㄥˊ', k: '다르다, 서로 다르다', ex: '這些葉子很相似，可是葉尖不同。', rule: '전체적으로 비슷해 보여도 특정 특징은 다를 수 있어.' },
     '分辨': { p: 'ㄈㄣ ㄅㄧㄢˋ', k: '구별하다', ex: '比較幾個特徵，就能分辨出來。', rule: '여러 특징을 함께 비교해 목표 대상을 가려내는 판단이야.' },
     '材料': { p: 'ㄘㄞˊ ㄌㄧㄠˋ', k: '재료', ex: '工匠需要兩根藤條做材料。', rule: '이번에는 실제 작업에 쓰기 위해 들고 돌아가는 덩굴을 말해.' },
     '適合': { p: 'ㄕˋ ㄏㄜˊ', k: '적합하다, 알맞다', ex: '長、細、長在水邊的藤條比較適合。', rule: '같은 식물이어도 이번 용도의 모든 조건을 만족해야 해.' },
@@ -66,36 +67,35 @@
     },
     {
       id: 'north-forest-stage-3', title: '正確・指示', subtitle: '돌아간 표지판', kicker: '자유 의뢰 · 북쪽 숲 F3',
-      grid: ['######', '#..R.#', '#..|.#', '#A.S.B', '#..|.#', '##E###'],
-      goal: '比較正常標記和實際道路，把轉歪的標記調回正確方向。', rule: '정상 표식과 실제 장터 길을 각각 가까이에서 확인한 뒤, 돌아간 표지판을 한 방향씩 돌려봐.',
+      grid: ['######', '#..R.#', '#....#', '#..S.#', '#....#', '###B##'],
+      goal: '觀察通往市集的路，把轉歪的標記調回正確方向。', rule: '정상 표식은 없어. 실제 장터 길이 어느 쪽으로 이어지는지 보고 팻말을 한 방향씩 돌려봐.',
       words: ['正確', '指示'], win: ['north_forest'],
       northForest: {
-        kind: 'discrete', initialState: { markerDirection: '左', normalMarkerObserved: false, actualRouteObserved: false },
-        discrete: { id: 'rotated-marker', char: 'R', states: ['上', '右', '下', '左'], stateFlag: 'markerDirection', target: '下', referenceFlags: ['normalMarkerObserved', 'actualRouteObserved'] },
+        kind: 'discrete', initialState: { markerDirection: '左', actualRouteObserved: false },
+        discrete: { id: 'rotated-marker', char: 'R', states: ['上', '右', '下', '左'], stateFlag: 'markerDirection', target: '下' },
+        terrain: [{ className: 'forest-reference-road', positions: [[2,3],[3,3],[4,3],[5,3]], labelZh: '通往市集的路', labelKo: '장터로 이어지는 흙길' }],
         observables: [
           observable('rotated-marker', 'R', '轉歪的標記', '돌아간 표지판', { variant: 'marker', directionFlag: 'markerDirection' }),
-          observable('reference-a', 'A', '正常標記', '정상 기준 표식', { variant: 'marker', direction: '下', blocking: true }),
           observable('reference-b', 'B', '通往市集的路', '장터 쪽으로 이어지는 실제 길', { variant: 'route-reference', blocking: true })
         ]
       },
       contextActions: [
-        action('A', '정상 표식 確認', 'set-flags', { sets: ['normalMarkerObserved'], unless: 'normalMarkerObserved', message: '正常標記指向下方。 정상 표식의 指示를 확인했어.' }),
-        action('B', '실제 장터 길 確認', 'set-flags', { sets: ['actualRouteObserved'], unless: 'actualRouteObserved', message: '通往市集的路在下方。 실제 길의 方向도 확인했어.' }),
-        action('R', '표지판 한 칸 돌리기', 'rotate', { discreteId: 'rotated-marker', requires: ['normalMarkerObserved', 'actualRouteObserved'] })
+        action('B', '실제 장터 길 確認', 'set-flags', { sets: ['actualRouteObserved'], unless: 'actualRouteObserved', message: '這條土路通往市集。 이 흙길이 장터 쪽으로 이어지는 것을 확인했어.' }),
+        action('R', '표지판 한 칸 돌리기', 'rotate', { discreteId: 'rotated-marker' })
       ],
       story: '標記的指示正確了。 표식이 실제 장터 쪽 길을 올바르게 가리킨다.'
     },
     {
-      id: 'north-forest-stage-4', title: '特徵・相似・分辨', subtitle: '닮은 잎', kicker: '자유 의뢰 · 북쪽 숲 F4',
+      id: 'north-forest-stage-4', title: '特徵・相似・不同・分辨', subtitle: '닮은 잎', kicker: '자유 의뢰 · 북쪽 숲 F4',
       grid: ['######', '#A..B#', '#....#', '#..S.#', '#C..D#', '######'],
       goal: '比較特徵，分辨出和樣本相同的植物。', rule: '견본은 深綠色 · 長 · 尖. 색 하나가 아니라 세 특징을 함께 비교해.',
-      words: ['特徵', '相似', '分辨'], win: ['north_forest'],
+      words: ['特徵', '相似', '不同', '分辨'], win: ['north_forest'],
       northForest: {
         kind: 'attributes', targetId: 'plant-a', attributeKeys: ['color', 'length', 'tip'],
         reference: { color: '深綠色', length: '長', tip: '尖' },
         referenceCard: { labelZh: '樣本', labelKo: '견본', variant: 'plant-long-pointed-dark' },
         minimumComparisons: 2,
-        initialState: { plantAObserved: false, plantBObserved: false, plantCObserved: false, plantDObserved: false, selectedPatch: null, comparedPatchIds: [], comparedSimilar: false },
+        initialState: { plantAObserved: false, plantBObserved: false, plantCObserved: false, plantDObserved: false, selectedPatch: null, collectedPatch: null, comparedPatchIds: [], comparedSimilar: false, differentObserved: false, matchingPlantConfirmed: false, plantCollected: false },
         observables: [
           observable('plant-a', 'A', '葉子 A', '식물 군락 A', { variant: 'plant-long-pointed-dark', observedFlag: 'plantAObserved', attributes: { color: '深綠色', length: '長', tip: '尖' } }),
           observable('plant-b', 'B', '葉子 B', '식물 군락 B', { variant: 'plant-long-round-dark', observedFlag: 'plantBObserved', attributes: { color: '深綠色', length: '長', tip: '圓' } }),
@@ -105,12 +105,14 @@
       },
       contextActions: ['A','B','C','D'].flatMap((target, index) => {
         const id = ['plant-a','plant-b','plant-c','plant-d'][index], flag = `plant${target}Observed`;
-        return [
+        const actions = [
           action(target, '特徵 확인하기', 'observe', { objectId: id, unless: flag }),
           action(target, '견본과 비교하기', 'select-attribute', { objectId: id, requires: flag, priority: 100 })
         ];
+        if (target === 'A') actions.push(action(target, '확인한 식물 챙기기', 'collect-attribute', { objectId: id, requires: 'matchingPlantConfirmed', unless: 'plantCollected', priority: 110 }));
+        return actions;
       }),
-      story: '幾個特徵都符合，可以分辨出來了。 여러 특징을 함께 보니 닮은 잎을 구별할 수 있었다.'
+      story: '幾個特徵都相同，少年把分辨出的植物收好了。 여러 특징이 같은 식물을 구별해 한 포기 챙겼다.'
     },
     {
       id: 'north-forest-stage-5', title: '材料・適合・生長', subtitle: '장인이 찾는 재료', kicker: '자유 의뢰 · 북쪽 숲 F5',
@@ -119,6 +121,7 @@
       words: ['材料', '適合', '生長'], win: ['north_forest', 'at_exit'],
       northForest: {
         kind: 'materials', required: 2, requirements: { length: '長', width: '細', habitat: '水邊' },
+        workOrder: { labelZh: '材料條件', labelKo: '그림 없는 작업 지시', values: ['長', '細', '生長在水邊', '兩根'] },
         initialState: { materialAObserved: false, materialBObserved: false, materialCObserved: false, materialDObserved: false, carriedMaterials: [] },
         terrain: [{
           className: 'forest-stream', positions: [[2,1],[2,4],[4,2]], labelZh: '水邊', labelKo: '물가',
@@ -144,10 +147,12 @@
     {
       id: 'north-forest-stage-6', title: '遺失・尋找・痕跡', subtitle: '사라진 꾸러미', kicker: '자유 의뢰 · 북쪽 숲 F6',
       grid: ['#######', '#..Q..#', '#..T..#', '#W.L.V#', '#..S..#', '#######'],
-      goal: '從最後的位置開始，比較痕跡，尋找遺失的包裹。', rule: '마지막으로 본 위치를 먼저 확인하고, 다른 흔적 하나와 파란 실을 비교해 방향을 좁혀.',
+      goal: '從最後的位置開始，跟著相關痕跡到下一片空地。', rule: '이번 목표는 꾸러미 발견이 아니야. 다른 흔적과 파란 실을 비교해 다음 수색 구역까지 가.',
       words: ['遺失', '尋找', '痕跡'], win: ['north_forest'],
+      completionTitle: '✓ 추적 지점 도달', completionAction: '흔적을 따라 계속 찾기',
       northForest: {
         kind: 'clue-path', initialState: { lastSeenConfirmed: false, alternativeTraceChecked: false, blueThreadConfirmed: false, relatedTraceConfirmed: false, reachedClearing: false },
+        clearingMessage: '痕跡延伸到下一片空地，包裹還沒找到。 흔적은 다음 빈터까지 이어지지만 꾸러미는 아직 보이지 않아.',
         observables: [
           observable('last-seen', 'L', '最後看到的位置', '꾸러미를 마지막으로 본 자리', { variant: 'last-seen' }),
           observable('animal-trace', 'W', '動物腳印', '동물 발자국', { variant: 'trace-animal', visibleRequires: ['lastSeenConfirmed'] }),
@@ -163,15 +168,16 @@
         action('T', '파란 실 확인하기', 'set-flags', { sets: ['blueThreadConfirmed'], requires: ['lastSeenConfirmed', 'alternativeTraceChecked'], unless: 'blueThreadConfirmed', message: '枝上留下了一小段藍色的線。 다른 흔적과 달리 꾸러미의 파란 끈과 이어질 가능성이 있어.' }),
         action('Q', '후속 흔적 확인하기', 'set-flags', { sets: ['relatedTraceConfirmed'], requires: 'blueThreadConfirmed', unless: 'relatedTraceConfirmed', message: '藍色線旁邊還有拖過的痕跡。 올바른 방향이 빈터 쪽으로 이어져.' })
       ],
-      story: '痕跡把尋找的方向帶到小空地。 흔적을 따라 다음 빈터까지 왔다.'
+      story: '痕跡把尋找的方向帶到小空地，包裹還沒找到。 다음 수색 지점에 도착했지만 꾸러미는 아직 찾지 못했다.'
     },
     {
       id: 'north-forest-stage-7', title: '發現・附近・留下', subtitle: '흔적이 멈춘 곳', kicker: '자유 의뢰 · 북쪽 숲 F7',
       grid: ['#######', '#A....#', '#..B..#', '#..L.C#', '#..D..#', '#..S..#', '###E###'],
-      goal: '在最後痕跡附近尋找，發現遺失的包裹。', rule: '마지막 흔적을 중심으로 가까운 대상부터 조사해. 꾸러미는 흔적을 더 찾기 전에는 보이지 않아.',
+      goal: '在最後痕跡附近發現包裹，收好後回到採集人等候的路口。', rule: '마지막 흔적 가까이에서 꾸러미를 찾고 챙겨. 채집인이 기다리는 숲길 입구로 돌아와야 의뢰가 끝나.',
       words: ['發現', '附近', '留下'], win: ['north_forest', 'at_exit'],
       northForest: {
         kind: 'clue-nearby', centerId: 'last-trace', radius: 2,
+        exitLabelZh: '採集人等候的路口', exitLabelKo: '채집인이 기다리는 숲길 입구',
         initialState: { finalTraceConfirmed: false, nearbyCompared: false, bundleThreadFound: false, bundleDiscovered: false, bundleCollected: false },
         observables: [
           observable('far-tree', 'A', '大樹', '큰 나무', { variant: 'tree-large' }),
@@ -189,9 +195,9 @@
         action('D', '작은 물길 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '小水溝附近沒有藍色的線。 물길 쪽과 비교해 다른 가까운 곳을 살펴보자.' }),
         action('C', '덤불의 실 확인하기', 'set-flags', { sets: ['bundleThreadFound'], requires: ['finalTraceConfirmed', 'nearbyCompared'], unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了藍色的線。 다른 가까운 곳과 달리 덤불 아래로 이어져.' }),
         action('C', '덤불 아래 살펴보기', 'set-flags', { sets: ['bundleDiscovered'], requires: 'bundleThreadFound', unless: 'bundleDiscovered', priority: 100, message: '在矮樹叢下面發現了遺失的包裹。 파란 끈 꾸러미를 발견했어.' }),
-        action('C', '꾸러미 챙기기', 'set-flags', { sets: ['bundleCollected'], requires: 'bundleDiscovered', unless: 'bundleCollected', priority: 110, message: '把包裹收好了。 이제 출구로 돌아가 장터에 가져가자.' })
+        action('C', '꾸러미 챙기기', 'set-flags', { sets: ['bundleCollected'], requires: 'bundleDiscovered', unless: 'bundleCollected', priority: 110, message: '把包裹收好了。 이제 채집인이 기다리는 숲길 입구로 돌아가자.' })
       ],
-      story: '遺失的包裹找到了。 파란 끈 꾸러미를 찾아 챙겼다.'
+      story: '遺失的包裹找到了，也帶回採集人等候的路口。 파란 끈 꾸러미를 찾아 채집인이 기다리는 입구까지 가져왔다.'
     },
     {
       id: 'north-forest-stage-8', title: '情況・安全・危險', subtitle: '오늘의 숲길', kicker: '자유 의뢰 · 북쪽 숲 F8',
@@ -264,7 +270,7 @@
       background: 'forest', placeZh: '北邊森林外圍', placeKo: '북쪽 숲 바깥쪽', beats: [
         { speaker: 'boy', zh: '三個標記裡，有一個方向不一樣。', ko: '세 표식 중 하나만 방향이 달랐어요.' },
         { speaker: 'collector', zh: '那塊可能轉了。風吹久了，木樁會慢慢鬆。', ko: '그건 돌아갔을 수도 있겠네. 바람을 오래 맞으면 나무 축이 조금씩 느슨해지거든.' },
-        { speaker: 'collector', zh: '旁邊的路沒變。比較其他標記和實際的路線，就能知道哪個方向才對。', ko: '옆의 길 자체는 그대로야. 다른 표식과 실제 길을 비교하면 어느 방향이 맞는지 알 수 있어.' }
+        { speaker: 'collector', zh: '旁邊的路沒變。看看通往市集的路往哪裡延伸，就能自己判斷正確方向。', ko: '옆의 길 자체는 그대로야. 장터로 가는 길이 어느 쪽으로 이어지는지 보면 올바른 방향을 직접 판단할 수 있어.' }
       ]
     },
     'north-forest-signs-report': {
@@ -288,8 +294,8 @@
     'north-forest-after-f4': {
       id: 'north-forest-after-f4', chapterId: 'waterway-side-quests', titleKo: '구별한 뒤의 조건',
       background: 'workshop', placeZh: '工坊谷', placeKo: '장인골', beats: [
-        { speaker: 'artisan', zh: '能分辨就好。可是做材料，還要再看別的條件。', ko: '구별할 수 있으면 됐어. 하지만 재료로 쓰려면 다른 조건도 더 봐야 해.' },
-        { speaker: 'artisan', zh: '同一種植物，也不是每一根都適合做材料。', ko: '같은 식물이어도 전부 재료로 적합한 건 아니야.' }
+        { speaker: 'artisan', zh: '你分辨得出來，也把樣本帶回來了。可是做材料，還要再看別的條件。', ko: '잘 구별해서 식물도 챙겨 왔구나. 하지만 재료로 쓰려면 다른 조건도 더 봐야 해.' },
+        { speaker: 'artisan', zh: '這次不給你看另一個樣本。記住：要長、細，而且生長在水邊。帶兩根回來。', ko: '이번에는 다른 견본을 보여 주지 않을게. 길고, 가늘고, 물가에서 자라는 것. 두 줄기만 가져와.' }
       ]
     },
     'north-forest-material-report': {
@@ -311,7 +317,7 @@
     'north-forest-after-f6': {
       id: 'north-forest-after-f6', chapterId: 'waterway-side-quests', titleKo: '흔적이 옅어진 빈터',
       background: 'forest', placeZh: '北邊森林空地', placeKo: '북쪽 숲 빈터', beats: [
-        { speaker: 'boy', zh: '痕跡到這裡還看得到，再往前就不明顯了。', ko: '흔적은 여기까지 보이는데, 그 앞부터는 잘 안 보여.' },
+        { speaker: 'boy', zh: '痕跡到這裡還看得到，可是包裹還沒看到。再往前，痕跡就不明顯了。', ko: '흔적은 여기까지 보이지만 꾸러미는 아직 안 보여요. 그 앞부터는 흔적도 흐려져요.' },
         { speaker: 'collector', zh: '最後看到痕跡的地方很重要。東西可能就在附近。', ko: '마지막으로 흔적을 본 곳이 중요해. 물건은 근처에 있을 수도 있어.' }
       ]
     },

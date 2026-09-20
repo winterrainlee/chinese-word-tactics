@@ -77,6 +77,7 @@
     "指示": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-3"], "reuseScope": "region" },
     "特徵": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
     "相似": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
+    "不同": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
     "分辨": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
     "材料": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },
     "適合": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },

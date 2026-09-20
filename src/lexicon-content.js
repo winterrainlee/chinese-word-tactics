@@ -206,10 +206,10 @@
     },
     {
       id: 'north-forest-features', chapterId: 'waterway-side-quests', regionId: 'north-forest',
-      titleKo: '닮은 것 구별하기', type: 'sequence', displayZh: '特徵 → 相似 → 分辨',
-      words: ['特徵', '相似', '分辨'], related: ['條件'],
-      noteKo: '비슷해 보여도 색·길이·끝 모양 같은 특징을 여럿 비교하면 구별할 수 있다.',
-      gameNoteKo: '深綠色·長·尖 세 특징이 모두 같은 식물을 골랐다.'
+      titleKo: '닮은 것과 다른 것 구별하기', type: 'sequence', displayZh: '特徵 → 相似 / 不同 → 分辨',
+      words: ['特徵', '相似', '不同', '分辨'], related: ['條件'],
+      noteKo: '비슷해 보여도 색·길이·끝 모양 가운데 서로 다른 특징을 찾으면 구별할 수 있다.',
+      gameNoteKo: '深綠色·長·尖 세 특징이 모두 같은 식물을 구별하고 챙겼다.'
     },
     {
       id: 'north-forest-materials', chapterId: 'waterway-side-quests', regionId: 'north-forest',
@@ -297,6 +297,7 @@
     '指示': { exampleKo: '표식이 장터로 돌아가는 길을 가리킨다.' },
     '特徵': { exampleKo: '색과 길이와 잎끝은 모두 특징이다.' },
     '相似': { exampleKo: '이 잎들은 서로 아주 비슷해 보인다.' },
+    '不同': { exampleKo: '전체적으로 비슷해 보여도 잎끝은 서로 다르다.' },
     '分辨': { exampleKo: '특징을 비교하면 서로 구별할 수 있다.' },
     '材料': { exampleKo: '장인에게 쓸 재료 두 개가 필요하다.' },
     '適合': { exampleKo: '길고 가는 물가 덩굴이 이 작업에 알맞다.' },
