@@ -28,3 +28,19 @@ test('formation requires leader at exit and follower in the arrival cell behind 
   assert.equal(F.formationAtGoal({grid,leader:[0,2],follower:[1,2],followerGoal:[1,2]}),true);
   assert.equal(F.formationAtGoal({grid,leader:[0,2],follower:[1,1],followerGoal:[1,2]}),false);
 });
+
+test('a confirmed route can move leader and cart together without repeated corridor taps', () => {
+  const routeGrid = ['##E##','#...#','#...#','#...#','#.CS#'];
+  const result = F.followRoute({
+    grid: routeGrid, leader: [4,3], follower: [4,2],
+    path: [[3,3],[2,3],[1,3],[1,2],[0,2]], blockedChars: ['#','=']
+  });
+  assert.deepEqual(result, { leader: [0,2], follower: [1,2], moved: true, steps: 5, reason: null });
+});
+
+test('guided route fails atomically when it would pull the cart through narrow terrain', () => {
+  const result = F.followRoute({
+    grid, leader: [3,2], follower: [3,1], path: [[2,2],[1,2]], blockedChars: ['#','=']
+  });
+  assert.deepEqual(result, { leader: [3,2], follower: [3,1], moved: false, steps: 0, reason: 'blocked' });
+});

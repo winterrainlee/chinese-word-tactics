@@ -14,8 +14,26 @@
   function formationAtGoal({ grid, leader, follower, leaderGoalChar = 'E', followerGoal }) {
     return tileIn(grid, leader) === leaderGoalChar && samePosition(follower, followerGoal);
   }
+  function followRoute({ grid, leader, follower, path = [], blockedChars = ['#', 'X', '='] }) {
+    const start = { leader: Array.isArray(leader) ? [...leader] : leader, follower: Array.isArray(follower) ? [...follower] : follower };
+    if (!Array.isArray(start.leader) || !Array.isArray(start.follower) || !Array.isArray(path) || !path.length) {
+      return { ...start, moved: false, steps: 0, reason: 'invalid' };
+    }
+    let nextLeader = start.leader, nextFollower = start.follower;
+    for (const target of path) {
+      const tile = tileIn(grid, target);
+      if (manhattan(nextLeader, target) !== 1 || !tile || blockedChars.includes(tile)) {
+        return { ...start, moved: false, steps: 0, reason: !tile ? 'outside' : blockedChars.includes(tile) ? 'blocked' : 'disconnected' };
+      }
+      const step = followerStep({ grid, follower: nextFollower, leaderFrom: nextLeader, blockedChars });
+      if (!step.moved) return { ...start, moved: false, steps: 0, reason: step.reason };
+      nextFollower = [...step.pos];
+      nextLeader = [...target];
+    }
+    return { leader: nextLeader, follower: nextFollower, moved: true, steps: path.length, reason: null };
+  }
 
-  globalThis.FollowerMechanic = Object.freeze({ samePosition, manhattan, tileIn, followerStep, formationAtGoal });
+  globalThis.FollowerMechanic = Object.freeze({ samePosition, manhattan, tileIn, followerStep, formationAtGoal, followRoute });
 
   if (typeof current !== 'function' || typeof render !== 'function' || typeof attemptMove !== 'function') return;
 
@@ -87,6 +105,32 @@
       if (screen === 'tutorial' && current().id === st.id && isWin()) showComplete();
     }, 160);
   }
+
+  const handlers = globalThis.ContextActionHandlers = globalThis.ContextActionHandlers || {};
+  handlers['follower-guide-route'] = (pos, action) => {
+    const st = current(), cfg = cfgFor(st), path = cfg?.guidedRoutes?.[action.routeId];
+    if (!cfg || !path || manhattan(state.hero, pos) !== 1) return;
+    const result = followRoute({
+      grid: st.grid, leader: state.hero, follower: currentFollower(), path,
+      blockedChars: cfg.blockedChars || ['#', 'X', cfg.narrowChar || '=']
+    });
+    if (!result.moved) {
+      setStatus('수레와 나란히 길 입구에서 다시 안내해 봐. 지금 위치에서는 함께 움직일 수 없어.', 'info');
+      return;
+    }
+    history.push(clone(state));
+    state.hero = result.leader;
+    state.followerPos = result.follower;
+    state.turn += result.steps;
+    state.followerMoved = true;
+    state.followed = true;
+    state.led = true;
+    state.followerStuck = false;
+    state.followerStuckReason = null;
+    if (isWin()) return finishFollowerStage(st);
+    save(); render();
+    setStatus(action.message || '少年在前面帶路，貨車沿著安全的路跟了上來。 소년이 앞에서 확인한 길로 수레를 이끌었어.', 'good');
+  };
 
   const baseAttemptMove = attemptMove;
   attemptMove = function followerAttemptMove(pos, isWait) {

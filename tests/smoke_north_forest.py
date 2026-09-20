@@ -137,15 +137,16 @@ try:
         start(page, 'north-forest-stage-8')
         for route in [(5, 1), (4, 3), (5, 5)]:
             direct_info(page, *route)
-        move(page, [(5, 3), (5, 2), (5, 1), (4, 1)]); action(page, 2)
-        move(page, [(3, 1), (2, 1), (1, 1), (1, 2), (1, 3), (0, 3)])
+        move(page, [(5, 3), (5, 2)]); action(page)
+        assert page.evaluate('JSON.stringify(state.hero) === "[3,1]" && JSON.stringify(state.followerPos) === "[4,1]"')
+        action(page, 3)
         page.locator('#flowNext').wait_for(state='visible')
         assert page.evaluate('JSON.stringify(state.followerPos) === "[1,3]"')
 
         start(page, 'north-forest-stage-8')
         for route in [(5, 1), (4, 3), (5, 5)]:
             direct_info(page, *route)
-        move(page, [(5, 3), (5, 4), (5, 5), (4, 5), (3, 5), (2, 5), (1, 5), (1, 4), (1, 3), (0, 3)])
+        move(page, [(5, 3), (5, 4)]); action(page)
         page.locator('#flowNext').wait_for(state='visible')
 
         start(page, 'north-forest-stage-8')

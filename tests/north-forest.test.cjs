@@ -190,6 +190,11 @@ test('F8 accepts west and east formations, blocks the cart in the middle, and al
   ]);
   assert.equal(stage.finalObstacle.kind, 'branch');
   assert.equal(stage.route, undefined, 'F8 must not persist a superior route outcome');
+  assert.deepEqual(stage.follower.guidedRoutes.westToObstacle, [[5,1],[4,1],[3,1]]);
+  assert.deepEqual(stage.follower.guidedRoutes.westToMarket.at(-1), [0,3]);
+  assert.deepEqual(stage.follower.guidedRoutes.eastToMarket.at(-1), [0,3]);
+  assert.equal(stage.contextActions.find(action => action.routeId === 'eastToMarket').action, 'follower-guide-route');
+  assert.equal(stage.contextActions.find(action => action.routeId === 'westToMarket').requires.at(-1), 'g7ObstacleCleared');
   assert.equal(M.completionFor(stage, { westSituationConfirmed: true, middleSituationConfirmed: true, eastSituationConfirmed: false }), false);
   assert.equal(M.completionFor(stage, { westSituationConfirmed: true, middleSituationConfirmed: true, eastSituationConfirmed: true }), true);
 });
