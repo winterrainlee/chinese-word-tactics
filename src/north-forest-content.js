@@ -89,6 +89,7 @@
       northForest: {
         kind: 'attributes', targetId: 'plant-a', attributeKeys: ['color', 'length', 'tip'],
         reference: { color: '深綠色', length: '長', tip: '尖' },
+        referenceCard: { labelZh: '樣本', labelKo: '견본', variant: 'plant-long-pointed-dark' },
         initialState: { plantAObserved: false, plantBObserved: false, plantCObserved: false, plantDObserved: false, selectedPatch: null, comparedSimilar: false },
         observables: [
           observable('plant-a', 'A', '葉子 A', '식물 군락 A', { variant: 'plant-long-pointed-dark', observedFlag: 'plantAObserved', attributes: { color: '深綠色', length: '長', tip: '尖' } }),
@@ -114,7 +115,10 @@
       northForest: {
         kind: 'materials', required: 2, requirements: { length: '長', width: '細', habitat: '水邊' },
         initialState: { materialAObserved: false, materialBObserved: false, materialCObserved: false, materialDObserved: false, carriedMaterials: [] },
-        terrain: [{ className: 'forest-stream', positions: [[2,1],[2,4],[4,2]] }],
+        terrain: [{
+          className: 'forest-stream', positions: [[2,1],[2,4],[4,2]], labelZh: '水邊', labelKo: '물가',
+          enterMessage: '水邊。 얕은 물과 젖은 흙이 이어지는 물가야.'
+        }],
         observables: [
           observable('material-a', 'A', '藤條 A', '덩굴 군락 A', { variant: 'vine-long-thin', observedFlag: 'materialAObserved', attributes: { length: '長', width: '細', habitat: '水邊' } }),
           observable('material-b', 'B', '藤條 B', '덩굴 군락 B', { variant: 'vine-long-thick', observedFlag: 'materialBObserved', attributes: { length: '長', width: '粗', habitat: '水邊' } }),

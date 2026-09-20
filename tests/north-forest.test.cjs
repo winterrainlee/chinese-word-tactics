@@ -84,6 +84,7 @@ test('F3 cycles all four directions and needs both the correct direction and rou
 
 test('F4 distractors each differ by exactly one visible feature and only A matches', () => {
   const stage = plain(snapshot().stages[2]), M = mechanics(), cfg = stage.northForest;
+  assert.deepEqual(cfg.referenceCard, { labelZh: '樣本', labelKo: '견본', variant: 'plant-long-pointed-dark' });
   const differences = Object.fromEntries(cfg.observables.map(item => [item.char,
     M.attributeDifferences(cfg.reference, item.attributes, cfg.attributeKeys)]));
   assert.deepEqual(plain(differences), { A: [], B: ['tip'], C: ['color'], D: ['length'] });
@@ -94,6 +95,10 @@ test('F4 distractors each differ by exactly one visible feature and only A match
 
 test('F5 has two suitable materials, rejects every mismatch, supports return, and needs the exit', () => {
   const stage = plain(snapshot().stages[3]), M = mechanics(), cfg = stage.northForest;
+  assert.deepEqual(plain(cfg.terrain[0]), {
+    className: 'forest-stream', positions: [[2,1],[2,4],[4,2]], labelZh: '水邊', labelKo: '물가',
+    enterMessage: '水邊。 얕은 물과 젖은 흙이 이어지는 물가야.'
+  });
   const suitability = Object.fromEntries(cfg.observables.map(item => [item.char, M.materialSuitable(item.attributes, cfg.requirements)]));
   assert.deepEqual(plain(suitability), { A: true, B: false, C: true, D: false });
   assert.ok(stage.contextActions.some(action => action.operation === 'return-material' && action.target === 'B'));
@@ -243,11 +248,17 @@ test('northern forest art is local, lightweight, vector-only, and wired at mobil
   assert.match(css, /--cell:min\(46px/);
   assert.match(css, /forest-path-wet/);
   assert.match(css, /forest-path-narrow/);
+  assert.match(css, /\.northForestReference\{/);
+  assert.match(css, /\.northForest-materials \.forest-stream:after\{content:"水邊"/);
   assert.match(css, /\.northForestStage \.cell\.checkpoint::before\{display:none\}/);
   assert.match(css, /\.northForest-route-cart \.follower-cart-mark\{background-color:/);
   assert.doesNotMatch(css, /\.northForest-route-cart \.follower-cart-mark\{background:/);
   assert.match(css, /\.northForest-route-cart \.follower-narrow-mark\{display:none\}/);
   assert.match(read('src/styles.css'), /min-width:44px;min-height:44px/);
+  const runtime = read('src/north-forest-runtime.js');
+  assert.match(runtime, /function syncReferenceCard\(cfg\)/);
+  assert.match(runtime, /newTerrain\?\.enterMessage/);
+  assert.match(runtime, /terrain\?\.labelKo/);
 });
 
 test('index loads northern forest content, mechanics, world integration, and art in dependency order', () => {
@@ -263,5 +274,5 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.ok(content > 0 && content < progress);
   assert.ok(follower < obstacle && obstacle < runtime && runtime < flow);
   assert.ok(flow < world && world < firstWorld);
-  assert.match(html, /north-forest\.css\?v=20260919-f8/);
+  assert.match(html, /north-forest\.css\?v=20260920-reference1/);
 });

@@ -59,6 +59,7 @@
   };
   const observableById = (st, id) => cfgFor(st)?.observables?.find(item => item.id === id) || null;
   const positionOfChar = (st, char) => locate(st.grid, char);
+  const terrainAt = (st, pos) => list(cfgFor(st)?.terrain).find(terrain => list(terrain.positions).some(item => samePosition(item, pos))) || null;
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
   const attributeText = attributes => Object.entries(attributes || {}).map(([, value]) => value).join(' · ');
   const attributeLabels = Object.freeze({ color: '顏色', length: '長度', tip: '葉尖', width: '粗細', habitat: '生長位置', surface: '路面', breadth: '寬窄', obstacle: '障礙' });
@@ -129,7 +130,11 @@
       }
     }
 
-    const oldHero = clone(state.hero), result = baseAttemptMove(pos, isWait);
+    const oldHero = clone(state.hero), oldTerrain = terrainAt(st, oldHero), result = baseAttemptMove(pos, isWait);
+    const newTerrain = terrainAt(st, state.hero);
+    if (!isWait && !samePosition(oldHero, state.hero) && newTerrain?.enterMessage && newTerrain !== oldTerrain) {
+      setStatus(newTerrain.enterMessage, 'info');
+    }
     if (cfg.kind === 'clue-path' && !samePosition(oldHero, state.hero) && tileAt(state.hero) === 'Q' && state.relatedTraceConfirmed) {
       state.reachedClearing = true;
       if (!completeFromAction('痕跡을 따라 작은 빈터까지 도착했어.')) { save(); render(); }
@@ -215,12 +220,36 @@
   const baseDescTile = descTile;
   descTile = function northForestDescTile(ch, pos) {
     const st = current(), cfg = cfgFor(st), item = observableAt(st, pos);
-    if (!cfg || !item) return baseDescTile(ch, pos);
-    if (!observableVisible(item, state)) return '아직 드러나지 않은 숲 바닥';
-    if (cfg.kind === 'materials' && list(state.carriedMaterials).includes(item.id)) return '재료를 챙긴 자리';
-    if (cfg.kind === 'clue-nearby' && item.id === 'low-bush' && state.bundleDiscovered && !state.bundleCollected) return '파란 끈 꾸러미가 드러난 낮은 덤불';
-    return item.labelKo;
+    if (!cfg) return baseDescTile(ch, pos);
+    if (item) {
+      if (!observableVisible(item, state)) return '아직 드러나지 않은 숲 바닥';
+      if (cfg.kind === 'materials' && list(state.carriedMaterials).includes(item.id)) return '재료를 챙긴 자리';
+      if (cfg.kind === 'clue-nearby' && item.id === 'low-bush' && state.bundleDiscovered && !state.bundleCollected) return '파란 끈 꾸러미가 드러난 낮은 덤불';
+      return item.labelKo;
+    }
+    const terrain = terrainAt(st, pos);
+    return terrain?.labelKo ? `${terrain.labelKo}${terrain.labelZh ? `, ${terrain.labelZh}` : ''}` : baseDescTile(ch, pos);
   };
+
+  function syncReferenceCard(cfg) {
+    let card = document.getElementById('northForestReference');
+    if (!cfg?.referenceCard) {
+      if (card) card.hidden = true;
+      return;
+    }
+    if (!card) {
+      card = document.createElement('section');
+      card.id = 'northForestReference';
+      card.className = 'northForestReference';
+      document.querySelector('.goalbox')?.insertAdjacentElement('afterend', card);
+    }
+    const reference = cfg.reference || {}, meta = cfg.referenceCard;
+    card.setAttribute('aria-label', `${meta.labelKo || '견본'}: ${attributeText(reference)}`);
+    card.innerHTML = `<span class="northForestReferenceLabel"><b lang="zh-Hant">${escapeHtml(meta.labelZh || '樣本')}</b><small>${escapeHtml(meta.labelKo || '견본')}</small></span>` +
+      `<span class="northForestReferenceArt forest-object-${escapeHtml(meta.variant || '')}" aria-hidden="true"></span>` +
+      `<span class="northForestReferenceAttributes" lang="zh-Hant">${Object.values(reference).map(value => `<i>${escapeHtml(value)}</i>`).join('')}</span>`;
+    card.hidden = false;
+  }
 
   function addObjectMark(cell, item, st) {
     if (!cell || !item || !observableVisible(item, state)) return;
@@ -243,6 +272,7 @@
   render = function northForestRender() {
     baseRender();
     const st = current(), cfg = cfgFor(st);
+    syncReferenceCard(cfg);
     if (!cfg) return;
     gridEl.classList.add('northForestStage', `northForest-${cfg.kind}`);
     const cols = st.grid[0].length;

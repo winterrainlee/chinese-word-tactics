@@ -5,6 +5,11 @@
 .northForestStage .wall{background:#4f6652}
 .northForestStage .cell.checkpoint{background:#e7e8d8}
 .northForestStage .cell.checkpoint::before{display:none}
+.northForestReference{min-height:44px;margin:-2px 0 0;padding:4px 8px;border:1px solid rgba(102,119,84,.28);border-radius:12px;background:rgba(244,241,224,.78);display:grid;grid-template-columns:auto 38px 1fr;align-items:center;gap:7px}
+.northForestReference[hidden]{display:none}
+.northForestReferenceLabel{display:flex;flex-direction:column;line-height:1.05}.northForestReferenceLabel b{font-size:13px}.northForestReferenceLabel small{font-size:10px;color:#70695f}
+.northForestReferenceArt{display:block;width:36px;height:36px;background-position:center;background-repeat:no-repeat;background-size:contain}
+.northForestReferenceAttributes{display:flex;justify-content:flex-end;gap:4px}.northForestReferenceAttributes i{padding:3px 5px;border-radius:7px;background:#fffdf5;border:1px solid rgba(101,116,83,.25);font-style:normal;font-size:12px;font-weight:850;color:#405640}
 .forest-object-mark,.forest-bundle-mark{position:absolute;inset:2px;z-index:2;pointer-events:none;background-position:center;background-repeat:no-repeat;background-size:contain}
 .forest-object-confirmed{box-shadow:inset 0 0 0 2px rgba(48,91,65,.36)}
 .forest-object-confirmed:after{content:"✓";position:absolute;right:2px;top:1px;z-index:3;width:14px;height:14px;border-radius:50%;background:#f7f2df;color:#356246;font-size:10px;font-weight:900;line-height:14px}
@@ -35,8 +40,9 @@
 .forest-object-route-reference:before{content:"路";position:absolute;inset:8px;border:2px solid #8b7758;border-radius:6px;background:#d9c9a5;color:#514633;font-size:18px;font-weight:900;display:grid;place-items:center}
 .forest-object-route-west:before,.forest-object-route-middle:before,.forest-object-route-east:before{content:"路況";position:absolute;left:2px;right:2px;bottom:2px;border-radius:5px;background:rgba(255,253,247,.84);color:#425544;font-size:9px;font-weight:900;padding:1px}
 
-.forest-stream{background:#c9dcd5!important}
-.forest-stream:before{content:"";position:absolute;inset:9px -4px;border-top:2px solid rgba(57,107,117,.42);border-bottom:2px solid rgba(57,107,117,.3);transform:rotate(-10deg)}
+.forest-stream{background-color:#c5ddd8!important;background-image:radial-gradient(ellipse at 25% 35%,transparent 0 7px,rgba(52,105,116,.24) 8px 9px,transparent 10px),radial-gradient(ellipse at 72% 68%,transparent 0 8px,rgba(52,105,116,.2) 9px 10px,transparent 11px)!important}
+.forest-stream:before{content:"";position:absolute;inset:7px -4px;border-top:2px solid rgba(57,107,117,.48);border-bottom:2px solid rgba(57,107,117,.36);transform:rotate(-8deg)}
+.northForest-materials .forest-stream:after{content:"水邊";position:absolute;right:2px;bottom:2px;padding:1px 2px;border-radius:4px;background:rgba(245,250,246,.82);color:#35636a;font-size:8px;font-weight:900;line-height:1}
 .forest-path-dry{background:#e4d9c2!important}
 .forest-path-dry:before{content:"";position:absolute;inset:7px 5px;border-top:1px dashed rgba(120,91,54,.45);border-bottom:1px dashed rgba(120,91,54,.35)}
 .forest-path-wide{box-shadow:inset 3px 0 rgba(154,128,86,.12),inset -3px 0 rgba(154,128,86,.12)}
@@ -48,4 +54,4 @@
 .northForest-route-cart .follower-cart-mark{background-color:#af7d52;color:#fff4de;border-color:#79553b}
 .northForest-route-cart .follower-narrow-mark{display:none}
 
-@media(max-width:360px){.northForestStage{--cell:min(44px,calc((100vw - 42px)/7))}}
+@media(max-width:360px){.northForestStage{--cell:min(44px,calc((100vw - 42px)/7))}.northForestReference{grid-template-columns:auto 34px 1fr;padding-inline:6px;gap:5px}.northForestReferenceArt{width:32px;height:32px}.northForestReferenceAttributes{gap:2px}.northForestReferenceAttributes i{padding-inline:4px;font-size:11px}}
