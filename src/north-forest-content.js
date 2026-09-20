@@ -121,7 +121,7 @@
       words: ['材料', '適合', '生長'], win: ['north_forest', 'at_exit'],
       northForest: {
         kind: 'materials', required: 2, requirements: { length: '長', width: '細', habitat: '水邊' },
-        workOrder: { labelZh: '材料條件', labelKo: '그림 없는 작업 지시', values: ['長', '細', '生長在水邊', '兩根'] },
+        workOrder: { labelZh: '材料條件', values: ['長', '細', '生長在水邊', '兩根'] },
         initialState: { materialAObserved: false, materialBObserved: false, materialCObserved: false, materialDObserved: false, carriedMaterials: [] },
         terrain: [{
           className: 'forest-stream', positions: [[2,1],[2,4],[4,2]], labelZh: '水邊', labelKo: '물가',

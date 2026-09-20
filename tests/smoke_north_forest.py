@@ -102,6 +102,7 @@ try:
         start(page, 'north-forest-stage-5')
         assert page.locator('#northForestReference.northForestWorkOrder').is_visible()
         assert '生長在水邊' in page.locator('#northForestReference').inner_text()
+        assert '그림 없는 작업 지시' not in page.locator('#northForestReference').text_content()
         assert page.locator('#northForestReference .northForestReferenceArt').count() == 0
         move(page, [(2, 3), (2, 4)]); action(page, 3)
         assert page.evaluate("!state.carriedMaterials.includes('material-b')")

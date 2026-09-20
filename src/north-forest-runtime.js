@@ -273,9 +273,10 @@
     }
     const reference = cfg.reference || {}, meta = cfg.referenceCard || cfg.workOrder;
     const values = cfg.workOrder?.values || Object.values(reference);
+    const label = meta.labelKo || meta.labelZh || '견본';
     card.className = `northForestReference${cfg.workOrder ? ' northForestWorkOrder' : ''}`;
-    card.setAttribute('aria-label', `${meta.labelKo || '견본'}: ${values.join(' · ')}`);
-    card.innerHTML = `<span class="northForestReferenceLabel"><b lang="zh-Hant">${escapeHtml(meta.labelZh || '樣本')}</b><small>${escapeHtml(meta.labelKo || '견본')}</small></span>` +
+    card.setAttribute('aria-label', `${label}: ${values.join(' · ')}`);
+    card.innerHTML = `<span class="northForestReferenceLabel"><b lang="zh-Hant">${escapeHtml(meta.labelZh || '樣本')}</b>${meta.labelKo ? `<small>${escapeHtml(meta.labelKo)}</small>` : ''}</span>` +
       (cfg.referenceCard ? `<span class="northForestReferenceArt forest-object-${escapeHtml(meta.variant || '')}" aria-hidden="true"></span>` : '') +
       `<span class="northForestReferenceAttributes" lang="zh-Hant">${values.map(value => `<i>${escapeHtml(value)}</i>`).join('')}</span>`;
     card.hidden = false;

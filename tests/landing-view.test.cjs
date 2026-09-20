@@ -14,6 +14,10 @@ const art = read('images/title-departure.svg');
 test('title view is the initial visible app surface', () => {
   assert.match(html, /<main id="landingView" class="landingShell appView"/);
   assert.match(html, /<h1 id="landingTitle" class="landingTitle">따라온 단어들<\/h1>/);
+  assert.match(html, /<title>따라온 단어들<\/title>/);
+  assert.match(html, /name="application-name" content="따라온 단어들"/);
+  assert.match(html, /name="apple-mobile-web-app-title" content="따라온 단어들"/);
+  assert.match(html, /property="og:title" content="따라온 단어들"/);
   assert.match(html, /id="tutorialView" class="shell appView" hidden/);
   assert.match(html, /landing\.css\?v=20260913-landing1/);
   assert.match(html, /title-departure\.svg\?v=20260913-landing1/);

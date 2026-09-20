@@ -110,6 +110,7 @@ test('F5 has two suitable materials, rejects every mismatch, supports return, an
     enterMessage: '水邊。 얕은 물과 젖은 흙이 이어지는 물가야.'
   });
   assert.deepEqual(cfg.workOrder.values, ['長', '細', '生長在水邊', '兩根']);
+  assert.equal(cfg.workOrder.labelKo, undefined);
   assert.equal(cfg.referenceCard, undefined, 'F5 must not show a target picture');
   const suitability = Object.fromEntries(cfg.observables.map(item => [item.char, M.materialSuitable(item.attributes, cfg.requirements)]));
   assert.deepEqual(plain(suitability), { A: true, B: false, C: true, D: false });
@@ -337,7 +338,7 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.ok(follower < obstacle && obstacle < runtime && runtime < flow);
   assert.ok(flow < world && world < firstWorld);
   assert.match(html, /north-forest\.css\?v=20260920-feedback1/);
-  assert.match(html, /north-forest-content\.js\?v=20260920-feedback1/);
-  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback1/);
+  assert.match(html, /north-forest-content\.js\?v=20260920-feedback2/);
+  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback2/);
   assert.match(html, /north-forest-world-runtime\.js\?v=20260920-northforestux2/);
 });
