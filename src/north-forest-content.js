@@ -346,7 +346,7 @@
     {
       id: 'north-forest-signs', titleKo: '숲길의 표식', titleZh: '森林路的標記', introStoryId: 'north-forest-signs-request',
       revealRequires: ['story:north-forest-signs-request'], sequence: [
-        { type: 'story', id: 'north-forest-signs-request', entryRegionId: 'quest-board', requires: ['story:quest-board-installed'], returnToWorldAfter: true },
+        { type: 'story', id: 'north-forest-signs-request', entryRegionId: 'quest-board', requires: ['story:quest-board-installed'] },
         { type: 'stage', id: IDS.F2, entryRegionId: 'north-forest', requires: ['story:north-forest-signs-request'] },
         { type: 'story', id: 'north-forest-after-f2', entryRegionId: 'north-forest', requires: [`stage:${IDS.F2}`] },
         { type: 'stage', id: IDS.F3, entryRegionId: 'north-forest', requires: ['story:north-forest-after-f2'] },
@@ -356,7 +356,7 @@
     {
       id: 'north-forest-materials', titleKo: '장인이 찾는 재료', titleZh: '工匠要找的材料', introStoryId: 'north-forest-material-request',
       revealRequires: ['story:north-forest-material-request'], sequence: [
-        { type: 'story', id: 'north-forest-material-request', entryRegionId: 'quest-board', requires: ['story:quest-board-installed'], returnToWorldAfter: true },
+        { type: 'story', id: 'north-forest-material-request', entryRegionId: 'quest-board', requires: ['story:quest-board-installed'] },
         { type: 'stage', id: IDS.F4, entryRegionId: 'north-forest', requires: ['story:north-forest-material-request'] },
         { type: 'story', id: 'north-forest-after-f4', entryRegionId: 'north-forest', requires: [`stage:${IDS.F4}`] },
         { type: 'stage', id: IDS.F5, entryRegionId: 'north-forest', requires: ['story:north-forest-after-f4'] },
@@ -366,7 +366,7 @@
     {
       id: 'north-forest-bundle', titleKo: '사라진 꾸러미', titleZh: '遺失的包裹', introStoryId: 'north-forest-bundle-request',
       revealRequires: ['story:north-forest-bundle-request'], sequence: [
-        { type: 'story', id: 'north-forest-bundle-request', entryRegionId: 'quest-board', requires: ['story:north-forest-signs-report', 'story:north-forest-material-report'], returnToWorldAfter: true },
+        { type: 'story', id: 'north-forest-bundle-request', entryRegionId: 'quest-board', requires: ['story:north-forest-signs-report', 'story:north-forest-material-report'] },
         { type: 'stage', id: IDS.F6, entryRegionId: 'north-forest', requires: ['story:north-forest-bundle-request'] },
         { type: 'story', id: 'north-forest-after-f6', entryRegionId: 'north-forest', requires: [`stage:${IDS.F6}`] },
         { type: 'stage', id: IDS.F7, entryRegionId: 'north-forest', requires: ['story:north-forest-after-f6'] },
@@ -376,7 +376,7 @@
     {
       id: 'north-forest-road', titleKo: '오늘의 숲길', titleZh: '今天的森林路', introStoryId: 'north-forest-road-request',
       revealRequires: ['story:north-forest-road-request'], sequence: [
-        { type: 'story', id: 'north-forest-road-request', entryRegionId: 'quest-board', requires: ['story:north-forest-bundle-report'], returnToWorldAfter: true },
+        { type: 'story', id: 'north-forest-road-request', entryRegionId: 'quest-board', requires: ['story:north-forest-bundle-report'] },
         { type: 'stage', id: IDS.F8, entryRegionId: 'north-forest', requires: ['story:north-forest-road-request'] },
         { type: 'story', id: 'north-forest-road-arrival', entryRegionId: 'north-forest', requires: [`stage:${IDS.F8}`] },
         { type: 'story', id: 'north-forest-epilogue', entryRegionId: 'north-forest', requires: ['story:north-forest-road-arrival'], milestone: 'north-forest-familiar', returnToWorldAfter: true }

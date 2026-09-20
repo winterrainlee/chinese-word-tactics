@@ -172,17 +172,19 @@
     button.type = 'button';
     button.className = 'worldSubplace worldInnMarker';
     button.dataset.subplaceId = 'inn';
-    button.innerHTML = '<span class="worldInnIcon" aria-hidden="true"><span class="worldInnWarmth"></span><img class="worldInnBuilding" src="./icons/world/regions/subplace-inn.svg" alt=""><img class="worldInnKeyCharm" src="./icons/world/regions/subplace-room-key.svg" alt=""></span><span class="worldInnNames"><strong>여관</strong><small lang="zh-Hant">客棧</small></span>';
+    button.innerHTML = '<span class="worldInnIcon" aria-hidden="true"><span class="worldInnWarmth"></span><img class="worldInnBuilding" src="./icons/world/regions/subplace-inn.svg" alt=""><img class="worldInnKeyCharm" src="./icons/world/regions/subplace-room-key.svg" alt=""><span class="worldInnQuestBadge">▤</span></span><span class="worldInnNames"><strong>여관</strong><small lang="zh-Hant">客棧</small></span>';
     button.onclick = openInnSheet;
     return button;
   }
 
   function syncMarkerState(marker, value = progress()) {
     const roomKey = hasRoomKey(value);
+    const newQuest = !!globalThis.NorthForestWorld?.hasNewBoardQuest?.(value);
     marker.classList.toggle('has-room-key', roomKey);
-    marker.setAttribute('aria-label', roomKey
+    marker.classList.toggle('has-new-quest', newQuest);
+    marker.setAttribute('aria-label', `${roomKey
       ? '여관, 客棧. 방 열쇠를 받은 생활 거점.'
-      : '여관, 客棧. 오늘부터 돌아올 수 있는 생활 거점.');
+      : '여관, 客棧. 오늘부터 돌아올 수 있는 생활 거점.'}${newQuest ? ' 새 의뢰가 게시판에 있음.' : ''}`);
   }
 
   function syncInnMarker() {

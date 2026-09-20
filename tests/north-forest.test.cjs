@@ -198,6 +198,9 @@ test('four sibling quests preserve place-request-event hierarchy and F2/F4 open 
   assert.deepEqual(plain(result.available), ['story:north-forest-signs-request', 'story:north-forest-material-request']);
   assert.ok(result.questIds.every(Boolean));
   assert.equal(result.roadMilestone, 'north-forest-familiar');
+  const introNodes = plain(snapshot().quests.slice(1).map(quest => quest.sequence[0]));
+  assert.ok(introNodes.every(node => node.type === 'story' && node.entryRegionId === 'quest-board'));
+  assert.ok(introNodes.every(node => node.returnToWorldAfter === undefined));
   assert.match(read('src/flow-runtime.js'), /activeQuestIds\.size > 1\) return openQuestPicker/);
 });
 
@@ -259,6 +262,18 @@ test('northern forest art is local, lightweight, vector-only, and wired at mobil
   assert.match(runtime, /function syncReferenceCard\(cfg\)/);
   assert.match(runtime, /newTerrain\?\.enterMessage/);
   assert.match(runtime, /terrain\?\.labelKo/);
+});
+
+test('northern forest place exposes active entry, full quest practice, and derived board alerts', () => {
+  const runtime = read('src/north-forest-world-runtime.js');
+  assert.match(runtime, /const hasNewBoardQuest =/);
+  assert.match(runtime, /id="northForestGo"/);
+  assert.match(runtime, /진행 의뢰 들어가기/);
+  assert.match(runtime, /id="northForestPractice"/);
+  assert.match(runtime, /showRegionPractice\?\.\('north-forest'\)/);
+  assert.doesNotMatch(runtime, /northForestReplay|first-free-quest-forest/);
+  assert.match(read('src/world-inn-runtime.js'), /hasNewBoardQuest\?\.\(value\)/);
+  assert.match(read('src/world-inn.css'), /\.worldInnMarker\.has-new-quest \.worldInnQuestBadge\{display:grid\}/);
 });
 
 test('index loads northern forest content, mechanics, world integration, and art in dependency order', () => {

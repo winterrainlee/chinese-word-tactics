@@ -317,13 +317,22 @@ try:
 
         # The two real follow-up requests are accepted independently from the board.
         page.evaluate('GameFlow.showWorld()')
-        for quest_id in ['north-forest-signs', 'north-forest-materials']:
+        assert page.locator('.worldInnMarker').get_attribute('class').find('has-new-quest') >= 0
+        assert page.locator('.worldInnQuestBadge').is_visible()
+        for quest_id, stage_id in [
+            ('north-forest-signs', 'north-forest-stage-2'),
+            ('north-forest-materials', 'north-forest-stage-4')
+        ]:
             page.locator('.worldInnMarker').click()
             page.locator('#questBoardOpen').click()
             page.locator(f'[data-quest-id="{quest_id}"]').click()
             assert page.locator('#storyView').is_visible()
             finish_story(page)
-            assert page.locator('#worldView').is_visible()
+            assert page.locator('#tutorialView').is_visible()
+            assert page.evaluate('current().id') == stage_id
+            page.evaluate('GameFlow.showWorld()')
+            page.locator('#worldView').wait_for(state='visible')
+        assert 'has-new-quest' not in page.locator('.worldInnMarker').get_attribute('class')
 
         # Requests remain siblings under the permanent northern-forest place.
         page.evaluate('GameFlow.showJourney()')
@@ -405,10 +414,17 @@ try:
         page.locator('.worldForestQuestMarker').click()
         forest_text = page.locator('#sheet').inner_text()
         assert '진행할 수 있는 의뢰가 2개' in forest_text
+        assert page.locator('#northForestGo').inner_text() == '진행 의뢰 들어가기\n북쪽 숲에서 이어갈 일을 선택해.\n→'
+        assert page.locator('#northForestPractice').inner_text() == '의뢰 보기 · 다시 하기'
         assert '첫 자유 의뢰에서 다녀온 북쪽 숲이야' not in forest_text
         assert '지금은 새로 맡은 일이 없어' not in forest_text
         page.screenshot(path=str(OUT / 'ux-place-north-forest-summary-375x812.png'), full_page=True)
-        page.locator('#northForestClose').click()
+        page.locator('#northForestPractice').click()
+        page.locator('#journeyView').wait_for(state='visible')
+        forest_practice = page.locator('.journeyRegion[data-journey-region-id="north-forest"]')
+        assert forest_practice.is_visible()
+        assert forest_practice.evaluate('(el)=>el.open') is True
+        assert forest_practice.locator('.journeyNode[data-node-id="stage:first-free-quest-forest"][data-state="complete"]').count() == 1
 
         assert not errors, errors
         assert not missing, missing

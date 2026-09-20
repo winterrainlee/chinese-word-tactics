@@ -59,7 +59,8 @@ function loadInn(initialMilestones = []) {
   const state = {
     progress: { completedMilestones: [...initialMilestones] },
     sheet: '',
-    closeCount: 0
+    closeCount: 0,
+    newQuest: false
   };
   const sandbox = {
     GameFlow: {
@@ -70,6 +71,7 @@ function loadInn(initialMilestones = []) {
       openSheet: html => { state.sheet = html; },
       closeSheet: () => { state.closeCount++; }
     },
+    NorthForestWorld: { hasNewBoardQuest: () => state.newQuest },
     document: {
       createElement: tagName => new FakeElement(tagName),
       getElementById: id => id === 'worldRegions' ? map : id === 'worldInnClose' ? closeButton : id === 'worldInnEnter' ? enterButton : null
@@ -121,6 +123,22 @@ test('market-core upgrades the existing inn marker and can resync without replac
   state.progress = { completedMilestones: ['inn-unlocked'] };
   WorldInn.syncInnMarker();
   assert.equal(marker.classList.contains('has-room-key'), false);
+});
+
+test('inn marker derives a restrained new-quest notice without adding save state', () => {
+  const { map, state, WorldInn } = loadInn(['inn-unlocked']);
+  const marker = map.querySelector('.worldInnMarker');
+  assert.equal(marker.classList.contains('has-new-quest'), false);
+
+  state.newQuest = true;
+  WorldInn.syncInnMarker();
+  assert.equal(marker.classList.contains('has-new-quest'), true);
+  assert.match(marker.getAttribute('aria-label'), /새 의뢰가 게시판에 있음/);
+  assert.match(marker.innerHTML, /worldInnQuestBadge/);
+
+  state.newQuest = false;
+  WorldInn.syncInnMarker();
+  assert.equal(marker.classList.contains('has-new-quest'), false);
 });
 
 test('inn detail sheet keeps the settled place copy short at M4 and M8', () => {

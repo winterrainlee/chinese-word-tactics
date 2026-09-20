@@ -5,6 +5,8 @@
 .worldInnWarmth{position:absolute;left:42%;top:55%;z-index:0;width:16%;height:24%;border-radius:2px;background:#e4a64a;opacity:.34;box-shadow:0 0 2px rgba(208,132,39,.34)}
 .worldInnBuilding{position:relative;z-index:1;display:block;width:32px;height:32px;object-fit:contain}
 .worldInnKeyCharm{position:absolute;right:-5px;top:3px;z-index:2;display:none;width:15px;height:18px;object-fit:contain;transform:rotate(7deg);filter:drop-shadow(0 1px 1px rgba(61,43,24,.25))}
+.worldInnQuestBadge{position:absolute;left:-7px;top:-7px;z-index:3;display:none;place-items:center;width:20px;height:20px;border-radius:6px;background:#f5ead1;border:1px solid rgba(119,84,45,.45);box-shadow:0 1px 4px rgba(50,40,30,.16);color:#76583d;font-size:12px;font-weight:900;line-height:1;transform:rotate(-5deg)}
+.worldInnMarker.has-new-quest .worldInnQuestBadge{display:grid}
 .worldInnMarker.has-room-key .worldInnIcon{border-color:rgba(142,96,39,.42);box-shadow:0 2px 7px rgba(60,45,30,.13),inset 0 1px 0 rgba(255,255,255,.72),0 0 5px rgba(206,143,53,.13)}
 .worldInnMarker.has-room-key .worldInnWarmth{opacity:.82;box-shadow:0 0 4px rgba(220,145,43,.5)}
 .worldInnMarker.has-room-key .worldInnKeyCharm{display:block}
