@@ -91,10 +91,12 @@ try:
         background_asset(page, '.investigation-rock-mark', 'obstacle-rock.svg')
         page.screenshot(path=str(OUT / 'gate-g4-objects-375.png'))
         page.evaluate('state.hero=[2,1];render()')
-        assert page.locator('#inspectBtn').inner_text() == '대상 선택'
-        assert page.locator('#inspectBtn').is_disabled()
+        assert page.locator('#inspectBtn').inner_text() == '살펴볼 대상 선택'
+        assert page.locator('#inspectBtn').is_enabled()
         assert page.locator('.cell.inspectable').count() == 2
-        page.locator('#grid .cell').nth(16).click()
+        page.locator('#inspectBtn').click()
+        assert page.locator('[data-context-action-choices] button').count() == 3
+        page.locator('[data-context-action-choices] button', has_text='짐상자 살펴보기').click()
         assert page.evaluate('state.surroundingsObserved')
         assert not page.evaluate('inspect')
         page.evaluate('state.obstacleCleared=true;render()')
