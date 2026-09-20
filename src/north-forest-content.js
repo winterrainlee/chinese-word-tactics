@@ -154,15 +154,19 @@
         kind: 'clue-path', initialState: { lastSeenConfirmed: false, alternativeTraceChecked: false, blueThreadConfirmed: false, relatedTraceConfirmed: false, reachedClearing: false },
         clearingMessage: '痕跡延伸到下一片空地，包裹還沒找到。 흔적은 다음 빈터까지 이어지지만 꾸러미는 아직 보이지 않아.',
         observables: [
-          observable('last-seen', 'L', '最後看到的位置', '꾸러미를 마지막으로 본 자리', { variant: 'last-seen' }),
+          observable('last-seen', 'L', '最後看到的位置', '꾸러미를 마지막으로 본 자리', { variant: 'last-seen-marker' }),
           observable('animal-trace', 'W', '動物腳印', '동물 발자국', { variant: 'trace-animal', visibleRequires: ['lastSeenConfirmed'] }),
           observable('wheel-trace', 'V', '車輪痕跡', '수레바퀴 자국', { variant: 'trace-wheel', visibleRequires: ['lastSeenConfirmed'] }),
-          observable('blue-thread', 'T', '藍色線頭', '가지에 걸린 파란 실', { variant: 'trace-blue-thread', visibleRequires: ['lastSeenConfirmed'], passableWhen: 'blueThreadConfirmed' }),
+          observable('blue-thread', 'T', '藍色線頭', '가지에 걸린 파란 실', {
+            variant: 'trace-blue-thread', visibleRequires: ['lastSeenConfirmed'], passableWhen: 'blueThreadConfirmed',
+            pendingHintUntil: 'alternativeTraceChecked',
+            pendingHint: '先比較周圍的其他痕跡，才能分辨這是不是包裹留下的。 주변의 다른 흔적과 먼저 비교해야 꾸러미가 남긴 실인지 分辨할 수 있어.'
+          }),
           observable('drag-trace', 'Q', '拖過的痕跡', '끌린 자국과 파란 실', { variant: 'trace-drag', visibleRequires: ['blueThreadConfirmed'], passableWhen: 'relatedTraceConfirmed' })
         ]
       },
       contextActions: [
-        action('L', '마지막 위치 確認', 'set-flags', { sets: ['lastSeenConfirmed'], unless: 'lastSeenConfirmed', message: '最後看到包裹的位置確認了。 이제 이 周圍에서 흔적을 찾아보자.' }),
+        action('L', '마지막 위치 確認', 'set-flags', { sets: ['lastSeenConfirmed'], unless: 'lastSeenConfirmed', message: '最後看到包裹的位置確認了。周圍的地面和枝上有三種痕跡。 주변 바닥과 가지의 발자국·바퀴 자국·파란 실을 비교해 방향을 찾자.' }),
         action('W', '발자국 확인하기', 'set-flags', { sets: ['alternativeTraceChecked'], requires: 'lastSeenConfirmed', message: '這是動物留下的痕跡，和包裹沒有關係。 동물 발자국이라 꾸러미와는 관계없어.' }),
         action('V', '바퀴 자국 확인하기', 'set-flags', { sets: ['alternativeTraceChecked'], requires: 'lastSeenConfirmed', message: '有車輪痕跡，可是這條路常有車經過。 이것만으로는 방향을 확인할 수 없어.' }),
         action('T', '파란 실 확인하기', 'set-flags', { sets: ['blueThreadConfirmed'], requires: ['lastSeenConfirmed', 'alternativeTraceChecked'], unless: 'blueThreadConfirmed', message: '枝上留下了一小段藍色的線。 다른 흔적과 달리 꾸러미의 파란 끈과 이어질 가능성이 있어.' }),
@@ -172,7 +176,7 @@
     },
     {
       id: 'north-forest-stage-7', title: '發現・附近・留下', subtitle: '흔적이 멈춘 곳', kicker: '자유 의뢰 · 북쪽 숲 F7',
-      grid: ['#######', '#A....#', '#..B..#', '#..L.C#', '#..D..#', '#..S..#', '###E###'],
+      grid: ['#######', '#A....#', '#..B..#', '#..L#C#', '#..D..#', '#..S..#', '###E###'],
       goal: '在最後痕跡附近發現包裹，收好後回到採集人等候的路口。', rule: '마지막 흔적 가까이에서 꾸러미를 찾고 챙겨. 채집인이 기다리는 숲길 입구로 돌아와야 의뢰가 끝나.',
       words: ['發現', '附近', '留下'], win: ['north_forest', 'at_exit'],
       northForest: {
@@ -193,7 +197,7 @@
         action('A', '큰 나무 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '離最後的痕跡有點遠。先看看附近吧。 마지막 흔적에서 조금 멀어.' }),
         action('B', '둥근 바위 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '圓石附近沒有新留下的痕跡。 바위 근처와 비교해 다른 가까운 곳을 살펴보자.' }),
         action('D', '작은 물길 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '小水溝附近沒有藍色的線。 물길 쪽과 비교해 다른 가까운 곳을 살펴보자.' }),
-        action('C', '덤불의 실 확인하기', 'set-flags', { sets: ['bundleThreadFound'], requires: ['finalTraceConfirmed', 'nearbyCompared'], unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了藍色的線。 다른 가까운 곳과 달리 덤불 아래로 이어져.' }),
+        action('C', '덤불 가지의 새 파란 실 확인', 'set-flags', { sets: ['bundleThreadFound'], requires: ['finalTraceConfirmed', 'nearbyCompared'], unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了新的藍色線頭。 다른 가까운 곳과 달리 새 파란 실이 덤불 아래로 이어져.' }),
         action('C', '덤불 아래 살펴보기', 'set-flags', { sets: ['bundleDiscovered'], requires: 'bundleThreadFound', unless: 'bundleDiscovered', priority: 100, message: '在矮樹叢下面發現了遺失的包裹。 파란 끈 꾸러미를 발견했어.' }),
         action('C', '꾸러미 챙기기', 'set-flags', { sets: ['bundleCollected'], requires: 'bundleDiscovered', unless: 'bundleCollected', priority: 110, message: '把包裹收好了。 이제 채집인이 기다리는 숲길 입구로 돌아가자.' })
       ],

@@ -126,6 +126,10 @@ test('F6 clue graph gates traces and only the blue thread plus follow-up trace u
   assert.equal(M.observableVisible(byId['animal-trace'], { lastSeenConfirmed: true }), true);
   assert.equal(M.observableVisible(byId['drag-trace'], { lastSeenConfirmed: true }), false);
   assert.equal(M.observableVisible(byId['drag-trace'], { blueThreadConfirmed: true }), true);
+  assert.equal(byId['last-seen'].variant, 'last-seen-marker');
+  assert.notEqual(byId['last-seen'].variant, byId['blue-thread'].variant);
+  assert.equal(byId['blue-thread'].pendingHintUntil, 'alternativeTraceChecked');
+  assert.match(byId['blue-thread'].pendingHint, /다른 흔적과 먼저 비교|先比較周圍/);
   const blueThreadAction = stage.contextActions.find(action => action.target === 'T');
   assert.deepEqual(blueThreadAction.requires, ['lastSeenConfirmed', 'alternativeTraceChecked']);
   assert.equal(M.flagsMet({ lastSeenConfirmed: true }, blueThreadAction.requires), false);
@@ -138,6 +142,7 @@ test('F6 clue graph gates traces and only the blue thread plus follow-up trace u
   const wheel = stage.contextActions.find(action => action.target === 'V').message;
   assert.match(animal, /沒有關係|관계없/);
   assert.match(wheel, /이것만으로는|不能確認/);
+  assert.match(stage.contextActions.find(action => action.target === 'L').message, /발자국.*바퀴 자국.*파란 실/);
   assert.match(stage.goal, /下一片空地/);
   assert.match(stage.rule, /꾸러미 발견이 아니야/);
   assert.equal(stage.completionTitle, '✓ 추적 지점 도달');
@@ -160,8 +165,15 @@ test('F7 uses real distance and preserves confirm, discover, collect, exit order
   assert.equal(M.nearby(center, position('A'), stage.northForest.radius), false);
   assert.equal(M.nearby(center, position('B'), stage.northForest.radius), true);
   assert.equal(M.nearby(center, position('C'), stage.northForest.radius), true);
+  const sharedApproach = [];
+  for (let r = 0; r < stage.grid.length; r++) for (let c = 0; c < stage.grid[r].length; c++) {
+    if (stage.grid[r][c] !== '#' && M.nearby([r, c], position('L'), 1) && M.nearby([r, c], position('C'), 1)) sharedApproach.push([r, c]);
+  }
+  assert.deepEqual(sharedApproach, [], 'F7 must require movement between the last trace and bush');
+  assert.equal(stage.grid[3][4], '#');
   const bushActions = stage.contextActions.filter(action => action.target === 'C');
   assert.deepEqual(bushActions[0].requires, ['finalTraceConfirmed', 'nearbyCompared']);
+  assert.match(bushActions[0].label, /새 파란 실/);
   assert.ok(stage.contextActions.filter(action => ['B', 'D'].includes(action.target)).every(action => action.sets.includes('nearbyCompared')));
   assert.equal(bushActions[1].requires, 'bundleThreadFound');
   assert.equal(bushActions[2].requires, 'bundleDiscovered');
@@ -275,7 +287,7 @@ test('the innkeeper states the marker request and clearly sends the boy to the c
 test('northern forest art is local, lightweight, vector-only, and wired at mobile tile scale', () => {
   const directory = path.join(root, 'icons/tactical/north-forest');
   const files = fs.readdirSync(directory).filter(file => file.endsWith('.svg'));
-  assert.equal(files.length, 19);
+  assert.equal(files.length, 21);
   for (const file of files) {
     const source = fs.readFileSync(path.join(directory, file), 'utf8');
     assert.ok(Buffer.byteLength(source) < 4096, file);
@@ -283,12 +295,14 @@ test('northern forest art is local, lightweight, vector-only, and wired at mobil
     assert.doesNotMatch(source, /<script|<filter|<text|url\(/i, file);
   }
   const css = read('src/north-forest.css');
-  for (const name of ['marker-pointer', 'plant-long-pointed-dark', 'plant-long-round-dark', 'plant-long-pointed-light', 'plant-short-pointed-dark', 'vine-long-thin', 'vine-long-thick', 'vine-short-thin', 'trace-blue-thread', 'trace-animal', 'trace-wheel', 'trace-drag', 'bundle', 'branch-obstacle']) {
+  for (const name of ['marker-pointer', 'plant-long-pointed-dark', 'plant-long-round-dark', 'plant-long-pointed-light', 'plant-short-pointed-dark', 'vine-long-thin', 'vine-long-thick', 'vine-short-thin', 'last-seen-marker', 'trace-blue-thread', 'trace-animal', 'trace-wheel', 'trace-drag', 'bush-blue-thread', 'bundle', 'branch-obstacle']) {
     assert.match(css, new RegExp(`${name}\\.svg`), name);
   }
   assert.match(css, /--cell:min\(46px/);
   assert.match(css, /forest-path-wet/);
   assert.match(css, /forest-path-narrow/);
+  assert.match(css, /\.forest-bush-thread-mark\{/);
+  assert.match(read('icons/tactical/north-forest/trace-drag.svg'), /#557da2/);
   assert.match(css, /\.northForest-route-cart \.forest-path-n\{--forest-path-n:calc\(50% \+ 1px\)\}/);
   assert.match(css, /\.northForest-route-cart \.forest-path-e\{--forest-path-e:calc\(50% \+ 1px\)\}/);
   assert.match(css, /\.northForest-route-cart \.forest-path-s\{--forest-path-s:calc\(50% \+ 1px\)\}/);
@@ -310,6 +324,8 @@ test('northern forest art is local, lightweight, vector-only, and wired at mobil
   assert.match(runtime, /newTerrain\?\.enterMessage/);
   assert.match(runtime, /terrain\?\.labelKo/);
   assert.match(runtime, /terrainConnectionDirections\(terrain, pos\)/);
+  assert.match(runtime, /state\.bundleThreadFound/);
+  assert.match(runtime, /item\.pendingHint/);
 });
 
 test('northern forest place exposes active entry, full quest practice, and derived board alerts', () => {
@@ -337,8 +353,8 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.ok(content > 0 && content < progress);
   assert.ok(follower < obstacle && obstacle < runtime && runtime < flow);
   assert.ok(flow < world && world < firstWorld);
-  assert.match(html, /north-forest\.css\?v=20260920-feedback1/);
-  assert.match(html, /north-forest-content\.js\?v=20260920-feedback2/);
-  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback2/);
+  assert.match(html, /north-forest\.css\?v=20260920-feedback3/);
+  assert.match(html, /north-forest-content\.js\?v=20260920-feedback3/);
+  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback3/);
   assert.match(html, /north-forest-world-runtime\.js\?v=20260920-northforestux2/);
 });

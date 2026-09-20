@@ -319,6 +319,12 @@
       const pos = positionOfChar(st, item.char), cell = pos && gridEl.children[pos[0] * cols + pos[1]];
       addObjectMark(cell, item, st);
     }
+    if (cfg.kind === 'clue-nearby' && state.bundleThreadFound) {
+      const pos = positionOfChar(st, 'C'), cell = pos && gridEl.children[pos[0] * cols + pos[1]];
+      if (cell && !cell.querySelector('.forest-bush-thread-mark')) {
+        const mark = document.createElement('span'); mark.className = 'forest-bush-thread-mark'; mark.setAttribute('aria-hidden', 'true'); cell.appendChild(mark);
+      }
+    }
     if (cfg.kind === 'clue-nearby' && state.bundleDiscovered && !state.bundleCollected) {
       const pos = positionOfChar(st, 'C'), cell = pos && gridEl.children[pos[0] * cols + pos[1]];
       if (cell && !cell.querySelector('.forest-bundle-mark')) {
@@ -362,6 +368,7 @@
     if (currentDirection && directionVisible) details.push(`<strong>方向</strong> ${escapeHtml(currentDirection)}`);
     if (item.revealedFlag && !state[item.revealedFlag]) details.push('<strong>상태</strong> 잎에 가려져 방향은 아직 보이지 않음');
     if (cfg.kind === 'clue-nearby' && item.id === 'low-bush' && !state.bundleThreadFound) details.push('<strong>상태</strong> 낮은 가지와 잎이 겹쳐 안쪽은 보이지 않음');
+    if (item.pendingHint && !flagsMet(state, item.pendingHintUntil)) details.push(`<strong>확인 전</strong> ${escapeHtml(item.pendingHint)}`);
     openSheet(`<h2>${escapeHtml(item.labelZh)}</h2><div class="meaning">${escapeHtml(item.labelKo)}</div>${details.length ? `<div class="gamerule">${details.join('<br>')}</div>` : ''}<div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
   };
 })();

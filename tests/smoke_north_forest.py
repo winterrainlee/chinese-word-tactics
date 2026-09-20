@@ -117,6 +117,10 @@ try:
 
         start(page, 'north-forest-stage-6')
         action(page)
+        assert page.locator('.forest-object-trace-animal').count() == 1
+        assert page.locator('.forest-object-trace-wheel').count() == 1
+        assert page.locator('.forest-object-trace-blue-thread').count() == 1
+        page.screenshot(path=str(OUT / 'north-forest-f6-clues-375x812.png'), full_page=True)
         move(page, [(4, 2), (3, 2)]); action(page)
         assert page.evaluate('!state.relatedTraceConfirmed')
         move(page, [(4, 2), (4, 3), (4, 4), (3, 4)]); action(page)
@@ -130,10 +134,15 @@ try:
 
         start(page, 'north-forest-stage-7')
         assert page.locator('.forest-bundle-mark').count() == 0
+        assert page.locator('.forest-bush-thread-mark').count() == 0
         move(page, [(5, 2), (4, 2), (3, 2)]); action(page)
         move(page, [(2, 2)]); action(page)
         assert page.evaluate('state.nearbyCompared')
-        move(page, [(3, 2), (4, 2), (5, 2), (5, 3), (5, 4), (4, 4), (4, 5)]); action(page, 2)
+        move(page, [(3, 2), (4, 2), (5, 2), (5, 3), (5, 4), (4, 4), (4, 5)]); action(page)
+        assert page.locator('.forest-bush-thread-mark').count() == 1
+        assert page.locator('.forest-bundle-mark').count() == 0
+        page.screenshot(path=str(OUT / 'north-forest-f7-thread-375x812.png'), full_page=True)
+        action(page)
         assert page.locator('.forest-bundle-mark').count() == 1
         action(page)
         assert page.locator('.forest-bundle-mark').count() == 0
