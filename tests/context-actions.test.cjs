@@ -52,6 +52,20 @@ test('equal-priority actions remain together so the player can choose', () => {
     { pos: [1, 2], action: { label: '오른쪽 살펴보기' } }
   ];
   assert.equal(C.highestPriorityActions(candidates).length, 2);
+  assert.deepEqual(C.actionControlState(candidates), {
+    hidden: false,
+    disabled: false,
+    label: '살펴볼 대상 선택'
+  });
+});
+
+test('the contextual action control is disabled only when there is no target', () => {
+  assert.deepEqual(C.actionControlState([]), { hidden: true, disabled: true, label: '살펴보기' });
+  assert.deepEqual(C.actionControlState([{ action: { label: '돌 살펴보기' } }]), {
+    hidden: false,
+    disabled: false,
+    label: '돌 살펴보기'
+  });
 });
 
 test('useful information targets can be tapped directly without a global inspect mode', () => {
@@ -75,7 +89,8 @@ test('the shared tactical runtime has no global inspect-mode toggle or mode prom
   const sharedRuntime = `${app}\n${interactionRuntime}`;
   assert.doesNotMatch(sharedRuntime, /inspect\s*=\s*!inspect/);
   assert.doesNotMatch(sharedRuntime, /살펴보기 모드|살펴볼 대상을 눌러봐|이동으로/);
-  assert.match(interactionRuntime, /button\.hidden = actions\.length === 0/);
+  assert.match(interactionRuntime, /button\.hidden = control\.hidden/);
+  assert.match(interactionRuntime, /openActionChooser/);
 });
 
 test('wolf inspection states the movement rule without revealing the next action', () => {
@@ -94,7 +109,7 @@ test('changed direct-inspection runtimes use a shared cache version', () => {
   for (const file of ['first-free-quest-runtime', 'range-runtime', 'follower-chain-runtime', 'market-runtime']) {
     assert.match(index, new RegExp(`${file}\\.js\\?v=20260914-directinspect1`), file);
   }
-  assert.match(index, /interaction-runtime\.js\?v=20260919-f8/);
+  assert.match(index, /interaction-runtime\.js\?v=20260920-contextchoice1/);
   assert.match(index, /follower-runtime\.js\?v=20260920-northforestux2/);
   assert.match(index, /first-free-quest-content\.js\?v=20260915-quests1/);
 });

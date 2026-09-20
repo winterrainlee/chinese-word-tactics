@@ -141,7 +141,18 @@ try:
         page.locator('#sheet .sheetactions button').click()
         move(page, [(4, 3), (3, 3)]); action(page)
         assert not page.evaluate('state.nearbyCompared')
-        move(page, [(2, 3)]); action(page)
+        move(page, [(3, 4)])
+        assert page.locator('#inspectBtn').is_enabled()
+        assert page.locator('#inspectBtn').inner_text() == '살펴볼 대상 선택'
+        page.locator('#inspectBtn').click()
+        page.locator('[data-context-action-choices]').wait_for(state='visible')
+        assert page.locator('[data-context-action-choices] button').count() == 3
+        choice_boxes = page.locator('[data-context-action-choices] button').evaluate_all(
+            '(items) => items.map(item => ({height:item.getBoundingClientRect().height, clipped:item.scrollHeight > item.clientHeight + 1}))'
+        )
+        assert all(item['height'] >= 48 and not item['clipped'] for item in choice_boxes), choice_boxes
+        page.screenshot(path=str(OUT / 'north-forest-f7-context-choices-375x812.png'), full_page=True)
+        page.locator('[data-context-action-choices] button', has_text='덤불 가지의 새 파란 실 확인').click()
         assert page.locator('.forest-bush-thread-mark').count() == 1
         assert page.locator('.forest-bundle-mark').count() == 0
         page.screenshot(path=str(OUT / 'north-forest-f7-thread-375x812.png'), full_page=True)

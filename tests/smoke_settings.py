@@ -57,7 +57,7 @@ try:
         assert not page.locator('#landingView').is_visible()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         assert_touch_targets(page, '#settingsBack:visible, .settingsAction:visible')
-        assert page.locator('#settingsBuild').inner_text() == '2026-09-20-north-forest-feedback4'
+        assert page.locator('#settingsBuild').inner_text() == '2026-09-20-context-choice1'
 
         with page.expect_download() as info:
             page.locator('#settingsExport').click()

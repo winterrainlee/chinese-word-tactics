@@ -17,6 +17,14 @@
     const top = Math.max(...items.map(item => priorityOf(item.action)));
     return items.filter(item => priorityOf(item.action) === top);
   }
+  function actionControlState(items = []) {
+    const count = items.length;
+    return {
+      hidden: count === 0,
+      disabled: count === 0,
+      label: count === 1 ? items[0].action.label : count > 1 ? '살펴볼 대상 선택' : '살펴보기'
+    };
+  }
   const samePosition = (a, b) => Array.isArray(a) && Array.isArray(b) && a[0] === b[0] && a[1] === b[1];
   function isDirectInformationTarget(stage, pos, s) {
     if (!stage?.grid || !Array.isArray(pos)) return false;
@@ -45,7 +53,7 @@
     return false;
   }
 
-  globalThis.ContextActionLogic = Object.freeze({ manhattan, priorityOf, enabled, actionsForPosition, primaryActionForPosition, highestPriorityActions, isDirectInformationTarget });
+  globalThis.ContextActionLogic = Object.freeze({ manhattan, priorityOf, enabled, actionsForPosition, primaryActionForPosition, highestPriorityActions, actionControlState, isDirectInformationTarget });
 
   if (typeof document === 'undefined' || typeof render !== 'function') return;
   const button = document.getElementById('inspectBtn');
@@ -80,12 +88,32 @@
     return highestPriorityActions(candidates);
   }
 
+  function openActionChooser(actions) {
+    openSheet('<h2>살펴볼 대상 선택</h2><div class="meaning">주변에 확인할 대상이 여러 개 있어.</div><div class="sheetactions contextActionChoices" data-context-action-choices></div>');
+    const choices = document.querySelector('[data-context-action-choices]');
+    if (!choices) return;
+    for (const item of actions) {
+      const choice = document.createElement('button');
+      choice.type = 'button';
+      choice.textContent = item.action.label;
+      choice.onclick = () => { closeSheet(); item.action.run(); };
+      choices.appendChild(choice);
+    }
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'secondary';
+    cancel.textContent = '닫기';
+    cancel.onclick = closeSheet;
+    choices.appendChild(cancel);
+  }
+
   function enhance() {
     const actions = nearbyActions();
+    const control = actionControlState(actions);
     inspect = false;
-    button.hidden = actions.length === 0;
-    button.disabled = actions.length !== 1;
-    button.textContent = actions.length === 1 ? actions[0].action.label : actions.length > 1 ? '대상 선택' : '살펴보기';
+    button.hidden = control.hidden;
+    button.disabled = control.disabled;
+    button.textContent = control.label;
     if (controls) {
       const hasWait = !document.getElementById('waitBtn')?.hidden;
       const count = 1 + (hasWait ? 1 : 0) + (actions.length ? 1 : 0);
@@ -118,6 +146,7 @@
   button.onclick = () => {
     const actions = nearbyActions();
     if (actions.length === 1) actions[0].action.run();
+    else if (actions.length > 1) openActionChooser(actions);
   };
 
   enhance();
