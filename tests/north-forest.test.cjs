@@ -40,16 +40,16 @@ function mechanics() {
   return context.NorthForestMechanics;
 }
 
-test('F2-F8 append after F1 and use the exact twenty target words', () => {
+test('F2-F8 append after F1 and use the exact twenty-one target words', () => {
   const value = plain(snapshot());
   assert.deepEqual(value.stages.map(stage => stage.id), [2, 3, 4, 5, 6, 7, 8].map(n => `north-forest-stage-${n}`));
   assert.deepEqual(value.stages.map(stage => stage.words), [
-    ['標記', '方向', '確認'], ['正確', '指示'], ['特徵', '相似', '分辨'],
+    ['標記', '方向', '確認'], ['正確', '指示'], ['特徵', '相似', '不同', '分辨'],
     ['材料', '適合', '生長'], ['遺失', '尋找', '痕跡'], ['發現', '附近', '留下'],
     ['情況', '安全', '危險']
   ]);
   const expected = value.stages.flatMap(stage => stage.words);
-  assert.equal(new Set(expected).size, 20);
+  assert.equal(new Set(expected).size, 21);
   expected.forEach(word => assert.ok(value.words.includes(word), word));
   for (const review of ['深綠色', '淺綠色', '藍色', '長', '短', '圓', '尖', '粗', '細', '乾', '濕', '寬', '窄']) {
     assert.ok(!expected.includes(review), `${review} must remain review-layer vocabulary`);
@@ -70,22 +70,24 @@ test('F2 hides the obscured direction, tracks all three confirmations, and compl
   assert.ok(!stage.contextActions.some(action => /오답|틀린|wrong/.test(action.message || '')), 'F2 must not grade the rotated marker');
 });
 
-test('F3 cycles all four directions and needs both spatial references before correction', () => {
+test('F3 has no normal-answer sign, allows rotation immediately, and validates against the market road', () => {
   const stage = plain(snapshot().stages[1]), M = mechanics(), discrete = stage.northForest.discrete;
   let direction = discrete.states[0];
   const cycle = [];
   for (let i = 0; i < 4; i++) { cycle.push(direction); direction = M.nextDiscreteState(discrete.states, direction); }
   assert.deepEqual(cycle, ['上', '右', '下', '左']);
   assert.equal(direction, '上');
-  assert.equal(M.completionFor(stage, { markerDirection: '左', normalMarkerObserved: true, actualRouteObserved: true }), false);
-  assert.equal(M.completionFor(stage, { markerDirection: '下', normalMarkerObserved: true }), false);
-  assert.equal(M.completionFor(stage, { markerDirection: '下', actualRouteObserved: true }), false);
-  assert.equal(M.completionFor(stage, { markerDirection: '下', normalMarkerObserved: true, actualRouteObserved: true }), true);
-  assert.deepEqual(discrete.referenceFlags, ['normalMarkerObserved', 'actualRouteObserved']);
-  assert.ok(stage.contextActions.find(action => action.target === 'R').requires.length === 2);
+  assert.equal(M.completionFor(stage, { markerDirection: '左', actualRouteObserved: true }), false);
+  assert.equal(M.completionFor(stage, { markerDirection: '下', actualRouteObserved: false }), true);
+  assert.equal(M.completionFor(stage, { markerDirection: '下', actualRouteObserved: true }), true);
+  assert.equal(discrete.referenceFlag, undefined);
+  assert.equal(stage.contextActions.find(action => action.target === 'R').requires, undefined);
+  assert.ok(!stage.northForest.observables.some(item => item.id === 'reference-a'));
+  assert.ok(!stage.contextActions.some(action => action.target === 'A'));
+  assert.ok(stage.northForest.terrain[0].positions.every((position, index, positions) => index === 0 || position[1] === positions[index - 1][1]));
 });
 
-test('F4 distractors each differ by exactly one visible feature and only A matches', () => {
+test('F4 contrasts 相似 with 不同 and completes only after the confirmed plant is collected', () => {
   const stage = plain(snapshot().stages[2]), M = mechanics(), cfg = stage.northForest;
   assert.deepEqual(cfg.referenceCard, { labelZh: '樣本', labelKo: '견본', variant: 'plant-long-pointed-dark' });
   const differences = Object.fromEntries(cfg.observables.map(item => [item.char,
@@ -94,7 +96,10 @@ test('F4 distractors each differ by exactly one visible feature and only A match
   for (const item of cfg.observables.slice(1)) assert.equal(M.attributesMatch(cfg.reference, item.attributes, cfg.attributeKeys), false);
   assert.equal(M.completionFor(stage, { selectedPatch: 'plant-b', comparedPatchIds: ['plant-a', 'plant-b'] }), false);
   assert.equal(M.completionFor(stage, { selectedPatch: 'plant-a', comparedPatchIds: ['plant-a'] }), false);
-  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-a', comparedPatchIds: ['plant-a', 'plant-b'] }), true);
+  assert.ok(stage.words.includes('不同'));
+  assert.ok(stage.contextActions.some(action => action.operation === 'collect-attribute' && action.target === 'A'));
+  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-a', comparedPatchIds: ['plant-a', 'plant-b'] }), false);
+  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-a', collectedPatch: 'plant-a', comparedPatchIds: ['plant-a', 'plant-b'] }), true);
   assert.equal(cfg.minimumComparisons, 2);
 });
 
@@ -104,6 +109,8 @@ test('F5 has two suitable materials, rejects every mismatch, supports return, an
     className: 'forest-stream', positions: [[2,1],[2,4],[4,2]], labelZh: '水邊', labelKo: '물가',
     enterMessage: '水邊。 얕은 물과 젖은 흙이 이어지는 물가야.'
   });
+  assert.deepEqual(cfg.workOrder.values, ['長', '細', '生長在水邊', '兩根']);
+  assert.equal(cfg.referenceCard, undefined, 'F5 must not show a target picture');
   const suitability = Object.fromEntries(cfg.observables.map(item => [item.char, M.materialSuitable(item.attributes, cfg.requirements)]));
   assert.deepEqual(plain(suitability), { A: true, B: false, C: true, D: false });
   assert.ok(stage.contextActions.some(action => action.operation === 'return-material' && action.target === 'B'));
@@ -130,6 +137,10 @@ test('F6 clue graph gates traces and only the blue thread plus follow-up trace u
   const wheel = stage.contextActions.find(action => action.target === 'V').message;
   assert.match(animal, /沒有關係|관계없/);
   assert.match(wheel, /이것만으로는|不能確認/);
+  assert.match(stage.goal, /下一片空地/);
+  assert.match(stage.rule, /꾸러미 발견이 아니야/);
+  assert.equal(stage.completionTitle, '✓ 추적 지점 도달');
+  assert.match(stage.northForest.clearingMessage, /包裹還沒找到|꾸러미는 아직/);
   const interaction = vm.createContext({ console });
   load(interaction, 'src/interaction-runtime.js');
   assert.equal(interaction.ContextActionLogic.isDirectInformationTarget(stage, [2, 3], { hero: [2, 4], blueThreadConfirmed: false }), true);
@@ -157,6 +168,8 @@ test('F7 uses real distance and preserves confirm, discover, collect, exit order
   assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, false), false);
   assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), false);
   assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, nearbyCompared: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), true);
+  assert.match(stage.goal, /採集人等候/);
+  assert.equal(stage.northForest.exitLabelKo, '채집인이 기다리는 숲길 입구');
 });
 
 test('F8 accepts west and east formations, blocks the cart in the middle, and allows retreat', () => {
@@ -188,6 +201,12 @@ test('F8 accepts west and east formations, blocks the cart in the middle, and al
     { surface: '濕', breadth: '窄', obstacle: '無' },
     { surface: '乾', breadth: '寬', obstacle: '無' }
   ]);
+  const [westTerrain, middleTerrain, eastTerrain] = stage.northForest.terrain;
+  assert.deepEqual(plain(M.terrainConnectionDirections(westTerrain, [3,1])), ['n', 's']);
+  assert.deepEqual(plain(M.terrainConnectionDirections(westTerrain, [1,1])), ['e', 's']);
+  assert.deepEqual(plain(M.terrainConnectionDirections(westTerrain, [1,3])), ['w']);
+  assert.deepEqual(plain(M.terrainConnectionDirections(middleTerrain, [3,3])), ['n', 's']);
+  assert.deepEqual(plain(M.terrainConnectionDirections(eastTerrain, [1,5])), ['s', 'w']);
   assert.equal(stage.finalObstacle.kind, 'branch');
   assert.equal(stage.route, undefined, 'F8 must not persist a superior route outcome');
   assert.deepEqual(stage.follower.guidedRoutes.westToObstacle, [[5,1],[4,1]]);
@@ -269,6 +288,15 @@ test('northern forest art is local, lightweight, vector-only, and wired at mobil
   assert.match(css, /--cell:min\(46px/);
   assert.match(css, /forest-path-wet/);
   assert.match(css, /forest-path-narrow/);
+  assert.match(css, /\.northForest-route-cart \.forest-path-n\{--forest-path-n:calc\(50% \+ 1px\)\}/);
+  assert.match(css, /\.northForest-route-cart \.forest-path-e\{--forest-path-e:calc\(50% \+ 1px\)\}/);
+  assert.match(css, /\.northForest-route-cart \.forest-path-s\{--forest-path-s:calc\(50% \+ 1px\)\}/);
+  assert.match(css, /\.northForest-route-cart \.forest-path-w\{--forest-path-w:calc\(50% \+ 1px\)\}/);
+  assert.match(css, /\.northForest-route-cart \.forest-path-wide\{--forest-path-width:32px\}/);
+  assert.match(css, /\.northForest-route-cart \.forest-path-narrow\{--forest-path-width:18px\}/);
+  assert.match(css, /radial-gradient\(circle at 24% 31%/);
+  assert.match(css, /radial-gradient\(ellipse at 52% 54%/);
+  assert.doesNotMatch(css, /forest-path-dry:before\{[^}]*dashed/);
   assert.match(css, /\.northForestReference\{/);
   assert.match(css, /\.northForest-materials \.forest-stream:after\{content:"水邊"/);
   assert.match(css, /\.northForestStage \.cell\.checkpoint::before\{display:none\}/);
@@ -280,6 +308,7 @@ test('northern forest art is local, lightweight, vector-only, and wired at mobil
   assert.match(runtime, /function syncReferenceCard\(cfg\)/);
   assert.match(runtime, /newTerrain\?\.enterMessage/);
   assert.match(runtime, /terrain\?\.labelKo/);
+  assert.match(runtime, /terrainConnectionDirections\(terrain, pos\)/);
 });
 
 test('northern forest place exposes active entry, full quest practice, and derived board alerts', () => {
@@ -307,8 +336,8 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.ok(content > 0 && content < progress);
   assert.ok(follower < obstacle && obstacle < runtime && runtime < flow);
   assert.ok(flow < world && world < firstWorld);
-  assert.match(html, /north-forest\.css\?v=20260920-reference1/);
-  assert.match(html, /north-forest-content\.js\?v=20260920-northforestux2/);
-  assert.match(html, /north-forest-runtime\.js\?v=20260920-northforestux2/);
+  assert.match(html, /north-forest\.css\?v=20260920-feedback1/);
+  assert.match(html, /north-forest-content\.js\?v=20260920-feedback1/);
+  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback1/);
   assert.match(html, /north-forest-world-runtime\.js\?v=20260920-northforestux2/);
 });

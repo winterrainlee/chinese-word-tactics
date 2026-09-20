@@ -82,11 +82,10 @@ try:
         assert page.evaluate('state.markerAConfirmed && state.markerBConfirmed && state.markerCConfirmed')
 
         start(page, 'north-forest-stage-3')
-        move(page, [(3, 4)]); action(page)
-        move(page, [(3, 3), (3, 2)]); action(page)
+        move(page, [(4, 3)]); action(page)
         move(page, [(3, 3), (2, 3)]); action(page, 3)
         page.locator('#flowNext').wait_for(state='visible')
-        assert page.evaluate("state.markerDirection === '下' && state.normalMarkerObserved && state.actualRouteObserved")
+        assert page.evaluate("state.markerDirection === '下' && state.actualRouteObserved && !('normalMarkerObserved' in state)")
 
         start(page, 'north-forest-stage-4')
         assert page.locator('#northForestReference').is_visible()
@@ -95,11 +94,15 @@ try:
         move(page, [(2, 3), (2, 4)]); action(page, 2)
         assert page.evaluate('state.selectedPatch === null && state.comparedSimilar')
         assert '葉尖' in page.locator('#status').inner_text()
-        move(page, [(2, 3), (2, 2), (1, 2)]); action(page, 2)
+        move(page, [(2, 3), (2, 2), (1, 2)]); action(page, 3)
         page.locator('#flowNext').wait_for(state='visible')
+        assert page.evaluate("state.plantCollected && state.collectedPatch === 'plant-a'")
         page.screenshot(path=str(OUT / 'north-forest-f4-375x812.png'), full_page=True)
 
         start(page, 'north-forest-stage-5')
+        assert page.locator('#northForestReference.northForestWorkOrder').is_visible()
+        assert '生長在水邊' in page.locator('#northForestReference').inner_text()
+        assert page.locator('#northForestReference .northForestReferenceArt').count() == 0
         move(page, [(2, 3), (2, 4)]); action(page, 3)
         assert page.evaluate("!state.carriedMaterials.includes('material-b')")
         move(page, [(2, 3), (2, 2), (2, 1)])
@@ -121,6 +124,8 @@ try:
         move(page, [(2, 3)]); action(page)
         move(page, [(1, 3)])
         page.locator('#flowNext').wait_for(state='visible')
+        assert '추적 지점 도달' in page.locator('#completionBar').inner_text()
+        assert '꾸러미' in page.locator('#status').text_content()
 
         start(page, 'north-forest-stage-7')
         assert page.locator('.forest-bundle-mark').count() == 0
@@ -131,10 +136,14 @@ try:
         assert page.locator('.forest-bundle-mark').count() == 1
         action(page)
         assert page.locator('.forest-bundle-mark').count() == 0
+        assert '채집인이 기다리는' in cell(page, 6, 3).get_attribute('aria-label')
         move(page, [(4, 4), (5, 4), (5, 3), (6, 3)])
         page.locator('#flowNext').wait_for(state='visible')
 
         start(page, 'north-forest-stage-8')
+        assert cell(page, 3, 1).evaluate("el => el.classList.contains('forest-path-n') && el.classList.contains('forest-path-s')")
+        assert cell(page, 1, 1).evaluate("el => el.classList.contains('forest-path-e') && el.classList.contains('forest-path-s')")
+        assert cell(page, 3, 3).evaluate("el => el.classList.contains('forest-path-n') && el.classList.contains('forest-path-s')")
         for route in [(5, 1), (4, 3), (5, 5)]:
             direct_info(page, *route)
         move(page, [(5, 3), (5, 2)]); action(page)
