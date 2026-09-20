@@ -54,12 +54,84 @@ def assert_touch_targets(page, selector):
     assert all(item['width'] >= 44 and item['height'] >= 44 for item in targets), targets
     return targets
 
+VIEWPORTS = [(375,812), (375,667), (375,640), (360,640)]
+
+def layout_measurement(page, state):
+    layout = visible_layout(page)
+    targets = page.locator('button:visible, [role="button"]:visible').evaluate_all('''nodes => nodes.map(node => {
+      const rect=node.getBoundingClientRect(); return {text:(node.innerText||node.getAttribute('aria-label')||'').trim(), ariaLabel:node.getAttribute('aria-label'), x:rect.x,y:rect.y,width:rect.width,height:rect.height};
+    })''')
+    core = [layout[name] for name in ('topbar','goal','words','board','grid','status','context','completion','controls') if name in layout]
+    layout['state'] = state
+    layout['coreUiSpan'] = max(item['y'] + item['height'] for item in core) - min(item['y'] for item in core)
+    layout['touchTargets'] = targets
+    return layout
+
+def capture_layout_matrix(browser, output_dir):
+    measurements = []
+    for width, height in VIEWPORTS:
+        context = browser.new_context(viewport={'width':width,'height':height},device_scale_factor=1,is_mobile=True,has_touch=True)
+        page = context.new_page(); page.set_default_timeout(5000)
+        page.goto(url); page.wait_for_function('!!window.GameFlow && !!window.TacticalGame && !!window.UXPlay')
+        def capture(stage, state):
+            measurement = layout_measurement(page, f'{stage}:{state}')
+            measurements.append(measurement)
+            page.screenshot(path=str(output_dir / f'{stage}-{state}-{width}x{height}.png'), full_page=True)
+        page.evaluate('TacticalGame.playStage("gate-stage-1",{mode:"replay",returnTo:"journey"})')
+        capture('g1', 'entry')
+        page.locator('#grid .cell').nth(0).click()
+        capture('g1', 'after-action')
+        page.evaluate('TacticalGame.playStage("workshop-stage-2",{mode:"replay",returnTo:"journey"})')
+        capture('w2', 'entry')
+        page.locator('#status .statusMeaningBtn').click()
+        capture('w2', 'meaning-open')
+        page.locator('#status .statusMeaningBtn').click()
+        page.locator('[data-workshop-action="step-down"]').first.click()
+        capture('w2', 'after-action')
+        page.evaluate('TacticalGame.playStage("market-stage-8",{mode:"replay",returnTo:"journey"})')
+        capture('m8', 'entry')
+        locations = page.locator('.market-location')
+        farthest = locations.evaluate_all('''nodes => nodes.reduce((best,node,index) => { const r=+node.dataset.row,c=+node.dataset.col,d=Math.abs(r-1)+Math.abs(c-2); return d>best.d ? {d,index} : best; }, {d:-1,index:0}).index''')
+        locations.nth(farthest).click()
+        capture('m8', 'far-selection')
+        page.locator('.market-cell[data-row="1"][data-col="2"]').click()
+        page.locator('.market-cell[data-row="0"][data-col="2"]').click()
+        capture('m8', 'adjacent-action')
+        page.evaluate('GameFlow.showStageComplete("market-stage-8",{mode:"replay",returnTo:"journey"})')
+        capture('m8', 'complete')
+        context.close()
+    return measurements
+
+def assert_layout_matrix(measurements):
+    assert len(measurements) == len(VIEWPORTS) * 9, len(measurements)
+    boards = {}
+    for item in measurements:
+        viewport, document = item['viewport'], item['document']
+        assert document['width'] <= viewport['width'], item
+        assert document['height'] <= viewport['height'], item
+        assert all(target['width'] >= 44 and target['height'] >= 44 for target in item['touchTargets']), item['touchTargets']
+        stage, state = item['state'].split(':', 1)
+        boards.setdefault((viewport['width'], viewport['height'], stage), []).append(item['board'])
+        if viewport == {'width': 375, 'height': 640}:
+            assert item['coreUiSpan'] <= 620, item
+    for key, boxes in boards.items():
+        reference = boxes[0]
+        for candidate in boxes[1:]:
+            assert all(abs(reference[dimension] - candidate[dimension]) <= 1 for dimension in ('x','y','width','height')), (key, reference, candidate)
+
 try:
     with sync_playwright() as pw:
         executable = os.environ.get('CHROMIUM_PATH')
         launch = {'args':['--no-sandbox']}
         if executable: launch['executable_path'] = executable
         browser = pw.chromium.launch(**launch)
+        measurement_path = os.environ.get('LAYOUT_MEASUREMENT_PATH')
+        if measurement_path:
+            measurement_output = Path(os.environ.get('LAYOUT_SCREENSHOT_DIR', '/tmp/cwt-layout-baseline-before'))
+            measurement_output.mkdir(parents=True, exist_ok=True)
+            measurement = capture_layout_matrix(browser, measurement_output)
+            Path(measurement_path).write_text(json.dumps(measurement, ensure_ascii=False, indent=2))
+            assert_layout_matrix(measurement)
         context = browser.new_context(viewport={'width':375,'height':812},device_scale_factor=1,is_mobile=True,has_touch=True)
         page = context.new_page(); page.set_default_timeout(5000)
         errors, missing = [], []

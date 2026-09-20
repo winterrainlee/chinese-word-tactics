@@ -132,7 +132,7 @@
       button.id = 'goalDetailBtn';
       button.className = 'goalDetailBtn';
       button.type = 'button';
-      button.textContent = '뜻';
+      button.textContent = '📖';
       button.setAttribute('aria-label', '목표와 규칙 자세히 보기');
       goalbox.append(button);
     }

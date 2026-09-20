@@ -328,8 +328,10 @@
 
     if (location.exchange) {
       const offer = location.exchange, give = itemCfg(cfg, offer.give), receive = itemCfg(cfg, offer.receive);
-      const canExchange = getQty(state.market.inventory, offer.give) >= number(offer.giveQty) && M.stockAt(state.market, location.id, offer.receive) >= number(offer.receiveQty);
-      buttons.push(`<button type="button" data-market-action="exchange" data-location="${location.id}" ${canExchange ? '' : 'disabled'}>交換 ${give.labelZh} → ${receive.labelZh}</button>`);
+      const held = getQty(state.market.inventory, offer.give), giveQty = number(offer.giveQty), available = M.stockAt(state.market, location.id, offer.receive), receiveQty = number(offer.receiveQty);
+      const canExchange = held >= giveQty && available >= receiveQty;
+      const shortage = held < giveQty ? ` · ${give.labelZh} ${held}/${giveQty}` : available < receiveQty ? ` · ${receive.labelZh} ${available}/${receiveQty}` : '';
+      buttons.push(`<button type="button" data-market-action="exchange" data-location="${location.id}" ${canExchange ? '' : 'disabled'}>交換 ${give.labelZh} → ${receive.labelZh}${shortage}</button>`);
     }
 
     if (location.allowTake && M.decisionRequirementMet(location.takeRequiresDecision, state.market)) {
@@ -354,6 +356,7 @@
 
   function renderPanel(cfg) {
     const focus = locationCfg(cfg, state.market.focus);
+    if (current()?.id === 'market-stage-8') return renderM8Panel(cfg, focus);
     if (!focus) return `<section class="market-panel market-panel-empty"><div class="market-carry">${inventoryText(cfg)}</div><p>좌판·사람·짐·창고를 누르면 정보를 확인할 수 있어. 실제 행동은 가까이 가서 해.</p></section>`;
     const adjacent = dist(state.hero, focus.pos) === 1;
     return `<section class="market-panel" data-focus="${focus.id}">
@@ -365,6 +368,34 @@
       <div class="market-info-list">${needRows(cfg, focus)}</div>
       ${actionButtons(cfg, focus, adjacent)}
     </section>`;
+  }
+
+  function m8Summary(cfg, location) {
+    if (!location) return '<strong lang="zh-Hant">選一個地方</strong>';
+    const locState = state.market.locations[location.id];
+    const needs = Object.entries(location.needs || {}).map(([item, need]) => `${itemCfg(cfg, item).labelZh} ${getQty(locState.stock, item)}/${need}`);
+    const stock = Object.entries(locState.stock || {}).filter(([, qty]) => number(qty) > 0).map(([item, qty]) => `${itemCfg(cfg, item).labelZh} ×${qty}`);
+    return `<strong lang="zh-Hant">${location.labelZh} · ${(needs.length ? needs : stock).join('　') || '沒有貨'}</strong>`;
+  }
+
+  function renderM8Panel(cfg, focus) {
+    const adjacent = focus && dist(state.hero, focus.pos) === 1;
+    const action = focus ? actionButtons(cfg, focus, adjacent) : '<p class="market-action-hint">대상을 눌러 수량을 확인해.</p>';
+    return `<section class="market-panel market-m8-compact ${focus ? '' : 'market-panel-empty'}" ${focus ? `data-focus="${focus.id}"` : ''}>
+      <div class="market-m8-meta">
+        <div class="market-carry">${inventoryText(cfg)}</div>
+        <div class="market-m8-summary"><span aria-hidden="true">${focus?.icon || '📦'}</span>${m8Summary(cfg, focus)}</div>
+      </div>
+      <button class="market-m8-detail" type="button" data-market-detail="true" aria-label="장터 대상과 규칙 자세히 보기">상세</button>
+      ${action}
+    </section>`;
+  }
+
+  function openM8Detail() {
+    const cfg = cfgFor(current()), focus = locationCfg(cfg, state.market.focus);
+    const title = focus ? `${focus.labelZh} · ${focus.labelKo}` : '장터 수량과 규칙';
+    const body = focus ? `${factRows(focus)}${commerceRows(cfg, focus)}<div class="market-info-list">${needRows(cfg, focus)}</div>` : '<p>각 대상을 누르면 필요한 중국어 품목과 수량이 기본 화면에 표시돼. 가까이 가면 행동할 수 있어.</p>';
+    openSheet(`<h2>${title}</h2><div class="example">${body}</div><div class="gamerule">${current().rule || ''}</div><div class="sheetactions"><button onclick="closeSheet()">닫기</button></div>`);
   }
 
   function renderMapCell(stage, cfg, r, c) {
@@ -413,6 +444,7 @@
         runMarketAction({ type: button.dataset.marketAction, location: button.dataset.location, item: button.dataset.item });
       });
     });
+    document.querySelectorAll('[data-market-detail]').forEach(button => button.addEventListener('click', openM8Detail));
   }
 
   const baseRender = render;
@@ -420,6 +452,7 @@
     const stage = current(), cfg = cfgFor(stage);
     if (!cfg) {
       gridEl.classList.remove('market-board');
+      gridEl.removeAttribute('data-market-stage');
       $('#inspectBtn').hidden = false;
       return baseRender();
     }
@@ -430,6 +463,7 @@
     renderMarketGoal(stage);
     gridEl.style.gridTemplateColumns = '';
     gridEl.className = 'grid market-board';
+    gridEl.dataset.marketStage = stage.id;
     gridEl.setAttribute('role', 'group');
     gridEl.setAttribute('aria-label', cfg.boardLabel || '장터 자원판');
 
