@@ -205,8 +205,8 @@
         narrowMessage: '這段路又濕又窄，現在讓貨車通過太危險。 수레는 멈췄어. 後退해서 다른 길을 고를 수 있어.',
         goalMessage: '少年帶領小貨車安全到了市集。 소년이 앞에서 길을 확인하며 작은 수레를 장터까지 이끌었어.',
         guidedRoutes: {
-          westToObstacle: [[5,1],[4,1],[3,1]],
-          westToMarket: [[2,1],[1,1],[1,2],[1,3],[0,3]],
+          westToObstacle: [[5,1],[4,1]],
+          westToMarket: [[3,1],[2,1],[1,1],[1,2],[1,3],[0,3]],
           eastToMarket: [[5,5],[4,5],[3,5],[2,5],[1,5],[1,4],[1,3],[0,3]]
         }
       },
@@ -234,8 +234,8 @@
         action('M', '가운데 情況 확인', 'set-flags', { sets: ['middleSituationConfirmed'], unless: 'middleSituationConfirmed', message: '中路又濕又窄。 사람은 지나가도 지금 수레에는 危險해.' }),
         action('M', '수레와 함께 後退', 'retreat-cart', { requires: 'middleSituationConfirmed', priority: 120 }),
         action('Z', '동쪽 情況 확인', 'set-flags', { sets: ['eastSituationConfirmed'], unless: 'eastSituationConfirmed', message: '東路乾而且寬，沒有障礙。 조금 멀지만 지금 수레에 安全해.' }),
-        { target: 'W', label: '서쪽 길로 수레 안내', action: 'follower-guide-route', routeId: 'westToObstacle', requires: ['westSituationConfirmed', 'middleSituationConfirmed', 'eastSituationConfirmed'], priority: 110, message: '乾而寬的西路可以通過。 수레를 이끌고 굵은 가지 앞까지 왔어.' },
-        { target: 'Z', label: '동쪽 길로 수레 안내', action: 'follower-guide-route', routeId: 'eastToMarket', requires: ['westSituationConfirmed', 'middleSituationConfirmed', 'eastSituationConfirmed'], priority: 110 },
+        { target: 'W', label: '서쪽 길로 수레 안내', action: 'follower-guide-route', routeId: 'westToObstacle', sets: 'westRouteEntered', unless: 'westRouteEntered', requires: ['westSituationConfirmed', 'middleSituationConfirmed', 'eastSituationConfirmed'], priority: 110, message: '乾而寬的西路可以通過。 수레를 이끌고 굵은 가지 앞까지 왔어.' },
+        { target: 'Z', label: '동쪽 길로 수레 안내', action: 'follower-guide-route', routeId: 'eastToMarket', sets: 'eastRouteEntered', unless: 'eastRouteEntered', requires: ['westSituationConfirmed', 'middleSituationConfirmed', 'eastSituationConfirmed'], priority: 110 },
         { target: 'O', label: '가지 살펴보기', action: 'g7-inspect-obstacle', unless: 'g7ObstacleIdentified' },
         { target: 'O', label: '가지 치우기', action: 'g7-clear-obstacle', priority: 100, requires: 'g7ObstacleIdentified', unless: 'g7ObstacleCleared' },
         { target: 'O', label: '서쪽 길로 계속 안내', action: 'follower-guide-route', routeId: 'westToMarket', requires: ['westSituationConfirmed', 'middleSituationConfirmed', 'eastSituationConfirmed', 'g7ObstacleCleared'], priority: 120 }

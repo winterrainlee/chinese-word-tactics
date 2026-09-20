@@ -138,8 +138,10 @@ try:
         for route in [(5, 1), (4, 3), (5, 5)]:
             direct_info(page, *route)
         move(page, [(5, 3), (5, 2)]); action(page)
-        assert page.evaluate('JSON.stringify(state.hero) === "[3,1]" && JSON.stringify(state.followerPos) === "[4,1]"')
+        assert page.evaluate('JSON.stringify(state.hero) === "[4,1]" && JSON.stringify(state.followerPos) === "[5,1]"')
         action(page, 3)
+        west_state = page.evaluate('({hero:state.hero,follower:state.followerPos,identified:state.g7ObstacleIdentified,cleared:state.g7ObstacleCleared,flags:[state.westSituationConfirmed,state.middleSituationConfirmed,state.eastSituationConfirmed]})')
+        assert west_state == {'hero': [0,3], 'follower': [1,3], 'identified': True, 'cleared': True, 'flags': [True, True, True]}, west_state
         page.locator('#flowNext').wait_for(state='visible')
         assert page.evaluate('JSON.stringify(state.followerPos) === "[1,3]"')
 

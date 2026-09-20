@@ -178,8 +178,8 @@ test('inn presentation adds no save key and preserves the existing mobile marker
   assert.match(css, /worldInnBuilding\{[^}]*width:32px;height:32px/);
   assert.match(css, /worldInnKeyCharm\{[^}]*width:15px;height:18px/);
   assert.match(css, /@media\(max-width:360px\)\{\.worldInnMarker\{width:64px\}/);
-  assert.match(html, /world-inn\.css\?v=20260913-innroom2/);
-  assert.match(html, /world-inn-runtime\.js\?v=20260914-inncopy1/);
+  assert.match(html, /world-inn\.css\?v=20260920-northforestux2/);
+  assert.match(html, /world-inn-runtime\.js\?v=20260920-northforestux2/);
 });
 
 test('inn room fetch is deferred until the player interacts with the inn', () => {

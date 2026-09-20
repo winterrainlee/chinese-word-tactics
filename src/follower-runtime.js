@@ -115,7 +115,7 @@
       blockedChars: cfg.blockedChars || ['#', 'X', cfg.narrowChar || '=']
     });
     if (!result.moved) {
-      setStatus('수레와 나란히 길 입구에서 다시 안내해 봐. 지금 위치에서는 함께 움직일 수 없어.', 'info');
+      setStatus('先和貨車排好，再從路口帶領。 수레와 나란히 길 입구에서 다시 안내해 봐.', 'info');
       return;
     }
     history.push(clone(state));
@@ -127,6 +127,7 @@
     state.led = true;
     state.followerStuck = false;
     state.followerStuckReason = null;
+    for (const flag of Array.isArray(action.sets) ? action.sets : action.sets ? [action.sets] : []) state[flag] = true;
     if (isWin()) return finishFollowerStage(st);
     save(); render();
     setStatus(action.message || '少年在前面帶路，貨車沿著安全的路跟了上來。 소년이 앞에서 확인한 길로 수레를 이끌었어.', 'good');

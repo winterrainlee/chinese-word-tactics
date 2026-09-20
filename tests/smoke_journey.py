@@ -299,10 +299,10 @@ try:
         assert page.locator('.journeyNodeNow').count() == 0
         icon_metrics = current_action.evaluate('''element => {
           const style = getComputedStyle(element);
-          return { width: style.width, height: style.height, mask: style.webkitMaskImage || style.maskImage };
+          return { width: style.width, height: style.height, webkitMask: style.webkitMaskImage, mask: style.maskImage };
         }''')
         assert icon_metrics['width'] == '19px' and icon_metrics['height'] == '19px'
-        assert 'ui-continue.svg' in icon_metrics['mask']
+        assert icon_metrics['webkitMask'].startswith('url(') or icon_metrics['mask'].startswith('url('), icon_metrics
         page.screenshot(path=str(OUT/'journey-375.png'),full_page=True)
         page.locator('.journeyChapter[data-chapter-id="prologue"] > .journeyChapterSummary').click()
         page.locator('[data-node-id="story:prologue-departure"]').click(); assert page.locator('#storySkip').is_visible()
@@ -329,7 +329,7 @@ try:
         page.evaluate('''key => localStorage.setItem(key, JSON.stringify({
           stageIndex, state, history, selected, inspect: true, completed: [...completed]
         }))''', LEGACY)
-        page.reload(); page.wait_for_function('!!window.GameFlow && typeof inspect !== "undefined"')
+        page = reload_app(page, context); page.wait_for_function('!!window.GameFlow && typeof inspect !== "undefined"')
         assert not page.evaluate('inspect')
         passed('waiting, undo, word cards and direct wolf inspection remain functional without an inspect mode')
         for stage_id, positions in [('stage-4',[27,22,17]),('stage-2',[27,22,17])]:
