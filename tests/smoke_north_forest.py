@@ -82,10 +82,11 @@ try:
         assert page.evaluate('state.markerAConfirmed && state.markerBConfirmed && state.markerCConfirmed')
 
         start(page, 'north-forest-stage-3')
-        direct_info(page, 3, 5)
-        move(page, [(2, 3)]); action(page, 3)
+        move(page, [(3, 4)]); action(page)
+        move(page, [(3, 3), (3, 2)]); action(page)
+        move(page, [(3, 3), (2, 3)]); action(page, 3)
         page.locator('#flowNext').wait_for(state='visible')
-        assert page.evaluate("state.markerDirection === '下' && state.routeReferenceObserved")
+        assert page.evaluate("state.markerDirection === '下' && state.normalMarkerObserved && state.actualRouteObserved")
 
         start(page, 'north-forest-stage-4')
         assert page.locator('#northForestReference').is_visible()
@@ -124,7 +125,9 @@ try:
         start(page, 'north-forest-stage-7')
         assert page.locator('.forest-bundle-mark').count() == 0
         move(page, [(5, 2), (4, 2), (3, 2)]); action(page)
-        move(page, [(4, 2), (5, 2), (5, 3), (5, 4), (4, 4), (4, 5)]); action(page, 2)
+        move(page, [(2, 2)]); action(page)
+        assert page.evaluate('state.nearbyCompared')
+        move(page, [(3, 2), (4, 2), (5, 2), (5, 3), (5, 4), (4, 4), (4, 5)]); action(page, 2)
         assert page.locator('.forest-bundle-mark').count() == 1
         action(page)
         assert page.locator('.forest-bundle-mark').count() == 0

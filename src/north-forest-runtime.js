@@ -19,15 +19,15 @@
     const cfg = stage?.northForest;
     if (!cfg) return true;
     if (cfg.kind === 'markers') return cfg.observables.every(item => !item.confirmedFlag || !!s?.[item.confirmedFlag]);
-    if (cfg.kind === 'discrete') return !!s?.[cfg.discrete.referenceFlag] && s?.[cfg.discrete.stateFlag] === cfg.discrete.target;
-    if (cfg.kind === 'attributes') return s?.selectedPatch === cfg.targetId;
+    if (cfg.kind === 'discrete') return flagsMet(s, cfg.discrete.referenceFlags || cfg.discrete.referenceFlag) && s?.[cfg.discrete.stateFlag] === cfg.discrete.target;
+    if (cfg.kind === 'attributes') return s?.selectedPatch === cfg.targetId && list(s?.comparedPatchIds).length >= (cfg.minimumComparisons || 1);
     if (cfg.kind === 'materials') {
       const byId = new Map(cfg.observables.map(item => [item.id, item]));
       const suitable = list(s?.carriedMaterials).filter(id => materialSuitable(byId.get(id)?.attributes, cfg.requirements));
       return suitable.length >= cfg.required && (!stage.win?.includes('at_exit') || atExit);
     }
-    if (cfg.kind === 'clue-path') return !!s?.lastSeenConfirmed && !!s?.blueThreadConfirmed && !!s?.relatedTraceConfirmed && !!s?.reachedClearing;
-    if (cfg.kind === 'clue-nearby') return !!s?.finalTraceConfirmed && !!s?.bundleThreadFound && !!s?.bundleDiscovered && !!s?.bundleCollected && (!stage.win?.includes('at_exit') || atExit);
+    if (cfg.kind === 'clue-path') return !!s?.lastSeenConfirmed && !!s?.alternativeTraceChecked && !!s?.blueThreadConfirmed && !!s?.relatedTraceConfirmed && !!s?.reachedClearing;
+    if (cfg.kind === 'clue-nearby') return !!s?.finalTraceConfirmed && !!s?.nearbyCompared && !!s?.bundleThreadFound && !!s?.bundleDiscovered && !!s?.bundleCollected && (!stage.win?.includes('at_exit') || atExit);
     if (cfg.kind === 'route-cart') return !!s?.westSituationConfirmed && !!s?.middleSituationConfirmed && !!s?.eastSituationConfirmed;
     return true;
   }
@@ -167,12 +167,16 @@
       message = `${item.labelZh}：${attributeText(item.attributes)}。 ${item.labelKo}의 특징을 확인했어.`;
     } else if (action.operation === 'select-attribute' && item) {
       checkpoint(); state.comparedSimilar = true;
+      state.comparedPatchIds = [...new Set([...list(state.comparedPatchIds), item.id])];
       if (attributesMatch(cfg.reference, item.attributes, cfg.attributeKeys)) {
         state.selectedPatch = item.id;
       } else {
         state.selectedPatch = null; type = 'info';
       }
       message = feedbackForDifference(cfg, item);
+      if (item.id === cfg.targetId && state.comparedPatchIds.length < (cfg.minimumComparisons || 1)) {
+        message += ' 다른 후보 하나와도 비교하면 分辨을 마칠 수 있어.';
+      }
     } else if (action.operation === 'take-material' && item) {
       checkpoint();
       const carried = new Set(list(state.carriedMaterials)); carried.add(item.id); state.carriedMaterials = [...carried];
@@ -188,6 +192,8 @@
       state[`material${item.char}Held`] = false;
       message = '材料를 원래 자리로 돌려놓았어. 다른 덩굴의 특징을 비교해보자.'; type = 'info';
     } else if (action.operation === 'nearby-note') {
+      const values = list(action.sets);
+      if (values.length) { checkpoint(); values.forEach(flag => { state[flag] = true; }); }
       const center = positionOfChar(st, cfg.observables.find(candidate => candidate.id === cfg.centerId)?.char);
       message = action.message || (nearby(center, pos, cfg.radius) ? '마지막 흔적의 附近야.' : '마지막 흔적에서 너무 멀어.');
       type = 'info';

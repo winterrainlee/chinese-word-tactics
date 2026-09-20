@@ -67,18 +67,22 @@
     {
       id: 'north-forest-stage-3', title: '正確・指示', subtitle: '돌아간 표지판', kicker: '자유 의뢰 · 북쪽 숲 F3',
       grid: ['######', '#..R.#', '#..|.#', '#A.S.B', '#..|.#', '##E###'],
-      goal: '把轉歪的標記調回正確方向。', rule: '정상 표식과 실제 길을 확인한 뒤, 돌아간 표지판을 한 방향씩 돌려봐.',
+      goal: '比較正常標記和實際道路，把轉歪的標記調回正確方向。', rule: '정상 표식과 실제 장터 길을 각각 가까이에서 확인한 뒤, 돌아간 표지판을 한 방향씩 돌려봐.',
       words: ['正確', '指示'], win: ['north_forest'],
       northForest: {
-        kind: 'discrete', initialState: { markerDirection: '左', routeReferenceObserved: false },
-        discrete: { id: 'rotated-marker', char: 'R', states: ['上', '右', '下', '左'], stateFlag: 'markerDirection', target: '下', referenceFlag: 'routeReferenceObserved' },
+        kind: 'discrete', initialState: { markerDirection: '左', normalMarkerObserved: false, actualRouteObserved: false },
+        discrete: { id: 'rotated-marker', char: 'R', states: ['上', '右', '下', '左'], stateFlag: 'markerDirection', target: '下', referenceFlags: ['normalMarkerObserved', 'actualRouteObserved'] },
         observables: [
           observable('rotated-marker', 'R', '轉歪的標記', '돌아간 표지판', { variant: 'marker', directionFlag: 'markerDirection' }),
-          observable('reference-a', 'A', '正常標記', '정상 기준 표식', { variant: 'marker', direction: '下', blocking: true, directSets: ['routeReferenceObserved'] }),
-          observable('reference-b', 'B', '通往市集的路', '장터 쪽으로 이어지는 실제 길', { variant: 'route-reference', blocking: true, directSets: ['routeReferenceObserved'] })
+          observable('reference-a', 'A', '正常標記', '정상 기준 표식', { variant: 'marker', direction: '下', blocking: true }),
+          observable('reference-b', 'B', '通往市集的路', '장터 쪽으로 이어지는 실제 길', { variant: 'route-reference', blocking: true })
         ]
       },
-      contextActions: [action('R', '표지판 한 칸 돌리기', 'rotate', { discreteId: 'rotated-marker' })],
+      contextActions: [
+        action('A', '정상 표식 確認', 'set-flags', { sets: ['normalMarkerObserved'], unless: 'normalMarkerObserved', message: '正常標記指向下方。 정상 표식의 指示를 확인했어.' }),
+        action('B', '실제 장터 길 確認', 'set-flags', { sets: ['actualRouteObserved'], unless: 'actualRouteObserved', message: '通往市集的路在下方。 실제 길의 方向도 확인했어.' }),
+        action('R', '표지판 한 칸 돌리기', 'rotate', { discreteId: 'rotated-marker', requires: ['normalMarkerObserved', 'actualRouteObserved'] })
+      ],
       story: '標記的指示正確了。 표식이 실제 장터 쪽 길을 올바르게 가리킨다.'
     },
     {
@@ -90,7 +94,8 @@
         kind: 'attributes', targetId: 'plant-a', attributeKeys: ['color', 'length', 'tip'],
         reference: { color: '深綠色', length: '長', tip: '尖' },
         referenceCard: { labelZh: '樣本', labelKo: '견본', variant: 'plant-long-pointed-dark' },
-        initialState: { plantAObserved: false, plantBObserved: false, plantCObserved: false, plantDObserved: false, selectedPatch: null, comparedSimilar: false },
+        minimumComparisons: 2,
+        initialState: { plantAObserved: false, plantBObserved: false, plantCObserved: false, plantDObserved: false, selectedPatch: null, comparedPatchIds: [], comparedSimilar: false },
         observables: [
           observable('plant-a', 'A', '葉子 A', '식물 군락 A', { variant: 'plant-long-pointed-dark', observedFlag: 'plantAObserved', attributes: { color: '深綠色', length: '長', tip: '尖' } }),
           observable('plant-b', 'B', '葉子 B', '식물 군락 B', { variant: 'plant-long-round-dark', observedFlag: 'plantBObserved', attributes: { color: '深綠色', length: '長', tip: '圓' } }),
@@ -139,10 +144,10 @@
     {
       id: 'north-forest-stage-6', title: '遺失・尋找・痕跡', subtitle: '사라진 꾸러미', kicker: '자유 의뢰 · 북쪽 숲 F6',
       grid: ['#######', '#..Q..#', '#..T..#', '#W.L.V#', '#..S..#', '#######'],
-      goal: '從最後的位置開始，尋找遺失包裹的痕跡。', rule: '마지막으로 본 위치를 먼저 확인하고, 열린 흔적의 특징을 구별해.',
+      goal: '從最後的位置開始，比較痕跡，尋找遺失的包裹。', rule: '마지막으로 본 위치를 먼저 확인하고, 다른 흔적 하나와 파란 실을 비교해 방향을 좁혀.',
       words: ['遺失', '尋找', '痕跡'], win: ['north_forest'],
       northForest: {
-        kind: 'clue-path', initialState: { lastSeenConfirmed: false, blueThreadConfirmed: false, relatedTraceConfirmed: false, reachedClearing: false },
+        kind: 'clue-path', initialState: { lastSeenConfirmed: false, alternativeTraceChecked: false, blueThreadConfirmed: false, relatedTraceConfirmed: false, reachedClearing: false },
         observables: [
           observable('last-seen', 'L', '最後看到的位置', '꾸러미를 마지막으로 본 자리', { variant: 'last-seen' }),
           observable('animal-trace', 'W', '動物腳印', '동물 발자국', { variant: 'trace-animal', visibleRequires: ['lastSeenConfirmed'] }),
@@ -153,9 +158,9 @@
       },
       contextActions: [
         action('L', '마지막 위치 確認', 'set-flags', { sets: ['lastSeenConfirmed'], unless: 'lastSeenConfirmed', message: '最後看到包裹的位置確認了。 이제 이 周圍에서 흔적을 찾아보자.' }),
-        action('W', '발자국 확인하기', 'set-flags', { requires: 'lastSeenConfirmed', message: '這是動物留下的痕跡，和包裹沒有關係。 동물 발자국이라 꾸러미와는 관계없어.' }),
-        action('V', '바퀴 자국 확인하기', 'set-flags', { requires: 'lastSeenConfirmed', message: '有車輪痕跡，可是這條路常有車經過。 이것만으로는 방향을 확인할 수 없어.' }),
-        action('T', '파란 실 확인하기', 'set-flags', { sets: ['blueThreadConfirmed'], requires: 'lastSeenConfirmed', unless: 'blueThreadConfirmed', message: '枝上留下了一小段藍色的線。 꾸러미의 파란 끈과 이어질 가능성이 있어.' }),
+        action('W', '발자국 확인하기', 'set-flags', { sets: ['alternativeTraceChecked'], requires: 'lastSeenConfirmed', message: '這是動物留下的痕跡，和包裹沒有關係。 동물 발자국이라 꾸러미와는 관계없어.' }),
+        action('V', '바퀴 자국 확인하기', 'set-flags', { sets: ['alternativeTraceChecked'], requires: 'lastSeenConfirmed', message: '有車輪痕跡，可是這條路常有車經過。 이것만으로는 방향을 확인할 수 없어.' }),
+        action('T', '파란 실 확인하기', 'set-flags', { sets: ['blueThreadConfirmed'], requires: ['lastSeenConfirmed', 'alternativeTraceChecked'], unless: 'blueThreadConfirmed', message: '枝上留下了一小段藍色的線。 다른 흔적과 달리 꾸러미의 파란 끈과 이어질 가능성이 있어.' }),
         action('Q', '후속 흔적 확인하기', 'set-flags', { sets: ['relatedTraceConfirmed'], requires: 'blueThreadConfirmed', unless: 'relatedTraceConfirmed', message: '藍色線旁邊還有拖過的痕跡。 올바른 방향이 빈터 쪽으로 이어져.' })
       ],
       story: '痕跡把尋找的方向帶到小空地。 흔적을 따라 다음 빈터까지 왔다.'
@@ -167,7 +172,7 @@
       words: ['發現', '附近', '留下'], win: ['north_forest', 'at_exit'],
       northForest: {
         kind: 'clue-nearby', centerId: 'last-trace', radius: 2,
-        initialState: { finalTraceConfirmed: false, bundleThreadFound: false, bundleDiscovered: false, bundleCollected: false },
+        initialState: { finalTraceConfirmed: false, nearbyCompared: false, bundleThreadFound: false, bundleDiscovered: false, bundleCollected: false },
         observables: [
           observable('far-tree', 'A', '大樹', '큰 나무', { variant: 'tree-large' }),
           observable('round-rock', 'B', '圓石', '둥근 바위', { variant: 'rock-round' }),
@@ -180,9 +185,9 @@
       contextActions: [
         action('L', '마지막 痕跡 확인', 'set-flags', { sets: ['finalTraceConfirmed'], unless: 'finalTraceConfirmed', message: '最後的痕跡是低枝上的藍色線。 이 지점의 附近부터 살펴보자.' }),
         action('A', '큰 나무 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '離最後的痕跡有點遠。先看看附近吧。 마지막 흔적에서 조금 멀어.' }),
-        action('B', '둥근 바위 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '圓石附近沒有新留下的痕跡。 바위 근처에는 새 흔적이 없어.' }),
-        action('D', '작은 물길 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '小水溝附近沒有藍色的線。 물길 쪽에는 파란 실이 없어.' }),
-        action('C', '덤불의 실 확인하기', 'set-flags', { sets: ['bundleThreadFound'], requires: 'finalTraceConfirmed', unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了藍色的線。 덤불 아래를 더 살펴볼 수 있겠어.' }),
+        action('B', '둥근 바위 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '圓石附近沒有新留下的痕跡。 바위 근처와 비교해 다른 가까운 곳을 살펴보자.' }),
+        action('D', '작은 물길 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '小水溝附近沒有藍色的線。 물길 쪽과 비교해 다른 가까운 곳을 살펴보자.' }),
+        action('C', '덤불의 실 확인하기', 'set-flags', { sets: ['bundleThreadFound'], requires: ['finalTraceConfirmed', 'nearbyCompared'], unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了藍色的線。 다른 가까운 곳과 달리 덤불 아래로 이어져.' }),
         action('C', '덤불 아래 살펴보기', 'set-flags', { sets: ['bundleDiscovered'], requires: 'bundleThreadFound', unless: 'bundleDiscovered', priority: 100, message: '在矮樹叢下面發現了遺失的包裹。 파란 끈 꾸러미를 발견했어.' }),
         action('C', '꾸러미 챙기기', 'set-flags', { sets: ['bundleCollected'], requires: 'bundleDiscovered', unless: 'bundleCollected', priority: 110, message: '把包裹收好了。 이제 출구로 돌아가 장터에 가져가자.' })
       ],

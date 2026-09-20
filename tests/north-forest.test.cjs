@@ -70,16 +70,19 @@ test('F2 hides the obscured direction, tracks all three confirmations, and compl
   assert.ok(!stage.contextActions.some(action => /오답|틀린|wrong/.test(action.message || '')), 'F2 must not grade the rotated marker');
 });
 
-test('F3 cycles all four directions and needs both the correct direction and route reference', () => {
+test('F3 cycles all four directions and needs both spatial references before correction', () => {
   const stage = plain(snapshot().stages[1]), M = mechanics(), discrete = stage.northForest.discrete;
   let direction = discrete.states[0];
   const cycle = [];
   for (let i = 0; i < 4; i++) { cycle.push(direction); direction = M.nextDiscreteState(discrete.states, direction); }
   assert.deepEqual(cycle, ['上', '右', '下', '左']);
   assert.equal(direction, '上');
-  assert.equal(M.completionFor(stage, { markerDirection: '左', routeReferenceObserved: true }), false);
-  assert.equal(M.completionFor(stage, { markerDirection: '下', routeReferenceObserved: false }), false);
-  assert.equal(M.completionFor(stage, { markerDirection: '下', routeReferenceObserved: true }), true);
+  assert.equal(M.completionFor(stage, { markerDirection: '左', normalMarkerObserved: true, actualRouteObserved: true }), false);
+  assert.equal(M.completionFor(stage, { markerDirection: '下', normalMarkerObserved: true }), false);
+  assert.equal(M.completionFor(stage, { markerDirection: '下', actualRouteObserved: true }), false);
+  assert.equal(M.completionFor(stage, { markerDirection: '下', normalMarkerObserved: true, actualRouteObserved: true }), true);
+  assert.deepEqual(discrete.referenceFlags, ['normalMarkerObserved', 'actualRouteObserved']);
+  assert.ok(stage.contextActions.find(action => action.target === 'R').requires.length === 2);
 });
 
 test('F4 distractors each differ by exactly one visible feature and only A matches', () => {
@@ -89,8 +92,10 @@ test('F4 distractors each differ by exactly one visible feature and only A match
     M.attributeDifferences(cfg.reference, item.attributes, cfg.attributeKeys)]));
   assert.deepEqual(plain(differences), { A: [], B: ['tip'], C: ['color'], D: ['length'] });
   for (const item of cfg.observables.slice(1)) assert.equal(M.attributesMatch(cfg.reference, item.attributes, cfg.attributeKeys), false);
-  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-b' }), false);
-  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-a' }), true);
+  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-b', comparedPatchIds: ['plant-a', 'plant-b'] }), false);
+  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-a', comparedPatchIds: ['plant-a'] }), false);
+  assert.equal(M.completionFor(stage, { selectedPatch: 'plant-a', comparedPatchIds: ['plant-a', 'plant-b'] }), true);
+  assert.equal(cfg.minimumComparisons, 2);
 });
 
 test('F5 has two suitable materials, rejects every mismatch, supports return, and needs the exit', () => {
@@ -113,9 +118,14 @@ test('F6 clue graph gates traces and only the blue thread plus follow-up trace u
   assert.equal(M.observableVisible(byId['animal-trace'], { lastSeenConfirmed: true }), true);
   assert.equal(M.observableVisible(byId['drag-trace'], { lastSeenConfirmed: true }), false);
   assert.equal(M.observableVisible(byId['drag-trace'], { blueThreadConfirmed: true }), true);
+  const blueThreadAction = stage.contextActions.find(action => action.target === 'T');
+  assert.deepEqual(blueThreadAction.requires, ['lastSeenConfirmed', 'alternativeTraceChecked']);
+  assert.equal(M.flagsMet({ lastSeenConfirmed: true }, blueThreadAction.requires), false);
+  assert.equal(M.flagsMet({ lastSeenConfirmed: true, alternativeTraceChecked: true }, blueThreadAction.requires), true);
   assert.equal(M.completionFor(stage, { relatedTraceConfirmed: true, reachedClearing: true }), false);
   assert.equal(M.completionFor(stage, { lastSeenConfirmed: true, blueThreadConfirmed: false, relatedTraceConfirmed: false, reachedClearing: true }), false);
-  assert.equal(M.completionFor(stage, { lastSeenConfirmed: true, blueThreadConfirmed: true, relatedTraceConfirmed: true, reachedClearing: true }), true);
+  assert.equal(M.completionFor(stage, { lastSeenConfirmed: true, blueThreadConfirmed: true, relatedTraceConfirmed: true, reachedClearing: true }), false);
+  assert.equal(M.completionFor(stage, { lastSeenConfirmed: true, alternativeTraceChecked: true, blueThreadConfirmed: true, relatedTraceConfirmed: true, reachedClearing: true }), true);
   const animal = stage.contextActions.find(action => action.target === 'W').message;
   const wheel = stage.contextActions.find(action => action.target === 'V').message;
   assert.match(animal, /沒有關係|관계없/);
@@ -139,12 +149,14 @@ test('F7 uses real distance and preserves confirm, discover, collect, exit order
   assert.equal(M.nearby(center, position('B'), stage.northForest.radius), true);
   assert.equal(M.nearby(center, position('C'), stage.northForest.radius), true);
   const bushActions = stage.contextActions.filter(action => action.target === 'C');
-  assert.equal(bushActions[0].requires, 'finalTraceConfirmed');
+  assert.deepEqual(bushActions[0].requires, ['finalTraceConfirmed', 'nearbyCompared']);
+  assert.ok(stage.contextActions.filter(action => ['B', 'D'].includes(action.target)).every(action => action.sets.includes('nearbyCompared')));
   assert.equal(bushActions[1].requires, 'bundleThreadFound');
   assert.equal(bushActions[2].requires, 'bundleDiscovered');
   assert.equal(M.completionFor(stage, { bundleDiscovered: true, bundleCollected: false }, true), false);
   assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, false), false);
-  assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), true);
+  assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), false);
+  assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, nearbyCompared: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), true);
 });
 
 test('F8 accepts west and east formations, blocks the cart in the middle, and allows retreat', () => {
