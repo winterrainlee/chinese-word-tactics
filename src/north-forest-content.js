@@ -200,7 +200,7 @@
         action('A', '큰 나무 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '離最後的痕跡有點遠。先看看附近吧。 마지막 흔적에서 조금 멀어.' }),
         action('B', '둥근 바위 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '圓石附近沒有新留下的痕跡。 바위 근처와 비교해 다른 가까운 곳을 살펴보자.' }),
         action('D', '작은 물길 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '小水溝附近沒有藍色的線。 물길 쪽과 비교해 다른 가까운 곳을 살펴보자.' }),
-        action('C', '덤불 가지의 새 파란 실 확인', 'set-flags', { sets: ['bundleThreadFound'], requires: 'finalTraceConfirmed', unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了新的藍色線頭。 마지막 흔적과 같은 파란 실이 덤불 아래로 이어져.' }),
+        action('C', '덤불 살펴보기', 'set-flags', { sets: ['bundleThreadFound'], requires: 'finalTraceConfirmed', unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了新的藍色線頭。 마지막 흔적과 같은 파란 실이 덤불 아래로 이어져.' }),
         action('C', '덤불 아래 살펴보기', 'set-flags', { sets: ['bundleDiscovered'], requires: 'bundleThreadFound', unless: 'bundleDiscovered', priority: 100, message: '在矮樹叢下面發現了遺失的包裹。 파란 끈 꾸러미를 발견했어.' }),
         action('C', '꾸러미 챙기기', 'set-flags', { sets: ['bundleCollected'], requires: 'bundleDiscovered', unless: 'bundleCollected', priority: 110, message: '把包裹收好了。 이제 채집인이 기다리는 숲길 입구로 돌아가자.' })
       ],

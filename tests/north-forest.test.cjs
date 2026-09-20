@@ -175,7 +175,8 @@ test('F7 uses real distance and preserves confirm, discover, collect, exit order
   assert.deepEqual(stage.northForest.terrain[0].positions[0], position('D'), 'F7 stream terrain must move with the stream object');
   const bushActions = stage.contextActions.filter(action => action.target === 'C');
   assert.equal(bushActions[0].requires, 'finalTraceConfirmed');
-  assert.match(bushActions[0].label, /새 파란 실/);
+  assert.equal(bushActions[0].label, '덤불 살펴보기');
+  assert.doesNotMatch(bushActions[0].label, /파란 실/);
   assert.equal(stage.northForest.observables.find(item => item.id === 'low-bush').pendingHintUntil, 'finalTraceConfirmed');
   assert.ok(stage.contextActions.filter(action => ['B', 'D'].includes(action.target)).every(action => action.sets.includes('nearbyCompared')));
   assert.equal(bushActions[1].requires, 'bundleThreadFound');
@@ -356,7 +357,7 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.ok(follower < obstacle && obstacle < runtime && runtime < flow);
   assert.ok(flow < world && world < firstWorld);
   assert.match(html, /north-forest\.css\?v=20260920-feedback4/);
-  assert.match(html, /north-forest-content\.js\?v=20260920-feedback4/);
+  assert.match(html, /north-forest-content\.js\?v=20260920-f7bush1/);
   assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback4/);
   assert.match(html, /north-forest-world-runtime\.js\?v=20260920-northforestux2/);
 });

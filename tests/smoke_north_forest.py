@@ -152,7 +152,7 @@ try:
         )
         assert all(item['height'] >= 48 and not item['clipped'] for item in choice_boxes), choice_boxes
         page.screenshot(path=str(OUT / 'north-forest-f7-context-choices-375x812.png'), full_page=True)
-        page.locator('[data-context-action-choices] button', has_text='덤불 가지의 새 파란 실 확인').click()
+        page.locator('[data-context-action-choices] button', has_text='덤불 살펴보기').click()
         assert page.locator('.forest-bush-thread-mark').count() == 1
         assert page.locator('.forest-bundle-mark').count() == 0
         page.screenshot(path=str(OUT / 'north-forest-f7-thread-375x812.png'), full_page=True)
