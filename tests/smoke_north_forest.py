@@ -135,10 +135,13 @@ try:
         start(page, 'north-forest-stage-7')
         assert page.locator('.forest-bundle-mark').count() == 0
         assert page.locator('.forest-bush-thread-mark').count() == 0
-        move(page, [(5, 2), (4, 2), (3, 2)]); action(page)
-        move(page, [(2, 2)]); action(page)
-        assert page.evaluate('state.nearbyCompared')
-        move(page, [(3, 2), (4, 2), (5, 2), (5, 3), (5, 4), (4, 4), (4, 5)]); action(page)
+        cell(page, 2, 4).click()
+        page.locator('#sheet').wait_for(state='visible')
+        assert '판단할 기준' in page.locator('#sheet').inner_text()
+        page.locator('#sheet .sheetactions button').click()
+        move(page, [(4, 3), (3, 3)]); action(page)
+        assert not page.evaluate('state.nearbyCompared')
+        move(page, [(2, 3)]); action(page)
         assert page.locator('.forest-bush-thread-mark').count() == 1
         assert page.locator('.forest-bundle-mark').count() == 0
         page.screenshot(path=str(OUT / 'north-forest-f7-thread-375x812.png'), full_page=True)
@@ -147,7 +150,7 @@ try:
         action(page)
         assert page.locator('.forest-bundle-mark').count() == 0
         assert '채집인이 기다리는' in cell(page, 6, 3).get_attribute('aria-label')
-        move(page, [(4, 4), (5, 4), (5, 3), (6, 3)])
+        move(page, [(3, 3), (4, 3), (5, 3), (6, 3)])
         page.locator('#flowNext').wait_for(state='visible')
 
         start(page, 'north-forest-stage-8')

@@ -170,17 +170,19 @@ test('F7 uses real distance and preserves confirm, discover, collect, exit order
     if (stage.grid[r][c] !== '#' && M.nearby([r, c], position('L'), 1) && M.nearby([r, c], position('C'), 1)) sharedApproach.push([r, c]);
   }
   assert.deepEqual(sharedApproach, [], 'F7 must require movement between the last trace and bush');
-  assert.equal(stage.grid[3][4], '#');
+  assert.equal(stage.grid.slice(1, -1).every(row => !row.slice(1, -1).includes('#')), true, 'F7 clearing must not use an artificial internal wall');
+  assert.equal(M.manhattan(center, position('C')), 3);
+  assert.deepEqual(stage.northForest.terrain[0].positions[0], position('D'), 'F7 stream terrain must move with the stream object');
   const bushActions = stage.contextActions.filter(action => action.target === 'C');
-  assert.deepEqual(bushActions[0].requires, ['finalTraceConfirmed', 'nearbyCompared']);
+  assert.equal(bushActions[0].requires, 'finalTraceConfirmed');
   assert.match(bushActions[0].label, /새 파란 실/);
+  assert.equal(stage.northForest.observables.find(item => item.id === 'low-bush').pendingHintUntil, 'finalTraceConfirmed');
   assert.ok(stage.contextActions.filter(action => ['B', 'D'].includes(action.target)).every(action => action.sets.includes('nearbyCompared')));
   assert.equal(bushActions[1].requires, 'bundleThreadFound');
   assert.equal(bushActions[2].requires, 'bundleDiscovered');
   assert.equal(M.completionFor(stage, { bundleDiscovered: true, bundleCollected: false }, true), false);
   assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, false), false);
-  assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), false);
-  assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, nearbyCompared: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), true);
+  assert.equal(M.completionFor(stage, { finalTraceConfirmed: true, bundleThreadFound: true, bundleDiscovered: true, bundleCollected: true }, true), true);
   assert.match(stage.goal, /採集人等候/);
   assert.equal(stage.northForest.exitLabelKo, '채집인이 기다리는 숲길 입구');
 });
@@ -353,8 +355,8 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.ok(content > 0 && content < progress);
   assert.ok(follower < obstacle && obstacle < runtime && runtime < flow);
   assert.ok(flow < world && world < firstWorld);
-  assert.match(html, /north-forest\.css\?v=20260920-feedback3/);
-  assert.match(html, /north-forest-content\.js\?v=20260920-feedback3/);
-  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback3/);
+  assert.match(html, /north-forest\.css\?v=20260920-feedback4/);
+  assert.match(html, /north-forest-content\.js\?v=20260920-feedback4/);
+  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback4/);
   assert.match(html, /north-forest-world-runtime\.js\?v=20260920-northforestux2/);
 });

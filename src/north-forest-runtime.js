@@ -34,7 +34,7 @@
       return suitable.length >= cfg.required && (!stage.win?.includes('at_exit') || atExit);
     }
     if (cfg.kind === 'clue-path') return !!s?.lastSeenConfirmed && !!s?.alternativeTraceChecked && !!s?.blueThreadConfirmed && !!s?.relatedTraceConfirmed && !!s?.reachedClearing;
-    if (cfg.kind === 'clue-nearby') return !!s?.finalTraceConfirmed && !!s?.nearbyCompared && !!s?.bundleThreadFound && !!s?.bundleDiscovered && !!s?.bundleCollected && (!stage.win?.includes('at_exit') || atExit);
+    if (cfg.kind === 'clue-nearby') return !!s?.finalTraceConfirmed && !!s?.bundleThreadFound && !!s?.bundleDiscovered && !!s?.bundleCollected && (!stage.win?.includes('at_exit') || atExit);
     if (cfg.kind === 'route-cart') return !!s?.westSituationConfirmed && !!s?.middleSituationConfirmed && !!s?.eastSituationConfirmed;
     return true;
   }
