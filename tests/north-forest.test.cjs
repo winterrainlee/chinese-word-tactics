@@ -243,6 +243,10 @@ test('northern forest art is local, lightweight, vector-only, and wired at mobil
   assert.match(css, /--cell:min\(46px/);
   assert.match(css, /forest-path-wet/);
   assert.match(css, /forest-path-narrow/);
+  assert.match(css, /\.northForestStage \.cell\.checkpoint::before\{display:none\}/);
+  assert.match(css, /\.northForest-route-cart \.follower-cart-mark\{background-color:/);
+  assert.doesNotMatch(css, /\.northForest-route-cart \.follower-cart-mark\{background:/);
+  assert.match(css, /\.northForest-route-cart \.follower-narrow-mark\{display:none\}/);
   assert.match(read('src/styles.css'), /min-width:44px;min-height:44px/);
 });
 
