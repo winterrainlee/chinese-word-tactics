@@ -61,29 +61,31 @@ def metrics(page):
     )
 
 
-def m3_tray_metrics(page):
+def market_tray_metrics(page):
     return page.evaluate(
         """() => {
-          const box = selector => { const node = document.querySelector(selector); if (!node) return null;
+          const nodeBox = node => { if (!node) return null;
             const r = node.getBoundingClientRect(); return {x:r.x,top:r.top,right:r.right,width:r.width,height:r.height,bottom:r.bottom}; };
+          const box = selector => nodeBox(document.querySelector(selector));
           const context = document.querySelector('#contextPanel');
           const rail = document.querySelector('.market-supplement-rail');
           const action = document.querySelector('.market-decision-action button');
           const grid = document.querySelector('.market-grid')?.getBoundingClientRect();
+          const actions = document.querySelector('.market-decision-actions,.market-m8-actions');
           return {
             cell: box('.market-cell'), status: box('#status'), context: box('#contextPanel'), controls: box('.controls'),
             undo: box('.market-decision-undo-slot #undoBtn'), actionButton: box('.market-decision-action button'),
             supplementCards: [...document.querySelectorAll('.market-supplement-card')].map(node => {
               const r = node.getBoundingClientRect(); return {x:r.x,right:r.right,width:r.width,height:r.height};
             }),
-            rail: box('.market-supplement-rail'), actions: box('.market-decision-actions'),
+            rail: box('.market-supplement-rail'), actions: nodeBox(actions),
             gridContextGap: grid && context ? context.getBoundingClientRect().top - grid.bottom : null,
             contextOverflow: context ? context.scrollHeight - context.clientHeight : null,
             railOverflow: rail ? rail.scrollWidth - rail.clientWidth : null,
             railDisplay: rail ? getComputedStyle(rail).display : null,
             controlsDisplay: getComputedStyle(document.querySelector('.controls')).display,
-            actionsDisplay: getComputedStyle(document.querySelector('.market-decision-actions')).display,
-            completionEmbedded: document.querySelector('.market-decision-actions > #completionBar') !== null,
+            actionsDisplay: actions ? getComputedStyle(actions).display : null,
+            completionEmbedded: !!actions?.querySelector(':scope > #completionBar'),
             actionDisabled: action ? action.disabled : null,
             summary: document.querySelector('.market-decision-summary')?.textContent.trim() || '',
             action: document.querySelector('.market-decision-action')?.textContent.trim() || ''
@@ -202,11 +204,11 @@ def solve_stage(page, stage):
         action(page, action_type="put", location="warehouse", item="oil")
     elif stage == "market-stage-3":
         move_to_adjacent(page, [0, 4]); inspect(page, [0, 4])
-        tray = m3_tray_metrics(page)
+        tray = market_tray_metrics(page)
         assert 135 <= tray["actionButton"]["width"] <= 137 and tray["actionDisabled"] is False, tray
         action(page, action_type="exchange", location="rope-stall")
         move_to_adjacent(page, [0, 0]); inspect(page, [0, 0])
-        tray = m3_tray_metrics(page)
+        tray = market_tray_metrics(page)
         assert 103 <= tray["actionButton"]["width"] <= 105 and tray["actionDisabled"] is False, tray
         action(page, action_type="put", location="merchant", item="rope")
     elif stage == "market-stage-4":
@@ -293,8 +295,7 @@ try:
                 page.wait_for_function("id => TacticalGame.stageId() === id", arg=stage)
                 page.wait_for_timeout(35)
                 initial = assert_layout(page, stage + ":initial", width, height, rows)
-                if stage == "market-stage-4":
-                    assert page.locator(".controls > #undoBtn").count() == 1, "M3 embedded undo did not return to shared controls"
+                assert page.locator(".market-decision-undo-slot > #undoBtn").count() == 1, (stage, "embedded undo missing")
                 # Far selection state: selecting a remote location shows facts/quantity
                 # without silently moving the hero.
                 # The first authored location is remote from each M1-M8 start;
@@ -305,40 +306,50 @@ try:
                 # Initial and every subsequent state must preserve the board box.
                 assert all(abs(initial["grid"][axis] - far["grid"][axis]) <= 1 for axis in ("x", "y", "width", "height")), (stage, initial, far)
                 # A remote selection exposes the distance hint before the adjacent action.
-                assert "가까이" in far["text"] or "인접" in far["text"] or "해" in far["text"], (stage, far)
-                if stage == "market-stage-3":
-                    tray = m3_tray_metrics(page)
+                assert "가까이" in far["text"] or "인접" in far["text"] or "가격 비교 전" in far["text"] or "已查看" in far["text"], (stage, far)
+                if stage != "market-stage-8":
+                    tray = market_tray_metrics(page)
                     assert tray["status"]["height"] <= 1, tray
                     assert tray["context"]["height"] >= 140, tray
                     assert tray["contextOverflow"] <= 1, tray
-                    assert tray["railOverflow"] <= 1, tray
-                    assert "繩子 0/1" in tray["summary"], tray
-                    assert "인접 필요" in tray["summary"], tray
+                    assert "인접 필요" in tray["summary"] or "가격 비교 전" in tray["summary"], tray
                     assert tray["controlsDisplay"] == "none", tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
-                    assert 103 <= tray["actionButton"]["width"] <= 105 and tray["actionButton"]["height"] >= 44, tray
-                    assert tray["actionDisabled"] is True, tray
                     assert tray["gridContextGap"] >= 8, tray
-                    assert len(tray["supplementCards"]) == 2, tray
+                    expected_cards = {"market-stage-1": 3, "market-stage-2": 2, "market-stage-3": 2,
+                                      "market-stage-4": 3, "market-stage-5": 2, "market-stage-6": 2,
+                                      "market-stage-7": 3}[stage]
+                    assert len(tray["supplementCards"]) == expected_cards, tray
                     expected_card_width = (tray["rail"]["width"] - 6) / 2
                     assert all(abs(card["width"] - expected_card_width) <= 1 for card in tray["supplementCards"]), tray
-                    assert all(card["x"] >= tray["rail"]["x"] - 1 and card["right"] <= tray["rail"]["right"] + 1 for card in tray["supplementCards"]), tray
+                    assert all(card["x"] >= tray["rail"]["x"] - 1 and card["right"] <= tray["rail"]["right"] + 1 for card in tray["supplementCards"][:2]), tray
+                    if expected_cards == 2:
+                        assert tray["railOverflow"] <= 1, tray
+                    else:
+                        assert tray["railOverflow"] > 1, tray
                     assert tray["actions"]["height"] >= 44, tray
                     if height <= 700:
                         assert tray["gridContextGap"] <= 12, tray
-                        assert 44 <= tray["cell"]["width"] <= 46.5, tray
+                        max_cell = 50 if stage == "market-stage-7" else 46.5
+                        assert 44 <= tray["cell"]["width"] <= max_cell, tray
                         assert tray["undo"]["bottom"] <= 620.5, tray
                     page.screenshot(path=str(OUT / f"{stage}-selection-{width}x{height}.png"), full_page=True)
+                else:
+                    tray = market_tray_metrics(page)
+                    assert tray["controlsDisplay"] == "none", tray
+                    assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
+                    assert not tray["supplementCards"], tray
                 solve_stage(page, stage)
                 page.locator("#flowNext").wait_for(state="visible", timeout=2500)
                 complete = assert_layout(page, stage + ":complete", width, height, rows)
                 assert complete["win"], (stage, "not naturally complete", complete)
                 assert all(abs(initial["grid"][axis] - complete["grid"][axis]) <= 1 for axis in ("x", "y", "width", "height")), (stage, initial, complete)
                 assert any(token in complete["text"] for token in ("數量", "價格", "交換", "選擇", "分配", "購買", "買", "짐", "수량")), (stage, complete)
-                if stage == "market-stage-3":
-                    tray = m3_tray_metrics(page)
+                if stage.startswith("market-stage-"):
+                    tray = market_tray_metrics(page)
                     assert tray["contextOverflow"] <= 1, tray
-                    assert tray["railDisplay"] == "none", tray
+                    if stage != "market-stage-8":
+                        assert tray["railDisplay"] == "none", tray
                     assert tray["actionsDisplay"] == "flex", tray
                     assert tray["completionEmbedded"] is True, tray
                 page.screenshot(path=str(OUT / f"{stage}-{width}x{height}.png"), full_page=True)

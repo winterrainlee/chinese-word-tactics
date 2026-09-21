@@ -165,18 +165,6 @@
   if (typeof document === 'undefined' || typeof current !== 'function' || typeof render !== 'function') return;
 
   const locationFor = (stage, id) => (stage?.market?.locations || []).find(location => location.id === id) || null;
-  const itemMeta = (stage, item) => stage?.market?.items?.[item] || { labelZh: item, labelKo: item };
-  const quantityAt = (locationId, item) => Number(state?.market?.locations?.[locationId]?.stock?.[item] || 0);
-
-  function remainingRows(stage, cfg, confirmed) {
-    const items = Array.isArray(cfg.items) ? cfg.items : [];
-    return items.map(item => {
-      const meta = itemMeta(stage, item);
-      const value = confirmed ? `×${quantityAt(cfg.location, item)}` : '？';
-      const note = confirmed ? meta.labelKo : (cfg.hiddenHintKo || '원래 수량과 이미 보낸 수량을 비교해봐.');
-      return `<div class="market-info-row market-inference-row"><span>${cfg.labelZh || '剩下'}</span><strong lang="zh-Hant">${meta.labelZh} ${value}</strong><small>${note}</small></div>`;
-    }).join('');
-  }
 
   function hideBoardQuantity(stage, cfg, confirmed) {
     if (confirmed) return;
@@ -213,23 +201,13 @@
 
     const panel = gridEl.querySelector(`.market-panel[data-focus="${cfg.location}"]`);
     if (!panel) return;
-    const infoList = panel.querySelector('.market-info-list');
-    if (infoList) infoList.innerHTML = remainingRows(stage, cfg, confirmed);
     if (confirmed) return;
 
     const location = locationFor(stage, cfg.location);
     const adjacent = !!location && dist(state.hero, location.pos) === 1;
-    const actions = panel.querySelector('.market-panel-actions');
-    const hint = panel.querySelector('.market-action-hint');
-    if (!adjacent) {
-      if (actions) actions.remove();
-      return;
-    }
-
-    const html = `<div class="market-panel-actions market-inference-actions"><button type="button" data-market-inference-confirm>${cfg.confirmLabelZh || '確認剩下'} · ${cfg.confirmLabelKo || '남은 수량 확인하기'}</button></div>`;
-    if (actions) actions.outerHTML = html;
-    else if (hint) hint.outerHTML = html;
-    else panel.insertAdjacentHTML('beforeend', html);
+    const actionSlot = panel.querySelector('.market-decision-action');
+    if (!actionSlot) return;
+    actionSlot.innerHTML = `<div class="market-panel-actions market-inference-actions"><button type="button" data-market-inference-confirm ${adjacent ? '' : 'disabled'} aria-label="${cfg.confirmLabelKo || '남은 수량 확인하기'}">${cfg.confirmLabelZh || '確認剩下'}</button></div>`;
     panel.querySelector('[data-market-inference-confirm]')?.addEventListener('click', event => {
       event.stopPropagation();
       confirmRemaining(stage, cfg);
@@ -245,7 +223,6 @@
       if (!button) continue;
       button.disabled = true;
       button.setAttribute('aria-disabled', 'true');
-      button.textContent = '先看完價格 · 가격 비교 후 구매';
     }
   }
 

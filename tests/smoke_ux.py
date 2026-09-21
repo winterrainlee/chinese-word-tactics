@@ -203,8 +203,10 @@ try:
         location_count=page.locator('.market-location').count(); selected_layouts=[]
         for index in range(location_count):
             cell=page.locator('.market-location').nth(index); label=cell.get_attribute('aria-label') or f'location-{index}'; cell.click(); selected=visible_layout(page)
-            assert page.locator('#contextPanel .market-panel-actions').count() == 0, label
-            assert '가까이 가면' in page.locator('#contextPanel .market-action-hint').inner_text(), label
+            assert page.locator('#contextPanel .market-decision-undo-slot > #undoBtn').count() == 1, label
+            assert page.locator('#contextPanel .market-m8-summary strong').count() == 1, label
+            remote_actions=page.locator('#contextPanel [data-market-action]')
+            assert all(remote_actions.nth(action_index).is_disabled() for action_index in range(remote_actions.count())), label
             assert selected['document']['width'] <= selected['viewport']['width'],(label,selected)
             assert selected['context']['y'] >= selected['status']['y'] + selected['status']['height'],(label,selected)
             overflow=max(0,selected['document']['height']-selected['viewport']['height']); assert overflow <= 240,(label,selected)

@@ -109,7 +109,7 @@ test('changed direct-inspection runtimes use a shared cache version', () => {
   for (const file of ['first-free-quest-runtime', 'range-runtime', 'follower-chain-runtime']) {
     assert.match(index, new RegExp(`${file}\\.js\\?v=20260914-directinspect1`), file);
   }
-  assert.match(index, /market-runtime\.js\?v=20260921-m3actions1/);
+  assert.match(index, /market-runtime\.js\?v=20260921-markettray1/);
   assert.match(index, /interaction-runtime\.js\?v=20260920-contextchoice1/);
   assert.match(index, /follower-runtime\.js\?v=20260920-northforestux2/);
   assert.match(index, /first-free-quest-content\.js\?v=20260915-quests1/);

@@ -218,13 +218,13 @@
       if (!status?.classList.contains('good')) setStatus('目標完成。 이번 목표를 끝냈어. 결과를 확인하고 다음으로 넘어가자.', 'good');
       completion.hidden = false;
       completion.innerHTML = `<strong></strong><button id="flowNext" type="button"></button>`;
-      const m3Actions = current()?.id === 'market-stage-3' ? document.querySelector('.market-decision-actions') : null;
-      if (m3Actions) {
+      const marketActions = current()?.market ? document.querySelector('.market-decision-actions, .market-m8-actions') : null;
+      if (marketActions) {
         const controls = document.querySelector('.controls'), undo = $('undoBtn');
         if (controls && undo) controls.append(undo);
         controls?.classList.add('market-controls-embedded');
         completion.classList.add('completionBarEmbedded');
-        m3Actions.replaceChildren(completion);
+        marketActions.replaceChildren(completion);
       }
       completion.querySelector('strong').textContent = stage?.completionTitle || '✓ 스테이지 완료';
       const next = $('flowNext');
