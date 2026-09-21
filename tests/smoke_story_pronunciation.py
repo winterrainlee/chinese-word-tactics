@@ -47,46 +47,82 @@ try:
         matrix = [(360, 640), (375, 812), (390, 844)]
         for width, height in matrix:
             page.set_viewport_size({'width': width, 'height': height})
-            failures = page.evaluate('''() => {
+            result = page.evaluate('''() => {
               const failures = [];
               const options = { seen: false, beat: 0, endLabel: '다음', onPosition() {}, onFinish() {} };
               const cases = [];
+              const addVariants = (group, configs) => {
+                for (const [id, config] of Object.entries(configs || {})) {
+                  const base = JourneyContent.STORIES[id];
+                  for (const [variant, beats] of Object.entries(config.variants || {})) {
+                    cases.push([`${group}:${id}:${variant}`, { ...base, beats }]);
+                  }
+                }
+              };
               for (const id of StoryPronunciation.supportedStories) {
                 const story = JourneyContent.STORIES[id];
                 if (story) cases.push([id, story]);
               }
-              for (const [id, config] of Object.entries(StoryOutcomeContent.marketVariants || {})) {
-                const base = JourneyContent.STORIES[id];
-                for (const [variant, beats] of Object.entries(config.variants)) {
-                  cases.push([`${id}:${variant}`, { ...base, beats }]);
-                }
+              addVariants('outcome', StoryOutcomeContent.VARIANTS);
+              addVariants('market', StoryOutcomeContent.marketVariants);
+              for (const [variant, beats] of Object.entries(StoryOutcomeContent.g7Variants || {})) {
+                cases.push([`g7:gate-after-convoy:${variant}`, {
+                  ...JourneyContent.STORIES['gate-after-convoy'], beats
+                }]);
               }
+              cases.push(['gate-after-convoy:reward', {
+                ...JourneyContent.STORIES['gate-after-convoy'],
+                beats: StoryOutcomeContent.gateRewardBeats || []
+              }]);
+              let longest = null;
               for (const [label, story] of cases) {
                 for (let beat = 0; beat < story.beats.length; beat++) {
                   StoryRuntime.play(story, { ...options, beat });
                   const text = story.beats[beat].zh;
                   const expected = [...text].filter(character => /\p{Script=Han}/u.test(character)).length;
                   const actual = document.querySelectorAll('#storyZh ruby').length;
+                  const placeExpected = [...story.placeZh].filter(character => /\p{Script=Han}/u.test(character)).length;
+                  const placeActual = document.querySelectorAll('#storyPlace ruby').length;
+                  const speakerExpected = [...document.querySelector('#storySpeaker').getAttribute('aria-label').split(' · ')[0]]
+                    .filter(character => /\p{Script=Han}/u.test(character)).length;
+                  const speakerActual = document.querySelectorAll('#storySpeaker ruby').length;
                   const action = document.querySelector('#storyNext').getBoundingClientRect();
+                  const scene = document.querySelector('#storyScene').getBoundingClientRect();
+                  const place = document.querySelector('#storyPlace').getBoundingClientRect();
+                  const reading = document.querySelector('#storyReading');
                   if (actual !== expected) failures.push(`${label}:${beat}: ruby ${actual}/${expected}`);
-                  if ([...document.querySelectorAll('#storyZh rt')].some(node => !node.textContent.trim())) failures.push(`${label}:${beat}: empty rt`);
+                  if (placeActual !== placeExpected) failures.push(`${label}:${beat}: place ruby ${placeActual}/${placeExpected}`);
+                  if (speakerActual !== speakerExpected) failures.push(`${label}:${beat}: speaker ruby ${speakerActual}/${speakerExpected}`);
+                  if ([...document.querySelectorAll('#storyZh rt, #storySpeaker rt, #storyPlace rt')].some(node => !node.textContent.trim())) failures.push(`${label}:${beat}: empty rt`);
                   if (document.documentElement.scrollWidth > innerWidth) failures.push(`${label}:${beat}: horizontal overflow`);
+                  if (reading.scrollWidth > reading.clientWidth + 1) failures.push(`${label}:${beat}: reading horizontal overflow`);
                   if (action.bottom > innerHeight || action.height < 44) failures.push(`${label}:${beat}: action out of viewport`);
+                  if (place.top < scene.top || place.bottom > scene.bottom || place.right > scene.right) failures.push(`${label}:${beat}: place clipped`);
+                  if (!longest || expected > longest.count) longest = { label, story, beat, count: expected };
                 }
               }
-              return failures;
+              window.__pronunciationLongest = longest;
+              return { failures, longest: longest && { label: longest.label, beat: longest.beat, count: longest.count } };
             }''')
-            assert not failures, failures[:10]
+            assert not result['failures'], result['failures'][:10]
 
-            page.evaluate('''() => StoryRuntime.play(JourneyContent.STORIES['market-arrival'], {
-              seen:false, beat:1, endLabel:'다음', onPosition(){}, onFinish(){}
+            page.evaluate('''() => StoryRuntime.play(window.__pronunciationLongest.story, {
+              seen:false, beat:window.__pronunciationLongest.beat, endLabel:'다음', onPosition(){}, onFinish(){}
             })''')
             page.locator('#storyTranslate').click()
+            scroll_ok = page.evaluate('''() => {
+              const reading = document.querySelector('#storyReading');
+              reading.scrollTop = reading.scrollHeight;
+              const ko = document.querySelector('#storyKo').getBoundingClientRect();
+              const box = reading.getBoundingClientRect();
+              return reading.scrollHeight >= reading.clientHeight && ko.bottom <= box.bottom + 1;
+            }''')
+            assert scroll_ok, result['longest']
             next_box = page.locator('#storyNext').bounding_box()
             assert next_box and next_box['y'] + next_box['height'] <= height
             page.screenshot(path=str(OUT / f'story-zhuyin-{width}x{height}.png'))
 
-        page.evaluate('''() => StoryRuntime.play(JourneyContent.STORIES['gate-arrival'], {
+        page.evaluate('''() => StoryRuntime.play({ ...JourneyContent.STORIES['gate-arrival'], id:'unsupported-story' }, {
           seen:false, beat:0, endLabel:'다음', onPosition(){}, onFinish(){}
         })''')
         assert page.locator('#storyZh ruby').count() == 0

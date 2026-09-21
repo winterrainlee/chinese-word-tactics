@@ -8,19 +8,23 @@ const { execFileSync } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('the pilot pronunciation corpus covers prologue, market defaults and every market outcome', () => {
+test('the pronunciation corpus covers every implemented story and outcome', () => {
   const output = execFileSync(process.execPath, ['tools/story-pronunciation-audit.cjs'], {
     cwd: root, encoding: 'utf8'
   });
-  assert.match(output, /18 stories/);
+  assert.match(output, /63 stories/);
 });
 
-test('pronunciation lookup is scoped to the pilot story IDs', () => {
+test('pronunciation lookup is scoped to the exact story context', () => {
   const context = vm.createContext({});
   vm.runInContext(read('src/story-pronunciation-content.js'), context);
   const first = '天亮了。少年站在村口，背上是小小的行李。';
+  const gate = '少年沿著行商指的路，來到了三溪鎮外圍的關口。';
   assert.ok(context.StoryPronunciation.readingFor('prologue-departure', first));
+  assert.ok(context.StoryPronunciation.readingFor('gate-arrival', gate));
   assert.equal(context.StoryPronunciation.readingFor('gate-arrival', first), null);
+  assert.equal(context.StoryPronunciation.readingFor('prologue-departure', gate), null);
+  assert.equal(context.StoryPronunciation.supportedStories.length, 63);
 });
 
 test('story renderer creates safe per-character ruby and keeps assistive text clean', () => {

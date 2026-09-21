@@ -57,7 +57,7 @@ try:
         assert not page.locator('#landingView').is_visible()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         assert_touch_targets(page, '#settingsBack:visible, .settingsAction:visible, .settingsToggle:visible')
-        assert page.locator('#settingsBuild').inner_text() == '2026-09-21-story-zhuyin1-market-tray1'
+        assert page.locator('#settingsBuild').inner_text() == '2026-09-21-story-zhuyin2-market-tray1'
         assert not page.locator('#settingsPronunciation').is_checked()
         page.locator('#settingsPronunciation').check()
         assert page.evaluate("SettingsRuntime.showPronunciation()") is True
