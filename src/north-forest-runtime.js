@@ -252,6 +252,9 @@
       if (cfg.kind === 'materials' && list(state.carriedMaterials).includes(item.id)) return '재료를 챙긴 자리';
       if (cfg.kind === 'attributes' && state.collectedPatch === item.id) return '식물을 챙긴 자리';
       if (cfg.kind === 'clue-nearby' && item.id === 'low-bush' && state.bundleDiscovered && !state.bundleCollected) return '파란 끈 꾸러미가 드러난 낮은 덤불';
+      if (cfg.kind === 'route-cart' && item.confirmedFlag && state[item.confirmedFlag]) {
+        return `${item.labelKo} · ${attributeText(item.attributes)}`;
+      }
       return item.labelKo;
     }
     if (ch === 'E' && cfg.exitLabelKo) return `${cfg.exitLabelKo}${cfg.exitLabelZh ? `, ${cfg.exitLabelZh}` : ''}`;
@@ -272,7 +275,13 @@
       document.querySelector('.goalbox')?.insertAdjacentElement('afterend', card);
     }
     const reference = cfg.reference || {}, meta = cfg.referenceCard || cfg.workOrder;
-    const values = cfg.workOrder?.values || Object.values(reference);
+    let values = cfg.workOrder?.values || Object.values(reference);
+    if (cfg.kind === 'materials' && cfg.workOrder) {
+      const byId = new Map(list(cfg.observables).map(item => [item.id, item]));
+      const suitableCount = list(state.carriedMaterials)
+        .filter(id => materialSuitable(byId.get(id)?.attributes, cfg.requirements)).length;
+      values = [...values.slice(0, -1), `適合 ${suitableCount}/${cfg.required}`];
+    }
     const label = meta.labelKo || meta.labelZh || '견본';
     card.className = `northForestReference${cfg.workOrder ? ' northForestWorkOrder' : ''}`;
     card.setAttribute('aria-label', `${label}: ${values.join(' · ')}`);
@@ -295,6 +304,13 @@
       mark.style.setProperty('--marker-angle', angle);
       mark.innerHTML = '<i class="forest-marker-post"></i><i class="forest-marker-pointer"></i>' +
         (item.revealedFlag && !state[item.revealedFlag] ? '<i class="forest-marker-leaves"></i>' : '');
+    }
+    if (st.northForest.kind === 'route-cart') {
+      const confirmed = item.confirmedFlag && state[item.confirmedFlag];
+      mark.dataset.routeStatus = confirmed
+        ? `${item.attributes?.surface || ''}·${item.attributes?.breadth || ''}`
+        : '路況';
+      if (confirmed) mark.classList.add('forest-object-route-known');
     }
     cell.appendChild(mark);
     if (item.confirmedFlag && state[item.confirmedFlag]) cell.classList.add('forest-object-confirmed');

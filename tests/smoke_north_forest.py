@@ -82,10 +82,9 @@ try:
         assert page.evaluate('state.markerAConfirmed && state.markerBConfirmed && state.markerCConfirmed')
 
         start(page, 'north-forest-stage-3')
-        move(page, [(4, 3)]); action(page)
-        move(page, [(3, 3), (2, 3)]); action(page, 3)
+        move(page, [(2, 3)]); action(page, 3)
         page.locator('#flowNext').wait_for(state='visible')
-        assert page.evaluate("state.markerDirection === '下' && state.actualRouteObserved && !('normalMarkerObserved' in state)")
+        assert page.evaluate("state.markerDirection === '下' && !('actualRouteObserved' in state) && !('normalMarkerObserved' in state)")
 
         start(page, 'north-forest-stage-4')
         assert page.locator('#northForestReference').is_visible()
@@ -102,6 +101,7 @@ try:
         start(page, 'north-forest-stage-5')
         assert page.locator('#northForestReference.northForestWorkOrder').is_visible()
         assert '生長在水邊' in page.locator('#northForestReference').inner_text()
+        assert '適合 0/2' in page.locator('#northForestReference').inner_text()
         assert '그림 없는 작업 지시' not in page.locator('#northForestReference').text_content()
         assert page.locator('#northForestReference .northForestReferenceArt').count() == 0
         move(page, [(2, 3), (2, 4)]); action(page, 3)
@@ -110,8 +110,10 @@ try:
         assert '水邊' in page.locator('#status').inner_text()
         assert '물가' in cell(page, 2, 1).get_attribute('aria-label')
         action(page, 2)
+        assert '適合 1/2' in page.locator('#northForestReference').inner_text()
         move(page, [(3, 1), (3, 2), (4, 2)]); action(page, 2)
         assert page.evaluate("state.carriedMaterials.join(',') === 'material-a,material-c'")
+        assert '適合 2/2' in page.locator('#northForestReference').inner_text()
         move(page, [(4, 3), (5, 3)])
         page.locator('#flowNext').wait_for(state='visible')
 
@@ -140,7 +142,7 @@ try:
         assert '판단할 기준' in page.locator('#sheet').inner_text()
         page.locator('#sheet .sheetactions button').click()
         move(page, [(4, 3), (3, 3)]); action(page)
-        assert not page.evaluate('state.nearbyCompared')
+        assert page.evaluate("!('nearbyCompared' in state)")
         move(page, [(3, 4)])
         assert page.locator('#inspectBtn').is_enabled()
         assert page.locator('#inspectBtn').inner_text() == '살펴볼 대상 선택'
@@ -170,6 +172,10 @@ try:
         assert cell(page, 3, 3).evaluate("el => el.classList.contains('forest-path-n') && el.classList.contains('forest-path-s')")
         for route in [(5, 1), (4, 3), (5, 5)]:
             direct_info(page, *route)
+        assert page.evaluate("document.querySelector('.forest-object-route-west')?.dataset.routeStatus") == '乾·寬'
+        assert page.evaluate("document.querySelector('.forest-object-route-middle')?.dataset.routeStatus") == '濕·窄'
+        assert page.evaluate("document.querySelector('.forest-object-route-east')?.dataset.routeStatus") == '乾·寬'
+        assert page.evaluate("[...document.querySelectorAll('.forest-object-confirmed')].length") == 3
         move(page, [(5, 3), (5, 2)]); action(page)
         assert page.evaluate('JSON.stringify(state.hero) === "[4,1]" && JSON.stringify(state.followerPos) === "[5,1]"')
         action(page, 3)

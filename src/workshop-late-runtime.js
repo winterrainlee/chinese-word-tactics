@@ -158,18 +158,28 @@
   }
 
   function regulatorLink(component, value) {
+    const nextResult = value ? '分開' : '連接';
+    const nextAction = value ? '분리하기' : '연결하기';
     return `<section class="workshop-regulator-cell">
       <div><strong lang="zh-Hant">${component.labelZh}</strong><small>${component.labelKo}</small></div>
       <div class="workshop-regulator-link ${value ? 'on' : ''}" aria-hidden="true"><i></i><i></i></div>
-      <button type="button" class="workshop-late-toggle" data-workshop-late-action="toggle" data-component="${component.id}">${value ? '분리' : '연결'}</button>
+      <button type="button" class="workshop-late-toggle" data-workshop-late-action="toggle" data-component="${component.id}" aria-label="${component.labelKo} ${nextAction}"><span lang="zh-Hant">${nextResult}</span></button>
     </section>`;
+  }
+
+  function regulatorRemainingIssues(cfg, workshopState) {
+    const recovery = (cfg.derived || []).find(item => item.id === 'systemRecovered');
+    const failingComponents = (recovery?.conditions || [])
+      .filter(condition => !M.conditionMet(condition, workshopState))
+      .map(condition => condition.component || condition.untouched || condition.derived);
+    return new Set(failingComponents).size;
   }
 
   function renderRegulatorScene(cfg) {
     const ws = state.workshop;
     const recovered = !!ws.derived.systemRecovered;
+    const remainingIssues = regulatorRemainingIssues(cfg, ws);
     const indicator = !!ws.derived.oldIndicatorVisible;
-    const noiseGone = !!ws.derived.knockingGone;
     const gate = componentById(cfg, 'regulatorGate');
     const balance = componentById(cfg, 'regulatorBalance');
     const mainLink = componentById(cfg, 'regulatorMainLink');
@@ -179,7 +189,7 @@
     return `<div class="workshop-late-scene workshop-regulator-scene ${recovered ? 'recovered' : ''}">
       <div class="workshop-regulator-head">
         <span class="workshop-old-indicator ${indicator ? 'visible' : ''}">${indicator ? '舊標記 ✦' : '· · ·'}</span>
-        <div><strong>${recovered ? '舊裝置穩定' : '舊裝置不穩定'}</strong><small>${noiseGone ? '거슬리던 덜컹임이 사라졌어.' : '덜컹, 덜컹… 아직 소리가 나.'}</small></div>
+        <div><strong>${recovered ? '舊裝置穩定' : '舊裝置不穩定'}</strong><small class="workshop-regulator-progress" data-remaining-issues="${remainingIssues}">${recovered ? '全部正常' : `剩餘 ${remainingIssues} 項異常`}</small></div>
       </div>
       <div class="workshop-regulator-grid">
         ${regulatorLevel(gate, ws.values.regulatorGate)}

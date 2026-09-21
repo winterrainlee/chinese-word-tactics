@@ -508,6 +508,7 @@ D:
 
 - F4 attribute comparison 재사용.
 - 장터 inventory/take-put 구조를 일반화하면 잘못 채집 후 복구 가능.
+- 작업 지시의 마지막 칩은 `carriedMaterials`와 `requirements`에서 계산한 `適合 n/2`를 표시한다. 고정 `兩根` 문구와 별도 소지 패널을 중복하지 않는다.
 
 ---
 
@@ -864,6 +865,7 @@ A1–A2 복습:
 - G6/G7의 수레 추종 규칙 재사용.
 - G4/G7의 장애물 직접 선택·제거 패턴 재사용.
 - 새로 필요한 것은 route condition metadata와 상태 확인 UI 정도.
+- 각 route observable은 `confirmedFlag`를 가지며, 확인 전 `路況`, 확인 뒤 `surface·breadth`를 판 위 같은 표식에 표시한다. 세 길의 확인 여부와 완료 판정은 이 플래그를 함께 사용한다.
 
 ---
 

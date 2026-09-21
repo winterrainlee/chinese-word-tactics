@@ -116,6 +116,9 @@ def marker_assertions(page, stage):
     elif stage == "workshop-stage-7":
         assert page.locator(".workshop-regulator-grid").count() == 1
         assert page.locator(".workshop-repair-button").count() == 1
+        progress = page.locator(".workshop-regulator-progress")
+        assert progress.count() == 1
+        assert progress.get_attribute("data-remaining-issues") is not None
         assert "保持" in text and "修復" in text
 
 
@@ -199,9 +202,11 @@ try:
                         page.wait_for_timeout(30)
                         assert page.locator(".workshop-machine-output.running").count() == 1
                     if stage == "workshop-stage-7" and state_name == "near":
+                        assert page.locator(".workshop-regulator-progress").get_attribute("data-remaining-issues") == "1"
                         page.locator('[data-workshop-late-action="repair"][data-component="regulatorGear"]').click()
                         page.wait_for_timeout(30)
                         assert page.locator(".workshop-regulator-scene.recovered").count() == 1
+                        assert page.locator(".workshop-regulator-progress").get_attribute("data-remaining-issues") == "0"
                     next_buttons = [button for button in representative["buttons"] if button["text"] or button["aria"]]
                     assert next_buttons, (stage, state_name, "no next action discoverable", representative)
                     page.screenshot(path=str(OUT / f"{stage}-{state_name}-{width}x{height}.png"), full_page=True)

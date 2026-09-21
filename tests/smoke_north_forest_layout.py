@@ -151,8 +151,7 @@ def play_longest(page, key):
         move(page, [(2, 2), (3, 2)]); action(page)
         move(page, [(4, 2), (4, 3)]); action(page, 2)
     elif key == 'F3':
-        move(page, [(4, 3)]); action(page)
-        move(page, [(3, 3), (2, 3)]); action(page, 3)
+        move(page, [(2, 3)]); action(page, 3)
     elif key == 'F4':
         move(page, [(2, 3), (2, 4)]); action(page, 2)
         move(page, [(2, 3), (2, 2), (1, 2)]); action(page, 3)
@@ -232,6 +231,13 @@ try:
                 play_longest(page, key)
                 longest = metrics(page)
                 assert_discoverability(page, key)
+                if key == 'F5':
+                    assert '適合 2/2' in page.locator('#northForestReference').inner_text()
+                if key == 'F8':
+                    assert page.evaluate("document.querySelector('.forest-object-route-west')?.dataset.routeStatus") == '乾·寬'
+                    assert page.evaluate("document.querySelector('.forest-object-route-middle')?.dataset.routeStatus") == '濕·窄'
+                    assert page.evaluate("document.querySelector('.forest-object-route-east')?.dataset.routeStatus") == '乾·寬'
+                    assert page.evaluate("[...document.querySelectorAll('.forest-object-confirmed')].length") == 3
                 assert_layout(f'{key}@{width}x{height}', page, initial, longest)
                 page.screenshot(path=str(OUT / f'north-forest-layout-{key.lower()}-{width}x{height}-longest.png'), full_page=True)
             context.close()

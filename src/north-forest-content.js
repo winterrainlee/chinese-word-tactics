@@ -71,7 +71,7 @@
       goal: '觀察通往市集的路，把轉歪的標記調回正確方向。', rule: '정상 표식은 없어. 실제 장터 길이 어느 쪽으로 이어지는지 보고 팻말을 한 방향씩 돌려봐.',
       words: ['正確', '指示'], win: ['north_forest'],
       northForest: {
-        kind: 'discrete', initialState: { markerDirection: '左', actualRouteObserved: false },
+        kind: 'discrete', initialState: { markerDirection: '左' },
         discrete: { id: 'rotated-marker', char: 'R', states: ['上', '右', '下', '左'], stateFlag: 'markerDirection', target: '下' },
         terrain: [{ className: 'forest-reference-road', positions: [[2,3],[3,3],[4,3],[5,3]], labelZh: '通往市集的路', labelKo: '장터로 이어지는 흙길' }],
         observables: [
@@ -80,7 +80,6 @@
         ]
       },
       contextActions: [
-        action('B', '실제 장터 길 確認', 'set-flags', { sets: ['actualRouteObserved'], unless: 'actualRouteObserved', message: '這條土路通往市集。 이 흙길이 장터 쪽으로 이어지는 것을 확인했어.' }),
         action('R', '표지판 한 칸 돌리기', 'rotate', { discreteId: 'rotated-marker' })
       ],
       story: '標記的指示正確了。 표식이 실제 장터 쪽 길을 올바르게 가리킨다.'
@@ -182,7 +181,7 @@
       northForest: {
         kind: 'clue-nearby', centerId: 'last-trace', radius: 3,
         exitLabelZh: '採集人等候的路口', exitLabelKo: '채집인이 기다리는 숲길 입구',
-        initialState: { finalTraceConfirmed: false, nearbyCompared: false, bundleThreadFound: false, bundleDiscovered: false, bundleCollected: false },
+        initialState: { finalTraceConfirmed: false, bundleThreadFound: false, bundleDiscovered: false, bundleCollected: false },
         observables: [
           observable('far-tree', 'A', '大樹', '큰 나무', { variant: 'tree-large' }),
           observable('round-rock', 'B', '圓石', '둥근 바위', { variant: 'rock-round' }),
@@ -198,8 +197,8 @@
       contextActions: [
         action('L', '마지막 痕跡 확인', 'set-flags', { sets: ['finalTraceConfirmed'], unless: 'finalTraceConfirmed', message: '最後的痕跡是低枝上的藍色線。 이 지점의 附近부터 살펴보자.' }),
         action('A', '큰 나무 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '離最後的痕跡有點遠。先看看附近吧。 마지막 흔적에서 조금 멀어.' }),
-        action('B', '둥근 바위 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '圓石附近沒有新留下的痕跡。 바위 근처와 비교해 다른 가까운 곳을 살펴보자.' }),
-        action('D', '작은 물길 살펴보기', 'nearby-note', { sets: ['nearbyCompared'], requires: 'finalTraceConfirmed', message: '小水溝附近沒有藍色的線。 물길 쪽과 비교해 다른 가까운 곳을 살펴보자.' }),
+        action('B', '둥근 바위 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '圓石附近沒有新留下的痕跡。 바위 근처와 비교해 다른 가까운 곳을 살펴보자.' }),
+        action('D', '작은 물길 살펴보기', 'nearby-note', { requires: 'finalTraceConfirmed', message: '小水溝附近沒有藍色的線。 물길 쪽과 비교해 다른 가까운 곳을 살펴보자.' }),
         action('C', '덤불 살펴보기', 'set-flags', { sets: ['bundleThreadFound'], requires: 'finalTraceConfirmed', unless: 'bundleThreadFound', message: '矮樹叢的枝上又留下了新的藍色線頭。 마지막 흔적과 같은 파란 실이 덤불 아래로 이어져.' }),
         action('C', '덤불 아래 살펴보기', 'set-flags', { sets: ['bundleDiscovered'], requires: 'bundleThreadFound', unless: 'bundleDiscovered', priority: 100, message: '在矮樹叢下面發現了遺失的包裹。 파란 끈 꾸러미를 발견했어.' }),
         action('C', '꾸러미 챙기기', 'set-flags', { sets: ['bundleCollected'], requires: 'bundleDiscovered', unless: 'bundleCollected', priority: 110, message: '把包裹收好了。 이제 채집인이 기다리는 숲길 입구로 돌아가자.' })
@@ -237,9 +236,9 @@
           { className: 'forest-path-dry forest-path-wide', positions: [[5,5],[4,5],[3,5],[2,5],[1,5],[1,4],[1,3]] }
         ],
         observables: [
-          observable('west-route', 'W', '西邊短路', '서쪽 짧은 길 입구', { variant: 'route-west', blocking: false, directSets: ['westSituationConfirmed'], attributes: { surface: '乾', breadth: '寬', obstacle: '粗樹枝' } }),
-          observable('middle-route', 'M', '中間小路', '가운데 젖은 길 입구', { variant: 'route-middle', blocking: false, directSets: ['middleSituationConfirmed'], attributes: { surface: '濕', breadth: '窄', obstacle: '無' } }),
-          observable('east-route', 'Z', '東邊長路', '동쪽 긴 길 입구', { variant: 'route-east', blocking: false, directSets: ['eastSituationConfirmed'], attributes: { surface: '乾', breadth: '寬', obstacle: '無' } })
+          observable('west-route', 'W', '西邊短路', '서쪽 짧은 길 입구', { variant: 'route-west', blocking: false, directSets: ['westSituationConfirmed'], confirmedFlag: 'westSituationConfirmed', attributes: { surface: '乾', breadth: '寬', obstacle: '粗樹枝' } }),
+          observable('middle-route', 'M', '中間小路', '가운데 젖은 길 입구', { variant: 'route-middle', blocking: false, directSets: ['middleSituationConfirmed'], confirmedFlag: 'middleSituationConfirmed', attributes: { surface: '濕', breadth: '窄', obstacle: '無' } }),
+          observable('east-route', 'Z', '東邊長路', '동쪽 긴 길 입구', { variant: 'route-east', blocking: false, directSets: ['eastSituationConfirmed'], confirmedFlag: 'eastSituationConfirmed', attributes: { surface: '乾', breadth: '寬', obstacle: '無' } })
         ]
       },
       contextActions: [

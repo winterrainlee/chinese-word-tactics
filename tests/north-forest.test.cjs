@@ -77,13 +77,15 @@ test('F3 has no normal-answer sign, allows rotation immediately, and validates a
   for (let i = 0; i < 4; i++) { cycle.push(direction); direction = M.nextDiscreteState(discrete.states, direction); }
   assert.deepEqual(cycle, ['上', '右', '下', '左']);
   assert.equal(direction, '上');
-  assert.equal(M.completionFor(stage, { markerDirection: '左', actualRouteObserved: true }), false);
-  assert.equal(M.completionFor(stage, { markerDirection: '下', actualRouteObserved: false }), true);
-  assert.equal(M.completionFor(stage, { markerDirection: '下', actualRouteObserved: true }), true);
+  assert.equal(M.completionFor(stage, { markerDirection: '左' }), false);
+  assert.equal(M.completionFor(stage, { markerDirection: '下' }), true);
+  assert.equal(M.completionFor(stage, { markerDirection: '下', actualRouteObserved: false }), true,
+    'F3 completion must depend on the board direction, not an orphan observation flag');
   assert.equal(discrete.referenceFlag, undefined);
   assert.equal(stage.contextActions.find(action => action.target === 'R').requires, undefined);
   assert.ok(!stage.northForest.observables.some(item => item.id === 'reference-a'));
   assert.ok(!stage.contextActions.some(action => action.target === 'A'));
+  assert.doesNotMatch(JSON.stringify(stage), /actualRouteObserved/);
   assert.ok(stage.northForest.terrain[0].positions.every((position, index, positions) => index === 0 || position[1] === positions[index - 1][1]));
 });
 
@@ -178,7 +180,10 @@ test('F7 uses real distance and preserves confirm, discover, collect, exit order
   assert.equal(bushActions[0].label, '덤불 살펴보기');
   assert.doesNotMatch(bushActions[0].label, /파란 실/);
   assert.equal(stage.northForest.observables.find(item => item.id === 'low-bush').pendingHintUntil, 'finalTraceConfirmed');
-  assert.ok(stage.contextActions.filter(action => ['B', 'D'].includes(action.target)).every(action => action.sets.includes('nearbyCompared')));
+  assert.ok(stage.contextActions.filter(action => ['B', 'D'].includes(action.target))
+    .every(action => !action.sets?.includes('nearbyCompared')),
+    'F7 optional comparisons must not create a persistent completion flag');
+  assert.doesNotMatch(JSON.stringify(stage), /nearbyCompared/);
   assert.equal(bushActions[1].requires, 'bundleThreadFound');
   assert.equal(bushActions[2].requires, 'bundleDiscovered');
   assert.equal(M.completionFor(stage, { bundleDiscovered: true, bundleCollected: false }, true), false);
@@ -356,8 +361,8 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.ok(content > 0 && content < progress);
   assert.ok(follower < obstacle && obstacle < runtime && runtime < flow);
   assert.ok(flow < world && world < firstWorld);
-  assert.match(html, /north-forest\.css\?v=20260920-feedback4/);
-  assert.match(html, /north-forest-content\.js\?v=20260920-f7bush1/);
-  assert.match(html, /north-forest-runtime\.js\?v=20260920-feedback4/);
+  assert.match(html, /north-forest\.css\?v=20260922-regionlayout1/);
+  assert.match(html, /north-forest-content\.js\?v=20260922-regionlayout1/);
+  assert.match(html, /north-forest-runtime\.js\?v=20260922-regionlayout1/);
   assert.match(html, /north-forest-world-runtime\.js\?v=20260920-northforestux2/);
 });

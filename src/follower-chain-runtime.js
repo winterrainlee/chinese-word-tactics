@@ -109,7 +109,7 @@
     }
     window.GameFlow?.recordStageComplete(st.id, stageSession);
     save(); render();
-    setStatus('整隊都到了北路。少年帶領兩輛貨車，貨車一路跟隨。 행렬 전체가 북쪽 길에 도착했어.', 'good');
+    setStatus('整隊到北路。 두 수레가 함께 도착했어.', 'good');
     clearTimeout(completionTimer);
     completionTimer = setTimeout(() => {
       if (screen === 'tutorial' && current().id === st.id && isWin()) showComplete();
@@ -148,11 +148,11 @@
 
     save(); render();
     if (step.allMoved) {
-      setStatus('車隊跟隨少年前進。 소년이 앞장서고 두 수레가 차례로 자취를 따라왔어.', 'good');
+      setStatus('車隊跟隨。 두 수레가 함께 따라왔어.', 'good');
     } else if (step.reason === 'disconnected') {
-      setStatus('後面的貨車還沒跟上。 행렬의 자취가 끊겼어. 수레 가까이 돌아가 이어지는 길을 다시 만들어봐.', 'info');
+      setStatus('行列斷開。 뒤 수레가 자취를 잇지 못했어.', 'info');
     } else {
-      setStatus('車隊有一輛停下來了。 뒤의 수레까지 지나갈 수 있는 길인지 다시 살펴봐.', 'info');
+      setStatus('貨車停下來了。 뒤 수레까지 지나갈 길이 막혔어.', 'info');
     }
     return result;
   };

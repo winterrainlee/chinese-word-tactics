@@ -40,7 +40,8 @@
 .forest-marker-pointer{background-image:url("../icons/tactical/north-forest/marker-pointer.svg");transform:rotate(var(--marker-angle));transform-origin:50% 48%}
 .forest-marker-leaves{background-image:url("../icons/tactical/north-forest/marker-leaves.svg")}
 .forest-object-route-reference:before{content:"路";position:absolute;inset:8px;border:2px solid #8b7758;border-radius:6px;background:#d9c9a5;color:#514633;font-size:18px;font-weight:900;display:grid;place-items:center}
-.forest-object-route-west:before,.forest-object-route-middle:before,.forest-object-route-east:before{content:"路況";position:absolute;left:2px;right:2px;bottom:2px;border-radius:5px;background:rgba(255,253,247,.84);color:#425544;font-size:9px;font-weight:900;padding:1px}
+.forest-object-route-west:before,.forest-object-route-middle:before,.forest-object-route-east:before{content:attr(data-route-status);position:absolute;left:2px;right:2px;bottom:2px;border-radius:5px;background:rgba(255,253,247,.84);color:#425544;font-size:9px;font-weight:900;padding:1px}
+.forest-object-route-known:before{background:#e3eee3;color:#2f5a3e}
 .forest-reference-road{background-color:#d9e0d0!important;background-image:linear-gradient(90deg,transparent 0 25%,#d8c49f 25% 75%,transparent 75%)!important}
 .forest-reference-road:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:24px;transform:translateX(-50%);background:radial-gradient(circle at 28% 23%,rgba(112,83,48,.38) 0 1px,transparent 1.5px),radial-gradient(circle at 70% 68%,rgba(112,83,48,.32) 0 1.2px,transparent 1.7px)}
 

@@ -4,6 +4,26 @@
 
   const cfgFor = st => st.finalObstacle || null;
   const obstaclePos = st => locate(st.grid, cfgFor(st)?.char || 'O');
+  const convoyConnected = () => {
+    const positions = Array.isArray(state.followerPositions) ? state.followerPositions : [];
+    const convoy = [state.hero, ...positions];
+    return convoy.length === 3 && convoy.every(Array.isArray) && convoy.slice(1).every((pos, index) =>
+      Math.abs(convoy[index][0] - pos[0]) + Math.abs(convoy[index][1] - pos[1]) === 1);
+  };
+  const viaName = st => {
+    const ids = Array.isArray(state.viaIds) ? state.viaIds : [];
+    const waypoint = Object.values(st.route?.waypoints || {}).find(item => ids.includes(item.id));
+    return state.via && waypoint ? waypoint.nameZh : '';
+  };
+  function renderG7Judgment(st) {
+    if (st.id !== 'gate-stage-7') return;
+    const via = viaName(st);
+    const connected = convoyConnected() && !state.chainStuck;
+    const line = $('#ruleLine');
+    if (!line) return;
+    line.className = 'ruleline g7-judgment';
+    line.innerHTML = `<span><b>經由</b> ${via || '아직'}</span><span><b>跟隨</b> ${connected ? '두 수레 유지' : '행렬 단절'}</span>`;
+  }
 
   const baseInitialState = initialState;
   initialState = function g7InitialState(st) {
@@ -43,6 +63,7 @@
     baseRender();
     const st = current(), cfg = cfgFor(st);
     if (!cfg) return;
+    renderG7Judgment(st);
     const cols = st.grid[0].length;
     const goalChar = st.followerChain?.leaderGoalChar || 'N';
     const goalPos = locate(st.grid, goalChar);

@@ -52,6 +52,9 @@ def metrics(page):
             buttons,
             stage: document.querySelector('#stageTitle')?.textContent,
             status: document.querySelector('#status')?.textContent,
+            g7Judgment: document.querySelector('.g7-judgment')?.textContent,
+            g7JudgmentVisible: (() => { const el = document.querySelector('.g7-judgment');
+              return !!el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().height > 0; })(),
             visibleNext: [...document.querySelectorAll('button')].some(el => /다음|문 열기|돌 치우기|살펴|이동|앞|뒤/.test(el.textContent) && !el.hidden),
           };
         }"""
@@ -138,6 +141,16 @@ try:
                     assert abs(initial["grid"][axis] - representative["grid"][axis]) <= 1, (stage, axis, initial, representative)
                 if stage in {"gate-stage-1", "gate-stage-4", "gate-stage-5", "gate-stage-6", "gate-stage-7"}:
                     assert metrics(page)["visibleNext"], (stage, "next action not visible", metrics(page))
+                if stage == "gate-stage-7":
+                    assert representative["g7JudgmentVisible"], representative
+                    assert "經由" in (representative["g7Judgment"] or ""), representative
+                    assert "跟隨" in (representative["g7Judgment"] or ""), representative
+                    page.evaluate("""() => {
+                      state.via = true; state.viaIds = ['east-post']; state.chainStuck = true; render();
+                    }""")
+                    blocked = assert_layout(page, stage + ":blocked", width, height, results)
+                    assert "東哨站" in (blocked["g7Judgment"] or ""), blocked
+                    assert "행렬 단절" in (blocked["g7Judgment"] or ""), blocked
                 page.screenshot(path=str(OUT / f"{stage}-{width}x{height}.png"), full_page=True)
             assert not errors, errors
             assert not missing, missing
