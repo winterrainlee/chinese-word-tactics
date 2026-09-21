@@ -29,6 +29,15 @@ test('settings exposes export, validated restore preview, reset, and build infor
   assert.match(runtime, /GameFlow\.resetJourney\(\)/);
 });
 
+test('pronunciation display is an opt-in local preference outside the progress backup', () => {
+  assert.match(html, /id="settingsPronunciation"[^>]*role="switch"/);
+  assert.match(html, /프롤로그와 장터 이야기의 한자 위에 주음부호 표시/);
+  assert.match(runtime, /chinese-word-tactics-preferences-v1/);
+  assert.match(runtime, /showPronunciation: false/);
+  assert.match(runtime, /settingsPronunciation.*addEventListener\('change'/);
+  assert.doesNotMatch(save, /chinese-word-tactics-preferences-v1/);
+});
+
 test('backup format owns an exact allowlist rather than exporting arbitrary same-origin storage', () => {
   assert.match(save, /const STORAGE_KEYS = Object\.freeze/);
   assert.match(save, /chinese-word-tactics-journey-v1/);
@@ -42,6 +51,7 @@ test('backup format owns an exact allowlist rather than exporting arbitrary same
 test('settings actions keep mobile touch targets and restore is never applied before confirmation', () => {
   assert.match(css, /\.settingsAction\{[^}]*min-height:52px/s);
   assert.match(css, /\.settingsRestoreButton\{[^}]*min-height:48px/s);
+  assert.match(css, /\.settingsToggle\{[^}]*min-height:52px/s);
   const inspectStart = runtime.indexOf('async function inspectFile');
   const restoreStart = runtime.indexOf('function restoreProgress');
   assert.ok(inspectStart >= 0 && restoreStart > inspectStart);

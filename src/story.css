@@ -13,6 +13,11 @@
 .storyPortrait{width:40px;height:40px}
 .storySpeaker{font-weight:800;color:var(--accent);font-size:16px}
 .storyZh{font-size:22px;line-height:1.65;margin:0 0 12px;overflow-wrap:anywhere}
+.storyZh[data-pronunciation="true"]{line-height:2.05;padding-top:.25em}
+.storyZh ruby,.storySpeaker ruby,.storyPlace ruby{ruby-position:over;ruby-align:center;white-space:nowrap}
+.storyZh rt,.storySpeaker rt,.storyPlace rt{font-size:.46em;line-height:1;color:#6b655d;font-weight:650;letter-spacing:-.03em;user-select:none}
+.storySpeaker[data-pronunciation="true"]{padding-top:.35em}
+.storyPlace[data-pronunciation="true"]{padding-top:.45em}
 .storyTranslate{min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:14px}
 .storyKo{font-size:16px;line-height:1.6;border-top:1px solid var(--line);padding-top:12px;margin-bottom:0;word-break:keep-all;overflow-wrap:anywhere}
 .storyActions{flex:none;display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
@@ -21,5 +26,5 @@
 .storyActions button:disabled{opacity:.4}
 .storySkip{flex:none;align-self:center;min-height:44px;border:0;background:none;color:var(--muted)}
 .storyCount{font-size:12px;text-align:center;color:var(--muted)}
-@media(max-height:650px){.storyShell{gap:7px}.storyScene{height:17%;min-height:76px}.storyReading{padding:12px}.storyZh{font-size:20px}}
+@media(max-height:650px){.storyShell{gap:7px}.storyScene{height:17%;min-height:76px}.storyReading{padding:12px}.storyZh{font-size:20px}.storyZh[data-pronunciation="true"]{line-height:2}}
 @media(prefers-reduced-motion:reduce){.storyShell *{scroll-behavior:auto}}

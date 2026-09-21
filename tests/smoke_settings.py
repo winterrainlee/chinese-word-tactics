@@ -56,8 +56,12 @@ try:
         assert page.locator('#settingsView').is_visible()
         assert not page.locator('#landingView').is_visible()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-        assert_touch_targets(page, '#settingsBack:visible, .settingsAction:visible')
-        assert page.locator('#settingsBuild').inner_text() == '2026-09-21-market-tray1'
+        assert_touch_targets(page, '#settingsBack:visible, .settingsAction:visible, .settingsToggle:visible')
+        assert page.locator('#settingsBuild').inner_text() == '2026-09-21-story-zhuyin1-market-tray1'
+        assert not page.locator('#settingsPronunciation').is_checked()
+        page.locator('#settingsPronunciation').check()
+        assert page.evaluate("SettingsRuntime.showPronunciation()") is True
+        assert page.evaluate("JSON.parse(localStorage.getItem(SettingsRuntime.KEY)).showPronunciation") is True
 
         with page.expect_download() as info:
             page.locator('#settingsExport').click()
@@ -97,6 +101,31 @@ try:
         page.locator('#settingsBack').click()
         assert page.locator('#landingView').is_visible()
         assert page.locator('#settingsView').is_hidden()
+        page.locator('#landingPrimary').click()
+        page.locator('#storyView').wait_for(state='visible')
+        original = page.locator('#storyZh').get_attribute('aria-label')
+        assert original == '天亮了。少年站在村口，背上是小小的行李。'
+        assert page.locator('#storyZh ruby').count() == sum('\u3400' <= char <= '\u9fff' for char in original)
+        assert page.locator('#storySpeaker ruby').count() > 0
+        assert page.locator('#storyPlace ruby').count() > 0, page.locator('#storyPlace').evaluate('node => node.outerHTML')
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        assert_touch_targets(page, '#storyPrev:visible, #storyNext:visible, #storyTranslate:visible')
+
+        page.reload()
+        page.wait_for_function('!!window.GameFlow && !!window.SettingsRuntime')
+        assert page.evaluate('SettingsRuntime.showPronunciation()') is True
+        page.locator('#landingPrimary').click()
+        page.locator('#storyView').wait_for(state='visible')
+        assert page.locator('#storyZh ruby').count() > 0
+
+        page.locator('#storyMenu').click()
+        page.locator('#flowSettings').click()
+        assert page.locator('#settingsPronunciation').is_checked()
+        page.locator('#settingsPronunciation').uncheck()
+        page.locator('#settingsBack').click()
+        assert page.locator('#storyView').is_visible()
+        assert page.locator('#storyZh ruby').count() == 0
+        assert page.locator('#storyZh').inner_text() == original
         assert not errors, errors
         assert not missing, missing
         print('SETTINGS_BACKUP_SMOKE_OK', flush=True)

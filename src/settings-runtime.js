@@ -1,6 +1,7 @@
 /* Settings screen: local save export, validated restore, reset entry, and build info. */
 (() => {
   const $ = id => document.getElementById(id);
+  const PREFERENCES_KEY = 'chinese-word-tactics-preferences-v1';
   let returnView = 'landingView';
   let restoreCandidate = null;
 
@@ -17,6 +18,30 @@
     if (Number.isNaN(date.getTime())) return iso;
     return new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
   };
+  const defaultPreferences = () => ({ showPronunciation: false });
+
+  function readPreferences() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(PREFERENCES_KEY) || 'null');
+      return { showPronunciation: stored?.showPronunciation === true };
+    } catch { return defaultPreferences(); }
+  }
+
+  function syncPreferences() {
+    $('settingsPronunciation').checked = readPreferences().showPronunciation;
+  }
+
+  function savePronunciationPreference() {
+    const next = { showPronunciation: $('settingsPronunciation').checked };
+    try {
+      localStorage.setItem(PREFERENCES_KEY, JSON.stringify(next));
+      globalThis.StoryRuntime?.refresh?.();
+      setMessage('발음 표시 설정을 저장했어.');
+    } catch {
+      $('settingsPronunciation').checked = readPreferences().showPronunciation;
+      setMessage('발음 표시 설정을 저장하지 못했어. 브라우저의 사이트 데이터 저장 권한을 확인해줘.', 'bad');
+    }
+  }
 
   function setMessage(text = '', type = '') {
     const el = $('settingsMessage');
@@ -45,6 +70,7 @@
     TacticalGame.closeSheet();
     TacticalGame.showView('settings');
     $('settingsBuild').textContent = buildId();
+    syncPreferences();
     clearRestore();
     setMessage('');
     window.scrollTo(0, 0);
@@ -119,11 +145,15 @@
 
   $('landingSettings')?.addEventListener('click', open);
   $('settingsBack')?.addEventListener('click', back);
+  $('settingsPronunciation')?.addEventListener('change', savePronunciationPreference);
   $('settingsExport')?.addEventListener('click', exportProgress);
   $('settingsImport')?.addEventListener('click', () => $('settingsImportFile').click());
   $('settingsImportFile')?.addEventListener('change', event => inspectFile(event.target.files?.[0]));
   $('settingsRestoreConfirm')?.addEventListener('click', restoreProgress);
   $('settingsReset')?.addEventListener('click', resetProgress);
 
-  globalThis.SettingsRuntime = Object.freeze({ open, back, exportProgress, inspectFile, restoreProgress });
+  globalThis.SettingsRuntime = Object.freeze({
+    KEY: PREFERENCES_KEY, open, back, exportProgress, inspectFile, restoreProgress,
+    showPronunciation: () => readPreferences().showPronunciation
+  });
 })();
