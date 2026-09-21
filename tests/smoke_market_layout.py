@@ -291,7 +291,9 @@ try:
             page.wait_for_function("!!window.TacticalGame")
             for stage in STAGES:
                 print(f"  stage {stage}", flush=True)
-                page.evaluate("id => TacticalGame.playStage(id, {mode: 'replay'})", stage)
+                progression_check = (width, height) == VIEWPORTS[0] and stage == "market-stage-4"
+                mode = "first-play" if progression_check else "replay"
+                page.evaluate("args => TacticalGame.playStage(args.id, {mode: args.mode})", {"id": stage, "mode": mode})
                 page.wait_for_function("id => TacticalGame.stageId() === id", arg=stage)
                 page.wait_for_timeout(35)
                 initial = assert_layout(page, stage + ":initial", width, height, rows)
@@ -353,6 +355,12 @@ try:
                     assert tray["actionsDisplay"] == "flex", tray
                     assert tray["completionEmbedded"] is True, tray
                 page.screenshot(path=str(OUT / f"{stage}-{width}x{height}.png"), full_page=True)
+                if progression_check:
+                    assert page.locator("#flowNext").inner_text() == "후일담 보기"
+                    page.locator("#flowNext").click()
+                    page.wait_for_function("GameFlow.progress().lastLocation?.nodeId === 'story:market-after-m4'")
+                    assert page.locator("#storyTitle").inner_text() == "오늘 돌아갈 곳"
+                    assert page.evaluate("localStorage.getItem('chinese-word-tactics-pending-completion-v1')") is None
             assert not errors, errors
             assert not missing, missing
             context.close()

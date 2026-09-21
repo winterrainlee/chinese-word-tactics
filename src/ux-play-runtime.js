@@ -232,13 +232,18 @@
         ? stage.completionAction
         : completionLabel(id, context);
       next.onclick = () => {
-        clearPendingCompletion();
-        hideCompletion();
+        let advanced;
         if (context.mode === 'replay') {
-          context.returnTo === 'world' ? baseFlow.showWorld() : baseFlow.showJourney();
+          advanced = context.returnTo === 'world' ? baseFlow.showWorld() : baseFlow.showJourney();
+        } else {
+          advanced = baseFlow.continueFromNode(`stage:${id}`);
+        }
+        if (advanced === false) {
+          setStatus('다음 장면을 열지 못했어. 진행 버튼을 다시 눌러줘.', 'info');
           return;
         }
-        baseFlow.continueFromNode(`stage:${id}`);
+        clearPendingCompletion();
+        hideCompletion();
       };
     }
 
