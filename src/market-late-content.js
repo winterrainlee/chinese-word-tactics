@@ -219,7 +219,7 @@
         },
         {
           id: 'warehouse', labelZh: '倉庫', labelKo: '창고', icon: '🏚️', pos: [4, 5],
-          stock: { cloth: 0 }, allowPut: true, accepts: ['cloth']
+          stock: { cloth: 0 }, needs: { cloth: 1 }, allowPut: true, accepts: ['cloth']
         }
       ],
       predicates: [
@@ -230,7 +230,7 @@
         { type: 'location-at-least', location: 'late-goods', item: 'flour', amount: 1 }
       ],
       goalMarks: [
-        { word: '需求', type: 'inspected-all', locations: ['bakery', 'inn', 'oil-stall'] },
+        { word: '需求', type: 'inspected-all', locations: ['bakery', 'inn', 'oil-stall', 'warehouse'] },
         { word: '數量', type: 'inspected', location: 'late-goods' },
         { word: '剩下', type: 'location-at-least', location: 'late-goods', item: 'flour', amount: 1 },
         { word: '補充', type: 'flag', flag: 'replenished', eq: true },

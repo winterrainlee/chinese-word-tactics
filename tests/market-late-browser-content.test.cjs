@@ -27,6 +27,7 @@ test('M7 and M8 use six-column boards with varied replenishment quantities and s
   for (const id of ['market-stage-7','market-stage-8']) assert.equal(sandbox.STAGES.find(item => item.id === id).grid[0].length, 6);
   const m7 = sandbox.STAGES.find(item => item.id === 'market-stage-7');
   assert.equal(m7.market.locations.find(location => location.id === 'bakery').needs.flour, 3);
+  assert.equal(m7.market.locations.find(location => location.id === 'warehouse').needs.cloth, 1);
   assert.ok(m7.market.locations.some(location => (location.stock?.flour || 0) > 0));
 });
 
@@ -43,10 +44,10 @@ test('index loads market, lexicon, continuous flow, state visuals and UX layers 
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
   assert.ok(appRuntime < lexiconRuntime && lexiconRuntime < marketRuntime);
   assert.ok(marketRuntime < marketVisuals && marketVisuals < marketInference && marketInference < flowRuntime && flowRuntime < uxRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-21-market-holdings1"/);
+  assert.match(html, /name="cwt-build" content="2026-09-21-market-resources1"/);
   assert.match(html, /lexicon-content\.js\?v=20260920-feedback1/); assert.match(html, /lexicon-runtime\.js\?v=20260913-lexicon1/); assert.match(html, /lexicon\.css\?v=20260913-lexicon2/);
-  assert.match(html, /market-content\.js\?v=20260913-marketm2qty1/); assert.match(html, /market-inference-runtime\.js\?v=20260921-markettray1/);
-  assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/); assert.match(html, /market-runtime\.js\?v=20260921-marketholdings1/); assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/); assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/); assert.match(html, /continuous-region-flow\.js\?v=20260912-uxflow1/); assert.match(html, /ux-play-runtime\.js\?v=20260921-marketflow1/);
+  assert.match(html, /market-content\.js\?v=20260913-marketm2qty1/); assert.match(html, /market-inference-runtime\.js\?v=20260921-marketresources1/);
+  assert.match(html, /market-late-content\.js\?v=20260921-marketresources1/); assert.match(html, /market-runtime\.js\?v=20260921-marketresources1/); assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/); assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/); assert.match(html, /continuous-region-flow\.js\?v=20260912-uxflow1/); assert.match(html, /ux-play-runtime\.js\?v=20260921-marketflow1/);
 });
 
 test('M8 keeps synthesis compact instead of adding a new target vocabulary family', () => {

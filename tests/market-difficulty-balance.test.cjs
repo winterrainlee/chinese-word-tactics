@@ -55,13 +55,14 @@ test('M7 splits the same flour supply across two destinations and leaves one bag
   assert.equal(cfg.revision, 5);
   assert.equal(M.needAt(cfg, 'bakery', 'flour') - M.stockAt(initial, 'bakery', 'flour'), 2);
   assert.equal(M.needAt(cfg, 'noodle-stall', 'flour') - M.stockAt(initial, 'noodle-stall', 'flour'), 1);
+  assert.equal(M.needAt(cfg, 'warehouse', 'cloth') - M.stockAt(initial, 'warehouse', 'cloth'), 1);
   assert.equal(M.stockAt(initial, 'late-goods', 'flour'), 4);
   assert.equal(cfg.locations.some(location => location.limitToNeed), false);
 });
 
 test('M7 allows overfilling, leaves the error visible, and lets the player recover the excess', () => {
   const cfg = stage('market-stage-7').market;
-  let state = inspect(cfg, M.createState(cfg), 'bakery', 'noodle-stall', 'oil-stall', 'late-goods');
+  let state = inspect(cfg, M.createState(cfg), 'bakery', 'noodle-stall', 'oil-stall', 'warehouse', 'late-goods');
 
   state = act(cfg, state, { type: 'take', location: 'late-goods', item: 'flour', qty: 3 });
   state = act(cfg, state, { type: 'put', location: 'bakery', item: 'flour', qty: 3 });

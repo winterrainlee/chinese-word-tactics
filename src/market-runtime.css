@@ -20,12 +20,15 @@
 .market-decision-target small{font-size:10px;color:var(--muted);white-space:nowrap}
 .market-decision-icon{flex:none;font-size:14px;line-height:1}
 .market-decision-panel .market-carry{width:100%;min-width:0;padding:0!important;border:0!important;display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:left!important;white-space:nowrap}
-.market-carry-main{min-width:0;display:flex;align-items:center;gap:5px;overflow:hidden}
+.market-carry-main{min-width:0;display:flex;align-items:center;gap:5px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-inline:contain;scrollbar-width:none}
+.market-carry-main::-webkit-scrollbar{display:none}
 .market-carry-icon{flex:none;font-size:17px;line-height:1}
 .market-carry-label{flex:none;color:var(--blue);font-size:10px;font-weight:800}
-.market-held-items{min-width:0;display:flex;align-items:center;gap:8px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none}
-.market-held-items::-webkit-scrollbar{display:none}
+.market-held-items{min-width:0;display:flex;align-items:center;gap:8px}
 .market-held-item,.market-held-empty{flex:none;font-size:15px;line-height:1.15;color:var(--ink)}
+.market-coins{flex:none;display:flex;align-items:center;gap:3px;margin-left:4px}
+.market-coins-icon{font-size:14px;line-height:1}
+.market-coins strong{font-size:15px;line-height:1.15;color:var(--ink)}
 .market-carry-meta{flex:none;display:flex;align-items:center;gap:6px;color:#71695f;font-size:9px;font-weight:700}
 .market-decision-main{min-width:0;display:flex;align-items:center;gap:7px}
 .market-decision-main .market-decision-target{flex:none;max-width:92px;overflow:hidden}

@@ -255,9 +255,9 @@
       ? held.map(([item, qty]) => `<strong class="market-held-item" lang="zh-Hant">${itemCfg(cfg, item).labelZh} ×${qty}</strong>`).join('')
       : '<strong class="market-held-empty">없음</strong>';
     const coins = Object.prototype.hasOwnProperty.call(cfg || {}, 'coins')
-      ? `<span lang="zh-Hant">錢幣 ${state.market.coins}</span>`
+      ? `<span class="market-coins"><span class="market-coins-icon" aria-hidden="true">🪙</span><strong lang="zh-Hant">錢幣 ${state.market.coins}</strong></span>`
       : '';
-    return `<span class="market-carry-main"><span class="market-carry-icon" aria-hidden="true">🎒</span><span class="market-carry-label" lang="zh-Hant">手上</span><span class="market-held-items">${items}</span></span><small class="market-carry-meta">${coins}<span>짐 ${M.capacityUsed(state.market)}/${M.capacityLimit(cfg, state.market)}</span></small>`;
+    return `<span class="market-carry-main"><span class="market-carry-icon" aria-hidden="true">🎒</span><span class="market-carry-label" lang="zh-Hant">手上</span><span class="market-held-items">${items}</span>${coins}</span><small class="market-carry-meta"><span>짐 ${M.capacityUsed(state.market)}/${M.capacityLimit(cfg, state.market)}</span></small>`;
   }
 
   function commerceRows(cfg, location) {
@@ -461,7 +461,7 @@
   }
 
   function distributionSupplementCards(cfg, focus) {
-    const ids = ['bakery', 'noodle-stall', 'oil-stall'];
+    const ids = ['bakery', 'warehouse', 'noodle-stall', 'oil-stall'];
     return ids.map(id => locationCfg(cfg, id)).filter(location => location && location.id !== focus?.id).map(location => {
       const [item, need] = Object.entries(location.needs || {})[0] || [];
       const value = item ? `${itemCfg(cfg, item).labelZh} ${M.stockAt(state.market, location.id, item)}/${number(need)}` : '沒有需求';

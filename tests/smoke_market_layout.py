@@ -71,6 +71,7 @@ def market_tray_metrics(page):
           const rail = document.querySelector('.market-supplement-rail');
           const action = document.querySelector('.market-decision-action button');
           const heldItem = document.querySelector('.market-held-item,.market-held-empty');
+          const coinValue = document.querySelector('.market-coins strong');
           const heldItems = document.querySelector('.market-held-items');
           const targetStrong = document.querySelector('.market-decision-target strong');
           const grid = document.querySelector('.market-grid')?.getBoundingClientRect();
@@ -93,6 +94,7 @@ def market_tray_metrics(page):
             actionDisabled: action ? action.disabled : null,
             carryText: document.querySelector('.market-carry')?.textContent.trim() || '',
             carryItemFont: heldItem ? parseFloat(getComputedStyle(heldItem).fontSize) : null,
+            coinFont: coinValue ? parseFloat(getComputedStyle(coinValue).fontSize) : null,
             targetFont: targetStrong ? parseFloat(getComputedStyle(targetStrong).fontSize) : null,
             heldItemsOverflow: heldItems ? heldItems.scrollWidth - heldItems.clientWidth : null,
             summary: document.querySelector('.market-decision-summary')?.textContent.trim() || '',
@@ -333,13 +335,15 @@ try:
                     assert tray["targetFont"] < tray["carryItemFont"], tray
                     if stage == "market-stage-3":
                         assert "布 ×1" in tray["carryText"], tray
+                    if stage in {"market-stage-4", "market-stage-5"}:
+                        assert "錢幣" in tray["carryText"] and tray["coinFont"] >= 15, tray
                     assert "인접 필요" in tray["summary"] or "가격 비교 전" in tray["summary"], tray
                     assert tray["controlsDisplay"] == "none", tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
                     assert tray["gridContextGap"] >= 8, tray
                     expected_cards = {"market-stage-1": 0, "market-stage-2": 0, "market-stage-3": 0,
                                       "market-stage-4": 3, "market-stage-5": 2, "market-stage-6": 0,
-                                      "market-stage-7": 2}[stage]
+                                      "market-stage-7": 3}[stage]
                     assert len(tray["supplementCards"]) == expected_cards, tray
                     if expected_cards:
                         expected_card_width = (tray["rail"]["width"] - 6) / 2
@@ -357,6 +361,8 @@ try:
                         assert "已查看 1/2" in tray["summary"] and all("확인 전" not in text for text in tray["supplementText"]), tray
                     if stage == "market-stage-7":
                         assert "麵包坊" not in " ".join(tray["supplementText"]), tray
+                        assert any("倉庫" in text and "布 0/1" in text for text in tray["supplementText"]), tray
+                        assert "倉庫" in tray["supplementText"][0], tray
                     assert tray["actions"]["height"] >= 44, tray
                     if height <= 700:
                         assert tray["gridContextGap"] <= 12, tray
@@ -364,10 +370,17 @@ try:
                         assert 44 <= tray["cell"]["width"] <= max_cell, tray
                         assert tray["undo"]["bottom"] <= 620.5, tray
                     page.screenshot(path=str(OUT / f"{stage}-selection-{width}x{height}.png"), full_page=True)
+                    if stage == "market-stage-7":
+                        warehouse = page.locator('.market-location[aria-label^="창고,"]')
+                        warehouse.click(); page.wait_for_timeout(20)
+                        warehouse_tray = market_tray_metrics(page)
+                        assert "需求布 · 不足 ×1" in warehouse_tray["summary"], warehouse_tray
+                        assert "0/1" in warehouse.locator(".market-stock-badge").inner_text(), warehouse_tray
                 else:
                     tray = market_tray_metrics(page)
                     assert tray["controlsDisplay"] == "none", tray
                     assert "手上" in tray["carryText"] and tray["carryItemFont"] >= 15, tray
+                    assert "錢幣" in tray["carryText"] and tray["coinFont"] >= 15, tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
                     assert not tray["supplementCards"], tray
                 solve_stage(page, stage)

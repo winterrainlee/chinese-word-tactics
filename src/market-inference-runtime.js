@@ -76,10 +76,10 @@
         },
         {
           id: 'warehouse', labelZh: '倉庫', labelKo: '창고', icon: '🏚️', pos: [4, 5],
-          stock: { cloth: 0 }, allowPut: true, accepts: ['cloth']
+          stock: { cloth: 0 }, needs: { cloth: 1 }, allowPut: true, accepts: ['cloth']
         }
       ];
-      const needsRead = { type: 'inspected-all', locations: ['bakery', 'noodle-stall', 'oil-stall'] };
+      const needsRead = { type: 'inspected-all', locations: ['bakery', 'noodle-stall', 'oil-stall', 'warehouse'] };
       const flourDistributed = {
         type: 'all', conditions: [
           { type: 'location-equals', location: 'bakery', item: 'flour', amount: 3 },
