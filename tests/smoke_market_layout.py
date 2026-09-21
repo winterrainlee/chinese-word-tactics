@@ -70,6 +70,9 @@ def market_tray_metrics(page):
           const context = document.querySelector('#contextPanel');
           const rail = document.querySelector('.market-supplement-rail');
           const action = document.querySelector('.market-decision-action button');
+          const heldItem = document.querySelector('.market-held-item,.market-held-empty');
+          const heldItems = document.querySelector('.market-held-items');
+          const targetStrong = document.querySelector('.market-decision-target strong');
           const grid = document.querySelector('.market-grid')?.getBoundingClientRect();
           const actions = document.querySelector('.market-decision-actions,.market-m8-actions');
           return {
@@ -88,6 +91,10 @@ def market_tray_metrics(page):
             actionsDisplay: actions ? getComputedStyle(actions).display : null,
             completionEmbedded: !!actions?.querySelector(':scope > #completionBar'),
             actionDisabled: action ? action.disabled : null,
+            carryText: document.querySelector('.market-carry')?.textContent.trim() || '',
+            carryItemFont: heldItem ? parseFloat(getComputedStyle(heldItem).fontSize) : null,
+            targetFont: targetStrong ? parseFloat(getComputedStyle(targetStrong).fontSize) : null,
+            heldItemsOverflow: heldItems ? heldItems.scrollWidth - heldItems.clientWidth : null,
             summary: document.querySelector('.market-decision-summary')?.textContent.trim() || '',
             action: document.querySelector('.market-decision-action')?.textContent.trim() || ''
           };
@@ -322,6 +329,10 @@ try:
                     if lean_stage:
                         assert tray["context"]["height"] <= 102, tray
                     assert tray["contextOverflow"] <= 1, tray
+                    assert "手上" in tray["carryText"] and tray["carryItemFont"] >= 15, tray
+                    assert tray["targetFont"] < tray["carryItemFont"], tray
+                    if stage == "market-stage-3":
+                        assert "布 ×1" in tray["carryText"], tray
                     assert "인접 필요" in tray["summary"] or "가격 비교 전" in tray["summary"], tray
                     assert tray["controlsDisplay"] == "none", tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
@@ -356,6 +367,7 @@ try:
                 else:
                     tray = market_tray_metrics(page)
                     assert tray["controlsDisplay"] == "none", tray
+                    assert "手上" in tray["carryText"] and tray["carryItemFont"] >= 15, tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
                     assert not tray["supplementCards"], tray
                 solve_stage(page, stage)

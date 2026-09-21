@@ -57,7 +57,8 @@ try:
         assert not page.locator('#landingView').is_visible()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         assert_touch_targets(page, '#settingsBack:visible, .settingsAction:visible, .settingsToggle:visible')
-        assert page.locator('#settingsBuild').inner_text() == '2026-09-21-market-tray1'
+        expected_build = page.locator('meta[name="cwt-build"]').get_attribute('content')
+        assert expected_build and page.locator('#settingsBuild').inner_text() == expected_build
         assert not page.locator('#settingsPronunciation').is_checked()
         page.locator('#settingsPronunciation').check()
         assert page.evaluate("SettingsRuntime.showPronunciation()") is True

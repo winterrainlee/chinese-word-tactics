@@ -249,13 +249,15 @@
     }
   }
 
-  function inventoryText(cfg) {
+  function inventoryMarkup(cfg) {
     const held = Object.entries(state.market.inventory || {}).filter(([, qty]) => number(qty) > 0);
     const items = held.length
-      ? held.map(([item, qty]) => `${itemCfg(cfg, item).labelZh} ×${qty}`).join('　')
-      : '없음';
-    const coins = Object.prototype.hasOwnProperty.call(cfg || {}, 'coins') ? `錢幣 ${state.market.coins}　│　` : '';
-    return `${coins}手上　${items}　│　짐 ${M.capacityUsed(state.market)}/${M.capacityLimit(cfg, state.market)}`;
+      ? held.map(([item, qty]) => `<strong class="market-held-item" lang="zh-Hant">${itemCfg(cfg, item).labelZh} ×${qty}</strong>`).join('')
+      : '<strong class="market-held-empty">없음</strong>';
+    const coins = Object.prototype.hasOwnProperty.call(cfg || {}, 'coins')
+      ? `<span lang="zh-Hant">錢幣 ${state.market.coins}</span>`
+      : '';
+    return `<span class="market-carry-main"><span class="market-carry-icon" aria-hidden="true">🎒</span><span class="market-carry-label" lang="zh-Hant">手上</span><span class="market-held-items">${items}</span></span><small class="market-carry-meta">${coins}<span>짐 ${M.capacityUsed(state.market)}/${M.capacityLimit(cfg, state.market)}</span></small>`;
   }
 
   function commerceRows(cfg, location) {
@@ -486,8 +488,8 @@
       ? actionButtons(cfg, focus, adjacent, { compact: true, keepDistant: true, omitPrice: stage.id === 'market-stage-4' })
       : '<p class="market-action-hint">판의 사람이나 좌판을 눌러봐.</p>';
     return `<section class="market-panel market-decision-panel market-decision-${stage.id} ${supplements ? '' : 'market-decision-lean'} ${focus ? '' : 'market-panel-empty'}" ${focus ? `data-focus="${focus.id}"` : ''}>
-      <div class="market-decision-top"><div class="market-decision-target">${target}</div><div class="market-carry">${inventoryText(cfg)}</div></div>
-      <div class="market-decision-main"><div class="market-decision-summary">${marketDecisionSummary(stage, cfg, focus, adjacent)}</div></div>
+      <div class="market-decision-top"><div class="market-carry">${inventoryMarkup(cfg)}</div></div>
+      <div class="market-decision-main"><div class="market-decision-target">${target}</div><div class="market-decision-summary">${marketDecisionSummary(stage, cfg, focus, adjacent)}</div></div>
       <div class="market-decision-actions"><div class="market-decision-undo-slot"></div><div class="market-decision-action">${action}</div></div>
       ${supplements ? `<div class="market-supplement-rail" role="region" aria-label="비교 정보, 좌우로 스크롤 가능" tabindex="0">${supplements}</div>` : ''}
     </section>`;
@@ -508,7 +510,7 @@
       : '<p class="market-action-hint">대상을 눌러 수량을 확인해.</p>';
     return `<section class="market-panel market-m8-compact ${focus ? '' : 'market-panel-empty'}" ${focus ? `data-focus="${focus.id}"` : ''}>
       <div class="market-m8-meta">
-        <div class="market-carry">${inventoryText(cfg)}</div>
+        <div class="market-carry">${inventoryMarkup(cfg)}</div>
         <div class="market-m8-summary"><span aria-hidden="true">${focus?.icon || '📦'}</span>${m8Summary(cfg, focus)}</div>
       </div>
       <button class="market-m8-detail" type="button" data-market-detail="true" aria-label="장터 대상과 규칙 자세히 보기">상세</button>
