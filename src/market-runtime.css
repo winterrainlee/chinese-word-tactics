@@ -32,9 +32,9 @@
 .market-decision-panel .market-decision-action .market-panel-actions button{width:max-content;min-width:104px;max-width:136px;height:44px;min-height:44px;padding:4px 8px;border-radius:10px;font-size:13px;white-space:nowrap;overflow:visible;text-overflow:clip}
 .market-decision-panel .market-decision-action .market-panel-actions button[data-market-action="exchange"]{width:136px}
 .market-decision-panel .market-decision-action .market-action-hint,.market-decision-panel.market-panel-empty .market-action-hint{display:block;max-width:136px;margin:0;color:#6f685e;font-size:10px;line-height:1.25;text-align:right}
-.market-supplement-rail{min-width:0;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:0 22px 0 0;scroll-snap-type:x mandatory;scroll-padding-inline:0;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain;scrollbar-width:none}
+.market-supplement-rail{min-width:0;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:0;scroll-snap-type:x mandatory;scroll-padding-inline:0;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain;scrollbar-width:none}
 .market-supplement-rail::-webkit-scrollbar{display:none}
-.market-supplement-card{flex:0 0 220px;min-width:0;min-height:44px;scroll-snap-align:start;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:7px;padding:4px 8px;border-radius:8px;background:rgba(238,232,220,.38);box-shadow:none}
+.market-supplement-card{flex:0 0 calc((100% - 6px)/2);min-width:0;min-height:44px;scroll-snap-align:start;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px;padding:4px 7px;border-radius:8px;background:rgba(238,232,220,.38);box-shadow:none}
 .market-supplement-card strong{font-size:11px;white-space:nowrap}
 .market-supplement-card span{min-width:0;font-size:10px;line-height:1.25;color:#6f685e;white-space:normal}
 .status:not(:empty)+.contextPanel .market-decision-panel{grid-template-rows:20px 16px minmax(44px,1fr)}

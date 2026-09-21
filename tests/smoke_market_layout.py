@@ -65,14 +65,19 @@ def m3_tray_metrics(page):
     return page.evaluate(
         """() => {
           const box = selector => { const node = document.querySelector(selector); if (!node) return null;
-            const r = node.getBoundingClientRect(); return {width:r.width,height:r.height,bottom:r.bottom}; };
+            const r = node.getBoundingClientRect(); return {x:r.x,top:r.top,right:r.right,width:r.width,height:r.height,bottom:r.bottom}; };
           const context = document.querySelector('#contextPanel');
           const rail = document.querySelector('.market-supplement-rail');
           const action = document.querySelector('.market-decision-action button');
+          const grid = document.querySelector('.market-grid')?.getBoundingClientRect();
           return {
             cell: box('.market-cell'), status: box('#status'), context: box('#contextPanel'), controls: box('.controls'),
             undo: box('.market-decision-undo-slot #undoBtn'), actionButton: box('.market-decision-action button'),
-            supplementCard: box('.market-supplement-card'), actions: box('.market-decision-actions'),
+            supplementCards: [...document.querySelectorAll('.market-supplement-card')].map(node => {
+              const r = node.getBoundingClientRect(); return {x:r.x,right:r.right,width:r.width,height:r.height};
+            }),
+            rail: box('.market-supplement-rail'), actions: box('.market-decision-actions'),
+            gridContextGap: grid && context ? context.getBoundingClientRect().top - grid.bottom : null,
             contextOverflow: context ? context.scrollHeight - context.clientHeight : null,
             railOverflow: rail ? rail.scrollWidth - rail.clientWidth : null,
             railDisplay: rail ? getComputedStyle(rail).display : null,
@@ -306,18 +311,24 @@ try:
                     assert tray["status"]["height"] <= 1, tray
                     assert tray["context"]["height"] >= 140, tray
                     assert tray["contextOverflow"] <= 1, tray
-                    assert tray["railOverflow"] > 20, tray
+                    assert tray["railOverflow"] <= 1, tray
                     assert "繩子 0/1" in tray["summary"], tray
                     assert "인접 필요" in tray["summary"], tray
                     assert tray["controlsDisplay"] == "none", tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
                     assert 103 <= tray["actionButton"]["width"] <= 105 and tray["actionButton"]["height"] >= 44, tray
                     assert tray["actionDisabled"] is True, tray
-                    assert 219 <= tray["supplementCard"]["width"] <= 221, tray
+                    assert tray["gridContextGap"] >= 8, tray
+                    assert len(tray["supplementCards"]) == 2, tray
+                    expected_card_width = (tray["rail"]["width"] - 6) / 2
+                    assert all(abs(card["width"] - expected_card_width) <= 1 for card in tray["supplementCards"]), tray
+                    assert all(card["x"] >= tray["rail"]["x"] - 1 and card["right"] <= tray["rail"]["right"] + 1 for card in tray["supplementCards"]), tray
                     assert tray["actions"]["height"] >= 44, tray
                     if height <= 700:
+                        assert tray["gridContextGap"] <= 12, tray
                         assert 44 <= tray["cell"]["width"] <= 46.5, tray
                         assert tray["undo"]["bottom"] <= 620.5, tray
+                    page.screenshot(path=str(OUT / f"{stage}-selection-{width}x{height}.png"), full_page=True)
                 solve_stage(page, stage)
                 page.locator("#flowNext").wait_for(state="visible", timeout=2500)
                 complete = assert_layout(page, stage + ":complete", width, height, rows)

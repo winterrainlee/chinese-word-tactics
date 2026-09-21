@@ -56,7 +56,7 @@
    selection uses the whole tray, while action feedback temporarily replaces
    the supplementary rail without moving the board. */
 #tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:empty{height:0;min-height:0;max-height:0;padding:0;border:0;overflow:hidden}
-#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:empty+.contextPanel{height:150px;min-height:150px;max-height:150px;overflow:hidden}
-#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:not(:empty)+.contextPanel{height:96px;min-height:96px;max-height:96px;overflow:hidden}
-@media(max-height:700px){.market-board[data-market-stage="market-stage-3"] .market-grid:not(.market-grid-wide){--market-cell:46px}#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:empty+.contextPanel{height:147px;min-height:147px;max-height:147px}#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:not(:empty)+.contextPanel{height:97px;min-height:97px;max-height:97px}}
-@media(max-height:650px){#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:not(:empty)+.contextPanel{height:103px;min-height:103px;max-height:103px}}
+#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:empty+.contextPanel{height:150px;min-height:150px;max-height:150px;margin-top:4px;overflow:hidden}
+#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:not(:empty)+.contextPanel{height:100px;min-height:100px;max-height:100px;overflow:hidden}
+@media(max-height:700px){.market-board[data-market-stage="market-stage-3"] .market-grid:not(.market-grid-wide){--market-cell:46px}#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:empty+.contextPanel{height:147px;min-height:147px;max-height:147px}#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:not(:empty)+.contextPanel{height:101px;min-height:101px;max-height:101px}}
+@media(max-height:650px){#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:not(:empty)+.contextPanel{height:107px;min-height:107px;max-height:107px}}
