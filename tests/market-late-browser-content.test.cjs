@@ -43,10 +43,10 @@ test('index loads market, lexicon, continuous flow, state visuals and UX layers 
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
   assert.ok(appRuntime < lexiconRuntime && lexiconRuntime < marketRuntime);
   assert.ok(marketRuntime < marketVisuals && marketVisuals < marketInference && marketInference < flowRuntime && flowRuntime < uxRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-21-market-flow1"/);
+  assert.match(html, /name="cwt-build" content="2026-09-21-market-info1"/);
   assert.match(html, /lexicon-content\.js\?v=20260920-feedback1/); assert.match(html, /lexicon-runtime\.js\?v=20260913-lexicon1/); assert.match(html, /lexicon\.css\?v=20260913-lexicon2/);
   assert.match(html, /market-content\.js\?v=20260913-marketm2qty1/); assert.match(html, /market-inference-runtime\.js\?v=20260921-markettray1/);
-  assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/); assert.match(html, /market-runtime\.js\?v=20260921-markettray1/); assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/); assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/); assert.match(html, /continuous-region-flow\.js\?v=20260912-uxflow1/); assert.match(html, /ux-play-runtime\.js\?v=20260921-marketflow1/);
+  assert.match(html, /market-late-content\.js\?v=20260912-marketm8r3/); assert.match(html, /market-runtime\.js\?v=20260921-marketinfo1/); assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/); assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/); assert.match(html, /continuous-region-flow\.js\?v=20260912-uxflow1/); assert.match(html, /ux-play-runtime\.js\?v=20260921-marketflow1/);
 });
 
 test('M8 keeps synthesis compact instead of adding a new target vocabulary family', () => {

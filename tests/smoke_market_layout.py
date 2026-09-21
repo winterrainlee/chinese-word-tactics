@@ -78,6 +78,7 @@ def market_tray_metrics(page):
             supplementCards: [...document.querySelectorAll('.market-supplement-card')].map(node => {
               const r = node.getBoundingClientRect(); return {x:r.x,right:r.right,width:r.width,height:r.height};
             }),
+            supplementText: [...document.querySelectorAll('.market-supplement-card')].map(node => node.textContent.trim()),
             rail: box('.market-supplement-rail'), actions: nodeBox(actions),
             gridContextGap: grid && context ? context.getBoundingClientRect().top - grid.bottom : null,
             contextOverflow: context ? context.scrollHeight - context.clientHeight : null,
@@ -219,7 +220,11 @@ def solve_stage(page, stage):
         action(page, action_type="put", location="innkeeper", item="bread")
     elif stage == "market-stage-5":
         inspect(page, [0, 0]); inspect(page, [0, 4])
-        inspect_and_action(page, [0, 4], "choose", "large-crate")
+        move_to_adjacent(page, [0, 4]); inspect(page, [0, 4])
+        tray = market_tray_metrics(page)
+        assert "兩個都能完成" in tray["summary"], tray
+        assert tray["supplementText"] == ["🧺小籃子價格 3 · 容量 2", "📦大木箱價格 6 · 容量 3"], tray
+        action(page, action_type="choose", location="large-crate")
         inspect_and_action(page, [2, 2], "take", "cargo", "package")
         action(page, action_type="take", location="cargo", item="package")
         action(page, action_type="take", location="cargo", item="package")
@@ -312,23 +317,35 @@ try:
                 if stage != "market-stage-8":
                     tray = market_tray_metrics(page)
                     assert tray["status"]["height"] <= 1, tray
-                    assert tray["context"]["height"] >= 140, tray
+                    lean_stage = stage in {"market-stage-1", "market-stage-2", "market-stage-3", "market-stage-6"}
+                    assert tray["context"]["height"] >= (98 if lean_stage else 140), tray
+                    if lean_stage:
+                        assert tray["context"]["height"] <= 102, tray
                     assert tray["contextOverflow"] <= 1, tray
                     assert "인접 필요" in tray["summary"] or "가격 비교 전" in tray["summary"], tray
                     assert tray["controlsDisplay"] == "none", tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
                     assert tray["gridContextGap"] >= 8, tray
-                    expected_cards = {"market-stage-1": 3, "market-stage-2": 2, "market-stage-3": 2,
-                                      "market-stage-4": 3, "market-stage-5": 2, "market-stage-6": 2,
-                                      "market-stage-7": 3}[stage]
+                    expected_cards = {"market-stage-1": 0, "market-stage-2": 0, "market-stage-3": 0,
+                                      "market-stage-4": 3, "market-stage-5": 2, "market-stage-6": 0,
+                                      "market-stage-7": 2}[stage]
                     assert len(tray["supplementCards"]) == expected_cards, tray
-                    expected_card_width = (tray["rail"]["width"] - 6) / 2
-                    assert all(abs(card["width"] - expected_card_width) <= 1 for card in tray["supplementCards"]), tray
-                    assert all(card["x"] >= tray["rail"]["x"] - 1 and card["right"] <= tray["rail"]["right"] + 1 for card in tray["supplementCards"][:2]), tray
-                    if expected_cards == 2:
-                        assert tray["railOverflow"] <= 1, tray
+                    if expected_cards:
+                        expected_card_width = (tray["rail"]["width"] - 6) / 2
+                        assert all(abs(card["width"] - expected_card_width) <= 1 for card in tray["supplementCards"]), tray
+                        assert all(card["x"] >= tray["rail"]["x"] - 1 and card["right"] <= tray["rail"]["right"] + 1 for card in tray["supplementCards"][:2]), tray
+                        if expected_cards == 2:
+                            assert tray["railOverflow"] <= 1, tray
+                        else:
+                            assert tray["railOverflow"] > 1, tray
                     else:
-                        assert tray["railOverflow"] > 1, tray
+                        assert tray["rail"] is None, tray
+                    if stage == "market-stage-4":
+                        assert "已查看 1/3" in tray["summary"] and "확인한 판매 가격" not in " ".join(tray["supplementText"]), tray
+                    if stage == "market-stage-5":
+                        assert "已查看 1/2" in tray["summary"] and all("확인 전" not in text for text in tray["supplementText"]), tray
+                    if stage == "market-stage-7":
+                        assert "麵包坊" not in " ".join(tray["supplementText"]), tray
                     assert tray["actions"]["height"] >= 44, tray
                     if height <= 700:
                         assert tray["gridContextGap"] <= 12, tray
@@ -351,7 +368,7 @@ try:
                     tray = market_tray_metrics(page)
                     assert tray["contextOverflow"] <= 1, tray
                     if stage != "market-stage-8":
-                        assert tray["railDisplay"] == "none", tray
+                        assert tray["railDisplay"] in (None, "none"), tray
                     assert tray["actionsDisplay"] == "flex", tray
                     assert tray["completionEmbedded"] is True, tray
                 page.screenshot(path=str(OUT / f"{stage}-{width}x{height}.png"), full_page=True)
