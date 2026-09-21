@@ -356,6 +356,7 @@
 
   function renderPanel(cfg) {
     const focus = locationCfg(cfg, state.market.focus);
+    if (current()?.id === 'market-stage-3') return renderM3DecisionPanel(cfg, focus);
     if (current()?.id === 'market-stage-8') return renderM8Panel(cfg, focus);
     if (!focus) return `<section class="market-panel market-panel-empty"><div class="market-carry">${inventoryText(cfg)}</div><p>좌판·사람·짐·창고를 누르면 정보를 확인할 수 있어. 실제 행동은 가까이 가서 해.</p></section>`;
     const adjacent = dist(state.hero, focus.pos) === 1;
@@ -367,6 +368,54 @@
       ${commerceRows(cfg, focus)}
       <div class="market-info-list">${needRows(cfg, focus)}</div>
       ${actionButtons(cfg, focus, adjacent)}
+    </section>`;
+  }
+
+  function m3DecisionSummary(cfg, location) {
+    if (!location) return '<span class="market-decision-label">다음 판단</span><strong>대상을 눌러 필요한 것과 교환 조건을 확인해.</strong>';
+    if (location.exchange) {
+      const offer = location.exchange, give = itemCfg(cfg, offer.give), receive = itemCfg(cfg, offer.receive);
+      return `<span class="market-decision-label" lang="zh-Hant">交換</span><strong lang="zh-Hant">${give.labelZh} ×${number(offer.giveQty)} → ${receive.labelZh} ×${number(offer.receiveQty)}</strong>`;
+    }
+    const needs = Object.entries(location.needs || {}).map(([item, need]) => {
+      const meta = itemCfg(cfg, item), stock = M.stockAt(state.market, location.id, item);
+      return `<strong lang="zh-Hant">${meta.labelZh} ${stock}/${number(need)}</strong>`;
+    }).join('　');
+    if (needs) return `<span class="market-decision-label" lang="zh-Hant">需求</span>${needs}`;
+    return '<span class="market-decision-label" lang="zh-Hant">現在</span><strong>선택한 대상의 상태를 확인했어.</strong>';
+  }
+
+  function m3SupplementCards(cfg, location) {
+    const cards = [];
+    if (location) {
+      const details = [];
+      for (const [item, need] of Object.entries(location.needs || {})) {
+        const meta = itemCfg(cfg, item), stock = M.stockAt(state.market, location.id, item);
+        details.push(`${meta.labelKo} 필요 ${number(need)} · 현재 ${stock}`);
+      }
+      if (location.exchange) {
+        const offer = location.exchange, give = itemCfg(cfg, offer.give), receive = itemCfg(cfg, offer.receive);
+        details.push(`${give.labelKo} ${number(offer.giveQty)}개와 ${receive.labelKo} ${number(offer.receiveQty)}개 교환`);
+      }
+      cards.push(`<article class="market-supplement-card"><strong>${location.labelKo}</strong><span>${details.join(' · ') || '현재 대상의 보충 정보'}</span></article>`);
+    }
+    cards.push('<article class="market-supplement-card"><strong lang="zh-Hant">交換</strong><span>서로 필요한 물건을 주고받는 방법</span></article>');
+    cards.push('<article class="market-supplement-card"><strong lang="zh-Hant">獲得</strong><span>교환 결과로 새 물건을 손에 넣는 일</span></article>');
+    return cards.join('');
+  }
+
+  function renderM3DecisionPanel(cfg, focus) {
+    const adjacent = focus && dist(state.hero, focus.pos) === 1;
+    const target = focus
+      ? `<span class="market-decision-icon" aria-hidden="true">${focus.icon || '📦'}</span><span><strong lang="zh-Hant">${focus.labelZh}</strong><small>${focus.labelKo}</small></span>`
+      : '<span class="market-decision-icon" aria-hidden="true">↔</span><span><strong>장터 정보</strong><small>대상을 선택해</small></span>';
+    const action = focus
+      ? actionButtons(cfg, focus, adjacent)
+      : '<p class="market-action-hint">판의 사람이나 좌판을 눌러봐.</p>';
+    return `<section class="market-panel market-decision-panel ${focus ? '' : 'market-panel-empty'}" ${focus ? `data-focus="${focus.id}"` : ''}>
+      <div class="market-decision-top"><div class="market-decision-target">${target}</div><div class="market-carry">${inventoryText(cfg)}</div></div>
+      <div class="market-decision-main"><div class="market-decision-summary">${m3DecisionSummary(cfg, focus)}</div><div class="market-decision-action">${action}</div></div>
+      <div class="market-supplement-rail" role="region" aria-label="보충 설명, 좌우로 스크롤 가능" tabindex="0">${m3SupplementCards(cfg, focus)}</div>
     </section>`;
   }
 
@@ -502,7 +551,8 @@
       const result = M.inspectLocation(cfg, state.market, location.id);
       state.market = result.state;
       save(); render();
-      setStatus(`${location.labelZh} — ${location.labelKo}의 현재 상태를 확인했어.`, 'info');
+      if (stage.id === 'market-stage-3') setStatus('');
+      else setStatus(`${location.labelZh} — ${location.labelKo}의 현재 상태를 확인했어.`, 'info');
       return;
     }
     if (dist(state.hero, pos) !== 1) {

@@ -8,3 +8,29 @@
 @media(max-height:700px){.market-grid{--market-cell:min(15vw,54px);padding:4px}.market-grid.market-grid-wide{--market-cell:max(44px,min(13vw,50px))}}
 @media(max-height:700px){#tutorialView:has(.market-board) .contextPanel{max-height:98px}}
 @media(max-height:650px){#tutorialView:has(.market-board) .contextPanel{max-height:94px}.market-grid{--market-cell:min(14vw,50px);padding:4px}.market-grid.market-grid-wide{--market-cell:44px}}
+
+/* M3 prototype: keep the next decision visible and move only supplementary
+   explanations into a horizontal rail. */
+.contextPanel .market-panel.market-decision-panel{height:100%;min-height:0;display:grid;grid-template-rows:26px 44px minmax(0,1fr);align-content:stretch;gap:4px;padding:6px 8px;overflow:hidden;text-align:left}
+.market-decision-top{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.market-decision-target{min-width:0;display:flex;align-items:center;gap:5px}
+.market-decision-target>span:last-child{min-width:0;display:flex;align-items:baseline;gap:5px}
+.market-decision-target strong{font-size:13px;white-space:nowrap}
+.market-decision-target small{font-size:10px;color:var(--muted);white-space:nowrap}
+.market-decision-icon{flex:none;font-size:20px;line-height:1}
+.market-decision-panel .market-carry{min-width:0;max-width:55%;padding:0!important;border:0!important;font-size:10px;text-align:right!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.market-decision-main{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(108px,auto);align-items:center;gap:6px}
+.market-decision-summary{min-width:0;display:flex;align-items:baseline;gap:5px;font-size:12px;line-height:1.2;white-space:nowrap;overflow:hidden}
+.market-decision-summary strong{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.market-decision-label{flex:none;color:var(--blue);font-size:11px;font-weight:800}
+.market-decision-action{min-width:0}
+.market-decision-action .market-panel-actions{display:grid;grid-template-columns:1fr;gap:0;margin:0}
+.market-decision-action .market-panel-actions button{height:44px;min-height:44px;max-width:150px;padding:4px 8px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.market-decision-action .market-action-hint,.market-decision-panel.market-panel-empty .market-action-hint{display:block;margin:0;color:#6f685e;font-size:10px;line-height:1.25;text-align:right}
+.market-supplement-rail{min-width:0;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:0 22px 0 0;scroll-snap-type:x mandatory;scroll-padding-inline:0;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain;scrollbar-width:none}
+.market-supplement-rail::-webkit-scrollbar{display:none}
+.market-supplement-card{flex:0 0 calc(100% - 24px);min-width:0;scroll-snap-align:start;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:7px;padding:5px 8px;border-radius:10px;background:rgba(238,232,220,.72);box-shadow:inset 0 0 0 1px rgba(98,79,51,.08)}
+.market-supplement-card strong{font-size:11px;white-space:nowrap}
+.market-supplement-card span{min-width:0;font-size:10px;line-height:1.25;color:#6f685e;white-space:normal}
+.status:not(:empty)+.contextPanel .market-decision-panel{grid-template-rows:26px minmax(44px,1fr)}
+.status:not(:empty)+.contextPanel .market-decision-panel .market-supplement-rail{display:none}

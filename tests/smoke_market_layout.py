@@ -61,6 +61,25 @@ def metrics(page):
     )
 
 
+def m3_tray_metrics(page):
+    return page.evaluate(
+        """() => {
+          const box = selector => { const node = document.querySelector(selector); if (!node) return null;
+            const r = node.getBoundingClientRect(); return {width:r.width,height:r.height,bottom:r.bottom}; };
+          const context = document.querySelector('#contextPanel');
+          const rail = document.querySelector('.market-supplement-rail');
+          return {
+            cell: box('.market-cell'), status: box('#status'), context: box('#contextPanel'), controls: box('.controls'),
+            contextOverflow: context ? context.scrollHeight - context.clientHeight : null,
+            railOverflow: rail ? rail.scrollWidth - rail.clientWidth : null,
+            railDisplay: rail ? getComputedStyle(rail).display : null,
+            summary: document.querySelector('.market-decision-summary')?.textContent.trim() || '',
+            action: document.querySelector('.market-decision-action')?.textContent.trim() || ''
+          };
+        }"""
+    )
+
+
 def assert_layout(page, stage, width, height, rows):
     data = metrics(page)
     assert data["document"]["width"] <= width, (stage, "horizontal overflow", data)
@@ -267,12 +286,27 @@ try:
                 assert all(abs(initial["grid"][axis] - far["grid"][axis]) <= 1 for axis in ("x", "y", "width", "height")), (stage, initial, far)
                 # A remote selection exposes the distance hint before the adjacent action.
                 assert "가까이" in far["text"] or "해" in far["text"], (stage, far)
+                if stage == "market-stage-3":
+                    tray = m3_tray_metrics(page)
+                    assert tray["status"]["height"] <= 1, tray
+                    assert tray["context"]["height"] >= 140, tray
+                    assert tray["contextOverflow"] <= 1, tray
+                    assert tray["railOverflow"] > 20, tray
+                    assert "繩子 0/1" in tray["summary"], tray
+                    assert "가까이" in tray["action"], tray
+                    if height <= 700:
+                        assert 44 <= tray["cell"]["width"] <= 46.5, tray
+                        assert tray["controls"]["bottom"] <= 620.5, tray
                 solve_stage(page, stage)
                 page.locator("#flowNext").wait_for(state="visible", timeout=2500)
                 complete = assert_layout(page, stage + ":complete", width, height, rows)
                 assert complete["win"], (stage, "not naturally complete", complete)
                 assert all(abs(initial["grid"][axis] - complete["grid"][axis]) <= 1 for axis in ("x", "y", "width", "height")), (stage, initial, complete)
                 assert any(token in complete["text"] for token in ("數量", "價格", "交換", "選擇", "分配", "購買", "買", "짐", "수량")), (stage, complete)
+                if stage == "market-stage-3":
+                    tray = m3_tray_metrics(page)
+                    assert tray["contextOverflow"] <= 1, tray
+                    assert tray["railDisplay"] == "none", tray
                 page.screenshot(path=str(OUT / f"{stage}-{width}x{height}.png"), full_page=True)
             assert not errors, errors
             assert not missing, missing
