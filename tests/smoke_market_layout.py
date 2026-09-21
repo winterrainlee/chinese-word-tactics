@@ -68,11 +68,18 @@ def m3_tray_metrics(page):
             const r = node.getBoundingClientRect(); return {width:r.width,height:r.height,bottom:r.bottom}; };
           const context = document.querySelector('#contextPanel');
           const rail = document.querySelector('.market-supplement-rail');
+          const action = document.querySelector('.market-decision-action button');
           return {
             cell: box('.market-cell'), status: box('#status'), context: box('#contextPanel'), controls: box('.controls'),
+            undo: box('.market-decision-undo-slot #undoBtn'), actionButton: box('.market-decision-action button'),
+            supplementCard: box('.market-supplement-card'), actions: box('.market-decision-actions'),
             contextOverflow: context ? context.scrollHeight - context.clientHeight : null,
             railOverflow: rail ? rail.scrollWidth - rail.clientWidth : null,
             railDisplay: rail ? getComputedStyle(rail).display : null,
+            controlsDisplay: getComputedStyle(document.querySelector('.controls')).display,
+            actionsDisplay: getComputedStyle(document.querySelector('.market-decision-actions')).display,
+            completionEmbedded: document.querySelector('.market-decision-actions > #completionBar') !== null,
+            actionDisabled: action ? action.disabled : null,
             summary: document.querySelector('.market-decision-summary')?.textContent.trim() || '',
             action: document.querySelector('.market-decision-action')?.textContent.trim() || ''
           };
@@ -189,8 +196,14 @@ def solve_stage(page, stage):
         inspect_and_action(page, [4, 2], "put", "warehouse", "oil")
         action(page, action_type="put", location="warehouse", item="oil")
     elif stage == "market-stage-3":
-        inspect_and_action(page, [0, 4], "exchange", "rope-stall")
-        inspect_and_action(page, [0, 0], "put", "merchant", "rope")
+        move_to_adjacent(page, [0, 4]); inspect(page, [0, 4])
+        tray = m3_tray_metrics(page)
+        assert 135 <= tray["actionButton"]["width"] <= 137 and tray["actionDisabled"] is False, tray
+        action(page, action_type="exchange", location="rope-stall")
+        move_to_adjacent(page, [0, 0]); inspect(page, [0, 0])
+        tray = m3_tray_metrics(page)
+        assert 103 <= tray["actionButton"]["width"] <= 105 and tray["actionDisabled"] is False, tray
+        action(page, action_type="put", location="merchant", item="rope")
     elif stage == "market-stage-4":
         for pos in ([0, 0], [0, 4], [4, 4]): inspect(page, pos)
         inspect_and_action(page, [0, 0], "buy", "vegetable-stall")
@@ -275,6 +288,8 @@ try:
                 page.wait_for_function("id => TacticalGame.stageId() === id", arg=stage)
                 page.wait_for_timeout(35)
                 initial = assert_layout(page, stage + ":initial", width, height, rows)
+                if stage == "market-stage-4":
+                    assert page.locator(".controls > #undoBtn").count() == 1, "M3 embedded undo did not return to shared controls"
                 # Far selection state: selecting a remote location shows facts/quantity
                 # without silently moving the hero.
                 # The first authored location is remote from each M1-M8 start;
@@ -285,7 +300,7 @@ try:
                 # Initial and every subsequent state must preserve the board box.
                 assert all(abs(initial["grid"][axis] - far["grid"][axis]) <= 1 for axis in ("x", "y", "width", "height")), (stage, initial, far)
                 # A remote selection exposes the distance hint before the adjacent action.
-                assert "가까이" in far["text"] or "해" in far["text"], (stage, far)
+                assert "가까이" in far["text"] or "인접" in far["text"] or "해" in far["text"], (stage, far)
                 if stage == "market-stage-3":
                     tray = m3_tray_metrics(page)
                     assert tray["status"]["height"] <= 1, tray
@@ -293,10 +308,16 @@ try:
                     assert tray["contextOverflow"] <= 1, tray
                     assert tray["railOverflow"] > 20, tray
                     assert "繩子 0/1" in tray["summary"], tray
-                    assert "가까이" in tray["action"], tray
+                    assert "인접 필요" in tray["summary"], tray
+                    assert tray["controlsDisplay"] == "none", tray
+                    assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
+                    assert 103 <= tray["actionButton"]["width"] <= 105 and tray["actionButton"]["height"] >= 44, tray
+                    assert tray["actionDisabled"] is True, tray
+                    assert 219 <= tray["supplementCard"]["width"] <= 221, tray
+                    assert tray["actions"]["height"] >= 44, tray
                     if height <= 700:
                         assert 44 <= tray["cell"]["width"] <= 46.5, tray
-                        assert tray["controls"]["bottom"] <= 620.5, tray
+                        assert tray["undo"]["bottom"] <= 620.5, tray
                 solve_stage(page, stage)
                 page.locator("#flowNext").wait_for(state="visible", timeout=2500)
                 complete = assert_layout(page, stage + ":complete", width, height, rows)
@@ -307,6 +328,8 @@ try:
                     tray = m3_tray_metrics(page)
                     assert tray["contextOverflow"] <= 1, tray
                     assert tray["railDisplay"] == "none", tray
+                    assert tray["actionsDisplay"] == "flex", tray
+                    assert tray["completionEmbedded"] is True, tray
                 page.screenshot(path=str(OUT / f"{stage}-{width}x{height}.png"), full_page=True)
             assert not errors, errors
             assert not missing, missing

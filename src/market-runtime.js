@@ -303,10 +303,13 @@
     return `<div class="market-choice-state market-info-row"><span>這一趟</span><strong lang="zh-Hant">${zh}</strong><small>${ko}</small></div>`;
   }
 
-  function actionButtons(cfg, location, adjacent) {
-    if (!adjacent) return '<p class="market-action-hint">가까이 가면 물건을 주고받거나 선택할 수 있어.</p>';
+  function actionButtons(cfg, location, adjacent, options = {}) {
+    const keepDistant = options.keepDistant === true;
+    const compact = options.compact === true;
+    if (!adjacent && !keepDistant) return '<p class="market-action-hint">가까이 가면 물건을 주고받거나 선택할 수 있어.</p>';
     const buttons = [];
     const locState = state.market.locations[location.id];
+    const enabledAttr = enabled => enabled && adjacent ? '' : 'disabled';
 
     if (location.choose) {
       const option = location.choose;
@@ -315,7 +318,7 @@
       const requirementsMet = !option.requires || M.conditionMet(option.requires, state.market, cfg);
       if (decided === undefined) {
         const suffix = option.cost ? ` · ${number(option.cost)}` : '';
-        buttons.push(`<button type="button" data-market-action="choose" data-location="${location.id}" ${requirementsMet ? '' : 'disabled'}>選擇 ${location.labelZh}${suffix}</button>`);
+        buttons.push(`<button type="button" data-market-action="choose" data-location="${location.id}" ${enabledAttr(requirementsMet)}>選擇 ${location.labelZh}${suffix}</button>`);
       } else if (decided === option.value) {
         buttons.push(`<button type="button" disabled>已選擇 ${location.labelZh}</button>`);
       }
@@ -323,15 +326,15 @@
 
     if (location.sell) {
       const offer = location.sell, meta = itemCfg(cfg, offer.item), available = M.stockAt(state.market, location.id, offer.item) > 0;
-      buttons.push(`<button type="button" data-market-action="buy" data-location="${location.id}" ${available ? '' : 'disabled'}>買 ${meta.labelZh} · ${number(offer.price)}</button>`);
+      buttons.push(`<button type="button" data-market-action="buy" data-location="${location.id}" ${enabledAttr(available)}>買 ${meta.labelZh} · ${number(offer.price)}</button>`);
     }
 
     if (location.exchange) {
       const offer = location.exchange, give = itemCfg(cfg, offer.give), receive = itemCfg(cfg, offer.receive);
       const held = getQty(state.market.inventory, offer.give), giveQty = number(offer.giveQty), available = M.stockAt(state.market, location.id, offer.receive), receiveQty = number(offer.receiveQty);
       const canExchange = held >= giveQty && available >= receiveQty;
-      const shortage = held < giveQty ? ` · ${give.labelZh} ${held}/${giveQty}` : available < receiveQty ? ` · ${receive.labelZh} ${available}/${receiveQty}` : '';
-      buttons.push(`<button type="button" data-market-action="exchange" data-location="${location.id}" ${canExchange ? '' : 'disabled'}>交換 ${give.labelZh} → ${receive.labelZh}${shortage}</button>`);
+      const shortage = compact ? '' : held < giveQty ? ` · ${give.labelZh} ${held}/${giveQty}` : available < receiveQty ? ` · ${receive.labelZh} ${available}/${receiveQty}` : '';
+      buttons.push(`<button type="button" data-market-action="exchange" data-location="${location.id}" ${enabledAttr(canExchange)}>交換 ${give.labelZh} → ${receive.labelZh}${shortage}</button>`);
     }
 
     if (location.allowTake && M.decisionRequirementMet(location.takeRequiresDecision, state.market)) {
@@ -339,7 +342,7 @@
         const need = M.needAt(cfg, location.id, item);
         if (number(qty) <= 0 || (need > 0 && number(qty) <= need)) continue;
         const meta = itemCfg(cfg, item);
-        buttons.push(`<button type="button" data-market-action="take" data-location="${location.id}" data-item="${item}">拿 ${meta.labelZh} ×1</button>`);
+        buttons.push(`<button type="button" data-market-action="take" data-location="${location.id}" data-item="${item}" ${enabledAttr(true)}>拿 ${meta.labelZh} ×1</button>`);
       }
     }
 
@@ -347,7 +350,7 @@
       for (const [item, qty] of Object.entries(state.market.inventory || {})) {
         if (number(qty) <= 0) continue;
         const meta = itemCfg(cfg, item);
-        buttons.push(`<button type="button" data-market-action="put" data-location="${location.id}" data-item="${item}">放 ${meta.labelZh} ×1</button>`);
+        buttons.push(`<button type="button" data-market-action="put" data-location="${location.id}" data-item="${item}" ${enabledAttr(true)}>放 ${meta.labelZh} ×1</button>`);
       }
     }
 
@@ -371,37 +374,27 @@
     </section>`;
   }
 
-  function m3DecisionSummary(cfg, location) {
+  function m3DecisionSummary(cfg, location, adjacent) {
     if (!location) return '<span class="market-decision-label">다음 판단</span><strong>대상을 눌러 필요한 것과 교환 조건을 확인해.</strong>';
+    let reason = adjacent ? '' : '<small class="market-decision-reason">인접 필요</small>';
     if (location.exchange) {
       const offer = location.exchange, give = itemCfg(cfg, offer.give), receive = itemCfg(cfg, offer.receive);
-      return `<span class="market-decision-label" lang="zh-Hant">交換</span><strong lang="zh-Hant">${give.labelZh} ×${number(offer.giveQty)} → ${receive.labelZh} ×${number(offer.receiveQty)}</strong>`;
+      const held = getQty(state.market.inventory, offer.give), available = M.stockAt(state.market, location.id, offer.receive);
+      if (adjacent && held < number(offer.giveQty)) reason = `<small class="market-decision-reason" lang="zh-Hant">${give.labelZh} ${held}/${number(offer.giveQty)}</small>`;
+      else if (adjacent && available < number(offer.receiveQty)) reason = `<small class="market-decision-reason" lang="zh-Hant">${receive.labelZh} ${available}/${number(offer.receiveQty)}</small>`;
+      return `<span class="market-decision-label" lang="zh-Hant">交換</span><strong lang="zh-Hant">${give.labelZh} ×${number(offer.giveQty)} → ${receive.labelZh} ×${number(offer.receiveQty)}</strong>${reason}`;
     }
     const needs = Object.entries(location.needs || {}).map(([item, need]) => {
       const meta = itemCfg(cfg, item), stock = M.stockAt(state.market, location.id, item);
       return `<strong lang="zh-Hant">${meta.labelZh} ${stock}/${number(need)}</strong>`;
     }).join('　');
-    if (needs) return `<span class="market-decision-label" lang="zh-Hant">需求</span>${needs}`;
-    return '<span class="market-decision-label" lang="zh-Hant">現在</span><strong>선택한 대상의 상태를 확인했어.</strong>';
+    if (needs) return `<span class="market-decision-label" lang="zh-Hant">需求</span>${needs}${reason}`;
+    return `<span class="market-decision-label" lang="zh-Hant">現在</span><strong>선택한 대상의 상태를 확인했어.</strong>${reason}`;
   }
 
-  function m3SupplementCards(cfg, location) {
-    const cards = [];
-    if (location) {
-      const details = [];
-      for (const [item, need] of Object.entries(location.needs || {})) {
-        const meta = itemCfg(cfg, item), stock = M.stockAt(state.market, location.id, item);
-        details.push(`${meta.labelKo} 필요 ${number(need)} · 현재 ${stock}`);
-      }
-      if (location.exchange) {
-        const offer = location.exchange, give = itemCfg(cfg, offer.give), receive = itemCfg(cfg, offer.receive);
-        details.push(`${give.labelKo} ${number(offer.giveQty)}개와 ${receive.labelKo} ${number(offer.receiveQty)}개 교환`);
-      }
-      cards.push(`<article class="market-supplement-card"><strong>${location.labelKo}</strong><span>${details.join(' · ') || '현재 대상의 보충 정보'}</span></article>`);
-    }
-    cards.push('<article class="market-supplement-card"><strong lang="zh-Hant">交換</strong><span>서로 필요한 물건을 주고받는 방법</span></article>');
-    cards.push('<article class="market-supplement-card"><strong lang="zh-Hant">獲得</strong><span>교환 결과로 새 물건을 손에 넣는 일</span></article>');
-    return cards.join('');
+  function m3SupplementCards() {
+    return '<article class="market-supplement-card"><strong lang="zh-Hant">交換</strong><span>서로 필요한 물건을 주고받기</span></article>'
+      + '<article class="market-supplement-card"><strong lang="zh-Hant">獲得</strong><span>교환 결과로 새 물건을 얻기</span></article>';
   }
 
   function renderM3DecisionPanel(cfg, focus) {
@@ -410,12 +403,13 @@
       ? `<span class="market-decision-icon" aria-hidden="true">${focus.icon || '📦'}</span><span><strong lang="zh-Hant">${focus.labelZh}</strong><small>${focus.labelKo}</small></span>`
       : '<span class="market-decision-icon" aria-hidden="true">↔</span><span><strong>장터 정보</strong><small>대상을 선택해</small></span>';
     const action = focus
-      ? actionButtons(cfg, focus, adjacent)
+      ? actionButtons(cfg, focus, adjacent, { compact: true, keepDistant: true })
       : '<p class="market-action-hint">판의 사람이나 좌판을 눌러봐.</p>';
     return `<section class="market-panel market-decision-panel ${focus ? '' : 'market-panel-empty'}" ${focus ? `data-focus="${focus.id}"` : ''}>
       <div class="market-decision-top"><div class="market-decision-target">${target}</div><div class="market-carry">${inventoryText(cfg)}</div></div>
-      <div class="market-decision-main"><div class="market-decision-summary">${m3DecisionSummary(cfg, focus)}</div><div class="market-decision-action">${action}</div></div>
-      <div class="market-supplement-rail" role="region" aria-label="보충 설명, 좌우로 스크롤 가능" tabindex="0">${m3SupplementCards(cfg, focus)}</div>
+      <div class="market-decision-main"><div class="market-decision-summary">${m3DecisionSummary(cfg, focus, adjacent)}</div></div>
+      <div class="market-decision-actions"><div class="market-decision-undo-slot"></div><div class="market-decision-action">${action}</div></div>
+      <div class="market-supplement-rail" role="region" aria-label="보충 설명, 좌우로 스크롤 가능" tabindex="0">${m3SupplementCards()}</div>
     </section>`;
   }
 
@@ -496,15 +490,23 @@
     document.querySelectorAll('[data-market-detail]').forEach(button => button.addEventListener('click', openM8Detail));
   }
 
+  function restoreMarketUndoControl() {
+    const controls = $('.controls'), undo = $('#undoBtn');
+    if (controls && undo && undo.parentElement !== controls) controls.append(undo);
+    controls?.classList.remove('market-controls-embedded');
+  }
+
   const baseRender = render;
   render = function marketRender() {
     const stage = current(), cfg = cfgFor(stage);
     if (!cfg) {
+      restoreMarketUndoControl();
       gridEl.classList.remove('market-board');
       gridEl.removeAttribute('data-market-stage');
       $('#inspectBtn').hidden = false;
       return baseRender();
     }
+    if (stage.id !== 'market-stage-3') restoreMarketUndoControl();
 
     ensureMarketState();
     $('#stageKicker').textContent = stage.kicker || '1장 · 장터';
@@ -535,7 +537,14 @@
     $('#inspectBtn').hidden = true;
     $('#undoBtn').hidden = false;
     $('#undoBtn').disabled = !history.length;
-    controls.style.gridTemplateColumns = '1fr';
+    if (stage.id === 'market-stage-3') {
+      const slot = gridEl.querySelector('.market-decision-undo-slot');
+      if (slot) slot.append($('#undoBtn'));
+      controls.classList.add('market-controls-embedded');
+    } else {
+      controls.classList.remove('market-controls-embedded');
+      controls.style.gridTemplateColumns = '1fr';
+    }
   };
 
   function marketTap(pos) {
