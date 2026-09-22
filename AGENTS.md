@@ -34,7 +34,8 @@
 
 ## 변경 방식
 
-- 현재는 1.0 이전이므로 기능을 장기 작업 브랜치에 묵히기보다 `main`에 작게 완결된 단위로 빠르게 반영한다.
+- 신규 지역·스테이지·자유 의뢰는 `docs/REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md`의 게이트, 사양 템플릿, Definition of Ready/Done을 따른다.
+- 기능을 장기 작업 브랜치에 묵히기보다 `main`에 작게 완결된 단위로 빠르게 반영한다.
 - `main` 반영 → GitHub Pages 배포 → iPhone 13 mini Safari 실기기 확인 → 즉시 수정의 짧은 주기를 우선한다.
 - 요청 범위를 넘어선 리팩터링을 피한다.
 - 기존 실험판을 삭제하거나 덮어쓰지 않는다.
@@ -42,6 +43,8 @@
 - 같은 의미의 규칙이 두 번째 실제 사용처에 등장하면 필요한 범위까지만 공통 기믹으로 일반화한다. 너무 이른 범용 엔진화는 피한다.
 
 ## 검증
+
+전체 빠른 콘텐츠 게이트는 `node tools/verify-content.cjs`로 실행한다. Playwright 브라우저 회귀까지 포함하려면 `node tools/verify-content.cjs --browser`를 사용한다.
 
 변경 후 최소한 다음 흐름을 확인한다.
 

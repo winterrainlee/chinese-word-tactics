@@ -33,6 +33,12 @@ jobs:
       - name: Run unit tests
         run: node --test tests/*.test.cjs
 
+      - name: Run content contract audit
+        run: node tools/content-contract-audit.cjs
+
+      - name: Run vocabulary lifecycle audit
+        run: node tools/vocabulary-lifecycle-audit.cjs
+
       - name: Run UX heuristic audit
         run: node tools/ux-audit.cjs
 
@@ -41,6 +47,9 @@ jobs:
 
       - name: Run story handoff audit
         run: node tools/story-handoff-audit.cjs
+
+      - name: Run story pronunciation audit
+        run: node tools/story-pronunciation-audit.cjs
 
       - name: Setup Python
         uses: actions/setup-python@v5

@@ -4,6 +4,7 @@
 
 ## 핵심 기획
 
+- [지역·스테이지 개발 표준 v0.1](REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md) — 신규 지역과 기존 지역 확장을 `범위·ID → 학습 설계 → 구현 수준 사양 → 작은 수직 slice → 자동검증 → Pages → iPhone 승인`으로 닫는 표준 절차, 사양 템플릿, Definition of Ready/Done
 - [디자인 원칙 v0.2](DESIGN-PRINCIPLES-v0.2.md) — 화면·전술판·단어·월드맵의 공통 시각/상호작용 판단 기준. 모바일 판 고정, 사전 표식, 설명형 텍스트 예산, 행동-단어 피드백, `375×640 / 620px` 세로 예산 원칙을 포함한다.
 - [전술 스테이지 기본 레이아웃·개별 조정 실행 계획 v0.1](TACTICAL-LAYOUT-REVISION-PLAN-v0.1.md) — 공통 전술 셸, G1·W2·M8 대표 조정, 전 스테이지 확장 순서와 Astra·Sol·Terra·Luna 역할 분배 및 acceptance gate
 - [1.0 사용자 경험 자동 검수 v0.1](UX-AUTOMATED-REVIEW-v0.1.md) — 모바일 플레이의 정보 위계와 전환 흐름을 `UX-01~UX-12`로 검사하는 자동 브라우저·스크린샷 회귀 기준
