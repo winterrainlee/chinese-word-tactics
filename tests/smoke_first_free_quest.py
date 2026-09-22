@@ -178,6 +178,10 @@ try:
         assert '늑대' not in page.locator('#tutorialView').inner_text()
         assert '野狼' not in page.locator('#tutorialView').inner_text()
         assert page.locator('#inspectBtn').is_hidden()
+        assert page.locator('#ruleLine').evaluate('(el) => getComputedStyle(el).display') == 'none'
+        assert page.locator('#ruleLine').get_attribute('class') == 'ruleline'
+        assert '필요한 버섯의 數量' not in page.locator('.goalbox').inner_text()
+        page.screenshot(path=str(OUT / 'ux-c08-forest-entry-375x812.png'), full_page=True)
 
         # Reused words keep shared pronunciation/meaning while C08 supplies its own example and stage rule.
         card_text = []
@@ -247,6 +251,7 @@ try:
         assert page.evaluate('state.forestCount') == 3
         assert '足夠' in page.locator('#status').inner_text()
         assert page.locator('.wordbtn.done').filter(has_text='足夠').count() == 1
+        assert page.locator('#ruleLine').evaluate('(el) => getComputedStyle(el).display') == 'none'
 
         # The quest is not complete until the boy exits the forest.
         assert page.evaluate("!GameFlow.progress().completedStages.includes('first-free-quest-forest')")

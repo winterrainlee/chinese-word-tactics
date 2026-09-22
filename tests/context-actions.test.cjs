@@ -105,10 +105,9 @@ test('an adjacent thorn remains a rejected move while a distant thorn can be rea
 });
 
 test('changed direct-inspection runtimes use a shared cache version', () => {
-  assert.match(index, /app\.js\?v=20260920-tacticlayout1/);
-  for (const file of ['first-free-quest-runtime', 'range-runtime']) {
-    assert.match(index, new RegExp(`${file}\\.js\\?v=20260914-directinspect1`), file);
-  }
+  assert.match(index, /app\.js\?v=20260922-goalcopy1/);
+  assert.match(index, /first-free-quest-runtime\.js\?v=20260922-goalcopy1/);
+  assert.match(index, /range-runtime\.js\?v=20260914-directinspect1/);
   assert.match(index, /follower-chain-runtime\.js\?v=20260922-regionlayout1/);
   assert.match(index, /market-runtime\.js\?v=20260921-marketresources1/);
   assert.match(index, /interaction-runtime\.js\?v=20260920-contextchoice1/);

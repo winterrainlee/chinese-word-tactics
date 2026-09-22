@@ -77,9 +77,6 @@
     goal = markGoal(goal, '足夠', enough(st, state));
     goal = markGoal(goal, '退出', enough(st, state) && atExit());
     $('#goal').innerHTML = goal;
-    $('#ruleLine').textContent = enough(st, state)
-      ? `月白菇 ${state.forestCount} / ${cfg.required} · 數量足夠。입구로 돌아가 退出하면 돼.`
-      : `月白菇 ${state.forestCount} / ${cfg.required} · 필요한 버섯의 數量을 확인해봐.`;
   };
 
   const baseDescTile = descTile;

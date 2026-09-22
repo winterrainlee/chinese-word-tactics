@@ -49,7 +49,7 @@
 
 | 판 | 핵심 판단 | 반드시 상시 표시 | 사전·상세로 이동 | 중복 정보 | 누락 정보 | 적합한 형태 | 예상 수정 파일 |
 |---|---|---|---|---|---|---|---|
-| F1 | 월백버섯 구별·3개 채집·귀환 | 범위, 대상, `月白菇 X/3`, 출구 | 버섯 뜻·설명 | 목표·규칙·상태의 채집/귀환 재진술 | 없음 | 판 + 채집 수량 | `src/first-free-quest-runtime.js`, `src/first-free-quest.css` |
+| F1 | 월백버섯 구별·3개 채집·귀환 | 범위, 대상, 조사한 묶음 수량, 출구 | 버섯 뜻·설명과 정확한 의뢰 조건 | 목표 옆 `月白菇 X/3`·한국어 다음 행동과 상태의 채집/귀환 재진술 | 없음 | 판 + 행동 직후 채집 결과 | `src/first-free-quest-runtime.js`, `src/first-free-quest.css` |
 | F2 | 세 표식 방향 확인 | 표식·가려짐·확인 체크 | `標記 / 方向` 풀이 | 직접 탭·접근 사용법 | 없음 | 판 + 확인 표식 | `src/north-forest-runtime.js`, `src/north-forest.css` |
 | F3 | 실제 길과 표식 방향 일치 | 길 형태, 현재 방향, 회전 행동 | `正確 / 指示` 풀이 | 길 확인·회전 재진술 | 사용하지 않는 `actualRouteObserved` 상태는 정리 필요 | 판 + 현재 방향 한 줄 | `src/north-forest-content.js`, `src/north-forest-runtime.js` |
 | F4 | 견본과 후보의 세 특징 비교 | 견본 `深綠色 / 長 / 尖`, 확인한 후보 특징 | 후보 한국어 이름·뜻 | 규칙이 견본 카드를 재진술 | 없음 | 단일 견본 기준표, 비교 레일 없음 | `src/north-forest-runtime.js`, `src/north-forest.css` |
@@ -66,7 +66,8 @@
 
 ## 구현·검증 결과
 
-- G7: `via / viaIds`와 `followerPositions / chainStuck`에서 `經由 / 跟隨` 요약을 파생하고 반복 이동 문구를 축소했다.
+- G7: 판이 이미 보여 주는 경로·행렬을 목표 옆에 반복하지 않고, `via / viaIds`와 `followerPositions / chainStuck`은 실패 이유와 완료 판정에만 사용한다.
+- 공통 목표 카드: G7의 전용 규칙 클래스와 F1의 동적 수량 문구를 제거하고, 스테이지 전환마다 `ruleline` 클래스를 초기화한다. 규칙 원문은 책 버튼 상세에 유지한다.
 - W7: `systemRecovered.conditions`에서 중복 장치를 합친 남은 이상 수를 파생하고 연결 행동을 `連接 / 分開`로 표시했다.
 - F5: 작업 지시 마지막 칩을 실제 적합 재료 수인 `適合 0/2 → 1/2 → 2/2`로 갱신한다.
 - F8: 세 경로의 `confirmedFlag / attributes`에서 판 위 `乾·寬 / 濕·窄 / 乾·寬` 기록과 확인 표식을 함께 파생한다.

@@ -189,6 +189,7 @@ def assert_discoverability(page, key):
     assert page.locator('#stageTitle').inner_text(), key
     assert page.locator('#goal').inner_text(), key
     assert page.locator('#ruleLine').inner_text(), key
+    assert page.locator('#ruleLine').evaluate('(el) => getComputedStyle(el).display') == 'none', key
     assert page.locator('#words .wordbtn').count() >= 1, key
     assert page.evaluate('[6, 7].includes(current().grid[0].length)')
     if key == 'F1':
