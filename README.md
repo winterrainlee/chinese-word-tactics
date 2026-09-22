@@ -7,9 +7,10 @@
 - 현재 기반: **v1.0.0 — 물길마을의 첫 여행**
 - 목표 기기: iPhone 13 mini Safari 세로 화면
 - 배포: GitHub Pages
-- 현재 구현: 튜토리얼 6판 + 물길마을 도착 흐름 + 길목 G1~G7 + 장인골 W1~W7 + 장터 M1~M8 + 여관 방 MVP + 1장 결말 + 북쪽 숲 첫 자유 의뢰 + 설정의 저장 내보내기·복원
+- 현재 구현: 튜토리얼 6판 + 물길마을 도착 흐름 + 길목 G1~G7 + 장인골 W1~W7 + 장터 M1~M8 + 여관 방 MVP + 1장 결말 + 북쪽 숲 자유 의뢰 F1~F8 + 설정의 저장 내보내기·복원
 - v1.0 범위: **물길마을의 첫 여행** — 세 갈래의 완결, 돌아올 여관, 첫 자유 의뢰 · 완료
 - 최종 검수: **2026-09-19 iPhone 13 mini Safari에서 Q07 완료** — 빈 저장부터 1장 결말·첫 자유 의뢰까지 완주하고, 다른 구역 순서·재플레이·백업 복원까지 확인했다.
+- 1.0 이후 구현: **북쪽 숲 F2~F8과 네 후속 의뢰는 구현·자동검사·iPhone 13 mini Safari 최종 검수 완료**.
 
 진행 상황은 [`docs/DEVELOPMENT-STATUS.md`](./docs/DEVELOPMENT-STATUS.md)에서 관리한다.
 1장 결말의 최신 이야기 기준은 [`docs/CHAPTER1-FINALE-DESIGN-v0.1.md`](./docs/CHAPTER1-FINALE-DESIGN-v0.1.md), 자유 의뢰와 게시판의 최신 기준은 [`docs/QUEST-BOARD-DESIGN-v0.2.md`](./docs/QUEST-BOARD-DESIGN-v0.2.md)다.

@@ -25,6 +25,10 @@
 - [물길마을 여관 거점 설계 v0.2](INN-HUB-DESIGN-v0.2.md) — **현재 여관 기준선**. 지도 시트→전용 화면, 첫 진입은 내 방, 방↔1층 공간 이동, 생활 수집어(`collection`)·재등장어(`carryover`)와 의미 묶음 수집 원칙
 - [물길마을 여관 거점 설계 v0.1](INN-HUB-DESIGN-v0.1.md) — 이전 여관 MVP 기준선 보존본. 방 안 사물 직접 상호작용과 생활어 루틴의 초기 설계
 - [물길마을 의뢰 게시판 설계 v0.2](QUEST-BOARD-DESIGN-v0.2.md) — **현재 의뢰 기준선**. 1장 결말 뒤 여관 주인의 첫 직접 부탁 → 수행·보고 → 게시판 설치 순서와 상태 기반 갱신 원칙을 정한다.
+- [북쪽 숲 자유 의뢰 확장 v0.1](NORTH-FOREST-QUEST-EXPANSION-v0.1.md) — **현재 북쪽 숲 구현 현황 기준선**. F1~F8, 다섯 의뢰, 실제 해금 순서, `north-forest-familiar`, 자동검사와 실기기 승인 결과를 기록한다.
+- [북쪽 숲 F2~F8 구현 수준 사양 v0.1](NORTH-FOREST-STAGES-F2-F8-SPEC-v0.1.md) — 표식·특징 비교·재료·흔적·안전 경로 판의 확정 데이터와 판정, 모바일 acceptance 기준
+- [북쪽 숲 자유 의뢰 스토리 v0.1](NORTH-FOREST-STORY-v0.1.md) — 채집인·장인·장터를 잇는 F1~F8 이야기와 물길마을 주변 생활권의 결말 기준
+- [북쪽 숲 오브젝트 아트 가이드 v0.1](NORTH-FOREST-OBJECT-ART-GUIDE-v0.1.md) — 구현된 SVG 21종의 판별 정보, 모바일 표현과 실기기 검수 기준
 - [물길마을 의뢰 게시판 설계 v0.1](QUEST-BOARD-DESIGN-v0.1.md) — 이전 게시판 설계 보존본. 세 구역 완료 즉시 이미 여러 사람이 소년을 찾는다는 가정은 v0.2에서 폐기했다.
 - [스토리 모드와 여정 시스템 v0.1](STORY-JOURNEY-SYSTEM-v0.1.md) — `월드맵 / 여정 / 단어장` 구조, story/stage/sequence, 튜토리얼의 프롤로그 편입과 다시 보기/다시 플레이 기준
 - [v0.6 스토리·여정 구현 기획](V0.6-STORY-JOURNEY-IMPLEMENTATION-PLAN.md) — 현재 코드에 storyView·journeyView·진행 저장·기존 튜토리얼 호환을 연결하는 구현 순서와 `소년 → 용사 → 대용사` 성장 기준

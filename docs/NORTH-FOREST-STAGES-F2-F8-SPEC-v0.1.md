@@ -1,7 +1,8 @@
 # 북쪽 숲 F2~F8 구현 수준 스테이지 설계 v0.1
 
 작성일: 2026-09-19
-상태: 구현 전 스테이지 사양
+갱신: 2026-09-22
+상태: F2~F8 구현·자동검사·iPhone 13 mini Safari 승인 완료
 적용 범위: 북쪽 숲 자유 의뢰 F2~F8
 선행: F1 북쪽 숲의 버섯은 v1.0 구현을 그대로 유지
 
@@ -11,6 +12,8 @@
 - NORTH-FOREST-QUEST-EXPANSION-v0.1.md
 - DESIGN-PRINCIPLES-v0.1.md
 - REUSABLE-MECHANICS-v0.1.md
+
+현행 구현은 `src/north-forest-content.js`, `src/north-forest-runtime.js`, `src/north-forest.css`에 있다. `tests/north-forest.test.cjs`, `tests/smoke_north_forest.py`, `tests/smoke_north_forest_layout.py`가 판정·완주·네 viewport 레이아웃을 검사하며 배포 CI와 `node tools/verify-content.cjs --browser`에 포함된다.
 
 ---
 
@@ -984,7 +987,9 @@ F8:
 
 ---
 
-# 12. 구현 순서
+# 12. 구현 기록
+
+아래 순서대로 F2~F8 구현을 마쳤다.
 
 1. F2 → F3
    - observable + discrete-state 기반
@@ -998,9 +1003,4 @@ F8:
 4. F8
    - 기존 follower/obstacle 재사용 + route condition
 
-각 묶음은:
-기획 확정 → 구현 → 자동검사 → Pages → iPhone 13 mini Safari 확인
-
-순으로 닫는다.
-
-한 번에 F2~F8 전체를 구현하지 않는다.
+각 묶음의 기획·구현·자동검사를 완료했다. 전체 Node 회귀, F2~F8 브라우저 완주, F1~F8의 `375×812 / 375×667 / 375×640 / 360×640` 레이아웃 행렬과 2026-09-22 iPhone 13 mini Safari 실기기 확인까지 통과했다.

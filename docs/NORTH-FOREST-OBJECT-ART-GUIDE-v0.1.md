@@ -1,13 +1,16 @@
 # 북쪽 숲 오브젝트 아트 가이드 v0.1
 
 작성일: 2026-09-19
-상태: F2~F8 구현 전 시각 자산 기준
+갱신: 2026-09-22
+상태: 북쪽 숲 SVG 21종 구현·자동 판별 검사·iPhone 13 mini Safari 승인 완료
 적용 범위: 북쪽 숲 자유 의뢰의 전술판 오브젝트와 조사 대상
 
 기준 문서:
 - DESIGN-PRINCIPLES-v0.1.md
 - NORTH-FOREST-STAGES-F2-F8-SPEC-v0.1.md
 - NORTH-FOREST-STORY-v0.1.md
+
+현행 자산은 `icons/tactical/north-forest/`와 `src/north-forest.css`에 연결되어 있다. 자동검사는 32×32 SVG 형식, 파일 크기, 금지 요소, 변형별 CSS 연결, 경로 방향과 네 모바일 viewport 표시를 확인한다. 2026-09-22 iPhone 13 mini Safari에서 실제 판별성 검수까지 완료했다.
 
 ---
 
