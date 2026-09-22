@@ -215,7 +215,7 @@
       closeSheet();
       shell?.classList.add('stageComplete');
       if (context.mode !== 'replay') savePendingCompletion(id);
-      if (!status?.classList.contains('good')) setStatus('目標完成。 이번 목표를 끝냈어. 결과를 확인하고 다음으로 넘어가자.', 'good');
+      if (!status?.classList.contains('good')) setStatus('', 'good');
       completion.hidden = false;
       completion.innerHTML = `<strong></strong><button id="flowNext" type="button"></button>`;
       const marketActions = current()?.market ? document.querySelector('.market-decision-actions, .market-m8-actions') : null;

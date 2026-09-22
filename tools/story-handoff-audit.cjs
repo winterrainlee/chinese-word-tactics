@@ -79,10 +79,9 @@ function completionText(stage) {
 }
 
 function setupText(stage) {
-  const startStatus = stage?.market?.startStatus || stage?.workshop?.startStatus || '';
   return {
-    zh: [stage?.goal, stage?.rule, startStatus].filter(Boolean).join(' '),
-    ko: [stage?.goal, stage?.rule, startStatus].filter(Boolean).join(' ')
+    zh: [stage?.goal, stage?.rule].filter(Boolean).join(' '),
+    ko: [stage?.goal, stage?.rule].filter(Boolean).join(' ')
   };
 }
 

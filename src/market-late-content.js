@@ -58,7 +58,6 @@
       coins: 8,
       items,
       outcomeDecisions: { choice: 'tool' },
-      startStatus: '先看看兩個工具。 가격과 한 번에 실을 수 있는 양을 모두 보고 선택해봐.',
       locations: [
         {
           id: 'small-basket', kind: 'tool', labelZh: '小籃子', labelKo: '작은 바구니', icon: '🧺', pos: [0, 0],
@@ -132,7 +131,6 @@
       capacity: 1,
       items,
       outcomeDecisions: { chosenCargo: 'cargo', deferredCargo: 'deferredCargo' },
-      startStatus: '짐칸은 하나뿐이야. 두 물건을 보고 이번에 먼저 가져갈 하나를 선택해.',
       locations: [
         {
           id: 'flour-load', labelZh: '麵粉', labelKo: '밀가루', icon: '🌾', pos: [0, 0],
@@ -198,7 +196,6 @@
       boardLabel: '부족량과 도착량이 서로 다른 짐을 나누는 장터',
       capacity: 3,
       items,
-      startStatus: '先看每個地方缺多少。 도착한 수량이 꼭 필요한 양과 같지는 않아. 전부 쓸어담기 전에 현재/필요 수량을 확인해.',
       locations: [
         {
           id: 'bakery', labelZh: '麵包坊', labelKo: '빵집', icon: '🥖', pos: [0, 0],
@@ -267,7 +264,6 @@
       capacity: 2,
       coins: 5,
       items,
-      startStatus: '장터가 열리기 전 네 곳이 아직 준비 중이야. 같은 물건이 두 개 필요한 곳도 있으니 수량을 보고 순서를 정해봐.',
       locations: [
         {
           id: 'bakery', labelZh: '麵包坊', labelKo: '빵집', icon: '🥖', pos: [0, 0],
@@ -317,9 +313,6 @@
           { type: 'location-at-least', location: 'inn', item: 'vegetable', amount: 1 }
         ] }
       ],
-      feedback: {
-        solved: '開市前的準備都完成了。 여러 개 필요한 곳까지 수량을 맞추고, 교환하고 사고 나누면서 장터의 흐름을 모두 이어냈어.'
-      }
     }
   });
 })();

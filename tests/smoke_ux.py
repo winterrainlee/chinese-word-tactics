@@ -83,11 +83,10 @@ def capture_layout_matrix(browser, output_dir):
         capture('g1', 'after-action')
         page.evaluate('TacticalGame.playStage("workshop-stage-2",{mode:"replay",returnTo:"journey"})')
         capture('w2', 'entry')
-        page.locator('#status .statusMeaningBtn').click()
-        capture('w2', 'meaning-open')
-        page.locator('#status .statusMeaningBtn').click()
         page.locator('[data-workshop-action="step-down"]').first.click()
         capture('w2', 'after-action')
+        page.locator('#status .statusMeaningBtn').click()
+        capture('w2', 'meaning-open')
         page.evaluate('TacticalGame.playStage("market-stage-8",{mode:"replay",returnTo:"journey"})')
         capture('m8', 'entry')
         locations = page.locator('.market-location')
@@ -147,6 +146,18 @@ try:
         assert_touch_targets(page, '#landingPrimary:visible')
         page.screenshot(path=str(OUT/'ux-00-title-375x812.png'),full_page=True)
 
+        # Only control rules that cannot be inferred from the board occupy the entry status slot.
+        stage_ids = page.evaluate('STAGES.map(stage => stage.id)')
+        assert len(stage_ids) == 36, stage_ids
+        instructional_entry_ids = {'stage-0', 'stage-2', 'stage-5'}
+        for stage_id in stage_ids:
+            page.evaluate('id => TacticalGame.playStage(id,{mode:"replay",returnTo:"journey"})', stage_id)
+            status_text = page.locator('#status').inner_text().strip()
+            if stage_id in instructional_entry_ids:
+                assert status_text, (stage_id, status_text)
+            else:
+                assert status_text == '', (stage_id, status_text)
+
         page.evaluate('TacticalGame.playStage("gate-stage-1",{mode:"replay",returnTo:"journey"})')
         layout = visible_layout(page); assert_tactical_viewport(layout)
         assert layout['goal']['height'] <= 72, layout
@@ -177,6 +188,7 @@ try:
         assert '진행 상태를 저장하지 못했어.' in page.locator('#status').inner_text()
 
         page.evaluate('TacticalGame.playStage("workshop-stage-2",{mode:"replay",returnTo:"journey"})')
+        assert page.locator('#status').inner_text().strip() == ''
         workshop_layout = visible_layout(page); assert_tactical_viewport(workshop_layout)
         assert workshop_layout['goal']['height'] <= 72, workshop_layout
         assert_touch_targets(page,'.workshop-device-controls button:visible, .wordbtn:visible, .control:visible, .iconbtn:visible, #goalDetailBtn:visible')
@@ -184,6 +196,7 @@ try:
         print('UX_LAYOUT_WORKSHOP_W2',json.dumps(workshop_layout,ensure_ascii=False),flush=True)
 
         page.evaluate('TacticalGame.playStage("market-stage-8",{mode:"replay",returnTo:"journey"})')
+        assert page.locator('#status').inner_text().strip() == ''
         market_layout = visible_layout(page); assert_tactical_viewport(market_layout)
         assert market_layout['goal']['height'] <= 72, market_layout
         assert page.locator('#goal').inner_text() == '開市以前，補齊各處需要的東西。'
@@ -220,8 +233,9 @@ try:
         assert page.locator('#contextPanel .market-panel-actions').count() == 1
         assert page.locator('#contextPanel [data-market-action="exchange"]').count() == 1
 
-        page.evaluate('GameFlow.showStageComplete("market-stage-8",{mode:"replay",returnTo:"journey"})')
+        page.evaluate('setStatus("補上了菜。這裡現在足夠。 채소를 채워 이제 충분해.","good"); GameFlow.showStageComplete("market-stage-8",{mode:"replay",returnTo:"journey"})')
         assert page.locator('#completionBar').is_visible() and page.locator('#flowNext').is_visible()
+        assert page.locator('#status .statusZh').inner_text() == '補上了菜。這裡現在足夠。'
         assert not page.locator('#scrim').evaluate('(el)=>el.classList.contains("open")')
         assert page.locator('#grid').is_visible() and not page.locator('.controls').is_visible()
         assert_touch_targets(page,'#flowNext:visible'); page.screenshot(path=str(OUT/'ux-05-inline-completion-375x812.png'),full_page=True)
@@ -248,6 +262,7 @@ try:
         page.locator('.cell:has(.hero)').click()
         for index in [7,4,1]: page.locator('#grid .cell').nth(index).click()
         page.locator('#completionBar').wait_for(state='visible')
+        assert page.locator('#status').inner_text().strip() == ''
         assert page.locator('#flowNext').inner_text()=='다음 판 시작'
         assert page.evaluate('JSON.parse(localStorage.getItem("chinese-word-tactics-pending-completion-v1")).stageId')=='stage-0'
         page.screenshot(path=str(OUT/'ux-11-stage0-complete-before-refresh-375x812.png'),full_page=True)
@@ -258,6 +273,7 @@ try:
         page.wait_for_function('document.querySelector("#tutorialView") && !document.querySelector("#tutorialView").hidden')
         assert page.evaluate('current().id')=='stage-0' and page.locator('#completionBar').is_visible()
         assert page.locator('#status').evaluate('(el)=>el.classList.contains("good")')
+        assert page.locator('#status').inner_text().strip() == ''
         assert page.evaluate('JSON.parse(localStorage.getItem("chinese-word-tactics-pending-completion-v1")).stageId')=='stage-0'
         page.screenshot(path=str(OUT/'ux-11-stage0-complete-after-refresh-375x812.png'),full_page=True)
         page.locator('#flowNext').click(); assert page.locator('#tutorialView').is_visible() and page.evaluate('current().id')=='stage-1'

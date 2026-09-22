@@ -88,7 +88,6 @@
       boardLabel: '장터의 두 좌판과 행상 아주머니',
       capacity: 1,
       items: commonItems,
-      startStatus: '先看看兩個攤子的需求。 아주머니가 짐을 정리하는 동안 두 좌판의 필요량을 확인해봐.',
       locations: [
         {
           id: 'bread-stall', labelZh: '麵包攤', labelKo: '빵 좌판', icon: '🥖', pos: [0, 0],
@@ -136,7 +135,6 @@
       boardLabel: '행상 아주머니와 장터 창고',
       capacity: 2,
       items: commonItems,
-      startStatus: '先看原來數量和已送出的數量。 원래 몇 개였고 이미 몇 개를 보냈는지부터 확인해봐.',
       remainingInference: {
         location: 'merchant',
         flag: 'remainingConfirmed',
@@ -195,7 +193,6 @@
       capacity: 1,
       items: commonItems,
       initialInventory: { cloth: 1 },
-      startStatus: '手上有一捆布。 밧줄 좌판에서 무엇과 바꿀 수 있는지 살펴봐.',
       locations: [
         {
           id: 'merchant', kind: 'npc', labelZh: '行商阿姨', labelKo: '행상 아주머니', icon: '👩‍🦱', pos: [0, 0],
@@ -239,7 +236,6 @@
       capacity: 2,
       coins: 10,
       items: commonItems,
-      startStatus: '錢幣有十個。 먼저 두 좌판의 가격을 보고 채소와 빵을 하나씩 사 와.',
       locations: [
         {
           id: 'vegetable-stall', labelZh: '菜攤', labelKo: '채소 좌판', icon: '🥬', pos: [0, 0],

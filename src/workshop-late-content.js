@@ -61,7 +61,6 @@
     workshop: {
       scene: 'conditions',
       boardLabel: '세 조건으로 잠긴 작업대',
-      startStatus: '有三個條件。水太多，工作軸沒連接，火爐已經關了。 세 상태를 하나씩 비교해봐.',
       components: [
         { id: 'conditionWater', labelZh: '水量', labelKo: '물의 양', kind: 'level', initial: 2, target: 1, visual: 'water' },
         { id: 'conditionShaft', labelZh: '工作軸', labelKo: '작업축', kind: 'toggle', initial: false, target: true, visual: 'coupling' },
@@ -118,7 +117,6 @@
     workshop: {
       scene: 'blue-flame',
       boardLabel: '불과 바람에 따라 달라지는 불꽃',
-      startStatus: '火力已經剛剛好，不要動。風太小，黑煙還很多。 결과가 어떻게 달라지는지 보면서 바람을 조절해.',
       components: [
         { id: 'flameFire', labelZh: '火力', labelKo: '불의 세기', kind: 'level', initial: 1, target: 1, visual: 'fire', trackUntouched: true },
         { id: 'flameAir', labelZh: '風量', labelKo: '바람의 세기', kind: 'level', initial: 0, target: 2, visual: 'bellows' }
@@ -169,7 +167,6 @@
     workshop: {
       scene: 'gears',
       boardLabel: '세 톱니와 멈춘 장치',
-      startStatus: '三個齒輪裡有一個損壞了。 이번에는 설정을 바꾸기 전에 어느 부품이 실제로 망가졌는지 먼저 찾아봐.',
       components: [
         { id: 'gearA', labelZh: '左齒輪', labelKo: '왼쪽 톱니', kind: 'damage', initial: false, target: false, visual: 'gear' },
         { id: 'gearB', labelZh: '中央齒輪', labelKo: '가운데 톱니', kind: 'damage', initial: true, target: false, visual: 'gear' },
@@ -206,7 +203,6 @@
     workshop: {
       scene: 'regulator',
       boardLabel: '장인골의 오래된 중심 조절기',
-      startStatus: '舊裝置有好幾個地方不對。 필요한 곳만 바꾸고, 이미 맞는 곳은 그대로 두면서 전체 상태를 맞춰봐.',
       components: [
         { id: 'regulatorGate', labelZh: '主水門', labelKo: '주 수문', kind: 'level', initial: 0, target: 1, visual: 'gate', allowLimitPress: true },
         { id: 'regulatorBalance', labelZh: '平衡水門', labelKo: '균형 수문', kind: 'level', initial: 1, target: 1, visual: 'gate', trackUntouched: true },

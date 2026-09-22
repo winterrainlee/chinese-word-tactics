@@ -80,7 +80,7 @@
   resetStage = function workshopResetStage(quiet = false) {
     if (!cfgFor(current())) return baseResetStage(quiet);
     const result = baseResetStage(true);
-    if (!quiet) setStatus(current().workshop.startStatus || '현재 상태를 보고 필요한 곳만 바꿔봐.', 'info');
+    if (!quiet) setStatus('');
     return result;
   };
 
@@ -310,7 +310,7 @@
       ...baseAdapter,
       resumeStage(id, options = {}) {
         const ok = baseAdapter.resumeStage(id, options);
-        if (ok && cfgFor(current())) setStatus(current().workshop.startStatus || '현재 상태를 보고 필요한 곳만 바꿔봐.', 'info');
+        if (ok && cfgFor(current())) setStatus('');
         return ok;
       }
     });

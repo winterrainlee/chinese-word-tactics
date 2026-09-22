@@ -17,7 +17,6 @@
       m4.market.boardLabel = '가격이 다른 세 좌판과 여관 주인';
       m4.market.capacity = 2;
       m4.market.coins = 8;
-      m4.market.startStatus = '錢幣有八個。先看完三個攤子的價格，再決定怎麼買。 동전은 8개야. 세 좌판의 가격을 모두 본 뒤 무엇을 살지 정해봐.';
       m4.market.locations = [
         {
           id: 'vegetable-stall', labelZh: '菜攤', labelKo: '채소 좌판', icon: '🥬', pos: [0, 0],
@@ -55,7 +54,6 @@
       m7.market.revision = 5;
       m7.market.boardLabel = '같은 밀가루를 두 곳에 나누고 다른 물건도 맞춰 보내는 장터';
       m7.market.capacity = 3;
-      m7.market.startStatus = '先看需求和現在數量。麵粉要分到兩個地方，還有一袋要剩下。 먼저 각 장소의 필요량과 현재 수량을 확인해. 밀가루는 두 곳에 나눠 보내고 한 자루는 남아야 해.';
       m7.market.locations = [
         {
           id: 'bakery', labelZh: '麵包坊', labelKo: '빵집', icon: '🥖', pos: [0, 0],

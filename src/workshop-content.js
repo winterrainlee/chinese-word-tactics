@@ -59,7 +59,6 @@
     workshop: {
       scene: 'waterwheel',
       boardLabel: '물레방아 수문 조절 장치',
-      startStatus: '左邊的水還太少，右邊不用動。 왼쪽 수문을 조금씩 움직여 흐름을 보고, 오른쪽은 그대로 둬.',
       components: [
         {
           id: 'mainGate', labelZh: '左水門', labelKo: '왼쪽 수문', kind: 'level', initial: 0,
@@ -123,7 +122,6 @@
     workshop: {
       scene: 'forge',
       boardLabel: '화덕과 풀무 조절 장치',
-      startStatus: '火太大了，風太小了。 불은 너무 세고 바람은 너무 약해. 하나씩 바꾼 뒤 두 상태를 같이 봐.',
       components: [
         {
           id: 'fire', labelZh: '火力', labelKo: '불의 세기', kind: 'level', initial: 2,
@@ -202,7 +200,6 @@
     workshop: {
       scene: 'couplings',
       boardLabel: '주축과 세 작업 장치의 연결 상태',
-      startStatus: '左邊沒有連接，中央現在正常，右邊空著卻還在轉。 어느 장치가 같이 돌아야 하는지 연결 상태부터 봐.',
       components: [
         {
           id: 'grinderLink', labelZh: '左磨輪', labelKo: '왼쪽 숫돌', kind: 'toggle', initial: false,

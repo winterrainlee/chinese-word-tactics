@@ -219,7 +219,7 @@
   resetStage = function marketResetStage(quiet = false) {
     if (!cfgFor(current())) return baseResetStage(quiet);
     const result = baseResetStage(true);
-    if (!quiet) setStatus(current().market.startStatus || '필요한 것과 가진 것을 먼저 살펴봐.', 'info');
+    if (!quiet) setStatus('');
     return result;
   };
 
@@ -758,7 +758,7 @@
       },
       resumeStage(id, options = {}) {
         const ok = baseAdapter.resumeStage(id, options);
-        if (ok && cfgFor(current())) setStatus(current().market.startStatus || '필요한 것과 가진 것을 먼저 살펴봐.', 'info');
+        if (ok && cfgFor(current())) setStatus('');
         return ok;
       }
     });
