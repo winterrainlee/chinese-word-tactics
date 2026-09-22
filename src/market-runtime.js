@@ -348,7 +348,7 @@
     }
 
     const multiple = buttons.length > 1 ? ' market-actions-multiple' : '';
-    return buttons.length ? `<div class="market-panel-actions${multiple}">${buttons.join('')}</div>` : '<p class="market-action-hint">지금 여기서 할 수 있는 행동은 없어.</p>';
+    return buttons.length ? `<div class="market-panel-actions${multiple}">${buttons.join('')}</div>` : '';
   }
 
   function renderPanel(cfg) {

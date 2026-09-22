@@ -383,6 +383,7 @@ try:
                     assert "錢幣" in tray["carryText"] and tray["coinFont"] >= 15, tray
                     assert 99 <= tray["undo"]["width"] <= 101 and tray["undo"]["height"] >= 44, tray
                     assert not tray["supplementCards"], tray
+                    assert tray["action"] == "", tray
                 solve_stage(page, stage)
                 page.locator("#flowNext").wait_for(state="visible", timeout=2500)
                 complete = assert_layout(page, stage + ":complete", width, height, rows)
