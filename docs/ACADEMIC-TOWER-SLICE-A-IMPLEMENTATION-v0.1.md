@@ -2,7 +2,7 @@
 
 > 상태: `🧪` G3 구현·지역 G4 자동검사 완료 / G5 Pages·G6 iPhone 승인 대기
 > 구현일: 2026-09-25
-> 빌드: `2026-09-25-academic-tower-slice-a1`
+> 빌드: `2026-09-25-academic-tower-slice-a2`
 > 범위: 첫 방문, 전용 허브, 01 `卻`, 중간 이야기, 02 `然而`, 저장·재플레이·재진입
 
 ## 1. 완료한 수직 slice
@@ -86,6 +86,8 @@ python3 tests/smoke_academic_tower_layout.py
 ```
 
 2026-09-25 기준 전체 게이트에서 Node 회귀 294개, 콘텐츠·후보·생애주기·상태 문구·이야기 발음 교차검사, 기존 지역과 학술탑의 브라우저 회귀가 모두 통과했다. 브라우저 캡처 이름은 `academic-tower-01-complete-375x812.png`, `academic-tower-hub-<viewport>.png`, `academic-tower-02-<viewport>.png`다. CI에서도 두 smoke를 명시적으로 실행하고 캡처를 UX artifact에 포함한다.
+
+첫 Pages 배포에서는 변경된 기반 콘텐츠 파일 `src/content.js`에 cache key가 없어 이전 `research-city` 정의가 재사용되는 문제가 있었다. Slice A2에서 `v=20260925-academictower2`를 부여하고 이를 자동검사 계약에 추가했다.
 
 ## 6. 남은 게이트
 
