@@ -40,13 +40,13 @@ test('v0.6 world keeps stable ids while presenting one Three Streams settlement'
   assert.equal(byId['workshop-town'].name, '工坊谷');
   assert.equal(byId['market-town'].name, '市集');
   assert.equal(byId['council-town'].name, '會議所');
-  assert.equal(byId['research-city'].name, '學術塔');
+  assert.equal(byId['academic-tower'].name, '學術塔');
   assert.equal(byId['gate-town'].summary, '마을 밖 길로 이어지는 관문이야.');
   assert.equal(byId['workshop-town'].summary, '수차와 공방이 모여 있는 골짜기야.');
   assert.equal(byId['market-town'].summary, '사람과 물건이 모이는 장터야.');
   assert.equal(byId['border-village'].summary, '물길마을 밖으로 이어지는 다음 정착지야.');
   assert.equal(byId['council-town'].summary, '마을 사람들이 함께 의논하는 곳이야.');
-  assert.equal(byId['research-city'].summary, '오래된 기술과 기록이 모이는 탑이야.');
+  assert.equal(byId['academic-tower'].summary, '오래된 기술과 기록이 모이는 탑이야.');
   assert.equal(byId['border-village'].map.kind, 'outside');
   assert.equal(world.regions.slice(0, 3).map(region => region.id).join(','), 'gate-town,workshop-town,market-town');
 });
@@ -81,18 +81,19 @@ test('merchant is a middle-aged woman who naturally asks for a hand before intro
 test('watercolor map runs top to bottom and aligns markers to illustrated landmarks', () => {
   const context = loadWorld();
   const byId = Object.fromEntries(context.__world.regions.map(region => [region.id, region]));
-  assert.deepEqual([byId['research-city'].map.x, byId['research-city'].map.y], [26, 46]);
+  assert.deepEqual([byId['academic-tower'].map.x, byId['academic-tower'].map.y], [26, 46]);
   assert.deepEqual([byId['workshop-town'].map.x, byId['workshop-town'].map.y], [18, 58]);
   assert.deepEqual([byId['council-town'].map.x, byId['council-town'].map.y], [79, 48]);
   assert.deepEqual([byId['market-town'].map.x, byId['market-town'].map.y], [65, 60]);
   assert.deepEqual([byId['gate-town'].map.x, byId['gate-town'].map.y], [50, 80]);
   assert.deepEqual([byId['border-village'].map.x, byId['border-village'].map.y], [50, 91]);
-  assert.ok(byId['research-city'].map.y < byId['workshop-town'].map.y);
+  assert.ok(byId['academic-tower'].map.y < byId['workshop-town'].map.y);
   assert.ok(byId['council-town'].map.y < byId['market-town'].map.y);
   assert.ok(byId['gate-town'].map.y < byId['border-village'].map.y);
   assert.match(byId['border-village'].recommendation, /길목/);
   assert.match(byId['council-town'].recommendation, /장터/);
-  assert.match(byId['research-city'].lockHint, /장인골/);
+  assert.match(byId['academic-tower'].lockHint, /세 갈래 여행/);
+  assert.equal(byId['academic-tower'].requires, 'chapter1-complete');
 });
 
 test('chunked map data reconstructs a real WebP and preserves useful detail', () => {
@@ -111,7 +112,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
-  assert.match(html, /world-runtime\.js\?v=20260914-regionreplay1/);
+  assert.match(html, /world-runtime\.js\?v=20260925-academictower1/);
   assert.match(html, /journey\.css\?v=20260915-quests1/);
   assert.match(html, /journey-runtime\.js\?v=20260915-quests1/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);

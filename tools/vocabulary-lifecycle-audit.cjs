@@ -22,13 +22,14 @@ const storySources = [
   'src/market-journey-content.js',
   'src/market-late-journey-content.js',
   'src/market-story-outcome-content.js',
-  'src/north-forest-content.js'
+  'src/north-forest-content.js',
+  'src/academic-tower-journey-content.js'
 ];
 
 function parseStageWords(rel) {
   const fullPath = path.join(root, rel);
   const text = fs.readFileSync(fullPath, 'utf8');
-  const stageId = /\bid\s*:\s*['"]((?:stage|gate-stage|workshop-stage|market-stage|north-forest-stage)-\d+)['"]/g;
+  const stageId = /\bid\s*:\s*['"]((?:stage|gate-stage|workshop-stage|market-stage|north-forest-stage)-\d+|academic-tower-turn-\d{2}-[a-z0-9-]+)['"]/g;
   const matches = [...text.matchAll(stageId)];
   const found = [];
 

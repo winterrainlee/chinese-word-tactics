@@ -148,7 +148,7 @@ try:
 
         # Only control rules that cannot be inferred from the board occupy the entry status slot.
         stage_ids = page.evaluate('STAGES.map(stage => stage.id)')
-        assert len(stage_ids) == 36, stage_ids
+        assert len(stage_ids) == 38, stage_ids
         instructional_entry_ids = {'stage-0', 'stage-2', 'stage-5'}
         for stage_id in stage_ids:
             page.evaluate('id => TacticalGame.playStage(id,{mode:"replay",returnTo:"journey"})', stage_id)
@@ -240,10 +240,16 @@ try:
         assert page.locator('#grid').is_visible() and not page.locator('.controls').is_visible()
         assert_touch_targets(page,'#flowNext:visible'); page.screenshot(path=str(OUT/'ux-05-inline-completion-375x812.png'),full_page=True)
 
-        # Only ordinary region sequences use the multi-story handoff contract; quest locations own quests[] instead.
-        flow_flags=page.evaluate('''() => Object.fromEntries(JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId && Array.isArray(s.sequence) && !s.hiddenFromJourney).map(section=>[section.id,section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter])]))''')
+        # Ordinary regions end at the world; the permanent academic hub returns to its room list instead.
+        # Quest locations own quests[] and are excluded from this sequence contract.
+        flow_flags=page.evaluate('''() => Object.fromEntries(JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId && Array.isArray(s.sequence) && !s.hiddenFromJourney).map(section=>[section.id,section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter,!!n.returnToRegionHubAfter])]))''')
         for region, stories in flow_flags.items():
-            assert len(stories)>1,(region,stories); assert all(not flag for _,flag in stories[:-1]),(region,stories); assert stories[-1][1] is True,(region,stories)
+            assert len(stories)>1,(region,stories)
+            assert all(not world and not hub for _,world,hub in stories[:-1]),(region,stories)
+            if region == 'academic-tower':
+                assert stories[-1][1] is False and stories[-1][2] is True,(region,stories)
+            else:
+                assert stories[-1][1] is True and stories[-1][2] is False,(region,stories)
         print('UX_REGION_FLOW',json.dumps(flow_flags,ensure_ascii=False),flush=True)
 
         page.evaluate('localStorage.clear(); location.reload()')

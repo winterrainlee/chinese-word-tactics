@@ -9,7 +9,8 @@
     "src/workshop-late-content.js",
     "src/market-content.js",
     "src/market-late-content.js",
-    "src/north-forest-content.js"
+    "src/north-forest-content.js",
+    "src/academic-tower-content.js"
   ],
   "reusePolicy": {
     "oneOffThreshold": 1,
@@ -90,6 +91,8 @@
     "留下": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-7"], "reuseScope": "region" },
     "情況": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
     "安全": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
-    "危險": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" }
+    "危險": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
+    "卻": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-01-que", "academic-tower-turn-02-raner"], "reuseScope": "region" },
+    "然而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-02-raner"], "reuseScope": "region" }
   }
 }

@@ -9,10 +9,15 @@
     $('flowNotice').textContent = '진행 기록을 읽거나 저장하지 못했어. 이 탭에서는 계속할 수 있지만, 새로고침하면 기록을 잃을 수 있어.';
   });
   let active = null;
-  const validOptions = options => ({ mode: options.mode === 'replay' ? 'replay' : 'first-play', returnTo: options.returnTo === 'world' ? 'world' : 'journey' });
+  const validOptions = options => ({
+    mode: options.mode === 'replay' ? 'replay' : 'first-play',
+    returnTo: options.returnTo === 'world' || options.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID
+      ? options.returnTo : 'journey'
+  });
   const canVisitWorld = () => store.get().completedStages.includes('stage-5');
   const recordWordEncounter = id => globalThis.LexiconRuntime?.visitStage(id);
   const nodeRegionId = node => node?.entryRegionId || null;
+  const returnTargetFor = node => node?.returnToRegionHubAfter || 'journey';
   const readPendingCompletion = () => {
     try {
       const value = JSON.parse(localStorage.getItem(PENDING_COMPLETION_KEY) || 'null');
@@ -56,9 +61,18 @@
     $('worldContinue').hidden = !next || !!nodeRegionId(next);
     window.scrollTo(0, 0); return true;
   }
-  function returnFromReplay(options) { options.returnTo === 'world' ? showWorld() : showJourney(); }
+  function showRegionHub(regionId) {
+    if (regionId === globalThis.AcademicTowerRuntime?.REGION_ID) return AcademicTowerRuntime.showHub();
+    return false;
+  }
+  function returnFromReplay(options) {
+    if (options.returnTo === 'world') return showWorld();
+    if (showRegionHub(options.returnTo)) return true;
+    return showJourney();
+  }
   function continueFromNode(id) {
     const finished = P.getNode(id);
+    if (finished?.returnToRegionHubAfter && showRegionHub(finished.returnToRegionHubAfter)) return true;
     if (finished?.returnToWorldAfter && canVisitWorld()) {
       store.locate({ view: 'world' });
       return showWorld();
@@ -75,8 +89,10 @@
     const context = { ...validOptions(options), nodeId: node.nodeId, type: 'story' };
     active = context; TacticalGame.showView('story');
     const next = P.nextNode(node.nodeId, { ...progress, seenStories: [...progress.seenStories, id] });
-    const endLabel = context.mode === 'replay' ? (context.returnTo === 'world' ? '월드맵으로' : '여정으로') :
-      node.returnToWorldAfter ? '월드맵으로' : next?.type === 'stage' ? '스테이지 시작' : next?.type === 'story' ? '이야기 계속' : '월드맵으로';
+    const endLabel = context.mode === 'replay'
+      ? (context.returnTo === 'world' ? '월드맵으로' : context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID ? '연구실로' : '여정으로')
+      : node.returnToRegionHubAfter ? '연구실로' : node.returnToWorldAfter ? '월드맵으로'
+        : next?.type === 'stage' ? '스테이지 시작' : next?.type === 'story' ? '이야기 계속' : '월드맵으로';
     StoryRuntime.play(story, { ...context, seen: progress.seenStories.includes(id), beat: options.beat || 0, endLabel,
       onPosition(beat) { store.locate({ view: 'story', nodeId: node.nodeId, beat }, context.mode); },
       onFinish() {
@@ -129,6 +145,7 @@
   }
   function enterRegion(regionId) {
     const progress = store.get();
+    if (globalThis.AcademicTowerRuntime?.enter?.(regionId, progress)) return true;
     const candidates = P.allNodes().filter(item => item.entryRegionId === regionId &&
       P.isAvailable(item, progress) && !P.isComplete(item, progress));
     const activeQuestIds = new Set(candidates.filter(item => item.questId).map(item => item.questId));
@@ -150,7 +167,7 @@
     if (!location && TacticalGame.hasSavedGame) {
       const stageId = TacticalGame.stageId(), stageNode = P.getNode(`stage:${stageId}`);
       if (stageNode && P.isAvailable(stageNode, progress) && !P.isComplete(stageNode, progress)) {
-        const context = { mode: 'first-play', returnTo: 'journey', nodeId: stageNode.nodeId, type: 'stage' };
+        const context = { mode: 'first-play', returnTo: returnTargetFor(stageNode), nodeId: stageNode.nodeId, type: 'stage' };
         if (TacticalGame.resumeStage(stageId, context)) {
           recordWordEncounter(stageId);
           active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: stageNode.nodeId }); return true;
@@ -159,7 +176,7 @@
     }
     if (saved && P.isComplete(saved, progress)) {
       if (pending?.stageId === saved.id && saved.type === 'stage' && location?.view === 'tactical') {
-        const context = { mode: 'first-play', returnTo: 'journey', nodeId: saved.nodeId, type: 'stage' };
+        const context = { mode: 'first-play', returnTo: returnTargetFor(saved), nodeId: saved.nodeId, type: 'stage' };
         if (TacticalGame.resumeStage(saved.id, context)) {
           recordWordEncounter(saved.id);
           active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: saved.nodeId });
@@ -179,7 +196,7 @@
     if (!node) return showWorld();
     if (nodeRegionId(node) && location?.nodeId !== node.nodeId) return showWorld();
     if (node.type === 'story') return playStory(node.id, { beat: location?.nodeId === node.nodeId ? location.beat : 0 });
-    const context = { mode: 'first-play', returnTo: 'journey', nodeId: node.nodeId, type: 'stage' };
+    const context = { mode: 'first-play', returnTo: returnTargetFor(node), nodeId: node.nodeId, type: 'stage' };
     if (TacticalGame.resumeStage(node.id, context)) {
       recordWordEncounter(node.id);
       active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: node.nodeId }); return true;
@@ -194,11 +211,14 @@
   }
   function showStageComplete(id, context) {
     const replay = context.mode === 'replay', stage = STAGES.find(s => s.id === id);
+    const node = P.getNode(`stage:${id}`);
     const next = P.nextNode(`stage:${id}`, store.get());
     TacticalGame.openSheet(`<div class="completeMark">✓</div><h2>${replay ? '다시 플레이 완료' : '스테이지 완료'}</h2><div class="story"></div><div class="sheetactions"><button id="flowRetry" class="secondary">다시 해보기</button><button id="flowNext"></button></div>`);
     // The stage-5 narrative now lives in P-02. Do not repeat 救命 twice.
     $('sheet').querySelector('.story').textContent = replay ? '연습은 여기에 남겨두고, 본편의 여행은 그대로 이어갈 수 있어.' : id === 'stage-5' ? '숲을 빠져나왔다. 길 너머에서 목소리가 들린다.' : stage.story;
-    $('flowNext').textContent = replay ? (context.returnTo === 'world' ? '월드맵으로' : '여정으로') : next?.type === 'story' ? '이야기 계속' : next ? '다음 스테이지' : '월드맵으로';
+    $('flowNext').textContent = replay
+      ? (context.returnTo === 'world' ? '월드맵으로' : context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID ? '연구실로' : '여정으로')
+      : node?.returnToRegionHubAfter ? '연구실로' : next?.type === 'story' ? '이야기 계속' : next ? '다음 스테이지' : '월드맵으로';
     $('flowNext').onclick = () => { TacticalGame.closeSheet(); replay ? returnFromReplay(context) : continueFromNode(`stage:${id}`); };
     $('flowRetry').onclick = () => playStage(id, context);
   }
@@ -241,7 +261,7 @@
     $('flowWords').onclick = showWords; $('flowSettings').onclick = showSettings;
     $('flowTitle').onclick = showLanding; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
   }
-  globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, playStory, playStage, continueFromNode, enterRegion,
+  globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, showRegionHub, playStory, playStage, continueFromNode, enterRegion,
     continueCampaign, resume, showMenu, showWords, showSettings, resetJourney, recordStageComplete, showStageComplete, progress: () => store.get() });
   document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
   $('journeyReset')?.addEventListener('click', resetJourney);

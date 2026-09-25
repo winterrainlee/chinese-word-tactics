@@ -18,6 +18,12 @@
       titleKo: '자유 의뢰 · 물길마을 주변',
       subtitleKo: '익숙해진 생활권에서 관찰하고 판단한 말',
       regions: ['north-forest']
+    },
+    {
+      id: 'academic-tower-research',
+      titleKo: '학술탑 · 계속되는 연구',
+      subtitleKo: '긴 문장을 나누고 정보의 방향을 다시 연결한다.',
+      regions: ['academic-tower']
     }
   ];
 
@@ -46,6 +52,11 @@
       id: 'north-forest', chapterId: 'waterway-side-quests', nameKo: '북쪽 숲', nameZh: '北邊森林',
       axisKo: '관찰 · 비교 · 흔적 · 안전', descriptionKo: '장터·여관·장인골과 이어지는 생활 숲에서 작은 차이와 현재 상황을 읽는다.',
       stagePrefixes: ['north-forest-stage-']
+    },
+    {
+      id: 'academic-tower', chapterId: 'academic-tower-research', nameKo: '학술탑', nameZh: '學術塔',
+      axisKo: '분할 · 대조 · 중심 이동', descriptionKo: '서로 다른 시기의 기록을 나누고 연결해 마지막 판단이 어디에 남는지 확인한다.',
+      stagePrefixes: ['academic-tower-turn-']
     }
   ];
 
@@ -238,6 +249,13 @@
       words: ['情況', '安全', '危險'], related: ['障礙', '帶領', '跟隨'],
       noteKo: '길의 안전은 이름이나 거리보다 오늘의 젖음·폭·장애물과 지나갈 대상에 따라 달라진다.',
       gameNoteKo: '세 길의 상황을 확인하고 작은 수레가 안전하게 지날 길을 골랐다.'
+    },
+    {
+      id: 'academic-tower-contrast-focus', chapterId: 'academic-tower-research', regionId: 'academic-tower',
+      titleKo: '문장 안과 기록 사이의 전환', type: 'scope', displayZh: '卻 → 然而',
+      words: ['卻', '然而'], related: ['危險', '修復', '恢復'],
+      noteKo: '卻은 한 문장 안에서 뒤 내용으로 중심을 옮기고, 然而는 완결된 앞 기록을 인정하면서 다음 기록이 전체 판단을 제한하게 한다.',
+      gameNoteKo: '짧은 수로의 장점을 지우지 않으면서 비 오는 날의 위험을 중심에 남겼고, 수리 효과 뒤에 남은 이상 기록을 연결했다.'
     }
   ];
 
@@ -310,7 +328,9 @@
     '留下': { exampleKo: '꾸러미가 가지에 파란 실을 남겼다.' },
     '情況': { exampleKo: '먼저 각 길의 현재 상황을 확인한다.' },
     '安全': { exampleKo: '마르고 넓은 길은 작은 수레에 안전하다.' },
-    '危險': { exampleKo: '젖고 좁은 길은 작은 수레에 위험하다.' }
+    '危險': { exampleKo: '젖고 좁은 길은 작은 수레에 위험하다.' },
+    '卻': { exampleKo: '이 수로는 비교적 짧지만, 비 오는 날에는 오히려 더 위험하다.', usageKo: '앞 정보를 취소하기보다 뒤 내용으로 판단의 중심이 이동하는 대조를 표시한다.' },
+    '然而': { exampleKo: '낡은 수로를 수리하면 물의 양을 늘릴 수 있다. 그러나 이 장치는 아직 정상으로 회복되지 않았다.', usageKo: '문장이나 기록 사이에서 앞 내용을 인정한 채 뒤 제한을 연결하는 문어적 전환이다.' }
   };
 
   const stageRegionId = stageId => {

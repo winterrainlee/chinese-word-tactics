@@ -22,7 +22,7 @@ function save(){try{if(stageSession.mode!=='replay')localStorage.setItem(SAVEKEY
 function load(){
   const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}};
   const x=read(SAVEKEY),w=read(WORLDKEY),ids=v=>Array.isArray(v)?v.filter(id=>typeof id==='string'):[];
-  if(w)worldState={visited:ids(w.visited),completedMilestones:ids(w.completedMilestones)};
+  if(w)worldState={visited:ids(w.visited).map(id=>id==='research-city'?'academic-tower':id),completedMilestones:ids(w.completedMilestones)};
   if(x)completed=new Set(ids(x.completed).filter(id=>STAGES.some(st=>st.id===id)));
   const st=STAGES[x?.stageIndex],s=x?.state;
   const valid=v=>v&&Array.isArray(v.hero)&&v.hero.length===2&&v.hero.every(Number.isInteger)&&st?.grid[v.hero[0]]?.[v.hero[1]]&&Number.isInteger(v.phase)&&v.phase>=0&&(!st.wolf||v.phase<st.wolf.cycle.length)&&Number.isInteger(v.turn)&&v.turn>=0;

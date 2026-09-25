@@ -40,7 +40,7 @@ function parseLifecycleStages(root, lifecycle) {
   const found = [];
   for (const rel of strings(lifecycle.stageSources)) {
     const text = fs.readFileSync(path.join(root, rel), 'utf8');
-    const stageId = /\bid\s*:\s*['"]((?:stage|gate-stage|workshop-stage|market-stage|north-forest-stage)-\d+)['"]/g;
+    const stageId = /\bid\s*:\s*['"]((?:stage|gate-stage|workshop-stage|market-stage|north-forest-stage)-\d+|academic-tower-turn-\d{2}-[a-z0-9-]+)['"]/g;
     const matches = [...text.matchAll(stageId)];
     matches.forEach((match, index) => {
       const end = index + 1 < matches.length ? matches[index + 1].index : text.length;

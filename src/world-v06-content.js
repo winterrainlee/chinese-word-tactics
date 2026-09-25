@@ -60,12 +60,14 @@
       recommendation: '장터의 일을 먼저 마치고 오는 걸 권장해. 물건을 나누는 문제가 왜 마을의 결정으로 이어지는지 알기 쉬워져.',
       map: { x: 79, y: 48, branch: 'market', kind: 'landmark' }
     },
-    'research-city': {
+    'academic-tower': {
       name: '學術塔', nameKo: '학술탑', mapNameKo: '학술탑',
       subtitle: '지식과 기록이 모이는 탑',
       note: '오래된 기술과 기록을 살피는 곳. 장인골에서 발견한 단서가 이곳으로 이어진다.',
       summary: '오래된 기술과 기록이 모이는 탑이야.',
-      lockHint: '장인골의 핵심 의뢰를 끝내면 학술탑을 찾아갈 이유와 단서를 얻게 돼.',
+      lockHint: '물길마을의 세 갈래 여행을 마치고 방에서 다음 행선지를 정하면 학술탑으로 갈 수 있어.',
+      recommendationMilestone: 'chapter1-complete',
+      recommendation: '장인골의 오래된 조절기에서 얻은 단서를 확인한 뒤 방문하는 흐름을 권장해.',
       map: { x: 26, y: 46, branch: 'workshop', kind: 'landmark' }
     }
   };

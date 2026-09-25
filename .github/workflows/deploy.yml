@@ -91,6 +91,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_north_forest.py
 
+      - name: Run Academic Tower Slice A browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_academic_tower.py
+
       - name: Run tactical layout viewport matrix
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
@@ -99,6 +104,7 @@ jobs:
           python tests/smoke_workshop_layout.py
           python tests/smoke_market_layout.py
           python tests/smoke_north_forest_layout.py
+          python tests/smoke_academic_tower_layout.py
 
       - name: Run mobile lexicon browser smoke
         env:

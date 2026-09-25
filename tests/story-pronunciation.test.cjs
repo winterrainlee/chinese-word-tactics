@@ -12,7 +12,7 @@ test('the pronunciation corpus covers every implemented story and outcome', () =
   const output = execFileSync(process.execPath, ['tools/story-pronunciation-audit.cjs'], {
     cwd: root, encoding: 'utf8'
   });
-  assert.match(output, /63 stories/);
+  assert.match(output, /66 stories/);
 });
 
 test('pronunciation lookup is scoped to the exact story context', () => {
@@ -24,7 +24,7 @@ test('pronunciation lookup is scoped to the exact story context', () => {
   assert.ok(context.StoryPronunciation.readingFor('gate-arrival', gate));
   assert.equal(context.StoryPronunciation.readingFor('gate-arrival', first), null);
   assert.equal(context.StoryPronunciation.readingFor('prologue-departure', gate), null);
-  assert.equal(context.StoryPronunciation.supportedStories.length, 63);
+  assert.equal(context.StoryPronunciation.supportedStories.length, 66);
 });
 
 test('story renderer creates safe per-character ruby and keeps assistive text clean', () => {

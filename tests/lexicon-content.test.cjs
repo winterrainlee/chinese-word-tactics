@@ -25,11 +25,12 @@ test('lexicon groups cover every first-chapter stage word without inventing voca
     'src/chapter1-finale-content.js',
     'src/first-free-quest-content.js',
     'src/north-forest-content.js',
+    'src/academic-tower-content.js',
     'src/lexicon-content.js'
   ].forEach(file => load(context, file));
 
   const snapshot = vm.runInContext(`(() => {
-    const regionIds = ['forest-road','gate-town','workshop-town','market-town','north-forest'];
+    const regionIds = ['forest-road','gate-town','workshop-town','market-town','north-forest','academic-tower'];
     const stageWords = Object.fromEntries(regionIds.map(regionId => {
       const words = [];
       STAGES.filter(stage => LexiconContent.stageRegionId(stage.id) === regionId).forEach(stage => {
@@ -58,7 +59,8 @@ test('lexicon groups cover every first-chapter stage word without inventing voca
     'gate-town': 14,
     'workshop-town': 14,
     'market-town': 15,
-    'north-forest': 21
+    'north-forest': 21,
+    'academic-tower': 2
   });
 
   assert.equal(new Set(snapshot.groupIds).size, snapshot.groupIds.length, 'group ids must be unique');

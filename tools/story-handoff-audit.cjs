@@ -19,6 +19,9 @@ const files = [
   'src/continuous-region-flow.js',
   'src/chapter1-finale-content.js',
   'src/first-free-quest-content.js',
+  'src/north-forest-content.js',
+  'src/academic-tower-content.js',
+  'src/academic-tower-journey-content.js',
   'src/story-outcome-content.js',
   'src/market-story-outcome-content.js',
   'src/g7-story-outcome-content.js'

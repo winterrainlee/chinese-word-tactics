@@ -146,7 +146,7 @@ v1.0까지는 `기획 → 구현 → Pages 배포 → iPhone 실기기 확인 �
 |---|---|
 | 북쪽 숲 F2~F8 | `✅` 다섯 자유 의뢰와 최종 `north-forest-familiar`까지 구현·자동검사·iPhone 13 mini Safari 최종 검수 완료. |
 | 끝마을·변경 방면 | 길목에서 열린 북쪽 길을 따라 물길마을 바깥세계로 확장한다. |
-| 학술탑 | `🟨` 정해진 판 수와 전체 격파 없이 계속 증축하는 상설 학습 공간으로 확정했다. 후보 221개를 `core 110 / secondary 65 / later 46`으로 우선순위화했고, `卻 → 然而`와 `果然／竟然 → 反而`가 합류하는 첫 연구 묶음 5개 방을 설계했다. 첫 방문에서는 문지기가 낯선 소년을 막고, 지나가던 수로 기록 연구원이 공방 수리패와 담당 주제를 확인한 뒤 자기 연구실에 들인다. 이 입장 장면과 중간 이야기 3개·결과 이야기의 한중 대사, 장기 표식 연구축까지 작성했다. 런타임은 아직 미구현이다. |
+| 학술탑 | 첫 연구 묶음 전체 `🟨`, Slice A `🧪`. 후보 221개와 5개 방 사양은 유지한다. 첫 방문에서 문지기의 제지와 수로 기록 연구원의 제한된 입장 허가, 연구실 도입, 01 `卻`, 01 뒤 이야기, 02 `然而`, 전용 허브를 구현했다. 첫 플레이 저장·재플레이 비변경·새로고침 복귀와 4 viewport 지역 검사를 통과했으며, 03~05·묶음 milestone·Pages·iPhone 승인은 남아 있다. |
 | 회의소 | 장터의 `需求 / 分配 / 選擇`을 더 사회적인 문맥으로 확장해, 실제 이해관계 충돌·공동 규칙·`公平`을 다룬다. |
 | 여관 확장 | 청소·부엌·세탁 같은 생활 기능은 실제 이야기·플레이 수요가 생길 때만 늘린다. 날짜·밤·아침 루틴을 진행 조건으로 만들지 않는다. |
 | 여관 방 자산 로딩 정리 | 현재 640×960 WebP를 Base64 3청크로 보관하고 여관을 실제로 눌렀을 때 preload·decode한다. 추후 바이너리 자산 업로드 경로를 정리해 실제 단일 `.webp` 파일 직접 로딩으로 교체하고, 청크 결합·Base64 디코딩·Blob 생성 경로를 제거한다. |
@@ -175,6 +175,7 @@ v1.0까지는 `기획 → 구현 → Pages 배포 → iPhone 실기기 확인 �
 - 학술탑 후보·선수 관계: [ACADEMIC-TOWER-CANDIDATE-CURRICULUM-v0.1.md](ACADEMIC-TOWER-CANDIDATE-CURRICULUM-v0.1.md)
 - 학술탑 첫 연구 묶음: [ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md)
 - 학술탑 시작 이야기: [ACADEMIC-TOWER-OPENING-STORY-v0.1.md](ACADEMIC-TOWER-OPENING-STORY-v0.1.md)
+- 학술탑 Slice A 구현 기록: [ACADEMIC-TOWER-SLICE-A-IMPLEMENTATION-v0.1.md](ACADEMIC-TOWER-SLICE-A-IMPLEMENTATION-v0.1.md)
 - 이야기·여정 구조: [STORY-JOURNEY-SYSTEM-v0.1.md](STORY-JOURNEY-SYSTEM-v0.1.md)
 - 여관 최소 범위: [INN-HUB-DESIGN-v0.1.md](INN-HUB-DESIGN-v0.1.md)
 - 1장 결말: [CHAPTER1-FINALE-DESIGN-v0.1.md](CHAPTER1-FINALE-DESIGN-v0.1.md)

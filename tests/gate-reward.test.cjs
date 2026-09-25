@@ -33,7 +33,7 @@ test('world reward badges are tied to finishing each award story and use the sig
   assert.match(html, /gate-reward-story-content\.js\?v=20260911-gatereward1/);
   assert.match(html, /world-reward-runtime\.js\?v=20260914-inncopy1/);
   assert.match(html, /world-reward\.css\?v=20260911-gatereward2/);
-  assert.ok(html.indexOf('world-runtime.js?v=20260914-regionreplay1') < html.indexOf('world-reward-runtime.js?v=20260914-inncopy1'));
+  assert.ok(html.indexOf('world-runtime.js?v=20260925-academictower1') < html.indexOf('world-reward-runtime.js?v=20260914-inncopy1'));
 });
 
 test('earned reward also appears inside the selected region detail sheet', () => {

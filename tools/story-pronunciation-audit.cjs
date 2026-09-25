@@ -24,6 +24,8 @@ for (const file of [
   'src/chapter1-finale-content.js',
   'src/first-free-quest-content.js',
   'src/north-forest-content.js',
+  'src/academic-tower-content.js',
+  'src/academic-tower-journey-content.js',
   'src/world-v06-content.js',
   'src/market-inference-runtime.js',
   'src/story-outcome-content.js',
@@ -37,7 +39,8 @@ const storyIds = Object.keys(stories);
 const speakers = Object.freeze({
   narrator: '旁白', boy: '少年', merchant: '行商阿姨', marketkeeper: '市集管理人',
   innkeeper: '客棧主人', gatekeeper: '守門人', driver: '車夫', artisan: '工匠',
-  collector: '採集人', resident: '居民', unknown: '遠處的聲音'
+  collector: '採集人', resident: '居民', unknown: '遠處的聲音',
+  towerGatekeeper: '學術塔守門人', towerResearcher: '水道記錄研究員'
 });
 const corpus = [];
 const add = (id, text, source) => {

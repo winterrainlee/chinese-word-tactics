@@ -7,7 +7,7 @@
     "entryCountInSnapshot": 14452,
     "url": "https://coct.naer.edu.tw/file/files/14452%E8%A9%9E%E8%AA%9E%E8%A1%A8202504.pdf",
     "verifiedAt": "2026-09-19",
-    "note": "게임에 쓰인 69개 표제어만 공식 2025-04 목록에서 대조한 개발용 부분 메타데이터다. 런타임 원자료가 아니다."
+    "note": "게임에 쓰인 71개 표제어만 공식 2025-04 목록에서 대조한 개발용 부분 메타데이터다. 런타임 원자료가 아니다."
   },
   "words": {
     "接近": { "level": "4*", "status": "listed" },
@@ -78,6 +78,8 @@
     "留下": { "level": "3*", "status": "listed" },
     "情況": { "level": "4", "status": "listed" },
     "安全": { "level": "3", "status": "listed" },
-    "危險": { "level": "3", "status": "listed" }
+    "危險": { "level": "3", "status": "listed" },
+    "卻": { "level": "4", "status": "listed" },
+    "然而": { "level": "5", "status": "listed" }
   }
 }

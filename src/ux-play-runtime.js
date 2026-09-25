@@ -202,7 +202,13 @@
   const baseFlow = globalThis.GameFlow;
   if (baseFlow) {
     function completionLabel(id, context) {
-      if (context.mode === 'replay') return context.returnTo === 'world' ? '월드맵으로' : '여정으로';
+      if (context.mode === 'replay') {
+        if (context.returnTo === 'world') return '월드맵으로';
+        if (context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID) return '연구실로';
+        return '여정으로';
+      }
+      const node = JourneyProgress.getNode(`stage:${id}`);
+      if (node?.returnToRegionHubAfter) return '연구실로';
       const next = JourneyProgress.nextNode(`stage:${id}`, baseFlow.progress());
       if (next?.type === 'story') return /after|finale/.test(next.id) ? '후일담 보기' : '이야기 계속';
       if (next?.type === 'stage') return '다음 판 시작';
@@ -234,7 +240,9 @@
       next.onclick = () => {
         let advanced;
         if (context.mode === 'replay') {
-          advanced = context.returnTo === 'world' ? baseFlow.showWorld() : baseFlow.showJourney();
+          advanced = context.returnTo === 'world' ? baseFlow.showWorld()
+            : context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID
+              ? baseFlow.showRegionHub(context.returnTo) : baseFlow.showJourney();
         } else {
           advanced = baseFlow.continueFromNode(`stage:${id}`);
         }

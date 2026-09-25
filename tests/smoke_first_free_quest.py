@@ -379,9 +379,10 @@ try:
             'market-town': '사람과 물건이 모이는 장터야.',
             'border-village': '물길마을 밖으로 이어지는 다음 정착지야.',
             'council-town': '마을 사람들이 함께 의논하는 곳이야.',
-            'research-city': '오래된 기술과 기록이 모이는 탑이야.'
+            'academic-tower': '오래된 기술과 기록이 모이는 탑이야.'
         }
         completed_region_ids = {'gate-town', 'workshop-town', 'market-town'}
+        enterable_region_ids = {'academic-tower'}
         for region_id, summary in place_summaries.items():
             page.locator(f'.regionCard[data-region-id="{region_id}"]').click()
             page.locator('#worldPlaceClose').wait_for(state='visible')
@@ -392,6 +393,8 @@ try:
             assert page.locator('#sheet .worldPlaceState').count() == 0, region_id
             if region_id in completed_region_ids:
                 assert page.locator('#worldPlaceGo').inner_text() == '다시 연습하기', region_id
+            elif region_id in enterable_region_ids:
+                assert page.locator('#worldPlaceGo').inner_text() == '이곳으로 가기', region_id
             else:
                 assert page.locator('#worldPlaceGo').count() == 0, region_id
                 assert page.locator('#sheet .sheetactions button:disabled').inner_text() == '의뢰 준비 중', region_id
