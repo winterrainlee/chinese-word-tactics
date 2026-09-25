@@ -78,7 +78,9 @@ try:
 
             page.evaluate("TacticalGame.playStage('academic-tower-turn-01-que', {mode:'replay', returnTo:'academic-tower'})")
             assert_view(page, "#tutorialView", width, height, f"01-initial-{width}x{height}")
-            page.locator('[data-academic-action="split"][data-value="marker"]').click()
+            page.locator('[data-academic-action="reveal"]').click()
+            page.locator('[data-academic-action="select-claim"][data-value="overreach-use"]').click()
+            page.locator('[data-academic-action="submit-claim"]').click()
             assert_view(page, "#tutorialView", width, height, f"01-long-{width}x{height}")
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
 

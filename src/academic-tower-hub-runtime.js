@@ -44,7 +44,7 @@
       names.append(ko, zh, terms);
       const stateLabel = document.createElement('span');
       stateLabel.className = 'academicTowerRoomState';
-      stateLabel.textContent = state === 'complete' ? '다시 연구' : state === 'available' ? '열림' : state === 'planned' ? '다음 slice' : '잠김';
+      stateLabel.textContent = state === 'complete' ? '다시 연구' : state === 'available' ? '열림' : state === 'planned' ? '준비 중' : '잠김';
       button.append(number, names, stateLabel);
       if (!button.disabled) {
         button.onclick = () => globalThis.GameFlow?.playStage?.(room.id, {

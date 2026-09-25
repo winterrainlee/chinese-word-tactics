@@ -1,64 +1,148 @@
-/* Academic Tower reading workbench. Pure transitions stay testable without a browser. */
+/* Academic Tower claim-revision workbench. Pure transitions stay testable without a browser. */
 (() => {
   const copy = value => JSON.parse(JSON.stringify(value));
+  const orderKey = (caseId, step) => `${caseId}:${step}`;
 
-  function createState(config) {
-    if (config?.kind === 'later-focus') {
-      return { kind: config.kind, split: null, splitChoice: null, focus: null, confirmed: false };
+  function orderedIds(items, correctId, correctSlot) {
+    const ids = items.map(item => item.id);
+    const wrong = ids.filter(id => id !== correctId);
+    const result = new Array(ids.length);
+    result[correctSlot] = correctId;
+    let wrongIndex = 0;
+    for (let index = 0; index < result.length; index += 1) {
+      if (result[index] === undefined) result[index] = wrong[wrongIndex++];
     }
-    if (config?.kind === 'record-contrast') {
-      return {
-        kind: config.kind, secondRevealed: false, relation: null,
-        focus: 'earlier-record', conclusion: 'repair-helped', confirmed: false
-      };
+    return result;
+  }
+
+  function optionOrders(config, rng = Math.random) {
+    const result = {};
+    const baseSlot = Math.floor(Math.max(0, Math.min(.999999, Number(rng()) || 0)) * 3);
+    let challengeIndex = 0;
+    for (const item of config.cases || []) {
+      if (item.mode === 'guided') {
+        result[orderKey(item.id, 'claim')] = orderedIds(
+          item.claims, item.repairTargetId, (baseSlot + challengeIndex++) % 3
+        );
+      }
+      result[orderKey(item.id, 'revision')] = orderedIds(
+        item.revisions, item.correctRevisionId, (baseSlot + challengeIndex++) % 3
+      );
     }
-    return null;
+    return result;
+  }
+
+  function openingPhase(item) {
+    if (item.sources.some(source => !source.initiallyVisible)) return 'source';
+    return item.mode === 'guided' ? 'claim' : 'revision';
+  }
+
+  function visibleSourceIds(item) {
+    return item.sources.filter(source => source.initiallyVisible).map(source => source.id);
+  }
+
+  function createState(config, rng) {
+    const item = config?.cases?.[0];
+    if (config?.kind !== 'claim-revision' || !item) return null;
+    return {
+      schemaVersion: config.schemaVersion,
+      kind: config.kind,
+      caseIndex: 0,
+      phase: openingPhase(item),
+      revealedSourceIds: visibleSourceIds(item),
+      claimId: null,
+      revisionId: null,
+      completedCaseIds: [],
+      optionOrders: optionOrders(config, rng),
+      lastCheck: null
+    };
+  }
+
+  function isValidState(config, workbench) {
+    return !!workbench && workbench.kind === config?.kind &&
+      workbench.schemaVersion === config?.schemaVersion &&
+      Number.isInteger(workbench.caseIndex) && Array.isArray(workbench.revealedSourceIds) &&
+      workbench.optionOrders && typeof workbench.optionOrders === 'object';
+  }
+
+  function caseFor(config, workbench) {
+    return config?.cases?.[workbench?.caseIndex] || null;
   }
 
   function applyAction(config, currentState, action) {
-    const next = copy(currentState || createState(config));
-    if (!next || !action?.type) return { changed: false, state: next };
+    const next = copy(isValidState(config, currentState) ? currentState : createState(config));
+    const item = caseFor(config, next);
+    if (!next || !item || !action?.type || next.phase === 'complete') {
+      return { changed: false, state: next, feedback: '' };
+    }
     let changed = false;
-    if (config.kind === 'later-focus') {
-      if (action.type === 'split') {
-        const option = (config.splitOptions || []).find(item => item.id === action.value);
-        if (option && (next.split !== option.normalized || next.splitChoice !== option.id)) {
-          next.split = option.normalized; next.splitChoice = option.id; changed = true;
-        }
-      } else if (action.type === 'focus' && ['earlier', 'later'].includes(action.value) && next.focus !== action.value) {
-        next.focus = action.value; changed = true;
-      } else if (action.type === 'confirm' && !next.confirmed) {
-        next.confirmed = true; changed = true;
+    let feedback = '';
+    let correct = null;
+
+    if (action.type === 'reveal' && next.phase === 'source') {
+      next.revealedSourceIds = item.sources.map(source => source.id);
+      next.phase = item.mode === 'guided' ? 'claim' : 'revision';
+      next.lastCheck = null;
+      changed = true;
+      feedback = item.scope === 'sentence'
+        ? '문장을 두 사실로 나눠 펼쳤어. 이제 검토 메모와 비교해 봐.'
+        : '뒤의 점검 기록도 펼쳤어. 두 기록은 함께 참일 수 있어.';
+    } else if (action.type === 'select-claim' && next.phase === 'claim' &&
+      item.claims.some(option => option.id === action.value)) {
+      if (next.claimId !== action.value || next.lastCheck) changed = true;
+      next.claimId = action.value;
+      next.lastCheck = null;
+    } else if (action.type === 'submit-claim' && next.phase === 'claim' && next.claimId) {
+      const selected = item.claims.find(option => option.id === next.claimId);
+      correct = next.claimId === item.repairTargetId;
+      next.lastCheck = { step: 'claim', id: next.claimId, correct };
+      feedback = selected?.feedbackKo || '';
+      if (correct) {
+        next.phase = 'revision';
+        next.revisionId = null;
+      }
+      changed = true;
+    } else if (action.type === 'select-revision' && next.phase === 'revision' &&
+      item.revisions.some(option => option.id === action.value)) {
+      if (next.revisionId !== action.value || next.lastCheck) changed = true;
+      next.revisionId = action.value;
+      next.lastCheck = null;
+    } else if (action.type === 'submit-revision' && next.phase === 'revision' && next.revisionId) {
+      const selected = item.revisions.find(option => option.id === next.revisionId);
+      correct = next.revisionId === item.correctRevisionId;
+      next.lastCheck = { step: 'revision', id: next.revisionId, correct };
+      feedback = correct ? item.successFeedbackKo : (selected?.feedbackKo || '두 사실을 모두 남겼는지 다시 살펴봐.');
+      if (correct) {
+        if (!next.completedCaseIds.includes(item.id)) next.completedCaseIds.push(item.id);
+        next.phase = next.caseIndex === config.cases.length - 1 ? 'complete' : 'review';
+      }
+      changed = true;
+    } else if (action.type === 'next-case' && next.phase === 'review') {
+      const nextIndex = next.caseIndex + 1;
+      const nextCase = config.cases[nextIndex];
+      if (nextCase) {
+        next.caseIndex = nextIndex;
+        next.phase = openingPhase(nextCase);
+        next.revealedSourceIds = visibleSourceIds(nextCase);
+        next.claimId = null;
+        next.revisionId = null;
+        next.lastCheck = null;
+        changed = true;
+        feedback = '같은 방법이 새 기록에서도 통하는지 확인해 보자.';
       }
     }
-    if (config.kind === 'record-contrast') {
-      if (action.type === 'reveal' && !next.secondRevealed) {
-        next.secondRevealed = true; changed = true;
-      } else if (action.type === 'relation' && ['addition', 'contrast'].includes(action.value) && next.relation !== action.value) {
-        next.relation = action.value; changed = true;
-      } else if (action.type === 'conclusion' && ['restored', 'not-restored'].includes(action.value) && next.conclusion !== action.value) {
-        next.conclusion = action.value; next.focus = action.value === 'not-restored' ? 'later-record' : 'earlier-record'; changed = true;
-      } else if (action.type === 'confirm' && !next.confirmed) {
-        next.confirmed = true; changed = true;
-      }
-    }
-    if (changed && action.type !== 'confirm') next.confirmed = false;
-    return { changed, state: next };
+    return { changed, state: next, feedback, correct };
   }
 
-  function isSolved(config, workbenchState) {
-    if (!config || !workbenchState?.confirmed) return false;
-    if (config.kind === 'later-focus') {
-      return workbenchState.split === 'before-marker' && workbenchState.focus === 'later';
-    }
-    if (config.kind === 'record-contrast') {
-      return workbenchState.secondRevealed && workbenchState.relation === 'contrast' &&
-        workbenchState.focus === 'later-record' && workbenchState.conclusion === 'not-restored';
-    }
-    return false;
+  function isSolved(config, workbench) {
+    if (!isValidState(config, workbench) || workbench.phase !== 'complete') return false;
+    return (config.cases || []).every(item => workbench.completedCaseIds.includes(item.id));
   }
 
-  const Mechanic = Object.freeze({ createState, applyAction, isSolved });
+  const Mechanic = Object.freeze({
+    createState, applyAction, isSolved, isValidState, optionOrders,
+    __test: Object.freeze({ openingPhase, orderedIds })
+  });
   globalThis.AcademicTowerMechanic = Mechanic;
 
   if (typeof initialState !== 'function' || typeof render !== 'function' || typeof isWin !== 'function') return;
@@ -78,28 +162,74 @@
     return config ? isSolved(config, state?.academicTower) : baseIsWin();
   };
 
+  const escapeHtml = value => String(value ?? '')
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;').replaceAll("'", '&#39;');
   const selected = (value, expected) => value === expected ? ' selected' : '';
   const pressed = (value, expected) => String(value === expected);
-  const chunk = (item, focus, id) => `<button type="button" class="academicChunk${selected(focus, id)}" data-academic-action="focus" data-value="${id}" aria-pressed="${pressed(focus, id)}"><span lang="zh-Hant">${item.text}</span><small>${item.labelKo}</small></button>`;
 
-  function renderLaterFocus(config, workbench) {
-    const splitButtons = config.splitOptions.map(option => `<button type="button" class="academicChoice${selected(workbench.splitChoice, option.id)}" data-academic-action="split" data-value="${option.id}" aria-pressed="${pressed(workbench.splitChoice, option.id)}">${option.label}</button>`).join('');
-    const chunks = workbench.split ? `<div class="academicRelationArrow" aria-hidden="true">앞 정보 <span>→</span> 뒤 중심</div><div class="academicChunks">${chunk(config.chunks[0], workbench.focus, 'earlier')}${chunk(config.chunks[1], workbench.focus, 'later')}</div>` : '<p class="academicWorkbenchHint">두 경계 모두 같은 의미 덩어리를 만들 수 있어. 읽기 편한 곳을 골라.</p>';
-    return `<div class="academicRecord" lang="zh-Hant">${config.record}</div><section class="academicStep"><h2>1 · 의미 경계</h2><div class="academicChoices">${splitButtons}</div></section>${workbench.split ? `<section class="academicStep"><h2>2 · 마지막에 남길 중심</h2>${chunks}</section>` : chunks}<button type="button" class="academicConfirm" data-academic-action="confirm" ${!workbench.split || !workbench.focus ? 'disabled' : ''}>이 읽기로 확정</button>`;
+  function orderedItems(workbench, item, step) {
+    const options = step === 'claim' ? item.claims : item.revisions;
+    const ids = workbench.optionOrders[orderKey(item.id, step)] || options.map(option => option.id);
+    return ids.map(id => options.find(option => option.id === id)).filter(Boolean);
   }
 
-  function renderRecordContrast(config, workbench) {
-    const first = config.records[0], second = config.records[1];
-    const relation = workbench.secondRevealed ? `<section class="academicStep"><h2>1 · 두 기록의 관계</h2><div class="academicChoices"><button type="button" class="academicChoice${selected(workbench.relation, 'addition')}" data-academic-action="relation" data-value="addition" aria-pressed="${pressed(workbench.relation, 'addition')}">그리고 · 나란히 추가</button><button type="button" class="academicChoice${selected(workbench.relation, 'contrast')}" data-academic-action="relation" data-value="contrast" aria-pressed="${pressed(workbench.relation, 'contrast')}">然而 · 뒤에서 제한</button></div></section>` : '';
-    const conclusions = workbench.secondRevealed ? `<section class="academicStep"><h2>2 · 전체 기록의 최종 판단</h2><div class="academicConclusions">${config.conclusions.map(item => `<button type="button" class="academicConclusion${selected(workbench.conclusion, item.id)}" data-academic-action="conclusion" data-value="${item.id}" aria-pressed="${pressed(workbench.conclusion, item.id)}"><span lang="zh-Hant">${item.labelZh}</span><small>${item.labelKo}</small></button>`).join('')}</div></section>` : '';
-    return `<div class="academicRecords"><article class="academicRecordCard${selected(workbench.focus, 'earlier-record')}"><small>${first.labelKo}</small><p lang="zh-Hant">${first.text}</p></article>${workbench.secondRevealed ? `<div class="academicRecordLink${workbench.relation === 'contrast' ? ' active' : ''}" aria-label="두 기록 연결">${workbench.relation === 'contrast' ? '然而 ↓' : '↓'}</div><article class="academicRecordCard${selected(workbench.focus, 'later-record')}"><small>${second.labelKo}</small><p lang="zh-Hant">${second.text}</p></article>` : '<button type="button" class="academicReveal" data-academic-action="reveal">다음 기록 펼치기</button>'}</div>${relation}${conclusions}<button type="button" class="academicConfirm" data-academic-action="confirm" ${!workbench.secondRevealed || !workbench.relation || !workbench.conclusion ? 'disabled' : ''}>전체 판단 확정</button>`;
+  function markedText(source) {
+    const text = escapeHtml(source.text);
+    const marker = source.connectorZh;
+    if (!marker) return text;
+    return text.replace(escapeHtml(marker), `<strong class="academicConnector">${escapeHtml(marker)}</strong>`);
   }
 
-  function goalHtml(stage, workbench) {
-    if (stage.academicTower.kind === 'later-focus') {
-      return `문장을 <span class="${workbench.split ? 'done' : 'hot'}">나누고</span>, <span class="${workbench.focus === 'later' ? 'done' : 'hot'}">중심</span>을 뒤에 남겨.`;
+  function renderSources(item, workbench) {
+    const visible = item.sources.filter(source => workbench.revealedSourceIds.includes(source.id));
+    const relation = visible.length > 1
+      ? `<div class="academicSourceRelation" aria-label="${escapeHtml(item.connectorZh)}로 이어지는 기록"><span aria-hidden="true">↳</span><small>${item.scope === 'sentence' ? '한 문장 안의 대조' : '두 기록 사이의 전환'}</small></div>`
+      : '';
+    const cards = visible.map(source => `<article class="academicSourceCard" data-source-id="${escapeHtml(source.id)}"><p lang="zh-Hant">${markedText(source)}</p><small>${escapeHtml(source.labelKo)}</small></article>`);
+    const content = cards.length > 1 ? `${cards[0]}${relation}${cards.slice(1).join('')}` : cards.join('');
+    return `<div class="academicSources ${item.scope === 'sentence' ? 'sentence' : 'records'}">${content}</div>`;
+  }
+
+  function renderOptions(workbench, item, step) {
+    const isClaim = step === 'claim';
+    const value = isClaim ? workbench.claimId : workbench.revisionId;
+    const selectAction = isClaim ? 'select-claim' : 'select-revision';
+    const submitAction = isClaim ? 'submit-claim' : 'submit-revision';
+    const heading = isClaim ? '고칠 주장 찾기' : (item.mode === 'guided' ? '메모 수정' : '두 사실을 반영한 메모');
+    const submitLabel = isClaim ? '이 주장 검토' : '이 메모로 수정';
+    const buttons = orderedItems(workbench, item, step).map(option => `<button type="button" class="academicMemoChoice${selected(value, option.id)}" data-academic-action="${selectAction}" data-value="${escapeHtml(option.id)}" aria-pressed="${pressed(value, option.id)}">${escapeHtml(option.labelKo)}</button>`).join('');
+    return `<section class="academicStep"><h2>${heading}</h2><div class="academicMemoChoices">${buttons}</div></section><button type="button" class="academicConfirm" data-academic-action="${submitAction}" ${value ? '' : 'disabled'}>${submitLabel}</button>`;
+  }
+
+  function renderReview(item, workbench, finalReview = false) {
+    const corrected = item.revisions.find(option => option.id === item.correctRevisionId);
+    return `<section class="academicReview" aria-live="polite"><div class="academicReviewLabel">검토 완료</div><p class="academicReviewBefore">${escapeHtml(item.draftKo)}</p><div class="academicReviewArrow" aria-hidden="true">↓</div><p class="academicReviewAfter">${escapeHtml(corrected?.labelKo || '')}</p><div class="academicEvidenceMap"><strong lang="zh-Hant">${escapeHtml(item.connectorZh)}</strong><span>${escapeHtml(item.connectionKo)}</span></div></section>${finalReview ? '' : '<button type="button" class="academicConfirm" data-academic-action="next-case">새 기록 확인</button>'}`;
+  }
+
+  function renderWorkbench(config, workbench) {
+    const item = caseFor(config, workbench);
+    if (!item) return '';
+    const progress = item.mode === 'guided' ? '연습 · 1 / 2' : '새 기록 · 2 / 2';
+    let action = '';
+    if (workbench.phase === 'source') {
+      action = `<button type="button" class="academicReveal" data-academic-action="reveal">${escapeHtml(item.revealLabelKo || '나머지 기록 읽기')}</button>`;
+    } else if (workbench.phase === 'claim') {
+      action = renderOptions(workbench, item, 'claim');
+    } else if (workbench.phase === 'revision') {
+      action = renderOptions(workbench, item, 'revision');
+    } else if (workbench.phase === 'review' || workbench.phase === 'complete') {
+      action = renderReview(item, workbench, workbench.phase === 'complete');
     }
-    return `두 기록을 <span class="${workbench.relation === 'contrast' ? 'done' : 'hot'}">연결하고</span>, 마지막 <span class="${workbench.conclusion === 'not-restored' ? 'done' : 'hot'}">판단</span>을 갱신해.`;
+    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">${escapeHtml(item.questionKo)}</h2>${renderSources(item, workbench)}<p class="academicDraft">${escapeHtml(item.draftKo)}</p>${action}`;
+  }
+
+  function goalHtml(workbench) {
+    if (workbench.phase === 'source') return '기록을 끝까지 읽고 <span class="hot">검토할 판단</span>을 찾아.';
+    if (workbench.phase === 'claim') return '기록이 직접 말한 사실과 <span class="hot">성급한 판단</span>을 구별해.';
+    if (workbench.phase === 'revision') return '앞뒤 사실을 함께 남기는 <span class="hot">메모</span>로 고쳐.';
+    if (workbench.phase === 'review') return '고친 방법을 <span class="done">새 기록</span>에도 적용해.';
+    return '두 사실을 보존하고 <span class="done">판단만 수정</span>했어.';
   }
 
   function renderWords(stage, workbench) {
@@ -107,8 +237,10 @@
     $('#words').innerHTML = '';
     stage.words.forEach(word => {
       const button = document.createElement('button');
-      button.type = 'button'; button.className = 'wordbtn'; button.textContent = word;
-      if (solved || (word === '卻' && stage.academicTower.kind === 'record-contrast' && workbench.relation === 'contrast')) button.classList.add('done');
+      button.type = 'button';
+      button.className = 'wordbtn';
+      button.textContent = word;
+      if (solved) button.classList.add('done');
       button.onclick = () => showWord(word);
       $('#words').append(button);
     });
@@ -120,40 +252,19 @@
     });
   }
 
-  function feedback(config, workbench, action) {
-    if (action === 'split') return '句子分成了兩個意思。 문장이 앞 정보와 뒤 판단으로 나뉘었어.';
-    if (action === 'focus') return workbench.focus === 'later'
-      ? '重點移到後面了。 비 오는 날의 위험이 마지막 판단으로 남아.'
-      : '現在只留下「比較短」。 지금은 수로가 짧다는 정보만 중심에 남아.';
-    if (action === 'reveal') return '後面的記錄也展開了。 첫 기록이 맞더라도 아직 전체 기록은 끝나지 않았어.';
-    if (action === 'relation') return workbench.relation === 'contrast'
-      ? '「然而」把後面的限制接上了。 뒤 기록이 전체 판단을 제한하도록 연결했어.'
-      : '兩份記錄現在只是並排。 두 기록이 나란히 놓였지만 방향 변화는 아직 표시되지 않았어.';
-    if (action === 'conclusion') return workbench.conclusion === 'not-restored'
-      ? '最後判斷改成「還沒有恢復正常」。 최종 판단을 뒤 기록에 맞춰 갱신했어.'
-      : '現在把修復效果當成全部結論。 지금은 수리 효과만으로 전체가 회복됐다고 읽고 있어.';
-    if (action === 'confirm' && config.kind === 'later-focus') return workbench.focus === 'later'
-      ? '前面的資料還在，後面的危險成了重點。 앞 정보는 남고 뒤 위험이 중심이 됐어.'
-      : '只留下「比較短」，雨天的危險就不見了。 짧다는 정보만 남기면 비 오는 날의 판단이 사라져.';
-    if (action === 'confirm') {
-      if (workbench.relation !== 'contrast') return '兩份記錄只是排在一起，還沒有表示轉折。 두 기록의 방향 변화가 아직 연결되지 않았어.';
-      if (workbench.conclusion !== 'not-restored') return '前一份記錄有效，卻不能代表整個裝置已恢復。 수리 효과가 있어도 장치 전체가 회복된 것은 아니야.';
-      return '前後記錄都保留下來，最後判斷也更新了。 두 기록을 보존하며 최종 판단을 갱신했어.';
-    }
-    return '';
-  }
-
   function runAction(type, value) {
-    const stage = current(), config = configFor(stage);
+    const stage = current();
+    const config = configFor(stage);
     if (!config || screen !== 'tutorial' || isWin()) return;
     const result = applyAction(config, state.academicTower, { type, value });
     if (!result.changed) return;
     history.push(clone(state));
     state.academicTower = result.state;
     state.turn += 1;
-    save(); render();
+    save();
+    render();
     const solved = isSolved(config, state.academicTower);
-    setStatus(feedback(config, state.academicTower, type), solved ? 'good' : 'info');
+    if (result.feedback) setStatus(result.feedback, result.correct === false ? 'info' : 'good');
     if (!solved) return;
     if (stageSession.mode !== 'replay') completed.add(stage.id);
     window.GameFlow?.recordStageComplete(stage.id, stageSession);
@@ -161,32 +272,32 @@
     clearTimeout(completionTimer);
     completionTimer = setTimeout(() => {
       if (screen === 'tutorial' && current().id === stage.id && isWin()) showComplete();
-    }, 180);
+    }, 220);
   }
 
   const baseRender = render;
   render = function academicTowerRender() {
-    const stage = current(), config = configFor(stage);
+    const stage = current();
+    const config = configFor(stage);
     const view = document.getElementById('tutorialView');
     view?.classList.toggle('academicTowerStage', !!config);
     if (!config) {
       gridEl.classList.remove('academicTowerWorkbench');
       return baseRender();
     }
-    if (!state.academicTower) state.academicTower = createState(config);
+    if (!isValidState(config, state.academicTower)) state.academicTower = createState(config);
     const workbench = state.academicTower;
     $('#stageKicker').textContent = stage.kicker;
     $('#stageTitle').textContent = stage.subtitle;
-    $('#goal').innerHTML = goalHtml(stage, workbench);
+    $('#goal').innerHTML = goalHtml(workbench);
     $('#ruleLine').textContent = stage.rule;
     gridEl.style.gridTemplateColumns = '';
     gridEl.className = 'grid academicTowerWorkbench';
     gridEl.setAttribute('role', 'group');
-    gridEl.setAttribute('aria-label', '학술탑 독해 작업대');
-    gridEl.innerHTML = config.kind === 'later-focus'
-      ? renderLaterFocus(config, workbench)
-      : renderRecordContrast(config, workbench);
-    bindActions(); renderWords(stage, workbench);
+    gridEl.setAttribute('aria-label', '학술탑 기록 검토 작업대');
+    gridEl.innerHTML = renderWorkbench(config, workbench);
+    bindActions();
+    renderWords(stage, workbench);
     $('#waitBtn').hidden = true;
     $('#inspectBtn').hidden = true;
     $('#undoBtn').hidden = false;

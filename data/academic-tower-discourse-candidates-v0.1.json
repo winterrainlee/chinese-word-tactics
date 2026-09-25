@@ -278,8 +278,8 @@
     "rooms": [
       {
         "id": "academic-tower-turn-01-que",
-        "titleKo": "뒤에 남는 중심",
-        "titleZh": "重點卻在後面",
+        "titleKo": "수로 이용 검토",
+        "titleZh": "卻要重新判斷",
         "targetExpressions": ["卻"],
         "targetSourceRefs": ["w4-que", "g262"],
         "activeReuseExpressions": ["但是", "可是", "不過"],
@@ -287,11 +287,11 @@
       },
       {
         "id": "academic-tower-turn-02-raner",
-        "titleKo": "기록 사이의 전환",
+        "titleKo": "장치 복구 검토",
         "titleZh": "然而，記錄還沒結束",
         "targetExpressions": ["然而"],
         "targetSourceRefs": ["w5-raner", "g490"],
-        "activeReuseExpressions": ["卻"],
+        "activeReuseExpressions": [],
         "requiresRoomIds": ["academic-tower-turn-01-que"]
       },
       {

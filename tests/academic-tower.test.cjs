@@ -42,40 +42,104 @@ test('Slice A appends rooms 01 and 02 without changing earlier stage order', () 
   ]);
   assert.deepEqual(plain(result.rooms.map(room => room.implemented)), [true, true, false, false, false]);
   assert.deepEqual(plain(result.words.map(word => word.p)), ['ㄑㄩㄝˋ', 'ㄖㄢˊ ㄦˊ']);
+  assert.deepEqual(plain(vm.runInContext(`STAGES.slice(-2).map(stage => ({
+    kind: stage.academicTower.kind,
+    schemaVersion: stage.academicTower.schemaVersion,
+    modes: stage.academicTower.cases.map(item => item.mode)
+  }))`, context)), [
+    { kind: 'claim-revision', schemaVersion: 2, modes: ['guided', 'transfer'] },
+    { kind: 'claim-revision', schemaVersion: 2, modes: ['guided', 'transfer'] }
+  ]);
 });
 
-test('01 accepts both readable boundaries but only the later focus completes', () => {
+test('01 repairs an unsupported claim and requires a fresh opposite-direction record', () => {
   const context = contentContext(), M = mechanics();
   const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
-  for (const split of ['comma', 'marker']) {
-    let state = M.createState(config);
-    state = M.applyAction(config, state, { type: 'split', value: split }).state;
-    assert.equal(state.split, 'before-marker');
-    state = M.applyAction(config, state, { type: 'focus', value: 'earlier' }).state;
-    state = M.applyAction(config, state, { type: 'confirm' }).state;
-    assert.equal(M.isSolved(config, state), false);
-    state = M.applyAction(config, state, { type: 'focus', value: 'later' }).state;
-    assert.equal(state.confirmed, false, 'recovering from a wrong reading must require a fresh confirmation');
-    state = M.applyAction(config, state, { type: 'confirm' }).state;
-    assert.equal(M.isSolved(config, state), true);
+  let state = M.createState(config, () => 0);
+  assert.equal(state.phase, 'source');
+  assert.equal(state.claimId, null);
+  assert.equal(state.revisionId, null);
+
+  state = M.applyAction(config, state, { type: 'reveal' }).state;
+  assert.equal(state.phase, 'claim');
+  state = M.applyAction(config, state, { type: 'select-claim', value: 'fact-short' }).state;
+  let result = M.applyAction(config, state, { type: 'submit-claim' });
+  state = result.state;
+  assert.equal(result.correct, false);
+  assert.equal(state.phase, 'claim', 'a recorded fact must not be treated as the repair target');
+
+  state = M.applyAction(config, state, { type: 'select-claim', value: 'overreach-use' }).state;
+  state = M.applyAction(config, state, { type: 'submit-claim' }).state;
+  assert.equal(state.phase, 'revision');
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'ignore-danger' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  assert.equal(state.phase, 'revision', 'finding the claim is not enough if the repair drops a fact');
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'keep-both' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  assert.equal(state.phase, 'review');
+  assert.equal(M.isSolved(config, state), false, 'the guided example alone must not complete the room');
+
+  state = M.applyAction(config, state, { type: 'next-case' }).state;
+  assert.equal(state.phase, 'revision');
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'old-not-working' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  assert.equal(M.isSolved(config, state), false, 'repeating a negative conclusion must fail on the transfer case');
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'old-and-working' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  assert.equal(M.isSolved(config, state), true);
+});
+
+test('02 keeps partial improvement separate from whole-device recovery', () => {
+  const context = contentContext(), M = mechanics();
+  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-02-raner').academicTower", context);
+  let state = M.createState(config, () => .9);
+  assert.equal(M.applyAction(config, state, { type: 'select-claim', value: 'overreach-restored' }).changed, false,
+    'the report cannot be judged before the later record is revealed');
+  state = M.applyAction(config, state, { type: 'reveal' }).state;
+  state = M.applyAction(config, state, { type: 'select-claim', value: 'overreach-restored' }).state;
+  state = M.applyAction(config, state, { type: 'submit-claim' }).state;
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'cancel-improvement' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  assert.equal(state.phase, 'revision');
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'keep-both' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  state = M.applyAction(config, state, { type: 'next-case' }).state;
+  assert.equal(state.phase, 'source');
+  state = M.applyAction(config, state, { type: 'reveal' }).state;
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'deny-water' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  assert.equal(M.isSolved(config, state), false);
+  state = M.applyAction(config, state, { type: 'select-revision', value: 'keep-both' }).state;
+  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
+  assert.equal(M.isSolved(config, state), true);
+});
+
+test('answer slots rotate per entry and remain stable in saved workbench state', () => {
+  const context = contentContext(), M = mechanics();
+  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
+  for (const random of [0, .34, .67]) {
+    const state = M.createState(config, () => random);
+    const targets = [
+      ['practice:claim', 'overreach-use'],
+      ['practice:revision', 'keep-both'],
+      ['transfer:revision', 'old-and-working']
+    ];
+    const slots = targets.map(([key, id]) => state.optionOrders[key].indexOf(id));
+    assert.equal(new Set(slots).size, 3, 'always tapping one slot must not clear the room');
+    assert.deepEqual(plain(M.applyAction(config, state, { type: 'reveal' }).state.optionOrders), plain(state.optionOrders));
   }
 });
 
-test('02 preserves the first record and completes only after the contrast updates the conclusion', () => {
+test('a pre-redesign in-progress workbench restarts safely without changing stage identity', () => {
   const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-02-raner').academicTower", context);
-  let state = M.createState(config);
-  state = M.applyAction(config, state, { type: 'reveal' }).state;
-  state = M.applyAction(config, state, { type: 'relation', value: 'addition' }).state;
-  state = M.applyAction(config, state, { type: 'confirm' }).state;
-  assert.equal(M.isSolved(config, state), false);
-  state = M.applyAction(config, state, { type: 'relation', value: 'contrast' }).state;
-  state = M.applyAction(config, state, { type: 'conclusion', value: 'restored' }).state;
-  state = M.applyAction(config, state, { type: 'confirm' }).state;
-  assert.equal(M.isSolved(config, state), false);
-  state = M.applyAction(config, state, { type: 'conclusion', value: 'not-restored' }).state;
-  state = M.applyAction(config, state, { type: 'confirm' }).state;
-  assert.equal(M.isSolved(config, state), true);
+  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
+  const legacy = { kind: 'later-focus', split: 'before-marker', focus: 'later', confirmed: false };
+  const result = M.applyAction(config, legacy, { type: 'reveal' });
+  assert.equal(result.changed, true);
+  assert.equal(result.state.schemaVersion, 2);
+  assert.equal(result.state.kind, 'claim-revision');
+  assert.equal(result.state.phase, 'claim');
+  assert.equal(M.isSolved(config, result.state), false);
 });
 
 test('entry, story handoff, first-play save, and replay remain separate', () => {
@@ -132,7 +196,10 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=/);
+  assert.match(html, /academic-tower\.css\?v=20260925-claimrevision1/);
+  for (const asset of ['academic-tower-content', 'academic-tower-journey-content', 'academic-tower-runtime', 'academic-tower-hub-runtime']) {
+    assert.match(html, new RegExp(`${asset}\\.js\\?v=20260925-claimrevision1`));
+  }
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
 });
