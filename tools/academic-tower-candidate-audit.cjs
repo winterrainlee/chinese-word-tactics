@@ -106,6 +106,40 @@ assert(unknownAssignedRefs.length === 0, `unknown assigned source refs: ${unknow
 assert(duplicateAssignedRefs.length === 0, `source refs with multiple primary functions: ${duplicateAssignedRefs.join(', ')}`);
 assert(missingAssignedRefs.length === 0, `source refs without a primary function: ${missingAssignedRefs.join(', ')}`);
 
+const priorityOrder = editorial.priorityPolicy.priorityOrder;
+const rankingCriteria = editorial.priorityPolicy.rankingCriteria;
+const coreSourceRefs = editorial.priorityPolicy.coreSourceRefs;
+const laterSourceRefs = editorial.priorityPolicy.laterSourceRefs;
+const coreSourceRefSet = new Set(coreSourceRefs);
+const laterSourceRefSet = new Set(laterSourceRefs);
+const secondarySourceRefs = sourceIds.filter(id => !coreSourceRefSet.has(id) && !laterSourceRefSet.has(id));
+assert(JSON.stringify(priorityOrder) === JSON.stringify(['core', 'secondary', 'later']),
+  'priority order must be core, secondary, later');
+assert(rankingCriteria.length === 5 && duplicates(rankingCriteria.map(criterion => criterion.id)).length === 0,
+  'priority policy must contain five unique ranking criteria');
+for (const criterion of rankingCriteria) {
+  assert(typeof criterion.description === 'string' && criterion.description.length > 0,
+    `priority ranking criterion ${criterion.id} has no description`);
+}
+assert(editorial.priorityPolicy.defaultPriority === 'secondary', 'unlisted priority must default to secondary');
+for (const priority of priorityOrder) {
+  assert(typeof editorial.priorityPolicy.definitions[priority] === 'string'
+    && editorial.priorityPolicy.definitions[priority].length > 0,
+  `priority ${priority} has no definition`);
+}
+const duplicateCoreRefs = duplicates(coreSourceRefs);
+const duplicateLaterRefs = duplicates(laterSourceRefs);
+const unknownCoreRefs = coreSourceRefs.filter(id => !sourceIdSet.has(id));
+const unknownLaterRefs = laterSourceRefs.filter(id => !sourceIdSet.has(id));
+const overlappingPriorityRefs = coreSourceRefs.filter(id => laterSourceRefSet.has(id));
+assert(duplicateCoreRefs.length === 0, `duplicate core priority refs: ${duplicateCoreRefs.join(', ')}`);
+assert(duplicateLaterRefs.length === 0, `duplicate later priority refs: ${duplicateLaterRefs.join(', ')}`);
+assert(unknownCoreRefs.length === 0, `unknown core priority refs: ${unknownCoreRefs.join(', ')}`);
+assert(unknownLaterRefs.length === 0, `unknown later priority refs: ${unknownLaterRefs.join(', ')}`);
+assert(overlappingPriorityRefs.length === 0, `source refs in both core and later: ${overlappingPriorityRefs.join(', ')}`);
+assert(coreSourceRefs.length + secondarySourceRefs.length + laterSourceRefs.length === sourceIds.length,
+  'every source record must resolve to exactly one priority');
+
 const foundationIds = editorial.foundationNodes.map(node => node.id);
 const foundationIdSet = new Set(foundationIds);
 const duplicateFoundationIds = duplicates(foundationIds);
@@ -161,6 +195,91 @@ assertAcyclic('learning-unit graph', learningUnitIds, id => {
   return (unit?.prerequisiteIds || []).filter(dependency => learningUnitIdSet.has(dependency));
 });
 
+const firstBundle = editorial.firstResearchBundle;
+const firstBundleRooms = firstBundle.rooms;
+const firstBundleRoomIds = firstBundleRooms.map(room => room.id);
+const firstBundleRoomIdSet = new Set(firstBundleRoomIds);
+const expectedFirstBundleRoomIds = [
+  'academic-tower-turn-01-que',
+  'academic-tower-turn-02-raner',
+  'academic-tower-turn-03-expectation',
+  'academic-tower-turn-04-faner',
+  'academic-tower-turn-05-synthesis'
+];
+const duplicateFirstBundleRoomIds = duplicates(firstBundleRoomIds);
+assert(firstBundle.id === 'academic-tower-turning-directions-v0.1', 'first research bundle id changed');
+assert(firstBundle.regionId === 'academic-tower', 'first research bundle must belong to academic-tower');
+assert(JSON.stringify(firstBundle.entryRequiresMilestoneIds) === JSON.stringify(['chapter1-complete']),
+  'first research bundle actual unlock must remain chapter1-complete');
+assert(JSON.stringify(firstBundle.recommendedAfterMilestoneIds) === JSON.stringify(['chapter1-complete']),
+  'first research bundle recommendation must remain chapter1-complete');
+assert(firstBundle.hubId === 'academic-tower-hub', 'first research bundle hub id changed');
+assert(firstBundle.arrivalStoryId === 'academic-tower-arrival', 'Academic Tower arrival story id changed');
+assert(firstBundle.introStoryId === 'academic-tower-turn-intro', 'first research bundle intro story id changed');
+assert(firstBundle.resultStoryId === 'academic-tower-turn-result', 'first research bundle result story id changed');
+const expectedInterludeStories = [
+  {
+    id: 'academic-tower-turn-after-que',
+    afterRoomIds: ['academic-tower-turn-01-que'],
+    beforeRoomIds: ['academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation']
+  },
+  {
+    id: 'academic-tower-turn-before-faner',
+    afterRoomIds: ['academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation'],
+    beforeRoomIds: ['academic-tower-turn-04-faner']
+  },
+  {
+    id: 'academic-tower-turn-before-synthesis',
+    afterRoomIds: ['academic-tower-turn-04-faner'],
+    beforeRoomIds: ['academic-tower-turn-05-synthesis']
+  }
+];
+assert(JSON.stringify(firstBundle.interludeStories) === JSON.stringify(expectedInterludeStories),
+  'first research bundle interlude story flow changed');
+const firstBundleStoryIds = [
+  firstBundle.arrivalStoryId,
+  firstBundle.introStoryId,
+  ...firstBundle.interludeStories.map(story => story.id),
+  firstBundle.resultStoryId
+];
+assert(duplicates(firstBundleStoryIds).length === 0, 'first research bundle has duplicate story ids');
+assert(firstBundle.entryMilestoneId === 'academic-tower-entered', 'first entry milestone changed');
+assert(firstBundle.completionMilestoneId === 'academic-tower-turn-foundation', 'first bundle completion milestone changed');
+assert(firstBundle.towerCompletionMilestoneId === null, 'first bundle must not create a tower completion milestone');
+assert(JSON.stringify(firstBundleRoomIds) === JSON.stringify(expectedFirstBundleRoomIds),
+  'first research bundle room order or ids changed');
+assert(duplicateFirstBundleRoomIds.length === 0,
+  `duplicate first-bundle room ids: ${duplicateFirstBundleRoomIds.join(', ')}`);
+
+for (const room of firstBundleRooms) {
+  assert(room.targetExpressions.length <= 3, `${room.id} has more than three new target expressions`);
+  assert(room.targetExpressions.length > 0 || room.id.endsWith('-synthesis'),
+    `${room.id} has no target expression but is not the synthesis room`);
+  for (const sourceRef of room.targetSourceRefs) {
+    assert(sourceIdSet.has(sourceRef), `${room.id} has unknown target source ref ${sourceRef}`);
+    assert(coreSourceRefSet.has(sourceRef), `${room.id} target source ref is not core priority: ${sourceRef}`);
+  }
+  for (const prerequisiteId of room.requiresRoomIds) {
+    assert(firstBundleRoomIdSet.has(prerequisiteId), `${room.id} has unknown room prerequisite ${prerequisiteId}`);
+  }
+}
+assertAcyclic('first research bundle room graph', firstBundleRoomIds, id => {
+  const room = firstBundleRooms.find(candidate => candidate.id === id);
+  return room?.requiresRoomIds || [];
+});
+
+const firstBundleTargets = firstBundleRooms.flatMap(room => room.targetExpressions);
+const firstBundleTargetRefs = firstBundleRooms.flatMap(room => room.targetSourceRefs);
+assert(JSON.stringify(firstBundleTargets) === JSON.stringify(['卻', '然而', '果然', '竟然', '反而']),
+  'first research bundle target sequence changed');
+assert(duplicates(firstBundleTargetRefs).length === 0, 'first research bundle repeats a target source ref');
+assert(JSON.stringify(firstBundleRooms[3].requiresRoomIds) === JSON.stringify([
+  'academic-tower-turn-02-raner',
+  'academic-tower-turn-03-expectation'
+]), '反而 room must join the contrast and expectation branches');
+assert(JSON.stringify(firstBundleRooms[4].activeReuseExpressions) === JSON.stringify(firstBundleTargets),
+  'synthesis room must actively reuse all first-bundle targets without adding a new target');
+
 assert(editorial.progressionPolicy.towerHasFinalClear === false, 'Academic Tower must not have a final clear');
 assert(editorial.progressionPolicy.towerHasFixedStageCount === false, 'Academic Tower must not have a fixed stage count');
 
@@ -176,6 +295,11 @@ const functionCounts = Object.fromEntries(functionIds.map(id => [
   id,
   editorial.primaryFunctionAssignments[id].length
 ]));
+const priorityCounts = {
+  core: coreSourceRefs.length,
+  secondary: secondarySourceRefs.length,
+  later: laterSourceRefs.length
+};
 
 console.log('Academic Tower candidate audit');
 console.log('------------------------------');
@@ -183,8 +307,10 @@ console.log(`screened source universe: ${source.screening.wordEntryCounts.total}
 console.log(`selected source records: ${sourceRecords.length} (${lexical.length} words, ${grammar.length} grammar points)`);
 console.log(`selected levels: ${Object.entries(levelCounts).map(([level, count]) => `${level}=${count}`).join(', ')}`);
 console.log(`primary functions: ${Object.entries(functionCounts).map(([id, count]) => `${id}=${count}`).join(', ')}`);
+console.log(`priorities: ${Object.entries(priorityCounts).map(([priority, count]) => `${priority}=${count}`).join(', ')}`);
 console.log(`foundation nodes: ${foundationIds.length}`);
 console.log(`explicit learning units: ${learningUnitIds.length}`);
+console.log(`first research bundle: ${firstBundleRooms.length} rooms, ${firstBundleStoryIds.length} stories, ${firstBundleTargets.length} target expressions`);
 console.log(`source/editorial consistency: ${errors.length === 0 ? 'OK' : 'MISMATCH'}`);
 
 if (errors.length > 0) {

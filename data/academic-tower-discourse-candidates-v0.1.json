@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "datasetRole": "game-editorial-layer",
   "sourceDataset": "data/tbcl-discourse-candidates-2025-04.json",
-  "status": "candidate-pool-before-floor-design",
+  "status": "prioritized-with-first-research-bundle-spec",
   "progressionPolicy": {
     "towerHasFinalClear": false,
     "towerHasFixedStageCount": false,
@@ -219,6 +219,108 @@
     "purpose-prevention": [
       "w5-miande", "w5-yimian",
       "g353", "g392", "g413", "g489"
+    ]
+  },
+  "priorityPolicy": {
+    "priorityOrder": ["core", "secondary", "later"],
+    "rankingCriteria": [
+      { "id": "structural-leverage", "description": "절·문장·문단의 관계를 직접 바꾸고 여러 복문에서 재사용할 수 있는가." },
+      { "id": "prerequisite-centrality", "description": "다른 기능군이나 고난도 표현을 배우기 위한 선수 능력을 여는가." },
+      { "id": "contrastive-need", "description": "비슷해 보이는 표현과의 차이를 판 위 조작으로 구분할 필요가 큰가." },
+      { "id": "tactical-playability", "description": "분할·연결·예상·갱신처럼 플레이어가 직접 만드는 상태로 표현할 수 있는가." },
+      { "id": "register-breadth", "description": "한정된 관용구보다 다양한 설명문·기록·발언에서 다시 쓸 수 있는가." }
+    ],
+    "definitions": {
+      "core": "복문을 끊고 방향을 갱신하는 학술탑의 필수 뼈대. 여러 연구 묶음에서 능동 재사용한다.",
+      "secondary": "핵심 기능의 다른 말투·문체·관점 또는 다음 연구 묶음의 확장 후보.",
+      "later": "가치가 없어서가 아니라 사용 맥락이 좁거나 비슷한 표현을 먼저 익혀야 하는 장기 후보."
+    },
+    "defaultPriority": "secondary",
+    "coreSourceRefs": [
+      "w4-bingqie", "w4-birushuo", "w4-bulun", "w4-que", "w4-xiangfan", "w4-zhishi", "w4s-chufei", "w4s-daoshi", "w4s-fouze", "w4s-genju", "w4s-guoran", "w4s-jiaru", "w4s-jingran", "w4s-jiran", "w4s-jishi", "w4s-jiusuan", "w4s-juran", "w4s-jushuo", "w4s-nanguai", "w4s-shenzhi", "w4s-xingkui", "w4s-yibanlaishuo", "w4s-yinci", "w4s-youyu", "w4s-yushi",
+      "w5-buliao", "w5-ciwai", "w5-er", "w5-faner", "w5-haozai", "w5-jinguan", "w5-kejian", "w5-miande", "w5-pirushuo", "w5-raner", "w5-shishishang", "w5-suowei", "w5-wanyi", "w5-wulunruhe", "w5-yibanyaner", "w5-yidan", "w5-yimian", "w5-yiner", "w5-ze", "w5-zhisuoyi", "w5-zhiyu", "w5-zongzhi",
+      "g251", "g260", "g261", "g262", "g283", "g286", "g292", "g304", "g324", "g328", "g331", "g332", "g333", "g334", "g335", "g338", "g341", "g344", "g345", "g346", "g352", "g363", "g364", "g365", "g380", "g384", "g386", "g407", "g408", "g409", "g412", "g432", "g433", "g435", "g438", "g447", "g449", "g450", "g454", "g455", "g456", "g457", "g460", "g461", "g462", "g463", "g464", "g465", "g466", "g467", "g468", "g470", "g472", "g481", "g482", "g488", "g489", "g490", "g491", "g492", "g493", "g494", "g495"
+    ],
+    "laterSourceRefs": [
+      "w4-eryi", "w4-zhishao", "w4-zhongyu", "w4s-bujiande", "w4s-congci", "w4s-fanzheng", "w4s-yuanben", "w5-buran", "w5-cihou", "w5-nanmian", "w5-qichu", "w5-yuanxian", "w5-zhaoyang", "w5-zongsuan", "w5-zuizhong",
+      "g274", "g277", "g278", "g289", "g307", "g308", "g329", "g330", "g336", "g337", "g340", "g349", "g353", "g354", "g355", "g357", "g374", "g379", "g381", "g392", "g403", "g406", "g410", "g439", "g442", "g443", "g451", "g469", "g478", "g479", "g480"
+    ]
+  },
+  "firstResearchBundle": {
+    "id": "academic-tower-turning-directions-v0.1",
+    "regionId": "academic-tower",
+    "recommendedAfterMilestoneIds": ["chapter1-complete"],
+    "entryRequiresMilestoneIds": ["chapter1-complete"],
+    "hubId": "academic-tower-hub",
+    "arrivalStoryId": "academic-tower-arrival",
+    "introStoryId": "academic-tower-turn-intro",
+    "interludeStories": [
+      {
+        "id": "academic-tower-turn-after-que",
+        "afterRoomIds": ["academic-tower-turn-01-que"],
+        "beforeRoomIds": ["academic-tower-turn-02-raner", "academic-tower-turn-03-expectation"]
+      },
+      {
+        "id": "academic-tower-turn-before-faner",
+        "afterRoomIds": ["academic-tower-turn-02-raner", "academic-tower-turn-03-expectation"],
+        "beforeRoomIds": ["academic-tower-turn-04-faner"]
+      },
+      {
+        "id": "academic-tower-turn-before-synthesis",
+        "afterRoomIds": ["academic-tower-turn-04-faner"],
+        "beforeRoomIds": ["academic-tower-turn-05-synthesis"]
+      }
+    ],
+    "resultStoryId": "academic-tower-turn-result",
+    "entryMilestoneId": "academic-tower-entered",
+    "completionMilestoneId": "academic-tower-turn-foundation",
+    "towerCompletionMilestoneId": null,
+    "rooms": [
+      {
+        "id": "academic-tower-turn-01-que",
+        "titleKo": "뒤에 남는 중심",
+        "titleZh": "重點卻在後面",
+        "targetExpressions": ["卻"],
+        "targetSourceRefs": ["w4-que", "g262"],
+        "activeReuseExpressions": ["但是", "可是", "不過"],
+        "requiresRoomIds": []
+      },
+      {
+        "id": "academic-tower-turn-02-raner",
+        "titleKo": "기록 사이의 전환",
+        "titleZh": "然而，記錄還沒結束",
+        "targetExpressions": ["然而"],
+        "targetSourceRefs": ["w5-raner", "g490"],
+        "activeReuseExpressions": ["卻"],
+        "requiresRoomIds": ["academic-tower-turn-01-que"]
+      },
+      {
+        "id": "academic-tower-turn-03-expectation",
+        "titleKo": "예상과 실제",
+        "titleZh": "果然，還是竟然？",
+        "targetExpressions": ["果然", "竟然"],
+        "targetSourceRefs": ["w4s-guoran", "g345", "w4s-jingran", "g346"],
+        "activeReuseExpressions": ["因為", "所以"],
+        "requiresRoomIds": ["academic-tower-turn-01-que"]
+      },
+      {
+        "id": "academic-tower-turn-04-faner",
+        "titleKo": "반대로 나온 결과",
+        "titleZh": "結果反而相反",
+        "targetExpressions": ["反而"],
+        "targetSourceRefs": ["w5-faner", "g492"],
+        "activeReuseExpressions": ["卻", "然而", "果然", "竟然"],
+        "requiresRoomIds": ["academic-tower-turn-02-raner", "academic-tower-turn-03-expectation"]
+      },
+      {
+        "id": "academic-tower-turn-05-synthesis",
+        "titleKo": "겹쳐진 방향",
+        "titleZh": "讀懂轉折與反轉",
+        "targetExpressions": [],
+        "targetSourceRefs": [],
+        "activeReuseExpressions": ["卻", "然而", "果然", "竟然", "反而"],
+        "requiresRoomIds": ["academic-tower-turn-04-faner"]
+      }
     ]
   },
   "readinessBands": [
