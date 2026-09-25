@@ -58,6 +58,7 @@ run('Node regression tests', process.execPath, ['--test', ...nodeTests]);
 
 for (const [label, script] of [
   ['Content contract audit', 'tools/content-contract-audit.cjs'],
+  ['Academic Tower candidate audit', 'tools/academic-tower-candidate-audit.cjs'],
   ['Vocabulary lifecycle audit', 'tools/vocabulary-lifecycle-audit.cjs'],
   ['UX heuristic audit', 'tools/ux-audit.cjs'],
   ['Status language audit', 'tools/status-language-audit.cjs'],

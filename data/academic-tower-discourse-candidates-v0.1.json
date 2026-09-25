@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "datasetRole": "game-editorial-layer",
+  "sourceDataset": "data/tbcl-discourse-candidates-2025-04.json",
+  "status": "candidate-pool-before-floor-design",
+  "progressionPolicy": {
+    "towerHasFinalClear": false,
+    "towerHasFixedStageCount": false,
+    "completableUnit": "room",
+    "milestoneUnit": "research-band",
+    "note": "개별 방과 연구 묶음은 완료할 수 있지만 학술탑 전체에는 격파·완결 상태를 만들지 않는다. 이후 후보가 늘어나면 기존 저장을 바꾸지 않고 방을 추가한다."
+  },
+  "foundationNodes": [
+    {
+      "id": "foundation-sequence",
+      "expressions": [["然後", "1*"], ["接著/接着", "3*"], ["同時", "3*"]],
+      "capability": "사건의 앞뒤와 병행을 두 덩어리로 나눈다."
+    },
+    {
+      "id": "foundation-addition",
+      "expressions": [["而且/且", "3"], ["另外/另", "3"], ["不但", "3"]],
+      "capability": "앞 덩어리에 같은 방향의 정보를 더한다."
+    },
+    {
+      "id": "foundation-choice",
+      "expressions": [["或是", "2"], ["或者/或", "3"]],
+      "capability": "둘 이상의 선택지를 분리한다."
+    },
+    {
+      "id": "foundation-cause-result",
+      "expressions": [["因為", "1*"], ["所以", "1*"], ["結果", "3*"]],
+      "capability": "이유와 결과를 서로 다른 덩어리로 놓는다."
+    },
+    {
+      "id": "foundation-condition",
+      "expressions": [["如果", "2"], ["就", "1"], ["只要", "3"]],
+      "capability": "조건 영역을 사실 진술과 분리해 보류한다."
+    },
+    {
+      "id": "foundation-contrast",
+      "expressions": [["可是", "1*"], ["但是/但", "2"], ["不過", "2"]],
+      "capability": "뒤 덩어리에서 논지의 중심이 바뀜을 알아챈다."
+    },
+    {
+      "id": "foundation-concession",
+      "expressions": [["雖然/雖", "2"]],
+      "requiresFoundationIds": ["foundation-contrast"],
+      "capability": "앞 사실을 인정하되 최종 결론은 뒤에 남겨 둔다."
+    },
+    {
+      "id": "foundation-example",
+      "expressions": [["比方說/比方", "2*"], ["例如", "3*"]],
+      "capability": "일반 주장과 그 예를 구분한다."
+    },
+    {
+      "id": "foundation-topic",
+      "expressions": [["其實", "3*"]],
+      "capability": "화자가 현재 명제에 붙인 관점 표지를 따로 읽는다."
+    },
+    {
+      "id": "foundation-exception",
+      "expressions": [["除了", "3*"], ["不管", "3*"]],
+      "requiresFoundationIds": ["foundation-condition"],
+      "capability": "적용 범위와 예외 범위를 구분한다."
+    }
+  ],
+  "functionGroups": [
+    {
+      "id": "sequence-time",
+      "label": "순서·시간 전환",
+      "operation": "앞 덩어리를 닫고 다음 시점이나 단계로 이동한다.",
+      "foundationPrerequisiteIds": ["foundation-sequence"],
+      "requiresFunctionIds": []
+    },
+    {
+      "id": "addition-escalation",
+      "label": "첨가·병렬·강화",
+      "operation": "기존 방향을 유지하며 정보나 강도를 더한다.",
+      "foundationPrerequisiteIds": ["foundation-addition"],
+      "requiresFunctionIds": []
+    },
+    {
+      "id": "choice-preference",
+      "label": "선택·대안·선호",
+      "operation": "대안들을 분리하고 어느 쪽을 우선하는지 표시한다.",
+      "foundationPrerequisiteIds": ["foundation-choice"],
+      "requiresFunctionIds": []
+    },
+    {
+      "id": "cause-result",
+      "label": "원인·결과·귀결",
+      "operation": "근거와 그로부터 생긴 결과를 방향성 있게 연결한다.",
+      "foundationPrerequisiteIds": ["foundation-cause-result"],
+      "requiresFunctionIds": ["sequence-time"]
+    },
+    {
+      "id": "condition-exception",
+      "label": "조건·예외·반사실",
+      "operation": "명제를 확정하지 않고 적용 조건이나 예외 안에 둔다.",
+      "foundationPrerequisiteIds": ["foundation-condition", "foundation-exception"],
+      "requiresFunctionIds": ["cause-result"]
+    },
+    {
+      "id": "comparison-perspective",
+      "label": "비교·관점",
+      "operation": "두 기준이나 관찰 위치를 분리한 뒤 같은 축에서 비교한다.",
+      "foundationPrerequisiteIds": [],
+      "requiresFunctionIds": []
+    },
+    {
+      "id": "contrast-correction",
+      "label": "대조·제한·정정",
+      "operation": "앞에서 만든 중심이나 범위를 뒤 덩어리에서 바꾼다.",
+      "foundationPrerequisiteIds": ["foundation-contrast"],
+      "requiresFunctionIds": ["comparison-perspective"]
+    },
+    {
+      "id": "concession",
+      "label": "양보·결론 유지",
+      "operation": "반대 조건을 인정해도 유지되는 결론을 찾는다.",
+      "foundationPrerequisiteIds": ["foundation-concession"],
+      "requiresFunctionIds": ["condition-exception", "contrast-correction"]
+    },
+    {
+      "id": "expectation-update",
+      "label": "예상 확인·이탈·역전",
+      "operation": "예상한 방향을 확인하거나 수정하거나 완전히 뒤집는다.",
+      "foundationPrerequisiteIds": ["foundation-contrast", "foundation-cause-result"],
+      "requiresFunctionIds": ["cause-result", "contrast-correction"]
+    },
+    {
+      "id": "topic-framing",
+      "label": "주제·범위·초점 전환",
+      "operation": "뒤 덩어리를 읽을 주제, 범위, 초점을 먼저 설정한다.",
+      "foundationPrerequisiteIds": ["foundation-topic"],
+      "requiresFunctionIds": ["sequence-time"]
+    },
+    {
+      "id": "example-restatement",
+      "label": "예시·재진술·정의",
+      "operation": "같은 내용을 예, 쉬운 말, 정의로 다시 펼친다.",
+      "foundationPrerequisiteIds": ["foundation-example"],
+      "requiresFunctionIds": ["topic-framing"]
+    },
+    {
+      "id": "evidence-stance",
+      "label": "근거 출처·화자 관점",
+      "operation": "명제와 그 판단의 출처 또는 화자 태도를 분리한다.",
+      "foundationPrerequisiteIds": ["foundation-topic"],
+      "requiresFunctionIds": ["topic-framing"]
+    },
+    {
+      "id": "inference-summary",
+      "label": "추론·요약·결론",
+      "operation": "앞 덩어리들을 묶어 새 결론이나 짧은 요약을 만든다.",
+      "foundationPrerequisiteIds": ["foundation-cause-result"],
+      "requiresFunctionIds": ["cause-result", "evidence-stance"]
+    },
+    {
+      "id": "purpose-prevention",
+      "label": "목적·예방",
+      "operation": "행동과 원하는 결과 또는 피하려는 결과를 연결한다.",
+      "foundationPrerequisiteIds": ["foundation-cause-result", "foundation-condition"],
+      "requiresFunctionIds": ["cause-result", "condition-exception"]
+    }
+  ],
+  "primaryFunctionAssignments": {
+    "sequence-time": [
+      "w4-jiexialai", "w4-shouxian", "w4-zhongyu", "w4s-congci", "w4s-zuichu", "w5-cihou", "w5-qichu", "w5-qici", "w5-suizhe", "w5-zongsuan", "w5-zuizhong",
+      "g274", "g277", "g278", "g354", "g355", "g357", "g410", "g451"
+    ],
+    "addition-escalation": [
+      "w4-bingqie", "w4s-bing", "w4s-jinyibu", "w4s-shenzhi", "w4s-yifangmian", "w5-chucizhiwai", "w5-ciwai", "w5-hekuang", "w5-yiji",
+      "g279", "g284", "g285", "g286", "g287", "g358", "g365", "g385", "g420", "g421", "g422", "g458", "g477", "g478", "g479", "g480", "g481", "g482"
+    ],
+    "choice-preference": [
+      "w4-buru", "w4-yaoburan", "w4s-ningke", "w4s-ningyuan", "w5-buran",
+      "g263", "g336", "g337"
+    ],
+    "cause-result": [
+      "w4s-jiran", "w4s-yinci", "w4s-youyu", "w4s-yushi", "w5-bijing", "w5-yiner", "w5-shide", "w5-zhisuoyi",
+      "g283", "g308", "g324", "g362", "g363", "g364", "g389", "g408", "g409", "g411", "g412", "g424", "g439", "g441", "g465"
+    ],
+    "condition-exception": [
+      "w4-bulun", "w4-wulun", "w4s-chufei", "w4s-fouze", "w4s-jiaru", "w4s-ruoshi", "w4s-yaobushi", "w5-jiashi", "w5-wanyi", "w5-wulunruhe", "w5-yidan",
+      "g260", "g325", "g326", "g332", "g333", "g334", "g349", "g403", "g430", "g431", "g432", "g433", "g434", "g449", "g469"
+    ],
+    "comparison-perspective": [
+      "g251", "g253", "g293", "g406", "g407", "g466", "g470", "g472"
+    ],
+    "contrast-correction": [
+      "w4-eryi", "w4-que", "w4-xiangfan", "w4-zhishao", "w4-zhishi", "w4s-bujiande", "w4s-daoshi", "w5-er", "w5-raner", "w5-ze",
+      "g261", "g262", "g289", "g335", "g374", "g384", "g455", "g456", "g459", "g460", "g490", "g491", "g493", "g494"
+    ],
+    "concession": [
+      "w4-rengran", "w4s-jishi", "w4s-jiusuan", "w5-jinguan", "w5-rengjiu", "w5-zhaoyang",
+      "g328", "g329", "g330", "g331", "g435", "g443"
+    ],
+    "expectation-update": [
+      "w4s-fanzheng", "w4s-guoran", "w4s-jingran", "w4s-juran", "w4s-nanguai", "w4s-xinghao", "w4s-xingkui", "w4s-yuanben", "w5-buliao", "w5-faner", "w5-haozai", "w5-nanmian", "w5-yuanxian",
+      "g307", "g338", "g340", "g341", "g344", "g345", "g346", "g438", "g442", "g447", "g492", "g495"
+    ],
+    "topic-framing": [
+      "w4s-guanyu", "w4s-yibanlaishuo", "w5-yibanyaner", "w5-yuanzeshang", "w5-zhiyu",
+      "g291", "g304", "g368", "g369", "g450", "g452", "g453", "g467"
+    ],
+    "example-restatement": [
+      "w4-birushuo", "w5-pirushuo", "w5-suowei",
+      "g288", "g292", "g386", "g457", "g468", "g484", "g488"
+    ],
+    "evidence-stance": [
+      "w4s-genju", "w4s-jushuo", "w5-shishishang",
+      "g352", "g370", "g379", "g380", "g381"
+    ],
+    "inference-summary": [
+      "w4s-kanlai", "w5-kejian", "w5-tongli", "w5-zongzhi", "w5-xianran",
+      "g306", "g383", "g454", "g461", "g462", "g463", "g464"
+    ],
+    "purpose-prevention": [
+      "w5-miande", "w5-yimian",
+      "g353", "g392", "g413", "g489"
+    ]
+  },
+  "readinessBands": [
+    {
+      "id": "band-1-extend-foundations",
+      "defaultOfficialLevels": ["4"],
+      "description": "A1~A2의 기본 연결을 한 문장 안의 더 긴 덩어리로 확장한다."
+    },
+    {
+      "id": "band-2-paired-relations",
+      "defaultOfficialLevels": ["4*"],
+      "description": "조건·양보·대조의 앞뒤 표지를 함께 유지한다."
+    },
+    {
+      "id": "band-3-expectation-and-formal-links",
+      "defaultOfficialLevels": ["5"],
+      "description": "문어적 연결과 예상 확인·이탈·역전을 처리한다."
+    },
+    {
+      "id": "band-4-paragraph-organization",
+      "defaultOfficialLevels": [],
+      "sourceRefOverrides": [
+        "g455", "g456", "g457", "g458", "g459", "g460", "g461", "g462", "g463", "g464", "g465", "g466", "g467", "g468",
+        "w5-chucizhiwai", "w5-shishishang", "w5-zhiyu", "w5-zongzhi"
+      ],
+      "description": "여러 문장이나 문단에서 주제 복귀, 재진술, 추론, 요약을 조직한다."
+    }
+  ],
+  "learningUnits": [
+    {
+      "id": "unit-contrast-que",
+      "sourceRefs": ["w4-que", "g262"],
+      "prerequisiteIds": ["foundation-contrast"],
+      "outcome": "단순 반대가 아니라 뒤쪽으로 중심 무게가 옮겨감을 표시한다."
+    },
+    {
+      "id": "unit-concession-even-if",
+      "sourceRefs": ["w4s-jishi", "w4s-jiusuan", "w5-rengjiu", "w5-zhaoyang", "g328", "g329", "g330", "g331"],
+      "prerequisiteIds": ["foundation-condition", "foundation-concession", "unit-contrast-que"],
+      "outcome": "가정한 장애가 있어도 결론이 유지되는 범위를 잡는다."
+    },
+    {
+      "id": "unit-condition-unless",
+      "sourceRefs": ["w4s-chufei", "w4s-fouze", "g332", "g333"],
+      "prerequisiteIds": ["foundation-condition", "foundation-exception"],
+      "outcome": "필요조건과 그것이 충족되지 않았을 때의 귀결을 한 쌍으로 읽는다."
+    },
+    {
+      "id": "unit-formal-cause",
+      "sourceRefs": ["w4s-youyu", "w4s-yinci", "w5-yiner", "g363", "g364", "g412"],
+      "prerequisiteIds": ["foundation-cause-result"],
+      "outcome": "문어적 원인 표지에서 결과 표지까지 긴 거리를 유지한다."
+    },
+    {
+      "id": "unit-formal-contrast",
+      "sourceRefs": ["w5-raner", "w5-er", "w5-ze", "g490", "g493", "g494"],
+      "prerequisiteIds": ["unit-contrast-que"],
+      "outcome": "그러나·반면 계열이 문장이나 문단의 중심을 어디로 옮기는지 구분한다."
+    },
+    {
+      "id": "unit-expectation-confirmation",
+      "sourceRefs": ["w4s-guoran", "w4s-nanguai", "g344", "g345"],
+      "prerequisiteIds": ["foundation-cause-result"],
+      "outcome": "예상과 실제 결과가 일치했음을 확인한다."
+    },
+    {
+      "id": "unit-expectation-surprise",
+      "sourceRefs": ["w4s-jingran", "w4s-juran", "w5-buliao", "g338", "g346", "g438", "g495"],
+      "prerequisiteIds": ["unit-expectation-confirmation"],
+      "outcome": "예상과 다른 결과가 나타났음을 감지한다."
+    },
+    {
+      "id": "unit-expectation-rescue",
+      "sourceRefs": ["w4s-xinghao", "w4s-xingkui", "w5-haozai", "g341", "g447"],
+      "prerequisiteIds": ["foundation-cause-result", "unit-contrast-que"],
+      "outcome": "나쁜 결과가 예상되던 흐름에서 다행히 다른 결과가 유지됐음을 찾는다."
+    },
+    {
+      "id": "unit-expectation-reversal",
+      "sourceRefs": ["w5-faner", "g492"],
+      "prerequisiteIds": ["unit-contrast-que", "unit-expectation-confirmation", "unit-expectation-surprise"],
+      "outcome": "예상과 다르다는 데서 멈추지 않고 결과의 방향 자체를 반대로 갱신한다."
+    },
+    {
+      "id": "unit-concession-formal",
+      "sourceRefs": ["w5-jinguan", "g435"],
+      "prerequisiteIds": ["unit-concession-even-if", "unit-formal-contrast"],
+      "outcome": "문어적 양보절이 길어져도 뒤의 중심 결론을 유지한다."
+    },
+    {
+      "id": "unit-restatement",
+      "sourceRefs": ["g386", "g457"],
+      "prerequisiteIds": ["foundation-example", "foundation-topic"],
+      "outcome": "새 근거가 아니라 같은 내용을 다른 말로 바꾸는 경계를 찾는다."
+    },
+    {
+      "id": "unit-inference",
+      "sourceRefs": ["w5-kejian", "g454", "g462"],
+      "prerequisiteIds": ["unit-formal-cause", "unit-restatement"],
+      "outcome": "앞의 근거 묶음에서 화자가 새로 도출한 판단을 분리한다."
+    },
+    {
+      "id": "unit-topic-shift",
+      "sourceRefs": ["w5-zhiyu", "g467"],
+      "prerequisiteIds": ["foundation-topic"],
+      "outcome": "전체 논의를 끝내지 않고 하위 화제의 가지를 바꾼다."
+    },
+    {
+      "id": "unit-argument-return",
+      "sourceRefs": ["w4-xiangfan", "g384", "g455", "g456"],
+      "prerequisiteIds": ["unit-formal-contrast", "unit-topic-shift"],
+      "outcome": "반대 사례를 들거나 양보한 뒤 원래 논지로 돌아오는 방향을 구별한다."
+    },
+    {
+      "id": "unit-summary",
+      "sourceRefs": ["w5-zongzhi", "g461", "g463", "g464"],
+      "prerequisiteIds": ["unit-inference", "unit-restatement"],
+      "outcome": "여러 앞 덩어리를 새 정보 없이 짧은 결론으로 접는다."
+    }
+  ]
+}

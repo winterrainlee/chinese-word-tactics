@@ -18,3 +18,10 @@
 - `INITIAL-PROGRESSION-PLAN-v0.1.md`
 
 TBCL 공식 원자료와 게임 편집층은 계속 분리한다.
+
+## 학술탑 담화 표지 후보
+
+- `tbcl-discourse-candidates-2025-04.json` — 공식 2025-04 TBCL 4·4*·5급 어휘 4,070개와 공식 4·4*·5급 문법점 255개를 전수검토해 남긴 원자료 후보 221개. 공식 표제·등급·문법점 번호만 보존한다.
+- `academic-tower-discourse-candidates-v0.1.json` — 위 원자료 후보의 학술탑 기능 분류, TBCL 1~3급 선수 표현, 준비도 묶음, 핵심 학습 사슬과 무제한·무격파 진행 정책을 담는 게임 편집층이다.
+
+두 파일은 모바일 런타임에서 직접 불러오지 않는다. 층·방 설계 전 작성용 자료이며 `node tools/academic-tower-candidate-audit.cjs`로 원자료·편집층 참조와 선수 그래프를 검사한다.
