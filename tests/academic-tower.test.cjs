@@ -30,19 +30,20 @@ function mechanics() {
   return context.AcademicTowerMechanic;
 }
 
-test('Slice A appends rooms 01 and 02 without changing earlier stage order', () => {
+test('Academic Tower appends rooms 01 through 03 without changing earlier stage order', () => {
   const context = contentContext();
   const result = vm.runInContext(`(() => ({
-    lastStages: STAGES.slice(-3).map(stage => stage.id),
+    lastStages: STAGES.slice(-4).map(stage => stage.id),
     rooms: AcademicTowerContent.bundle.rooms,
-    words: [WORDS['卻'], WORDS['然而']]
+    words: [WORDS['卻'], WORDS['然而'], WORDS['果然'], WORDS['竟然']]
   }))()`, context);
   assert.deepEqual(plain(result.lastStages), [
-    'north-forest-stage-8', 'academic-tower-turn-01-que', 'academic-tower-turn-02-raner'
+    'north-forest-stage-8', 'academic-tower-turn-01-que',
+    'academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation'
   ]);
-  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), [true, true, false, false, false]);
-  assert.deepEqual(plain(result.words.map(word => word.p)), ['ㄑㄩㄝˋ', 'ㄖㄢˊ ㄦˊ']);
-  assert.deepEqual(plain(vm.runInContext(`STAGES.slice(-2).map(stage => ({
+  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), [true, true, true, false, false]);
+  assert.deepEqual(plain(result.words.map(word => word.p)), ['ㄑㄩㄝˋ', 'ㄖㄢˊ ㄦˊ', 'ㄍㄨㄛˇ ㄖㄢˊ', 'ㄐㄧㄥˋ ㄖㄢˊ']);
+  assert.deepEqual(plain(vm.runInContext(`STAGES.slice(-3, -1).map(stage => ({
     kind: stage.academicTower.kind,
     schemaVersion: stage.academicTower.schemaVersion,
     modes: stage.academicTower.cases.map(item => item.mode),
@@ -117,6 +118,39 @@ test('02 keeps partial improvement separate from whole-device recovery', () => {
   assert.equal(M.isSolved(config, state), true);
 });
 
+test('03 crosses result valence with expectation relation and requires all four cases', () => {
+  const context = contentContext(), M = mechanics();
+  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-03-expectation').academicTower", context);
+  assert.equal(config.kind, 'expectation-sort');
+  assert.deepEqual(plain(config.cases.map(item => [item.valence, item.relation])), [
+    ['positive', 'matched'], ['negative', 'surprising'],
+    ['negative', 'matched'], ['positive', 'surprising']
+  ]);
+  assert.ok(config.cases.slice(0, 2).every(item => item.resultZh.includes(item.markerZh)));
+  assert.ok(config.cases.slice(2).every(item => !item.resultZh.includes(item.markerZh) && item.reviewZh.includes(item.markerZh)));
+
+  let state = M.createState(config);
+  assert.equal(state.phase, 'sort');
+  assert.equal(state.relationId, null);
+  state = M.applyAction(config, state, { type: 'select-relation', value: 'surprising' }).state;
+  let result = M.applyAction(config, state, { type: 'submit-relation' });
+  state = result.state;
+  assert.equal(result.correct, false);
+  assert.equal(state.phase, 'sort');
+  assert.deepEqual(plain(state.completedCaseIds), []);
+
+  for (const relation of ['matched', 'surprising', 'matched', 'surprising']) {
+    state = M.applyAction(config, state, { type: 'select-relation', value: relation }).state;
+    result = M.applyAction(config, state, { type: 'submit-relation' });
+    state = result.state;
+    assert.equal(result.correct, true);
+    if (state.phase === 'review') state = M.applyAction(config, state, { type: 'next-case' }).state;
+  }
+  assert.equal(state.phase, 'complete');
+  assert.equal(state.completedCaseIds.length, 4);
+  assert.equal(M.isSolved(config, state), true);
+});
+
 test('answer slots rotate per entry and remain stable in saved workbench state', () => {
   const context = contentContext(), M = mechanics();
   const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
@@ -157,6 +191,7 @@ test('entry, story handoff, first-play save, and replay remain separate', () => 
     const room1 = P.getNode('stage:academic-tower-turn-01-que');
     const after1 = P.getNode('story:academic-tower-turn-after-que');
     const room2 = P.getNode('stage:academic-tower-turn-02-raner');
+    const room3 = P.getNode('stage:academic-tower-turn-03-expectation');
     const before = P.normalize({ seenStories: ['chapter1-room-finale'] });
     const memory = new Map();
     const disk = { getItem: key => memory.get(key) || null, setItem: (key, value) => memory.set(key, value) };
@@ -165,16 +200,19 @@ test('entry, story handoff, first-play save, and replay remain separate', () => 
     store.complete(intro, 'first-play');
     store.complete(room1, 'first-play');
     store.complete(after1, 'first-play');
+    const parallel = [P.isAvailable(room2, store.get()), P.isAvailable(room3, store.get())];
     store.complete(room2, 'first-play');
+    store.complete(room3, 'first-play');
     const first = store.get();
-    store.complete(room2, 'replay');
+    store.complete(room3, 'replay');
     return {
       arrivalAvailable: P.isAvailable(arrival, before),
       arrivalWithoutFinale: P.isAvailable(arrival, P.normalize({})),
       hiddenBeforeArrival: !P.nodes(before).some(node => node.nodeId === arrival.nodeId),
       milestone: arrival.milestone,
-      handoff: [after1.returnToRegionHubAfter, room2.returnToRegionHubAfter],
-      missingRoom3: P.getNode('stage:academic-tower-turn-03-expectation') === undefined,
+      handoff: [after1.returnToRegionHubAfter, room2.returnToRegionHubAfter, room3.returnToRegionHubAfter],
+      parallel,
+      missingRoom4: P.getNode('stage:academic-tower-turn-04-faner') === undefined,
       afterReplay: store.get(), first
     };
   })()`, context);
@@ -182,10 +220,12 @@ test('entry, story handoff, first-play save, and replay remain separate', () => 
   assert.equal(result.arrivalWithoutFinale, false);
   assert.equal(result.hiddenBeforeArrival, true, 'the tower timeline appears only after the world entry story');
   assert.equal(result.milestone, 'academic-tower-entered');
-  assert.deepEqual(plain(result.handoff), ['academic-tower', 'academic-tower']);
-  assert.equal(result.missingRoom3, true, 'planned rooms must not become playable nodes early');
+  assert.deepEqual(plain(result.handoff), ['academic-tower', 'academic-tower', 'academic-tower']);
+  assert.deepEqual(plain(result.parallel), [true, true], '02 and 03 must stay parallel after room 01');
+  assert.equal(result.missingRoom4, true, 'planned rooms must not become playable nodes early');
   assert.deepEqual(plain(result.afterReplay), plain(result.first));
   assert.ok(result.first.completedStages.includes('academic-tower-turn-02-raner'));
+  assert.ok(result.first.completedStages.includes('academic-tower-turn-03-expectation'));
   assert.ok(vm.runInContext("JourneyProgress.nodes(JourneyProgress.normalize({seenStories:['academic-tower-arrival']})).some(node => node.nodeId === 'story:academic-tower-arrival')", context));
   assert.ok(!result.first.completedMilestones.some(id => /academic-tower.*(complete|foundation)/.test(id)));
 });
@@ -202,10 +242,12 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20260925-fullsource4/);
+  assert.match(html, /academic-tower\.css\?v=20260925-expectationsort1/);
   for (const asset of ['academic-tower-content', 'academic-tower-journey-content', 'academic-tower-runtime', 'academic-tower-hub-runtime']) {
-    assert.match(html, new RegExp(`${asset}\\.js\\?v=20260925-fullsource4`));
+    assert.match(html, new RegExp(`${asset}\\.js\\?v=20260925-expectationsort1`));
   }
+  assert.match(html, /lexicon-content\.js\?v=20260925-expectationsort1/);
+  assert.match(html, /story-pronunciation-content\.js\?v=20260925-expectationsort1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
 });

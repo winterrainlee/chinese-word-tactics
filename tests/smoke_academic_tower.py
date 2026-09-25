@@ -1,4 +1,4 @@
-"""End-to-end mobile smoke for Academic Tower Slice A."""
+"""End-to-end mobile smoke for Academic Tower rooms 01 through 03."""
 import http.server
 import json
 import os
@@ -115,8 +115,36 @@ try:
         assert "연구한 방 1 / 5" in page.locator("#academicTowerSummary").inner_text()
         assert page.locator('[data-room-id="academic-tower-turn-01-que"]').get_attribute("data-state") == "complete"
         assert page.locator('[data-room-id="academic-tower-turn-02-raner"]').get_attribute("data-state") == "available"
-        assert page.locator('[data-room-id="academic-tower-turn-03-expectation"]').get_attribute("data-state") == "planned"
-        assert "준비 중" in page.locator('[data-room-id="academic-tower-turn-03-expectation"]').inner_text()
+        assert page.locator('[data-room-id="academic-tower-turn-03-expectation"]').get_attribute("data-state") == "available"
+
+        page.locator('[data-room-id="academic-tower-turn-03-expectation"]').click()
+        page.locator("#words .wordbtn", has_text="果然").click()
+        assert "과연" in page.locator("#sheet").inner_text()
+        page.locator("#sheet .sheetactions button").click()
+        choose(page, "select-relation", "surprising")
+        choose(page, "submit-relation")
+        assert "다시 비교" in page.locator("#status").inner_text()
+        choose(page, "select-relation", "matched")
+        choose(page, "submit-relation")
+        choose(page, "next-case")
+        choose(page, "select-relation", "surprising")
+        choose(page, "submit-relation")
+        choose(page, "next-case")
+        assert "果然" not in page.locator(".academicExpectationCard.result").inner_text()
+        choose(page, "select-relation", "matched")
+        choose(page, "submit-relation")
+        assert "果然" in page.locator(".academicExpectationReview").inner_text()
+        choose(page, "next-case")
+        choose(page, "select-relation", "surprising")
+        choose(page, "submit-relation")
+        assert "竟然" in page.locator(".academicExpectationReview").inner_text()
+        page.locator("#flowNext").wait_for(state="visible")
+        assert "예상과 실제의 관계를 분류함" in page.locator("#completionBar").inner_text()
+        page.screenshot(path=str(OUT / "academic-tower-03-complete-375x812.png"), full_page=True)
+        page.locator("#flowNext").click()
+        page.locator("#academicTowerView").wait_for(state="visible")
+        assert "연구한 방 2 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert page.locator('[data-room-id="academic-tower-turn-02-raner"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-02-raner"]').click()
         choose(page, "select-claim", "fact-increased")
@@ -136,19 +164,19 @@ try:
         page.locator("#flowNext").wait_for(state="visible")
         page.locator("#flowNext").click()
         page.locator("#academicTowerView").wait_for(state="visible")
-        assert "연구한 방 2 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert "연구한 방 3 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert page.locator('[data-room-id="academic-tower-turn-04-faner"]').get_attribute("data-state") == "planned"
+        assert "준비 중" in page.locator('[data-room-id="academic-tower-turn-04-faner"]').inner_text()
 
         before_replay = json.loads(page.evaluate(
             "localStorage.getItem('chinese-word-tactics-journey-v1')"
         ))
-        page.locator('[data-room-id="academic-tower-turn-02-raner"]').click()
-        choose(page, "select-claim", "overreach-restored")
-        choose(page, "submit-claim")
-        choose(page, "select-revision", "keep-both")
-        choose(page, "submit-revision")
-        choose(page, "next-case")
-        choose(page, "select-revision", "keep-both")
-        choose(page, "submit-revision")
+        page.locator('[data-room-id="academic-tower-turn-03-expectation"]').click()
+        for relation in ["matched", "surprising", "matched", "surprising"]:
+            choose(page, "select-relation", relation)
+            choose(page, "submit-relation")
+            if page.locator('[data-academic-action="next-case"]').count():
+                choose(page, "next-case")
         page.locator("#flowNext").wait_for(state="visible")
         assert page.locator("#flowNext").inner_text() == "연구실로"
         page.locator("#flowNext").click()
@@ -170,4 +198,4 @@ try:
 finally:
     server.shutdown()
 
-print(f"PASS: Academic Tower Slice A end-to-end mobile smoke. Screenshots: {OUT}")
+print(f"PASS: Academic Tower rooms 01-03 end-to-end mobile smoke. Screenshots: {OUT}")

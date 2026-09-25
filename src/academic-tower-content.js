@@ -12,6 +12,18 @@
       k: '그러나, 그렇지만; 앞 기록을 인정하면서 뒤 기록으로 판단을 제한하다',
       ex: '修復舊水道後，水量增加了。然而，這個裝置還沒有恢復正常。',
       rule: '앞 기록을 지우는 말이 아니야. 뒤 기록까지 읽고, 부분적인 결과를 전체 결론으로 넓힌 곳이 없는지 확인해.'
+    },
+    '果然': {
+      p: 'ㄍㄨㄛˇ ㄖㄢˊ',
+      k: '과연, 역시; 실제 결과가 앞서 세운 예상과 맞았음을 나타내다',
+      ex: '水量增加後，水車果然轉得更快了。',
+      rule: '결과가 좋다는 뜻이 아니라 예상과 실제가 맞았다는 표지야. 나쁜 결과도 예상대로라면 果然을 쓸 수 있어.'
+    },
+    '竟然': {
+      p: 'ㄐㄧㄥˋ ㄖㄢˊ',
+      k: '뜻밖에도; 실제 결과가 앞서 세운 예상에서 벗어났음을 나타내다',
+      ex: '齒輪修復後，水車竟然還是沒有轉動。',
+      rule: '결과가 나쁘다는 뜻이 아니라 예상과 실제가 달랐다는 표지야. 좋은 결과도 뜻밖이라면 竟然을 쓸 수 있어.'
     }
   });
 
@@ -33,7 +45,7 @@
       },
       {
         id: 'academic-tower-turn-03-expectation', number: '03', titleKo: '예상과 실제',
-        titleZh: '果然，還是竟然？', expressions: ['果然', '竟然'], implemented: false,
+        titleZh: '果然，還是竟然？', expressions: ['果然', '竟然'], implemented: true,
         requires: ['academic-tower-turn-01-que']
       },
       {
@@ -122,6 +134,77 @@
     }
   });
 
+  const expectationStage = {
+    id: 'academic-tower-turn-03-expectation',
+    title: '果然／竟然',
+    subtitle: '예상과 실제',
+    kicker: '학술탑 · 방향이 바뀌는 문장 03',
+    grid: ['S'],
+    goal: '比較預想和實際結果，把記錄放到正確的位置。',
+    rule: '결과의 좋고 나쁨이 아니라, 앞서 적은 예상과 실제 결과가 같은지 비교해.',
+    words: ['果然', '竟然'],
+    win: [],
+    story: '좋은 결과와 나쁜 결과를 기준으로 삼지 않고, 예상과 실제의 일치 여부로 네 기록을 다시 분류했다.',
+    completionTitle: '✓ 예상과 실제의 관계를 분류함',
+    completionAction: '연구실로',
+    academicTower: {
+      schemaVersion: 1,
+      kind: 'expectation-sort',
+      relations: [
+        { id: 'matched', labelKo: '예상대로', labelZh: '果然', hintKo: '예상과 실제가 같다' },
+        { id: 'surprising', labelKo: '예상 밖', labelZh: '竟然', hintKo: '예상과 실제가 다르다' }
+      ],
+      cases: [
+        {
+          id: 'positive-matched', mode: 'guided', valence: 'positive', relation: 'matched', markerZh: '果然',
+          expectationZh: '水量增加了。預計：水車會轉得更快。',
+          expectationKo: '수량이 늘었다. 예상: 수차가 더 빨리 돌 것이다.',
+          resultZh: '水車果然轉得更快了。', resultKo: '수차가 과연 더 빨리 돌았다.',
+          reviewZh: '水車果然轉得更快了。',
+          successFeedbackKo: '좋은 결과라서가 아니라, 더 빨라질 것이라는 예상과 실제가 맞았어.',
+          wrongFeedbackKo: '예상에도 더 빨라진다고 적혀 있어. 실제 결과와 같은지 다시 비교해 봐.'
+        },
+        {
+          id: 'negative-surprising', mode: 'guided', valence: 'negative', relation: 'surprising', markerZh: '竟然',
+          expectationZh: '齒輪修復了。預計：水車會重新轉動。',
+          expectationKo: '톱니를 수리했다. 예상: 수차가 다시 움직일 것이다.',
+          resultZh: '水車竟然還是沒有轉動。', resultKo: '수차가 뜻밖에도 여전히 움직이지 않았다.',
+          reviewZh: '水車竟然還是沒有轉動。',
+          successFeedbackKo: '나쁜 결과라서가 아니라, 다시 움직일 것이라는 예상에서 벗어났어.',
+          wrongFeedbackKo: '예상은 다시 움직이는 것이었지만 실제로는 움직이지 않았어. 두 기록의 차이를 봐.'
+        },
+        {
+          id: 'negative-matched', mode: 'transfer', valence: 'negative', relation: 'matched', markerZh: '果然',
+          expectationZh: '齒輪的裂痕更深了。預計：水車會停下來。',
+          expectationKo: '톱니의 균열이 더 깊어졌다. 예상: 수차가 멈출 것이다.',
+          resultZh: '水車停了下來。', resultKo: '수차가 멈췄다.',
+          reviewZh: '水車果然停了下來。',
+          successFeedbackKo: '나쁜 결과여도 예상과 실제가 맞으면 果然이야.',
+          wrongFeedbackKo: '멈출 것이라는 예상과 실제로 멈춘 결과가 같아. 결과의 좋고 나쁨은 기준이 아니야.'
+        },
+        {
+          id: 'positive-surprising', mode: 'transfer', valence: 'positive', relation: 'surprising', markerZh: '竟然',
+          expectationZh: '舊水道還沒有修復。預計：水量不會恢復正常。',
+          expectationKo: '옛 수로는 아직 수리되지 않았다. 예상: 수량이 정상으로 돌아오지 않을 것이다.',
+          resultZh: '水量恢復正常了。', resultKo: '수량이 정상으로 돌아왔다.',
+          reviewZh: '水量竟然恢復正常了。',
+          successFeedbackKo: '좋은 결과여도 예상에서 벗어나면 竟然이야.',
+          wrongFeedbackKo: '예상은 정상으로 돌아오지 않는 것이었지만 실제 수량은 회복됐어. 방향이 달라.'
+        }
+      ]
+    },
+    wordContext: {
+      '果然': {
+        ex: '水車果然停了下來。',
+        rule: '긍정적인 결과가 아니라 예상과 실제의 일치를 표시해. 예상한 나쁜 결과가 그대로 생겨도 果然을 쓸 수 있어.'
+      },
+      '竟然': {
+        ex: '水量竟然恢復正常了。',
+        rule: '부정적인 결과가 아니라 예상과 실제의 불일치를 표시해. 뜻밖의 좋은 결과에도 竟然을 쓸 수 있어.'
+      }
+    }
+  };
+
   STAGES.push({
     id: 'academic-tower-turn-02-raner',
     title: '然而',
@@ -191,6 +274,8 @@
       }
     }
   });
+
+  STAGES.push(expectationStage);
 
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })

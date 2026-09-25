@@ -55,7 +55,7 @@
     },
     {
       id: 'academic-tower', chapterId: 'academic-tower-research', nameKo: '학술탑', nameZh: '學術塔',
-      axisKo: '분할 · 대조 · 중심 이동', descriptionKo: '서로 다른 시기의 기록을 나누고 연결해 마지막 판단이 어디에 남는지 확인한다.',
+      axisKo: '분할 · 대조 · 예상 갱신', descriptionKo: '기록을 나누고 연결해 판단의 중심과 예상·실제의 관계가 어떻게 달라지는지 확인한다.',
       stagePrefixes: ['academic-tower-turn-']
     }
   ];
@@ -256,6 +256,13 @@
       words: ['卻', '然而'], related: ['危險', '修復', '恢復'],
       noteKo: '卻은 한 문장 안에서 뒤 내용으로 중심을 옮기고, 然而는 완결된 앞 기록을 인정하면서 다음 기록이 전체 판단을 제한하게 한다.',
       gameNoteKo: '짧은 수로의 장점을 지우지 않으면서 비 오는 날의 위험을 중심에 남겼고, 수리 효과 뒤에 남은 이상 기록을 연결했다.'
+    },
+    {
+      id: 'academic-tower-expectation-update', chapterId: 'academic-tower-research', regionId: 'academic-tower',
+      titleKo: '예상과 실제의 관계', type: 'contrast', displayZh: '果然 ↔ 竟然',
+      words: ['果然', '竟然'], related: ['增加', '修復', '恢復'],
+      noteKo: '果然은 예상과 실제가 맞았음을, 竟然은 실제가 예상에서 벗어났음을 표시한다. 결과의 좋고 나쁨과는 별개다.',
+      gameNoteKo: '좋은 결과와 나쁜 결과를 각각 예상대로·예상 밖 양쪽에 놓아, 감정값이 아니라 예상 관계로 네 기록을 분류했다.'
     }
   ];
 

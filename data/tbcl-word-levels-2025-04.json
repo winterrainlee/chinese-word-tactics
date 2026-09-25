@@ -80,6 +80,8 @@
     "安全": { "level": "3", "status": "listed" },
     "危險": { "level": "3", "status": "listed" },
     "卻": { "level": "4", "status": "listed" },
-    "然而": { "level": "5", "status": "listed" }
+    "然而": { "level": "5", "status": "listed" },
+    "果然": { "level": "4*", "status": "listed" },
+    "竟然": { "level": "4*", "status": "listed" }
   }
 }

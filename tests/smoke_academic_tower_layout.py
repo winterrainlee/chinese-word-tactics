@@ -87,6 +87,20 @@ try:
             assert_view(page, "#tutorialView", width, height, f"02-long-{width}x{height}")
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-02-{width}x{height}.png"), full_page=True)
+
+            page.evaluate("TacticalGame.playStage('academic-tower-turn-03-expectation', {mode:'replay', returnTo:'academic-tower'})")
+            assert_view(page, "#tutorialView", width, height, f"03-initial-{width}x{height}")
+            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
+            page.locator('[data-academic-action="select-relation"][data-value="matched"]').click()
+            page.locator('[data-academic-action="submit-relation"]').click()
+            assert_view(page, "#tutorialView", width, height, f"03-review-{width}x{height}")
+            page.locator('[data-academic-action="next-case"]').click()
+            page.locator('[data-academic-action="select-relation"][data-value="surprising"]').click()
+            page.locator('[data-academic-action="submit-relation"]').click()
+            page.locator('[data-academic-action="next-case"]').click()
+            assert "果然" not in page.locator(".academicExpectationCard.result").inner_text()
+            assert_view(page, "#tutorialView", width, height, f"03-transfer-{width}x{height}")
+            page.screenshot(path=str(OUT / f"academic-tower-03-{width}x{height}.png"), full_page=True)
             context.close()
         assert not errors, errors
         assert not missing, missing

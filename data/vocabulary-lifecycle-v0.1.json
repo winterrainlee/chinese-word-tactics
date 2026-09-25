@@ -93,6 +93,8 @@
     "安全": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
     "危險": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
     "卻": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-01-que"], "reuseScope": "region" },
-    "然而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-02-raner"], "reuseScope": "region" }
+    "然而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-02-raner"], "reuseScope": "region" },
+    "果然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03-expectation"], "reuseScope": "region" },
+    "竟然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03-expectation"], "reuseScope": "region" }
   }
 }

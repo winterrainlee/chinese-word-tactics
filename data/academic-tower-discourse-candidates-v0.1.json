@@ -300,7 +300,7 @@
         "titleZh": "果然，還是竟然？",
         "targetExpressions": ["果然", "竟然"],
         "targetSourceRefs": ["w4s-guoran", "g345", "w4s-jingran", "g346"],
-        "activeReuseExpressions": ["因為", "所以"],
+        "activeReuseExpressions": ["增加", "修復", "恢復"],
         "requiresRoomIds": ["academic-tower-turn-01-que"]
       },
       {

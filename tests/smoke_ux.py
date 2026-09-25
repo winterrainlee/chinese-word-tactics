@@ -148,7 +148,7 @@ try:
 
         # Only control rules that cannot be inferred from the board occupy the entry status slot.
         stage_ids = page.evaluate('STAGES.map(stage => stage.id)')
-        assert len(stage_ids) == 38, stage_ids
+        assert len(stage_ids) == 39, stage_ids
         instructional_entry_ids = {'stage-0', 'stage-2', 'stage-5'}
         for stage_id in stage_ids:
             page.evaluate('id => TacticalGame.playStage(id,{mode:"replay",returnTo:"journey"})', stage_id)

@@ -49,10 +49,10 @@
       beats: [
         { speaker: 'boy', zh: '水道較短和雨天較危險都是真的。要改的是「較短，所以雨天適合使用」這個判斷。', ko: '수로가 짧다는 것과 비 오는 날 더 위험하다는 건 둘 다 사실이에요. 고쳐야 하는 건 “짧으니 비 오는 날 이용하기 좋다”는 판단이고요.' },
         { speaker: 'towerResearcher', zh: '對。「卻」沒有擦掉前面的事實，只是叫我們回頭檢查從那個事實推出的判斷。', ko: '맞아. `卻`은 앞의 사실을 지우지 않고, 그 사실에서 끌어낸 판단을 다시 검토하게 하지.' },
-        { speaker: 'narrator', zh: '研究員又放下兩張紙。一張記著水量的變化，另一張是稍後完成的裝置檢查。', ko: '연구원은 종이 두 장을 더 내려놓았다. 한 장에는 수량 변화가, 다른 한 장에는 나중에 끝난 장치 점검 결과가 적혀 있었다.' },
-        { speaker: 'towerResearcher', zh: '剛才的轉向在一句話裡。這一次，讀完前後兩份記錄，再檢查整份報告。', ko: '방금 전환은 한 문장 안에 있었어. 이번에는 앞뒤 두 기록을 모두 읽고 보고서 전체를 검토해 보자.' },
-        { speaker: 'boy', zh: '也是保留兩邊的事實，只修改太快下的結論嗎？', ko: '이번에도 양쪽 사실은 남기고, 너무 빨리 내린 결론만 고치는 건가요?' },
-        { speaker: 'towerResearcher', zh: '先讀記錄，再決定。別急著把所有轉向都當成同一種「但是」。', ko: '먼저 기록을 읽고 판단해. 모든 전환을 같은 ‘하지만’이라고 서둘러 묶지는 말고.' }
+        { speaker: 'narrator', zh: '研究員又放下兩疊紙。一疊是隔著好幾句才轉向的調查記錄，另一疊寫著操作前的預想和實際結果。', ko: '연구원은 종이 두 묶음을 더 내려놓았다. 한쪽은 여러 문장을 사이에 두고 방향이 바뀌는 조사 기록이고, 다른 쪽은 조작 전의 예상과 실제 결과를 적은 기록이었다.' },
+        { speaker: 'towerResearcher', zh: '接下來有兩條線。先看哪一疊都可以。', ko: '다음부터는 두 갈래야. 어느 묶음을 먼저 살펴봐도 돼.' },
+        { speaker: 'boy', zh: '它們都會改變後面的讀法嗎？', ko: '둘 다 뒤 내용을 읽는 방법을 바꾸나요?' },
+        { speaker: 'towerResearcher', zh: '會，但改法不同。別急著把它們全叫成同一種「但是」。', ko: '그래. 하지만 바꾸는 방법은 달라. 모두 같은 ‘하지만’이라고 서둘러 묶지는 마.' }
       ]
     }
   });
@@ -80,6 +80,10 @@
         },
         {
           type: 'stage', id: 'academic-tower-turn-02-raner',
+          requires: ['story:academic-tower-turn-after-que'], returnToRegionHubAfter: 'academic-tower'
+        },
+        {
+          type: 'stage', id: 'academic-tower-turn-03-expectation',
           requires: ['story:academic-tower-turn-after-que'], returnToRegionHubAfter: 'academic-tower'
         }
       ]
