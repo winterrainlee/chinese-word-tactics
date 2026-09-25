@@ -118,6 +118,10 @@ try:
         assert page.locator('[data-room-id="academic-tower-turn-03-expectation"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-03-expectation"]').click()
+        initial_pair = page.locator(".academicExpectationPair").inner_text()
+        assert "水量增加了" in initial_pair
+        assert "수량이 늘었다" not in initial_pair
+        assert "수차가 과연" not in initial_pair
         page.locator("#words .wordbtn", has_text="果然").click()
         assert "과연" in page.locator("#sheet").inner_text()
         page.locator("#sheet .sheetactions button").click()
@@ -131,6 +135,9 @@ try:
         choose(page, "submit-relation")
         choose(page, "next-case")
         assert "果然" not in page.locator(".academicExpectationCard.result").inner_text()
+        transfer_pair = page.locator(".academicExpectationPair").inner_text()
+        assert "톱니의 균열" not in transfer_pair
+        assert "수차가 멈췄다" not in transfer_pair
         choose(page, "select-relation", "matched")
         choose(page, "submit-relation")
         assert "果然" in page.locator(".academicExpectationReview").inner_text()

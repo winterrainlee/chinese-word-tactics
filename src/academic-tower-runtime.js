@@ -319,7 +319,7 @@
     } else if (workbench.phase === 'review' || workbench.phase === 'complete') {
       action = renderExpectationReview(config, item, workbench.phase === 'complete');
     }
-    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">예상 기록과 실제 기록의 관계는?</h2><div class="academicExpectationPair"><article class="academicExpectationCard expectation"><div>예상 기록</div><p lang="zh-Hant">${escapeHtml(item.expectationZh)}</p><small>${escapeHtml(item.expectationKo)}</small></article><div class="academicExpectationArrow" aria-hidden="true">↓</div><article class="academicExpectationCard result"><div>실제 기록</div><p lang="zh-Hant">${markedPhrase(item.resultZh, resultMarker)}</p><small>${escapeHtml(item.resultKo)}</small></article></div>${action}`;
+    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">예상 기록과 실제 기록의 관계는?</h2><div class="academicExpectationPair"><article class="academicExpectationCard expectation"><div>예상 기록</div><p lang="zh-Hant">${escapeHtml(item.expectationZh)}</p></article><div class="academicExpectationArrow" aria-hidden="true">↓</div><article class="academicExpectationCard result"><div>실제 기록</div><p lang="zh-Hant">${markedPhrase(item.resultZh, resultMarker)}</p></article></div>${action}`;
   }
 
   function renderWorkbench(config, workbench) {

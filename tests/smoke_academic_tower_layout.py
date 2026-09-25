@@ -89,6 +89,7 @@ try:
             page.screenshot(path=str(OUT / f"academic-tower-02-{width}x{height}.png"), full_page=True)
 
             page.evaluate("TacticalGame.playStage('academic-tower-turn-03-expectation', {mode:'replay', returnTo:'academic-tower'})")
+            assert "수량이 늘었다" not in page.locator(".academicExpectationPair").inner_text()
             assert_view(page, "#tutorialView", width, height, f"03-initial-{width}x{height}")
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.locator('[data-academic-action="select-relation"][data-value="matched"]').click()
@@ -99,6 +100,7 @@ try:
             page.locator('[data-academic-action="submit-relation"]').click()
             page.locator('[data-academic-action="next-case"]').click()
             assert "果然" not in page.locator(".academicExpectationCard.result").inner_text()
+            assert "톱니의 균열" not in page.locator(".academicExpectationPair").inner_text()
             assert_view(page, "#tutorialView", width, height, f"03-transfer-{width}x{height}")
             page.screenshot(path=str(OUT / f"academic-tower-03-{width}x{height}.png"), full_page=True)
             context.close()

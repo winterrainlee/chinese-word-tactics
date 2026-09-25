@@ -243,9 +243,10 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
   assert.match(html, /academic-tower\.css\?v=20260925-expectationsort1/);
-  for (const asset of ['academic-tower-content', 'academic-tower-journey-content', 'academic-tower-runtime', 'academic-tower-hub-runtime']) {
+  for (const asset of ['academic-tower-content', 'academic-tower-journey-content', 'academic-tower-hub-runtime']) {
     assert.match(html, new RegExp(`${asset}\\.js\\?v=20260925-expectationsort1`));
   }
+  assert.match(html, /academic-tower-runtime\.js\?v=20260925-chineserecords1/);
   assert.match(html, /lexicon-content\.js\?v=20260925-expectationsort1/);
   assert.match(html, /story-pronunciation-content\.js\?v=20260925-expectationsort1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
