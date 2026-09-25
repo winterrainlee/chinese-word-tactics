@@ -17,28 +17,25 @@
 
   function optionOrders(config, rng = Math.random) {
     const result = {};
-    const baseSlot = Math.floor(Math.max(0, Math.min(.999999, Number(rng()) || 0)) * 3);
+    const baseFraction = Math.max(0, Math.min(.999999, Number(rng()) || 0));
     let challengeIndex = 0;
     for (const item of config.cases || []) {
       if (item.mode === 'guided') {
+        const baseSlot = Math.floor(baseFraction * item.claims.length);
         result[orderKey(item.id, 'claim')] = orderedIds(
-          item.claims, item.repairTargetId, (baseSlot + challengeIndex++) % 3
+          item.claims, item.repairTargetId, (baseSlot + challengeIndex++) % item.claims.length
         );
       }
+      const baseSlot = Math.floor(baseFraction * item.revisions.length);
       result[orderKey(item.id, 'revision')] = orderedIds(
-        item.revisions, item.correctRevisionId, (baseSlot + challengeIndex++) % 3
+        item.revisions, item.correctRevisionId, (baseSlot + challengeIndex++) % item.revisions.length
       );
     }
     return result;
   }
 
   function openingPhase(item) {
-    if (item.sources.some(source => !source.initiallyVisible)) return 'source';
     return item.mode === 'guided' ? 'claim' : 'revision';
-  }
-
-  function visibleSourceIds(item) {
-    return item.sources.filter(source => source.initiallyVisible).map(source => source.id);
   }
 
   function createState(config, rng) {
@@ -49,7 +46,6 @@
       kind: config.kind,
       caseIndex: 0,
       phase: openingPhase(item),
-      revealedSourceIds: visibleSourceIds(item),
       claimId: null,
       revisionId: null,
       completedCaseIds: [],
@@ -61,7 +57,7 @@
   function isValidState(config, workbench) {
     return !!workbench && workbench.kind === config?.kind &&
       workbench.schemaVersion === config?.schemaVersion &&
-      Number.isInteger(workbench.caseIndex) && Array.isArray(workbench.revealedSourceIds) &&
+      Number.isInteger(workbench.caseIndex) &&
       workbench.optionOrders && typeof workbench.optionOrders === 'object';
   }
 
@@ -79,15 +75,7 @@
     let feedback = '';
     let correct = null;
 
-    if (action.type === 'reveal' && next.phase === 'source') {
-      next.revealedSourceIds = item.sources.map(source => source.id);
-      next.phase = item.mode === 'guided' ? 'claim' : 'revision';
-      next.lastCheck = null;
-      changed = true;
-      feedback = item.scope === 'sentence'
-        ? '문장을 두 사실로 나눠 펼쳤어. 이제 검토 메모와 비교해 봐.'
-        : '뒤의 점검 기록도 펼쳤어. 두 기록은 함께 참일 수 있어.';
-    } else if (action.type === 'select-claim' && next.phase === 'claim' &&
+    if (action.type === 'select-claim' && next.phase === 'claim' &&
       item.claims.some(option => option.id === action.value)) {
       if (next.claimId !== action.value || next.lastCheck) changed = true;
       next.claimId = action.value;
@@ -123,7 +111,6 @@
       if (nextCase) {
         next.caseIndex = nextIndex;
         next.phase = openingPhase(nextCase);
-        next.revealedSourceIds = visibleSourceIds(nextCase);
         next.claimId = null;
         next.revisionId = null;
         next.lastCheck = null;
@@ -181,12 +168,11 @@
     return text.replace(escapeHtml(marker), `<strong class="academicConnector">${escapeHtml(marker)}</strong>`);
   }
 
-  function renderSources(item, workbench) {
-    const visible = item.sources.filter(source => workbench.revealedSourceIds.includes(source.id));
-    const relation = visible.length > 1
+  function renderSources(item) {
+    const relation = item.sources.length > 1
       ? `<div class="academicSourceRelation" aria-label="${escapeHtml(item.connectorZh)}로 이어지는 기록"><span aria-hidden="true">↳</span><small>${item.scope === 'sentence' ? '한 문장 안의 대조' : '두 기록 사이의 전환'}</small></div>`
       : '';
-    const cards = visible.map(source => `<article class="academicSourceCard" data-source-id="${escapeHtml(source.id)}"><p lang="zh-Hant">${markedText(source)}</p><small>${escapeHtml(source.labelKo)}</small></article>`);
+    const cards = item.sources.map(source => `<article class="academicSourceCard" data-source-id="${escapeHtml(source.id)}"><p lang="zh-Hant">${markedText(source)}</p><small>${escapeHtml(source.labelKo)}</small></article>`);
     const content = cards.length > 1 ? `${cards[0]}${relation}${cards.slice(1).join('')}` : cards.join('');
     return `<div class="academicSources ${item.scope === 'sentence' ? 'sentence' : 'records'}">${content}</div>`;
   }
@@ -212,20 +198,17 @@
     if (!item) return '';
     const progress = item.mode === 'guided' ? '연습 · 1 / 2' : '새 기록 · 2 / 2';
     let action = '';
-    if (workbench.phase === 'source') {
-      action = `<button type="button" class="academicReveal" data-academic-action="reveal">${escapeHtml(item.revealLabelKo || '나머지 기록 읽기')}</button>`;
-    } else if (workbench.phase === 'claim') {
+    if (workbench.phase === 'claim') {
       action = renderOptions(workbench, item, 'claim');
     } else if (workbench.phase === 'revision') {
       action = renderOptions(workbench, item, 'revision');
     } else if (workbench.phase === 'review' || workbench.phase === 'complete') {
       action = renderReview(item, workbench, workbench.phase === 'complete');
     }
-    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">${escapeHtml(item.questionKo)}</h2>${renderSources(item, workbench)}<p class="academicDraft">${escapeHtml(item.draftKo)}</p>${action}`;
+    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">${escapeHtml(item.questionKo)}</h2>${renderSources(item)}<p class="academicDraft">${escapeHtml(item.draftKo)}</p>${action}`;
   }
 
   function goalHtml(workbench) {
-    if (workbench.phase === 'source') return '기록을 끝까지 읽고 <span class="hot">검토할 판단</span>을 찾아.';
     if (workbench.phase === 'claim') return '기록이 직접 말한 사실과 <span class="hot">성급한 판단</span>을 구별해.';
     if (workbench.phase === 'revision') return '앞뒤 사실을 함께 남기는 <span class="hot">메모</span>로 고쳐.';
     if (workbench.phase === 'review') return '고친 방법을 <span class="done">새 기록</span>에도 적용해.';

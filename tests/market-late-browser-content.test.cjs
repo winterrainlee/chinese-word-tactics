@@ -44,7 +44,7 @@ test('index loads market, lexicon, continuous flow, state visuals and UX layers 
   assert.ok(baseOutcome < marketOutcome && marketOutcome < storyRuntime);
   assert.ok(appRuntime < lexiconRuntime && lexiconRuntime < marketRuntime);
   assert.ok(marketRuntime < marketVisuals && marketVisuals < marketInference && marketInference < flowRuntime && flowRuntime < uxRuntime);
-  assert.match(html, /name="cwt-build" content="2026-09-25-academic-tower-claim-revision1"/);
+  assert.match(html, /name="cwt-build" content="2026-09-25-academic-tower-full-source4"/);
   assert.match(html, /lexicon-content\.js\?v=20260925-academictower1/); assert.match(html, /lexicon-runtime\.js\?v=20260913-lexicon1/); assert.match(html, /lexicon\.css\?v=20260913-lexicon2/);
   assert.match(html, /market-content\.js\?v=20260922-infohierarchy1/); assert.match(html, /market-inference-runtime\.js\?v=20260922-infohierarchy1/);
   assert.match(html, /market-late-content\.js\?v=20260922-infohierarchy1/); assert.match(html, /market-runtime\.js\?v=20260922-emptyaction1/); assert.match(html, /market-state-visuals\.js\?v=20260912-marketm8r3/); assert.match(html, /market-state-visuals\.css\?v=20260912-marketm8r3/); assert.match(html, /continuous-region-flow\.js\?v=20260912-uxflow1/); assert.match(html, /ux-play-runtime\.js\?v=20260925-regionhub1/);
