@@ -16,6 +16,8 @@
   }
 
   function optionOrders(config, rng = Math.random) {
+    if (config?.kind === 'replacement-link') return replacementOptionOrders(config, rng);
+    if (config?.kind === 'connector-cloze') return clozeOptionOrders(config, rng);
     if (config?.kind !== 'claim-revision') return {};
     const result = {};
     const baseFraction = Math.max(0, Math.min(.999999, Number(rng()) || 0));
@@ -192,27 +194,234 @@
     return config.cases.every(item => workbench.completedCaseIds.includes(item.id));
   }
 
+  function replacementOptionOrders(config, rng = Math.random) {
+    const result = {};
+    const fraction = Math.max(0, Math.min(.999999, Number(rng()) || 0));
+    const base = Math.floor(fraction * 4);
+    (config?.cases || []).forEach((item, index) => {
+      const cards = item.cards || [];
+      const shift = cards.length ? (base + index) % cards.length : 0;
+      result[orderKey(item.id, 'results')] = cards.map((card, cardIndex) => cards[(cardIndex + shift) % cards.length].id);
+      if (item.mode !== 'guided') {
+        result[orderKey(item.id, 'links')] = orderedIds(
+          config.linkOptions || [], config.correctLinkId, (base + index) % (config.linkOptions?.length || 1)
+        );
+      }
+    });
+    return result;
+  }
+
+  function createReplacementState(config, rng) {
+    if (config?.kind !== 'replacement-link' || !config.cases?.length) return null;
+    return {
+      schemaVersion: config.schemaVersion,
+      kind: config.kind,
+      caseIndex: 0,
+      phase: 'place-results',
+      resultSlot: 'absent',
+      resultId: null,
+      absentResultId: null,
+      actualResultId: null,
+      linkId: null,
+      completedCaseIds: [],
+      optionOrders: replacementOptionOrders(config, rng),
+      lastCheck: null
+    };
+  }
+
+  function isValidReplacementState(config, workbench) {
+    return !!workbench && workbench.kind === config?.kind &&
+      workbench.schemaVersion === config?.schemaVersion && Number.isInteger(workbench.caseIndex) &&
+      Array.isArray(workbench.completedCaseIds) && workbench.optionOrders &&
+      ['place-results', 'choose-link', 'review', 'complete'].includes(workbench.phase);
+  }
+
+  function completeReplacementCase(config, next, item) {
+    if (!next.completedCaseIds.includes(item.id)) next.completedCaseIds.push(item.id);
+    next.phase = next.caseIndex === config.cases.length - 1 ? 'complete' : 'review';
+  }
+
+  function applyReplacementAction(config, currentState, action) {
+    const next = copy(isValidReplacementState(config, currentState) ? currentState : createReplacementState(config));
+    const item = caseFor(config, next);
+    if (!next || !item || !action?.type || next.phase === 'complete') {
+      return { changed: false, state: next, feedback: '' };
+    }
+    let changed = false;
+    let feedback = '';
+    let correct = null;
+
+    if (action.type === 'select-result' && next.phase === 'place-results' &&
+      item.cards.some(card => card.id === action.value)) {
+      changed = next.resultId !== action.value || !!next.lastCheck;
+      next.resultId = action.value;
+      next.lastCheck = null;
+    } else if (action.type === 'submit-result' && next.phase === 'place-results' && next.resultId) {
+      const slot = next.resultSlot;
+      const selectedCard = item.cards.find(card => card.id === next.resultId);
+      const expectedId = slot === 'absent' ? item.absentResultId : item.actualResultId;
+      correct = next.resultId === expectedId;
+      next.lastCheck = { step: slot, id: next.resultId, correct };
+      feedback = correct
+        ? (slot === 'absent' ? '생기지 않은 예상을 남겼어. 이제 실제로 생긴 결과를 찾아.' : item.successFeedbackKo)
+        : (slot === 'absent' ? selectedCard?.absentFeedbackKo : selectedCard?.actualFeedbackKo);
+      if (correct && slot === 'absent') {
+        next.absentResultId = next.resultId;
+        next.resultSlot = 'actual';
+        next.resultId = null;
+        next.lastCheck = null;
+      } else if (correct) {
+        next.actualResultId = next.resultId;
+        next.resultId = null;
+        next.lastCheck = null;
+        if (item.mode === 'guided') {
+          next.linkId = config.correctLinkId;
+          completeReplacementCase(config, next, item);
+        } else {
+          next.phase = 'choose-link';
+        }
+      }
+      changed = true;
+    } else if (action.type === 'select-link' && next.phase === 'choose-link' &&
+      config.linkOptions.some(option => option.id === action.value)) {
+      changed = next.linkId !== action.value || !!next.lastCheck;
+      next.linkId = action.value;
+      next.lastCheck = null;
+    } else if (action.type === 'submit-link' && next.phase === 'choose-link' && next.linkId) {
+      const selectedLink = config.linkOptions.find(option => option.id === next.linkId);
+      correct = next.linkId === config.correctLinkId;
+      next.lastCheck = { step: 'link', id: next.linkId, correct };
+      feedback = correct ? item.successFeedbackKo : selectedLink?.feedbackKo;
+      if (correct) completeReplacementCase(config, next, item);
+      changed = true;
+    } else if (action.type === 'next-case' && next.phase === 'review') {
+      const nextIndex = next.caseIndex + 1;
+      if (config.cases[nextIndex]) {
+        next.caseIndex = nextIndex;
+        next.phase = 'place-results';
+        next.resultSlot = 'absent';
+        next.resultId = null;
+        next.absentResultId = null;
+        next.actualResultId = null;
+        next.linkId = null;
+        next.lastCheck = null;
+        changed = true;
+        feedback = '이번에는 두 결과를 직접 찾고, 알맞은 연결어까지 골라 보자.';
+      }
+    }
+    return { changed, state: next, feedback: feedback || '', correct };
+  }
+
+  function isReplacementSolved(config, workbench) {
+    return isValidReplacementState(config, workbench) && workbench.phase === 'complete' &&
+      config.cases.every(item => workbench.completedCaseIds.includes(item.id));
+  }
+
+  function clozeOptionOrders(config, rng = Math.random) {
+    const result = {};
+    const fraction = Math.max(0, Math.min(.999999, Number(rng()) || 0));
+    const base = Math.floor(fraction * 4);
+    (config?.blanks || []).forEach((item, index) => {
+      const options = item.options.map(id => ({ id }));
+      result[item.id] = orderedIds(options, item.correctConnectorId, (base + index) % options.length);
+    });
+    return result;
+  }
+
+  function createClozeState(config, rng) {
+    if (config?.kind !== 'connector-cloze' || !config.blanks?.length) return null;
+    return {
+      schemaVersion: config.schemaVersion,
+      kind: config.kind,
+      blankIndex: 0,
+      phase: 'choose-connector',
+      selectedConnectorId: null,
+      completedBlankIds: [],
+      optionOrders: clozeOptionOrders(config, rng),
+      lastCheck: null
+    };
+  }
+
+  function isValidClozeState(config, workbench) {
+    return !!workbench && workbench.kind === config?.kind &&
+      workbench.schemaVersion === config?.schemaVersion && Number.isInteger(workbench.blankIndex) &&
+      Array.isArray(workbench.completedBlankIds) && workbench.optionOrders &&
+      ['choose-connector', 'review', 'complete'].includes(workbench.phase);
+  }
+
+  function blankFor(config, workbench) {
+    return config?.blanks?.[workbench?.blankIndex] || null;
+  }
+
+  function applyClozeAction(config, currentState, action) {
+    const next = copy(isValidClozeState(config, currentState) ? currentState : createClozeState(config));
+    const item = blankFor(config, next);
+    if (!next || !item || !action?.type || next.phase === 'complete') {
+      return { changed: false, state: next, feedback: '' };
+    }
+    let changed = false;
+    let feedback = '';
+    let correct = null;
+    if (action.type === 'select-connector' && next.phase === 'choose-connector' && item.options.includes(action.value)) {
+      changed = next.selectedConnectorId !== action.value || !!next.lastCheck;
+      next.selectedConnectorId = action.value;
+      next.lastCheck = null;
+    } else if (action.type === 'submit-connector' && next.phase === 'choose-connector' && next.selectedConnectorId) {
+      correct = next.selectedConnectorId === item.correctConnectorId;
+      next.lastCheck = { step: 'connector', id: next.selectedConnectorId, correct };
+      feedback = correct ? item.successFeedbackKo : config.connectorFeedback[next.selectedConnectorId];
+      if (correct) {
+        if (!next.completedBlankIds.includes(item.id)) next.completedBlankIds.push(item.id);
+        next.phase = next.blankIndex === config.blanks.length - 1 ? 'complete' : 'review';
+      }
+      changed = true;
+    } else if (action.type === 'next-blank' && next.phase === 'review') {
+      if (config.blanks[next.blankIndex + 1]) {
+        next.blankIndex += 1;
+        next.phase = 'choose-connector';
+        next.selectedConnectorId = null;
+        next.lastCheck = null;
+        changed = true;
+        feedback = '다음 빈칸도 문장 전체를 읽고 관계를 확인해 보자.';
+      }
+    }
+    return { changed, state: next, feedback: feedback || '', correct };
+  }
+
+  function isClozeSolved(config, workbench) {
+    return isValidClozeState(config, workbench) && workbench.phase === 'complete' &&
+      config.blanks.every(item => workbench.completedBlankIds.includes(item.id));
+  }
+
   function createState(config, rng) {
     if (config?.kind === 'claim-revision') return createClaimRevisionState(config, rng);
     if (config?.kind === 'expectation-sort') return createExpectationState(config);
+    if (config?.kind === 'replacement-link') return createReplacementState(config, rng);
+    if (config?.kind === 'connector-cloze') return createClozeState(config, rng);
     return null;
   }
 
   function isValidState(config, workbench) {
     if (config?.kind === 'claim-revision') return isValidClaimRevisionState(config, workbench);
     if (config?.kind === 'expectation-sort') return isValidExpectationState(config, workbench);
+    if (config?.kind === 'replacement-link') return isValidReplacementState(config, workbench);
+    if (config?.kind === 'connector-cloze') return isValidClozeState(config, workbench);
     return false;
   }
 
   function applyAction(config, currentState, action) {
     if (config?.kind === 'claim-revision') return applyClaimRevisionAction(config, currentState, action);
     if (config?.kind === 'expectation-sort') return applyExpectationAction(config, currentState, action);
+    if (config?.kind === 'replacement-link') return applyReplacementAction(config, currentState, action);
+    if (config?.kind === 'connector-cloze') return applyClozeAction(config, currentState, action);
     return { changed: false, state: null, feedback: '' };
   }
 
   function isSolved(config, workbench) {
     if (config?.kind === 'claim-revision') return isClaimRevisionSolved(config, workbench);
     if (config?.kind === 'expectation-sort') return isExpectationSolved(config, workbench);
+    if (config?.kind === 'replacement-link') return isReplacementSolved(config, workbench);
+    if (config?.kind === 'connector-cloze') return isClozeSolved(config, workbench);
     return false;
   }
 
@@ -322,9 +531,67 @@
     return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">예상 기록과 실제 기록의 관계는?</h2><div class="academicExpectationPair"><article class="academicExpectationCard expectation"><div>예상 기록</div><p lang="zh-Hant">${escapeHtml(item.expectationZh)}</p></article><div class="academicExpectationArrow" aria-hidden="true">↓</div><article class="academicExpectationCard result"><div>실제 기록</div><p lang="zh-Hant">${markedPhrase(item.resultZh, resultMarker)}</p></article></div>${action}`;
   }
 
+  function orderedReplacementCards(workbench, item) {
+    const ids = workbench.optionOrders[orderKey(item.id, 'results')] || item.cards.map(card => card.id);
+    return ids.map(id => item.cards.find(card => card.id === id)).filter(Boolean);
+  }
+
+  function renderReplacementReview(item, finalReview) {
+    return `<section class="academicReplacementReview" aria-live="polite"><div class="academicReviewLabel">기록 연결 완료</div><p lang="zh-Hant">${markedPhrase(item.completedZh, '反而')}</p><small>${escapeHtml(item.successFeedbackKo)}</small></section>${finalReview ? '' : '<button type="button" class="academicConfirm" data-academic-action="next-case">새 기록 확인</button>'}`;
+  }
+
+  function renderReplacementWorkbench(config, workbench) {
+    const item = caseFor(config, workbench);
+    if (!item) return '';
+    const current = workbench.caseIndex + 1;
+    const progress = `${item.mode === 'guided' ? '안내' : '적용'} · ${current} / ${config.cases.length}`;
+    const chosenAbsent = item.cards.find(card => card.id === workbench.absentResultId);
+    const chosenActual = item.cards.find(card => card.id === workbench.actualResultId);
+    const slots = `<div class="academicReplacementSlots"><div class="${chosenAbsent ? 'filled' : ''}"><small>생기지 않은 예상</small><strong lang="zh-Hant">${escapeHtml(chosenAbsent?.textZh || '—')}</strong></div><span aria-hidden="true">→</span><div class="${chosenActual ? 'filled' : ''}"><small>실제로 생긴 결과</small><strong lang="zh-Hant">${escapeHtml(chosenActual?.textZh || '—')}</strong></div></div>`;
+    let action = '';
+    if (workbench.phase === 'place-results') {
+      const heading = workbench.resultSlot === 'absent' ? '생기지 않은 예상 고르기' : '실제로 생긴 결과 고르기';
+      const cards = orderedReplacementCards(workbench, item).map(card => `<button type="button" class="academicResultChoice${selected(workbench.resultId, card.id)}" data-academic-action="select-result" data-value="${escapeHtml(card.id)}" aria-pressed="${pressed(workbench.resultId, card.id)}" lang="zh-Hant">${escapeHtml(card.textZh)}</button>`).join('');
+      action = `<section class="academicStep"><h2>${heading}</h2><div class="academicResultChoices">${cards}</div></section><button type="button" class="academicConfirm" data-academic-action="submit-result" ${workbench.resultId ? '' : 'disabled'}>이 결과 놓기</button>`;
+    } else if (workbench.phase === 'choose-link') {
+      const ids = workbench.optionOrders[orderKey(item.id, 'links')] || config.linkOptions.map(option => option.id);
+      const links = ids.map(id => config.linkOptions.find(option => option.id === id)).filter(Boolean)
+        .map(option => `<button type="button" class="academicConnectorChoice${selected(workbench.linkId, option.id)}" data-academic-action="select-link" data-value="${escapeHtml(option.id)}" aria-pressed="${pressed(workbench.linkId, option.id)}" lang="zh-Hant">${escapeHtml(option.labelZh)}</button>`).join('');
+      action = `<section class="academicStep"><h2>두 결과를 잇는 말</h2><div class="academicConnectorChoices">${links}</div></section><button type="button" class="academicConfirm" data-academic-action="submit-link" ${workbench.linkId ? '' : 'disabled'}>이 말로 연결</button>`;
+    } else {
+      action = renderReplacementReview(item, workbench.phase === 'complete');
+    }
+    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">예상에서 빠진 결과와 실제로 생긴 결과는?</h2><div class="academicReplacementRecords"><article><div>예상 기록</div><p lang="zh-Hant">${escapeHtml(item.expectationZh)}</p></article><article><div>실제 기록</div><p lang="zh-Hant">${escapeHtml(item.actualZh)}</p></article></div>${slots}${action}`;
+  }
+
+  function renderClozeSentence(item, connectorId = null) {
+    const blank = connectorId
+      ? `<strong class="academicConnector" lang="zh-Hant">${escapeHtml(connectorId)}</strong>`
+      : '<span class="academicClozeBlank" aria-label="빈칸">　　</span>';
+    return `<p class="academicClozeSentence" lang="zh-Hant">${escapeHtml(item.beforeZh)}${blank}${escapeHtml(item.afterZh)}</p>`;
+  }
+
+  function renderClozeWorkbench(config, workbench) {
+    const item = blankFor(config, workbench);
+    if (!item) return '';
+    const progress = `${escapeHtml(item.sectionKo)} · ${workbench.blankIndex + 1} / ${config.blanks.length}`;
+    const context = item.contextZh ? `<p class="academicClozeContext" lang="zh-Hant">${escapeHtml(item.contextZh)}</p>` : '';
+    let action = '';
+    if (workbench.phase === 'choose-connector') {
+      const ids = workbench.optionOrders[item.id] || item.options;
+      const choices = ids.map(id => `<button type="button" class="academicConnectorChoice${selected(workbench.selectedConnectorId, id)}" data-academic-action="select-connector" data-value="${escapeHtml(id)}" aria-pressed="${pressed(workbench.selectedConnectorId, id)}" lang="zh-Hant">${escapeHtml(id)}</button>`).join('');
+      action = `${renderClozeSentence(item)}<section class="academicStep"><h2>빈칸에 들어갈 말</h2><div class="academicConnectorChoices">${choices}</div></section><button type="button" class="academicConfirm" data-academic-action="submit-connector" ${workbench.selectedConnectorId ? '' : 'disabled'}>이 말로 복원</button>`;
+    } else {
+      action = `<section class="academicClozeReview" aria-live="polite"><div class="academicReviewLabel">복원 완료</div>${renderClozeSentence(item, item.correctConnectorId)}<small>${escapeHtml(item.successFeedbackKo)}</small></section>${workbench.phase === 'complete' ? '' : '<button type="button" class="academicConfirm" data-academic-action="next-blank">다음 빈칸</button>'}`;
+    }
+    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">문장을 끝까지 읽고 바랜 말을 복원해.</h2><div class="academicClozeRecord">${context}${action}</div>`;
+  }
+
   function renderWorkbench(config, workbench) {
     if (config.kind === 'claim-revision') return renderClaimRevisionWorkbench(config, workbench);
     if (config.kind === 'expectation-sort') return renderExpectationWorkbench(config, workbench);
+    if (config.kind === 'replacement-link') return renderReplacementWorkbench(config, workbench);
+    if (config.kind === 'connector-cloze') return renderClozeWorkbench(config, workbench);
     return '';
   }
 
@@ -337,9 +604,20 @@
 
   function goalHtml(config, workbench) {
     if (config.kind === 'claim-revision') return claimGoalHtml(workbench);
-    if (workbench.phase === 'sort') return '결과의 좋고 나쁨보다 <span class="hot">예상과 실제</span>를 비교해.';
-    if (workbench.phase === 'review') return '분류에 붙은 <span class="done">표지어</span>를 확인해.';
-    return '네 기록을 <span class="done">예상대로 / 예상 밖</span>으로 나눴어.';
+    if (config.kind === 'expectation-sort') {
+      if (workbench.phase === 'sort') return '결과의 좋고 나쁨보다 <span class="hot">예상과 실제</span>를 비교해.';
+      if (workbench.phase === 'review') return '분류에 붙은 <span class="done">표지어</span>를 확인해.';
+      return '네 기록을 <span class="done">예상대로 / 예상 밖</span>으로 나눴어.';
+    }
+    if (config.kind === 'replacement-link') {
+      if (workbench.phase === 'place-results') return '<span class="hot">생기지 않은 예상</span>과 실제 결과를 따로 찾아.';
+      if (workbench.phase === 'choose-link') return '두 결과의 <span class="hot">대체 관계</span>를 남겨.';
+      if (workbench.phase === 'review') return '같은 관계를 <span class="done">새 기록</span>에서도 찾아.';
+      return '예상 대신 생긴 결과를 <span class="done">反而</span>로 연결했어.';
+    }
+    if (workbench.phase === 'choose-connector') return '빈칸보다 먼저 <span class="hot">문장 전체</span>를 읽어.';
+    if (workbench.phase === 'review') return '복원한 말이 앞뒤 관계와 맞는지 <span class="done">확인</span>해.';
+    return '일곱 빈칸의 <span class="done">관계를 모두 복원</span>했어.';
   }
 
   function renderWords(stage, workbench) {

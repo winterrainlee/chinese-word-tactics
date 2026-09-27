@@ -305,8 +305,8 @@
       },
       {
         "id": "academic-tower-turn-04-faner",
-        "titleKo": "반대로 나온 결과",
-        "titleZh": "結果反而相反",
+        "titleKo": "예상 대신 생긴 결과",
+        "titleZh": "沒有更快，反而停下來",
         "targetExpressions": ["反而"],
         "targetSourceRefs": ["w5-faner", "g492"],
         "activeReuseExpressions": ["卻", "然而", "果然", "竟然"],
@@ -314,8 +314,8 @@
       },
       {
         "id": "academic-tower-turn-05-synthesis",
-        "titleKo": "겹쳐진 방향",
-        "titleZh": "讀懂轉折與反轉",
+        "titleKo": "접속어 복원",
+        "titleZh": "把褪色的連接詞補回去",
         "targetExpressions": [],
         "targetSourceRefs": [],
         "activeReuseExpressions": ["卻", "然而", "果然", "竟然", "反而"],

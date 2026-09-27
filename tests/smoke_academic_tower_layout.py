@@ -103,6 +103,32 @@ try:
             assert "톱니의 균열" not in page.locator(".academicExpectationPair").inner_text()
             assert_view(page, "#tutorialView", width, height, f"03-transfer-{width}x{height}")
             page.screenshot(path=str(OUT / f"academic-tower-03-{width}x{height}.png"), full_page=True)
+
+            page.evaluate("TacticalGame.playStage('academic-tower-turn-04-faner', {mode:'replay', returnTo:'academic-tower'})")
+            assert "수량이 늘었다" not in page.locator(".academicReplacementRecords").inner_text()
+            assert_view(page, "#tutorialView", width, height, f"04-initial-{width}x{height}")
+            for value in ["faster", "stopped"]:
+                page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()
+                page.locator('[data-academic-action="submit-result"]').click()
+            page.locator('[data-academic-action="next-case"]').click()
+            for value in ["stop", "normal"]:
+                page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()
+                page.locator('[data-academic-action="submit-result"]').click()
+            assert_view(page, "#tutorialView", width, height, f"04-links-{width}x{height}")
+            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
+            page.screenshot(path=str(OUT / f"academic-tower-04-{width}x{height}.png"), full_page=True)
+
+            page.evaluate("TacticalGame.playStage('academic-tower-turn-05-synthesis', {mode:'replay', returnTo:'academic-tower'})")
+            assert "더 빨라질" not in page.locator(".academicClozeRecord").inner_text()
+            assert_view(page, "#tutorialView", width, height, f"05-initial-{width}x{height}")
+            for connector in ["果然", "卻", "竟然", "然而", "反而", "然而"]:
+                page.locator(f'[data-academic-action="select-connector"][data-value="{connector}"]').click()
+                page.locator('[data-academic-action="submit-connector"]').click()
+                page.locator('[data-academic-action="next-blank"]').click()
+            assert "雖然增加水量" in page.locator(".academicClozeContext").inner_text()
+            assert_view(page, "#tutorialView", width, height, f"05-safety-{width}x{height}")
+            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
+            page.screenshot(path=str(OUT / f"academic-tower-05-{width}x{height}.png"), full_page=True)
             context.close()
         assert not errors, errors
         assert not missing, missing

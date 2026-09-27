@@ -24,6 +24,12 @@
       k: '뜻밖에도; 실제 결과가 앞서 세운 예상에서 벗어났음을 나타내다',
       ex: '齒輪修復後，水車竟然還是沒有轉動。',
       rule: '결과가 나쁘다는 뜻이 아니라 예상과 실제가 달랐다는 표지야. 좋은 결과도 뜻밖이라면 竟然을 쓸 수 있어.'
+    },
+    '反而': {
+      p: 'ㄈㄢˇ ㄦˊ',
+      k: '오히려; 예상한 결과는 생기지 않고 그 대신 다른 결과가 생겼음을 나타내다',
+      ex: '水量增加以後，水車沒有轉得更快，反而停了下來。',
+      rule: '뜻밖이라는 평가만 붙이는 말이 아니야. 생기지 않은 예상과 그 자리를 대신해 실제로 생긴 결과를 이어 줘.'
     }
   });
 
@@ -49,13 +55,13 @@
         requires: ['academic-tower-turn-01-que']
       },
       {
-        id: 'academic-tower-turn-04-faner', number: '04', titleKo: '반대로 나온 결과',
-        titleZh: '結果反而相反', expressions: ['反而'], implemented: false,
+        id: 'academic-tower-turn-04-faner', number: '04', titleKo: '예상 대신 생긴 결과',
+        titleZh: '沒有更快，反而停下來', expressions: ['反而'], implemented: true,
         requires: ['academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation']
       },
       {
-        id: 'academic-tower-turn-05-synthesis', number: '05', titleKo: '겹쳐진 방향',
-        titleZh: '讀懂轉折與反轉', expressions: ['卻', '然而', '果然', '竟然', '反而'], implemented: false,
+        id: 'academic-tower-turn-05-synthesis', number: '05', titleKo: '접속어 복원',
+        titleZh: '把褪色的連接詞補回去', expressions: ['卻', '然而', '果然', '竟然', '反而'], implemented: true,
         requires: ['academic-tower-turn-04-faner']
       }
     ]
@@ -276,6 +282,151 @@
   });
 
   STAGES.push(expectationStage);
+
+  const replacementStage = {
+    id: 'academic-tower-turn-04-faner',
+    title: '反而',
+    subtitle: '예상 대신 생긴 결과',
+    kicker: '학술탑 · 방향이 바뀌는 문장 04',
+    grid: ['S'],
+    goal: '找出沒有發生的預想和實際結果，再把它們連起來。',
+    rule: '단순히 놀라운 결과를 찾는 데서 멈추지 말고, 생기지 않은 예상과 그 자리를 대신한 실제 결과를 함께 남겨.',
+    words: ['反而'],
+    win: [],
+    story: '생기지 않은 예상과 그 대신 생긴 실제 결과를 함께 남겨 두 기록을 고쳤다.',
+    completionTitle: '✓ 예상과 대체 결과를 연결함',
+    completionAction: '이야기 계속',
+    academicTower: {
+      schemaVersion: 1,
+      kind: 'replacement-link',
+      correctLinkId: 'faner',
+      linkOptions: [
+        { id: 'que', labelZh: '卻', feedbackKo: '앞뒤가 예상과 다르다는 대비는 드러나지만, 어떤 예상이 사라지고 무엇이 그 자리를 대신했는지는 아직 연결되지 않았어.' },
+        { id: 'raner', labelZh: '然而', feedbackKo: '앞 기록을 뒤 기록으로 제한하는 관계는 보이지만, 예상 대신 생긴 결과라는 관계는 아직 남지 않았어.' },
+        { id: 'jingran', labelZh: '竟然', feedbackKo: '실제 결과가 뜻밖이라는 평가는 붙였어. 이제 생기지 않은 예상과 그 대신 나타난 결과를 직접 이어야 해.' },
+        { id: 'faner', labelZh: '反而', feedbackKo: '' }
+      ],
+      cases: [
+        {
+          id: 'water-increased', mode: 'guided',
+          expectationZh: '水量增加了。預計：水車會轉得更快。',
+          actualZh: '水車停了下來。',
+          absentResultId: 'faster', actualResultId: 'stopped',
+          completedZh: '水量增加以後，水車沒有轉得更快，反而停了下來。',
+          cards: [
+            { id: 'faster', textZh: '轉得更快', absentFeedbackKo: '', actualFeedbackKo: '이것은 기록에 적힌 예상이야. 실제로 생긴 결과를 골라.' },
+            { id: 'stopped', textZh: '停了下來', absentFeedbackKo: '이것은 실제로 생긴 결과야. 생기지 않은 예상을 골라.', actualFeedbackKo: '' },
+            { id: 'more-water', textZh: '水量增加', absentFeedbackKo: '이것은 예상 결과가 아니라 먼저 확인된 조건이야.', actualFeedbackKo: '이것은 뒤에 생긴 결과가 아니라 먼저 확인된 조건이야.' },
+            { id: 'destroyed', textZh: '裝置完全損壞', absentFeedbackKo: '기록에 없던 결과야. 적힌 예상 가운데 생기지 않은 것을 찾아.', actualFeedbackKo: '기록은 멈췄다고만 했어. 완전히 망가졌다고 넓히지 마.' }
+          ],
+          successFeedbackKo: '더 빨라질 것이라는 예상은 생기지 않았고, 그 대신 멈추는 결과가 나타났어.'
+        },
+        {
+          id: 'water-decreased', mode: 'transfer',
+          expectationZh: '水量減少了。預計：水車會停下來。',
+          actualZh: '水車恢復了正常。',
+          absentResultId: 'stop', actualResultId: 'normal',
+          completedZh: '水量減少以後，水車沒有停下來，反而恢復了正常。',
+          cards: [
+            { id: 'stop', textZh: '停下來', absentFeedbackKo: '', actualFeedbackKo: '이것은 기록에 적힌 예상이야. 실제 결과는 다른 곳에 있어.' },
+            { id: 'normal', textZh: '恢復正常', absentFeedbackKo: '이것은 실제로 생긴 결과야. 생기지 않은 예상을 먼저 찾아.', actualFeedbackKo: '' },
+            { id: 'less-water', textZh: '水量減少', absentFeedbackKo: '이것은 예상 결과가 아니라 먼저 확인된 조건이야.', actualFeedbackKo: '이것은 뒤에 생긴 결과가 아니라 먼저 확인된 조건이야.' },
+            { id: 'all-repaired', textZh: '所有水道都修復', absentFeedbackKo: '기록에 없던 결과야. 적힌 예상 가운데 생기지 않은 것을 찾아.', actualFeedbackKo: '수차가 정상으로 돌아왔다고 모든 수로가 수리된 것은 아니야.' }
+          ],
+          successFeedbackKo: '멈출 것이라는 예상은 생기지 않았고, 정상으로 돌아온 결과가 그 자리를 대신했어.'
+        }
+      ]
+    },
+    wordContext: {
+      '反而': {
+        ex: '水量增加以後，水車沒有轉得更快，反而停了下來。',
+        rule: '竟然처럼 결과를 뜻밖이라고 평가하는 데서 멈추지 않아. 생기지 않은 예상과 그 대신 나타난 실제 결과를 연결해.'
+      }
+    }
+  };
+
+  const synthesisStage = {
+    id: 'academic-tower-turn-05-synthesis',
+    title: '接續詞',
+    subtitle: '접속어 복원',
+    kicker: '학술탑 · 방향이 바뀌는 문장 05',
+    grid: ['S'],
+    goal: '讀完整句子，選回褪色的連接詞。',
+    rule: '빈칸만 보지 말고 앞뒤 문장을 끝까지 읽어. 순서·결과·덧붙임과 예상·대조·대체 관계를 구별해.',
+    words: ['卻', '然而', '果然', '竟然', '反而'],
+    win: [],
+    story: '복사본의 앞뒤 문장을 모두 읽고, 바랜 접속어를 관계에 맞게 되돌려 놓았다.',
+    completionTitle: '✓ 바랜 접속어를 모두 복원함',
+    completionAction: '이야기 계속',
+    academicTower: {
+      schemaVersion: 1,
+      kind: 'connector-cloze',
+      connectorFeedback: {
+        '卻': '한 문장 안의 예상과 다른 사실을 대조하는 말이야. 지금 빈칸이 요구하는 관계와 범위를 다시 봐.',
+        '然而': '앞 기록을 인정하면서 뒤 기록으로 판단을 제한하는 말이야. 지금은 기록 사이의 전환이 필요한지 확인해.',
+        '果然': '실제 결과가 앞선 예상과 맞았다는 표지야. 예상과 실제가 같은지 먼저 비교해.',
+        '竟然': '실제 결과가 예상 밖이라는 평가를 붙이는 말이야. 예상에서 벗어났는지 먼저 비교해.',
+        '反而': '예상한 결과 대신 다른 결과가 생겼음을 잇는 말이야. 사라진 예상과 대체 결과가 모두 있는지 살펴봐.',
+        '然後': '앞뒤를 시간 순서로 잇는 말이야. 시간 순서만으로 이 문장의 관계가 남는지 다시 봐.',
+        '所以': '뒤 내용을 앞 내용의 결과로 잇는 말이야. 단순한 원인과 결과를 말하는 자리인지 다시 봐.',
+        '而且': '같은 방향의 정보를 하나 더 보태는 말이야. 앞뒤가 같은 방향으로 쌓이는지 다시 봐.'
+      },
+      blanks: [
+        {
+          id: 'r1', sectionKo: '기록 1',
+          contextZh: '研究員先前預計：「增加水量後，水車會轉得更快。」',
+          beforeZh: '第一次增加水量後，水車', afterZh: '轉得更快。',
+          correctConnectorId: '果然', options: ['果然', '竟然', '然後', '所以'],
+          successFeedbackKo: '더 빨라질 것이라는 예상과 실제 결과가 같아서 果然이야.'
+        },
+        {
+          id: 'r2-a', sectionKo: '기록 2 · 첫 문장',
+          contextZh: '第二次增加水量前，研究員仍預計水車會轉得更快。',
+          beforeZh: '第二次增加水量後，水車', afterZh: '沒有轉得更快。',
+          correctConnectorId: '卻', options: ['卻', '然後', '所以', '而且'],
+          successFeedbackKo: '한 문장 안에서 앞선 예상과 다른 사실을 卻로 대조했어.'
+        },
+        {
+          id: 'r2-b', sectionKo: '기록 2 · 둘째 문장',
+          contextZh: '記錄旁寫著：「沒想到會完全停下來。」',
+          beforeZh: '水車', afterZh: '完全停了下來。',
+          correctConnectorId: '竟然', options: ['竟然', '果然', '然後', '所以'],
+          successFeedbackKo: '완전히 멈춘 실제 결과가 예상 밖이어서 竟然이야.'
+        },
+        {
+          id: 'r3-a', sectionKo: '기록 3 · 첫 문장',
+          contextZh: '',
+          beforeZh: '修復舊裝置通常能讓水車恢復。', afterZh: '，這次增加水量沒有幫助。',
+          correctConnectorId: '然而', options: ['然而', '然後', '所以', '而且'],
+          successFeedbackKo: '앞의 일반 기록을 인정하면서 이번 기록으로 판단을 제한해 然而가 맞아.'
+        },
+        {
+          id: 'r3-b', sectionKo: '기록 3 · 둘째 문장',
+          contextZh: '',
+          beforeZh: '這次增加水量沒有幫助，', afterZh: '使另一個齒輪損壞。',
+          correctConnectorId: '反而', options: ['反而', '然後', '所以', '而且'],
+          successFeedbackKo: '도움이 되지 않았을 뿐 아니라 그 대신 손상이라는 결과가 생겨 反而야.'
+        },
+        {
+          id: 's-a', sectionKo: '안전 기록 · 첫 빈칸',
+          contextZh: '',
+          beforeZh: '雖然增加水量可以讓水流更快，', afterZh: '如果水量超過安全範圍，',
+          correctConnectorId: '然而', options: ['然而', '然後', '所以', '而且'],
+          successFeedbackKo: '앞의 효과를 인정한 뒤 안전 조건으로 판단을 제한해 然而가 맞아.'
+        },
+        {
+          id: 's-b', sectionKo: '안전 기록 · 둘째 빈칸',
+          contextZh: '雖然增加水量可以讓水流更快，然而如果水量超過安全範圍，',
+          beforeZh: '剛修復的裝置', afterZh: '可能損壞。',
+          correctConnectorId: '反而', options: ['反而', '果然', '然後', '所以'],
+          successFeedbackKo: '더 빨라질 것이라는 기대 대신 손상이 생길 수 있어 反而가 맞아.'
+        }
+      ]
+    }
+  };
+
+  STAGES.push(replacementStage);
+  STAGES.push(synthesisStage);
 
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })

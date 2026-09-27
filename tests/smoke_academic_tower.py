@@ -1,4 +1,4 @@
-"""End-to-end mobile smoke for Academic Tower rooms 01 through 03."""
+"""End-to-end mobile smoke for Academic Tower rooms 01 through 05."""
 import http.server
 import json
 import os
@@ -170,10 +170,63 @@ try:
         choose(page, "submit-revision")
         page.locator("#flowNext").wait_for(state="visible")
         page.locator("#flowNext").click()
+        assert "다르다는 것과 대신 생긴 것" in page.locator("#storyTitle").inner_text()
+        finish_story(page)
         page.locator("#academicTowerView").wait_for(state="visible")
         assert "연구한 방 3 / 5" in page.locator("#academicTowerSummary").inner_text()
-        assert page.locator('[data-room-id="academic-tower-turn-04-faner"]').get_attribute("data-state") == "planned"
-        assert "준비 중" in page.locator('[data-room-id="academic-tower-turn-04-faner"]').inner_text()
+        assert page.locator('[data-room-id="academic-tower-turn-04-faner"]').get_attribute("data-state") == "available"
+
+        page.locator('[data-room-id="academic-tower-turn-04-faner"]').click()
+        replacement_records = page.locator(".academicReplacementRecords").inner_text()
+        assert "水量增加了" in replacement_records
+        assert "수량이 늘었다" not in replacement_records
+        choose(page, "select-result", "stopped")
+        choose(page, "submit-result")
+        assert "실제로 생긴 결과" in page.locator("#status").inner_text()
+        choose(page, "select-result", "faster")
+        choose(page, "submit-result")
+        choose(page, "select-result", "stopped")
+        choose(page, "submit-result")
+        assert "反而" in page.locator(".academicReplacementReview").inner_text()
+        choose(page, "next-case")
+        choose(page, "select-result", "stop")
+        choose(page, "submit-result")
+        choose(page, "select-result", "normal")
+        choose(page, "submit-result")
+        choose(page, "select-link", "jingran")
+        choose(page, "submit-link")
+        assert "뜻밖" in page.locator("#status").inner_text()
+        choose(page, "select-link", "faner")
+        choose(page, "submit-link")
+        page.locator("#flowNext").wait_for(state="visible")
+        page.locator("#flowNext").click()
+        assert "흩어진 세 장" in page.locator("#storyTitle").inner_text()
+        finish_story(page)
+        page.locator("#academicTowerView").wait_for(state="visible")
+        assert "연구한 방 4 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').get_attribute("data-state") == "available"
+
+        page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').click()
+        assert "研究員先前預計" in page.locator(".academicClozeRecord").inner_text()
+        assert "더 빨라질" not in page.locator(".academicClozeRecord").inner_text()
+        choose(page, "select-connector", "所以")
+        choose(page, "submit-connector")
+        assert "결과로 잇는 말" in page.locator("#status").inner_text()
+        for connector in ["果然", "卻", "竟然", "然而", "反而", "然而", "反而"]:
+            choose(page, "select-connector", connector)
+            choose(page, "submit-connector")
+            if page.locator('[data-academic-action="next-blank"]').count():
+                choose(page, "next-blank")
+        page.locator("#flowNext").wait_for(state="visible")
+        assert "바랜 접속어를 모두 복원함" in page.locator("#completionBar").inner_text()
+        page.screenshot(path=str(OUT / "academic-tower-05-complete-375x812.png"), full_page=True)
+        page.locator("#flowNext").click()
+        assert "첫 번째 가설" in page.locator("#storyTitle").inner_text()
+        finish_story(page)
+        page.locator("#academicTowerView").wait_for(state="visible")
+        assert "연구한 방 5 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert page.evaluate("GameFlow.progress().completedMilestones.includes('academic-tower-turn-foundation')")
+        assert not page.evaluate("GameFlow.progress().completedMilestones.some(id => /academic-tower.*complete/.test(id))")
 
         before_replay = json.loads(page.evaluate(
             "localStorage.getItem('chinese-word-tactics-journey-v1')"
@@ -205,4 +258,4 @@ try:
 finally:
     server.shutdown()
 
-print(f"PASS: Academic Tower rooms 01-03 end-to-end mobile smoke. Screenshots: {OUT}")
+print(f"PASS: Academic Tower rooms 01-05 end-to-end mobile smoke. Screenshots: {OUT}")

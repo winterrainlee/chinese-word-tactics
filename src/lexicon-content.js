@@ -263,6 +263,13 @@
       words: ['果然', '竟然'], related: ['增加', '修復', '恢復'],
       noteKo: '果然은 예상과 실제가 맞았음을, 竟然은 실제가 예상에서 벗어났음을 표시한다. 결과의 좋고 나쁨과는 별개다.',
       gameNoteKo: '좋은 결과와 나쁜 결과를 각각 예상대로·예상 밖 양쪽에 놓아, 감정값이 아니라 예상 관계로 네 기록을 분류했다.'
+    },
+    {
+      id: 'academic-tower-replacement-result', chapterId: 'academic-tower-research', regionId: 'academic-tower',
+      titleKo: '예상 대신 생긴 결과', type: 'sequence', displayZh: '沒有 A → 反而 B',
+      words: ['反而'], related: ['卻', '然而', '果然', '竟然'],
+      noteKo: '反而는 뜻밖이라는 평가에 그치지 않고, 예상한 결과가 생기지 않은 자리와 그 대신 실제로 생긴 결과를 연결한다.',
+      gameNoteKo: '생기지 않은 예상과 실제 결과를 따로 찾아 연결하고, 종합 기록에서는 앞뒤 문장을 읽어 다른 접속어와 구별했다.'
     }
   ];
 

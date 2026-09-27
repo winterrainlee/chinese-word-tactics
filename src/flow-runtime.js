@@ -72,12 +72,13 @@
   }
   function continueFromNode(id) {
     const finished = P.getNode(id);
+    const node = P.nextNode(id, store.get());
+    if (finished?.returnToRegionHubAfter && node?.type === 'story') return playNode(node);
     if (finished?.returnToRegionHubAfter && showRegionHub(finished.returnToRegionHubAfter)) return true;
     if (finished?.returnToWorldAfter && canVisitWorld()) {
       store.locate({ view: 'world' });
       return showWorld();
     }
-    const node = P.nextNode(id, store.get());
     if (node) return playNode(node);
     if (canVisitWorld()) { store.locate({ view: 'world' }); return showWorld(); }
     return showJourney();
@@ -218,7 +219,7 @@
     $('sheet').querySelector('.story').textContent = replay ? '연습은 여기에 남겨두고, 본편의 여행은 그대로 이어갈 수 있어.' : id === 'stage-5' ? '숲을 빠져나왔다. 길 너머에서 목소리가 들린다.' : stage.story;
     $('flowNext').textContent = replay
       ? (context.returnTo === 'world' ? '월드맵으로' : context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID ? '연구실로' : '여정으로')
-      : node?.returnToRegionHubAfter ? '연구실로' : next?.type === 'story' ? '이야기 계속' : next ? '다음 스테이지' : '월드맵으로';
+      : next?.type === 'story' ? '이야기 계속' : node?.returnToRegionHubAfter ? '연구실로' : next ? '다음 스테이지' : '월드맵으로';
     $('flowNext').onclick = () => { TacticalGame.closeSheet(); replay ? returnFromReplay(context) : continueFromNode(`stage:${id}`); };
     $('flowRetry').onclick = () => playStage(id, context);
   }

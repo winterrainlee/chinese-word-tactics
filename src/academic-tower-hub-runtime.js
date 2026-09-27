@@ -8,6 +8,8 @@
     const completed = new Set(progress?.completedStages || []);
     if (completed.has(room.id)) return 'complete';
     if (!(room.requires || []).every(id => completed.has(id))) return 'locked';
+    const journeyNode = globalThis.JourneyProgress?.getNode?.(`stage:${room.id}`);
+    if (journeyNode && !globalThis.JourneyProgress.isAvailable(journeyNode, progress)) return 'locked';
     return room.implemented ? 'available' : 'planned';
   }
 

@@ -148,7 +148,7 @@ try:
 
         # Only control rules that cannot be inferred from the board occupy the entry status slot.
         stage_ids = page.evaluate('STAGES.map(stage => stage.id)')
-        assert len(stage_ids) == 39, stage_ids
+        assert len(stage_ids) == 41, stage_ids
         instructional_entry_ids = {'stage-0', 'stage-2', 'stage-5'}
         for stage_id in stage_ids:
             page.evaluate('id => TacticalGame.playStage(id,{mode:"replay",returnTo:"journey"})', stage_id)
@@ -245,10 +245,17 @@ try:
         flow_flags=page.evaluate('''() => Object.fromEntries(JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId && Array.isArray(s.sequence) && !s.hiddenFromJourney).map(section=>[section.id,section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter,!!n.returnToRegionHubAfter])]))''')
         for region, stories in flow_flags.items():
             assert len(stories)>1,(region,stories)
-            assert all(not world and not hub for _,world,hub in stories[:-1]),(region,stories)
             if region == 'academic-tower':
-                assert stories[-1][1] is False and stories[-1][2] is True,(region,stories)
+                assert all(not world for _,world,_ in stories),(region,stories)
+                expected_hub_stories = {
+                    'academic-tower-turn-after-que',
+                    'academic-tower-turn-before-faner',
+                    'academic-tower-turn-before-synthesis',
+                    'academic-tower-turn-result'
+                }
+                assert {story_id for story_id,_,hub in stories if hub} == expected_hub_stories,(region,stories)
             else:
+                assert all(not world and not hub for _,world,hub in stories[:-1]),(region,stories)
                 assert stories[-1][1] is True and stories[-1][2] is False,(region,stories)
         print('UX_REGION_FLOW',json.dumps(flow_flags,ensure_ascii=False),flush=True)
 
