@@ -1,6 +1,7 @@
 """MVP interaction contract: previews, retained context, undo and deliberate completion."""
 import http.server
 import json
+import os
 import threading
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -19,7 +20,7 @@ try:
         page = browser.new_page(viewport={'width':375, 'height':812}, is_mobile=True, has_touch=True)
         errors = []
         page.on('pageerror', lambda e: errors.append(str(e)))
-        page.goto(f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/')
+        page.goto(os.environ.get('ACADEMIC_TOWER_TEST_URL', f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/'))
         page.wait_for_function('!!window.AcademicTowerRuntime')
         def start(suffix):
             page.evaluate('(s)=>TacticalGame.playStage("academic-tower-turn-"+s,{mode:"replay",returnTo:"academic-tower"})', suffix)
@@ -66,23 +67,26 @@ try:
         assert page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")') == before
         page.locator('#flowNext').click()
         start('04-faner')
+        action('select-slot', 'actual')
+        action('select-result', 'stopped')
+        assert page.locator('[data-academic-action="submit-results"]').is_disabled()
+        action('select-slot', 'absent')
         action('select-result', 'more-water')
         assert '水量增加' in page.locator('.academicMvpSlots').inner_text()
-        action('submit-result')
+        action('submit-results')
         assert '조건' in page.locator('.academicMvpFeedback').inner_text()
-        action('select-result', 'faster'); action('submit-result')
-        action('select-result', 'stopped'); action('submit-result'); action('next-case')
-        action('select-result', 'stop'); action('submit-result')
-        action('select-result', 'normal'); action('submit-result')
-        links = page.locator('[data-mvp-detail="edit-link"]')
-        assert links.get_attribute('open') is not None
-        assert page.evaluate('document.activeElement.parentElement.dataset.mvpDetail') == 'edit-link'
+        action('select-result', 'faster')
+        page.locator('#undoBtn').click()
+        assert '水量增加' in page.locator('.academicMvpSlots').inner_text()
+        action('select-result', 'faster'); action('submit-results'); action('next-case')
+        action('select-result', 'stop')
+        action('select-slot', 'actual'); action('select-result', 'normal'); action('submit-results')
+        links = page.locator('[data-mvp-links]')
+        assert links.is_visible()
+        assert page.evaluate('document.activeElement.hasAttribute("data-mvp-links")')
         assert links.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
-        links.locator('summary').click()
-        assert links.get_attribute('open') is None
-        links.locator('summary').click()
         action('select-link', 'jingran')
-        assert links.get_attribute('open') is not None
+        assert links.is_visible()
         assert '竟然' in page.locator('.academicMvpPreview').inner_text()
         action('submit-link')
         assert '뜻밖' in page.locator('.academicMvpFeedback').inner_text()

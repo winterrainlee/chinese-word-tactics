@@ -162,22 +162,26 @@ test('04 keeps surprise separate from replacement and uses positive and negative
   let state = M.createState(config, () => .4);
   assert.equal(state.phase, 'place-results');
   state = M.applyAction(config, state, { type: 'select-result', value: 'stopped' }).state;
-  let result = M.applyAction(config, state, { type: 'submit-result' });
+  assert.equal(M.applyAction(config, state, { type: 'submit-results' }).changed, false, 'both slots required');
+  state = M.applyAction(config, state, { type: 'select-slot', value: 'actual' }).state;
+  state = M.applyAction(config, state, { type: 'select-result', value: 'stopped' }).state;
+  let result = M.applyAction(config, state, { type: 'submit-results' });
   state = result.state;
   assert.equal(result.correct, false);
-  assert.equal(state.resultSlot, 'absent');
-  assert.equal(state.resultId, 'stopped', 'a wrong card remains selected so the learner can recover');
+  assert.equal(state.absentResultId, 'stopped', 'a wrong placement remains editable');
+  assert.equal(state.actualResultId, 'stopped');
 
-  for (const value of ['faster', 'stopped']) {
-    state = M.applyAction(config, state, { type: 'select-result', value }).state;
-    state = M.applyAction(config, state, { type: 'submit-result' }).state;
-  }
+  state = M.applyAction(config, state, { type: 'select-slot', value: 'absent' }).state;
+  state = M.applyAction(config, state, { type: 'select-result', value: 'faster' }).state;
+  state = M.applyAction(config, state, { type: 'submit-results' }).state;
   assert.equal(state.phase, 'review', 'the guided case builds the visible 反而 frame');
   state = M.applyAction(config, state, { type: 'next-case' }).state;
-  for (const value of ['stop', 'normal']) {
+  for (const [slot, value] of [['actual', 'normal'], ['absent', 'stop']]) {
+    state = M.applyAction(config, state, { type: 'select-slot', value: slot }).state;
     state = M.applyAction(config, state, { type: 'select-result', value }).state;
-    state = M.applyAction(config, state, { type: 'submit-result' }).state;
   }
+  assert.equal(state.phase, 'place-results', 'actual can be placed first without a check');
+  state = M.applyAction(config, state, { type: 'submit-results' }).state;
   assert.equal(state.phase, 'choose-link');
   state = M.applyAction(config, state, { type: 'select-link', value: 'jingran' }).state;
   result = M.applyAction(config, state, { type: 'submit-link' });
@@ -188,6 +192,13 @@ test('04 keeps surprise separate from replacement and uses positive and negative
   state = M.applyAction(config, state, { type: 'select-link', value: 'faner' }).state;
   state = M.applyAction(config, state, { type: 'submit-link' }).state;
   assert.equal(M.isSolved(config, state), true);
+  const old = M.createState(config);
+  Object.assign(old, {schemaVersion: 1, caseIndex: 1, resultSlot: 'actual', absentResultId: 'stop', resultId: 'normal', completedCaseIds: [config.cases[0].id]});
+  const upgraded = M.applyAction(config, old, {type: 'submit-results'}).state;
+  assert.equal(upgraded.schemaVersion, 2);
+  assert.equal(upgraded.phase, 'choose-link');
+  assert.equal(upgraded.caseIndex, 1);
+  assert.equal(upgraded.completedCaseIds.length, 1, 'legacy progress is preserved');
 });
 
 test('05 requires seven restorations and an evidence-bounded dispatch decision', () => {
@@ -370,12 +381,12 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-toweruimvp1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towerpair1/);
   for (const asset of ['academic-tower-journey-content', 'academic-tower-hub-runtime']) {
     assert.match(html, new RegExp(`${asset}\\.js\\?v=20261004-towerreview1`));
   }
-  assert.match(html, /academic-tower-content\.js\?v=20261005-toweruimvp1/);
-  assert.match(html, /academic-tower-runtime\.js\?v=20261005-toweruimvp2/);
+  assert.match(html, /academic-tower-content\.js\?v=20261005-towerpair1/);
+  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerpair1/);
   assert.match(html, /lexicon-content\.js\?v=20260927-towerfoundation1/);
   assert.match(html, /story-pronunciation-content\.js\?v=20261004-towerreview1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);

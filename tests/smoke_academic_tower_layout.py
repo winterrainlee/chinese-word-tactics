@@ -109,16 +109,18 @@ try:
             page.evaluate("TacticalGame.playStage('academic-tower-turn-04-faner', {mode:'replay', returnTo:'academic-tower'})")
             assert "수량이 늘었다" not in " ".join(page.locator(".academicMvpSource").all_inner_texts())
             assert_view(page, "#tutorialView", width, height, f"04-initial-{width}x{height}")
-            for value in ["faster", "stopped"]:
+            for slot, value in [("absent", "faster"), ("actual", "stopped")]:
+                page.locator(f'[data-academic-action="select-slot"][data-value="{slot}"]').click()
                 page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()
-                page.locator('[data-academic-action="submit-result"]').click()
+            page.locator('[data-academic-action="submit-results"]').click()
             page.locator('[data-academic-action="next-case"]').click()
-            for value in ["stop", "normal"]:
+            for slot, value in [("actual", "normal"), ("absent", "stop")]:
+                page.locator(f'[data-academic-action="select-slot"][data-value="{slot}"]').click()
                 page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()
-                page.locator('[data-academic-action="submit-result"]').click()
+            page.locator('[data-academic-action="submit-results"]').click()
             assert_view(page, "#tutorialView", width, height, f"04-links-{width}x{height}")
-            links = page.locator('[data-mvp-detail="edit-link"]')
-            assert links.get_attribute('open') is not None
+            links = page.locator('[data-mvp-links]')
+            assert links.is_visible()
             assert links.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-04-{width}x{height}.png"), full_page=True)

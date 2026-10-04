@@ -297,7 +297,7 @@
     completionTitle: '✓ 예상과 대체 결과를 연결함',
     completionAction: '이야기 계속',
     academicTower: {
-      schemaVersion: 1,
+      schemaVersion: 2,
       kind: 'replacement-link',
       correctLinkId: 'faner',
       linkOptions: [

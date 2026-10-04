@@ -215,9 +215,22 @@
 
   function isValidReplacementState(config, workbench) {
     return !!workbench && workbench.kind === config?.kind &&
-      workbench.schemaVersion === config?.schemaVersion && Number.isInteger(workbench.caseIndex) &&
+      [1, config?.schemaVersion].includes(workbench.schemaVersion) && Number.isInteger(workbench.caseIndex) &&
       Array.isArray(workbench.completedCaseIds) && workbench.optionOrders &&
       ['place-results', 'choose-link', 'review', 'complete'].includes(workbench.phase);
+  }
+
+  function upgradeReplacementState(config, workbench) {
+    const next = copy(workbench);
+    if (next.schemaVersion === 1 && config.schemaVersion === 2) {
+      if (next.phase === 'place-results' && next.resultId) {
+        next[next.resultSlot === 'actual' ? 'actualResultId' : 'absentResultId'] = next.resultId;
+      }
+      next.resultId = null;
+      next.lastCheck = null;
+      next.schemaVersion = 2;
+    }
+    return next;
   }
 
   function completeReplacementCase(config, next, item) {
@@ -226,7 +239,7 @@
   }
 
   function applyReplacementAction(config, currentState, action) {
-    const next = copy(isValidReplacementState(config, currentState) ? currentState : createReplacementState(config));
+    const next = upgradeReplacementState(config, isValidReplacementState(config, currentState) ? currentState : createReplacementState(config));
     const item = caseFor(config, next);
     if (!next || !item || !action?.type || next.phase === 'complete') {
       return { changed: false, state: next, feedback: '' };
@@ -235,28 +248,26 @@
     let feedback = '';
     let correct = null;
 
-    if (action.type === 'select-result' && next.phase === 'place-results' &&
+    if (action.type === 'select-slot' && next.phase === 'place-results' &&
+      ['absent', 'actual'].includes(action.value)) {
+      changed = next.resultSlot !== action.value;
+      next.resultSlot = action.value;
+    } else if (action.type === 'select-result' && next.phase === 'place-results' &&
       item.cards.some(card => card.id === action.value)) {
-      changed = next.resultId !== action.value || !!next.lastCheck;
-      next.resultId = action.value;
+      const field = next.resultSlot === 'actual' ? 'actualResultId' : 'absentResultId';
+      changed = next[field] !== action.value || !!next.lastCheck;
+      next[field] = action.value;
       next.lastCheck = null;
-    } else if (action.type === 'submit-result' && next.phase === 'place-results' && next.resultId) {
-      const slot = next.resultSlot;
-      const selectedCard = item.cards.find(card => card.id === next.resultId);
-      const expectedId = slot === 'absent' ? item.absentResultId : item.actualResultId;
-      correct = next.resultId === expectedId;
-      next.lastCheck = { step: slot, id: next.resultId, correct };
-      feedback = correct
-        ? (slot === 'absent' ? '생기지 않은 예상을 남겼어. 이제 실제로 생긴 결과를 찾아.' : item.successFeedbackKo)
-        : (slot === 'absent' ? selectedCard?.absentFeedbackKo : selectedCard?.actualFeedbackKo);
-      if (correct && slot === 'absent') {
-        next.absentResultId = next.resultId;
-        next.resultSlot = 'actual';
-        next.resultId = null;
-        next.lastCheck = null;
-      } else if (correct) {
-        next.actualResultId = next.resultId;
-        next.resultId = null;
+    } else if (action.type === 'submit-results' && next.phase === 'place-results' && next.absentResultId && next.actualResultId) {
+      const absentCorrect = next.absentResultId === item.absentResultId;
+      const actualCorrect = next.actualResultId === item.actualResultId;
+      correct = absentCorrect && actualCorrect;
+      const notes = [];
+      if (!absentCorrect) notes.push(`예상 칸: ${item.cards.find(card => card.id === next.absentResultId)?.absentFeedbackKo || '생기지 않은 예상을 다시 찾아.'}`);
+      if (!actualCorrect) notes.push(`실제 칸: ${item.cards.find(card => card.id === next.actualResultId)?.actualFeedbackKo || '실제 결과를 다시 찾아.'}`);
+      feedback = correct ? item.successFeedbackKo : notes.join(' ');
+      next.lastCheck = { step: 'pair', correct, feedbackKo: feedback };
+      if (correct) {
         next.lastCheck = null;
         if (item.mode === 'guided') {
           next.linkId = config.correctLinkId;
@@ -624,27 +635,30 @@
           if (!text.includes(card.sourceZh)) continue;
           const label = escapeHtml(card.sourceZh);
           html = html.replace(label, workbench.phase === 'place-results'
-            ? mvpButton('select-result', card.id, label, workbench.resultId === card.id)
+            ? mvpButton('select-result', card.id, label, (workbench.resultSlot === 'actual' ? workbench.actualResultId : workbench.absentResultId) === card.id)
             : `<span class="academicMvpPhrase">${label}</span>`);
         }
         return `<article class="academicMvpSource"><h2>${title}</h2><p lang="zh-Hant">${html}</p></article>`;
       };
       body = source(item.expectationZh, '예상 기록') + source(item.actualZh, '실제 기록');
-      const selectedCard = item.cards.find(card => card.id === workbench.resultId);
       const absent = item.cards.find(card => card.id === workbench.absentResultId);
       const actual = item.cards.find(card => card.id === workbench.actualResultId);
-      const absentText = workbench.resultSlot === 'absent' && selectedCard ? selectedCard.textZh : absent?.textZh;
-      const actualText = workbench.resultSlot === 'actual' && selectedCard ? selectedCard.textZh : actual?.textZh;
-      body += `<section class="academicMvpMemo"><h2>기록에서 찾은 관계 ${mvpWord('反而')}</h2><div class="academicMvpSlots"><div><small>생기지 않은 예상</small><p lang="zh-Hant">${escapeHtml(absentText || '원문 구절을 눌러')}</p></div><div><small>실제로 생긴 결과</small><p lang="zh-Hant">${escapeHtml(actualText || '원문 구절을 눌러')}</p></div></div>`;
+      const slot = (id, title, card) => {
+        const content = `<small>${title}</small><span lang="zh-Hant">${escapeHtml(card?.textZh || '—')}</span>`;
+        return workbench.phase === 'place-results'
+          ? mvpButton('select-slot', id, `${content}<small>${workbench.resultSlot === id ? '지금 고르는 칸' : '눌러서 선택·수정'}</small>`, workbench.resultSlot === id)
+          : `<div>${content}</div>`;
+      };
+      body += `<section class="academicMvpMemo"><h2>기록에서 찾은 관계 ${mvpWord('反而')}</h2><div class="academicMvpSlots">${slot('absent', '생기지 않은 예상', absent)}${slot('actual', '실제로 생긴 결과', actual)}</div>`;
       if (workbench.phase === 'place-results') {
-        body += `<p class="academicMvpHint">${workbench.resultSlot === 'absent' ? '생기지 않은 예상' : '실제로 생긴 결과'}에 놓을 구절을 원문에서 골라.</p>`;
+        body += `<p class="academicMvpHint">칸을 누른 뒤 원문 구절을 골라. 두 칸을 모두 채우고 한 번에 검토해.</p>`;
       } else {
         const link = config.linkOptions.find(option => option.id === workbench.linkId);
         body += `<p class="academicMvpPreview" lang="zh-Hant">${mvpMarked(item.completedZh.replace('反而', link?.labelZh || '＿＿'), link?.labelZh || '＿＿')}</p>`;
-        if (!done) body += mvpDetails('edit-link', '연결할 말 고르기', `<div class="academicMvpLinks">${(workbench.optionOrders[orderKey(item.id, 'links')] || config.linkOptions.map(option => option.id)).map(id => {
+        if (!done) body += `<section data-mvp-links tabindex="-1"><h3>연결할 말 고르기</h3><div class="academicMvpLinks">${(workbench.optionOrders[orderKey(item.id, 'links')] || config.linkOptions.map(option => option.id)).map(id => {
           const option = config.linkOptions.find(candidate => candidate.id === id);
           return mvpButton('select-link', id, escapeHtml(option.labelZh), workbench.linkId === id);
-        }).join('')}</div>`);
+        }).join('')}</div></section>`;
       }
       body += '</section>';
     }
@@ -652,7 +666,7 @@
     let feedback = done || workbench.phase === 'choose-link' ? item.successFeedbackKo : '';
     if (check && !done) {
       const option = [...(item.claims || []), ...(item.revisions || []), ...(item.cards || []), ...(config.linkOptions || [])].find(option => option.id === check.id);
-      feedback = check.step === 'absent' ? option?.absentFeedbackKo : check.step === 'actual' ? option?.actualFeedbackKo : option?.feedbackKo;
+      feedback = check.step === 'pair' ? check.feedbackKo : check.step === 'absent' ? option?.absentFeedbackKo : check.step === 'actual' ? option?.actualFeedbackKo : option?.feedbackKo;
     }
     const feedbackHtml = `<p class="academicMvpFeedback" role="status" aria-live="polite">${escapeHtml(feedback || '')}</p>`;
     body = body.replace(/(<section class="academicMvpMemo"><h2>[\s\S]*?<\/h2>)/, `$1${feedbackHtml}`);
@@ -663,7 +677,7 @@
     const actions = {
       claim: ['submit-claim', '이 주장 검토', workbench.claimId],
       revision: ['submit-revision', '메모 확정', workbench.revisionId],
-      'place-results': ['submit-result', '이 구절 놓기', workbench.resultId],
+      'place-results': ['submit-results', '두 결과 검토', workbench.absentResultId && workbench.actualResultId],
       'choose-link': ['submit-link', '기록 연결', workbench.linkId],
       review: ['next-case', '다음 기록', true],
       complete: ['finish-mvp', '완성 기록 확인 · 계속', true]
@@ -773,6 +787,7 @@
       return baseRender();
     }
     if (!isValidState(config, state.academicTower)) state.academicTower = createState(config);
+    if (config.kind === 'replacement-link') state.academicTower = upgradeReplacementState(config, state.academicTower);
     const workbench = state.academicTower;
     $('#stageKicker').textContent = stage.kicker;
     $('#stageTitle').textContent = stage.subtitle;
@@ -813,10 +828,9 @@
         anchor?.focus({ preventScroll: true });
       }
       if (enteringLink) {
-        const links = gridEl.querySelector('[data-mvp-detail="edit-link"]');
+        const links = gridEl.querySelector('[data-mvp-links]');
         if (links) {
-          links.open = true;
-          links.querySelector('summary')?.focus({ preventScroll: true });
+          links.focus({ preventScroll: true });
           links.scrollIntoView({ block: 'nearest' });
         }
       }

@@ -63,3 +63,8 @@
 .academicTowerMvp details[open]>summary::after{content:'−'}
 
 .academicMvpMemo{word-break:keep-all;overflow-wrap:anywhere}
+.academicMvpSlots{grid-template-columns:1fr 1fr}
+.academicMvpSlots>button,.academicMvpSlots>div{display:grid;gap:6px;align-content:start;min-width:0;padding:8px}
+.academicMvpSlots span{display:block;font-size:18px;line-height:1.5}
+.academicMvpSlots button.selected{border:2px solid #52769a}
+[data-mvp-links] h3{font-size:15px;font-weight:600;color:#31516e}
