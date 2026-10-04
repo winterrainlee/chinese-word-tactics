@@ -67,6 +67,15 @@ try:
         assert page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")') == before
         page.locator('#flowNext').click()
         start('04-faner')
+        for absent, actual, expected in [('stopped', 'faster', 'absent'), ('faster', 'more-water', 'actual'), ('more-water', 'stopped', 'absent')]:
+            action('select-slot', 'absent'); action('select-result', absent)
+            action('select-slot', 'actual'); action('select-result', actual)
+            action('submit-results')
+            assert page.evaluate('document.activeElement.dataset.value') == expected
+            wrong_slot = page.locator(f'[data-academic-action="select-slot"][data-value="{expected}"]')
+            assert wrong_slot.get_attribute('aria-pressed') == 'true'
+            assert wrong_slot.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
+        start('04-faner')
         action('select-slot', 'actual')
         action('select-result', 'stopped')
         assert page.locator('[data-academic-action="submit-results"]').is_disabled()

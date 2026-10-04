@@ -170,6 +170,7 @@ test('04 keeps surprise separate from replacement and uses positive and negative
   assert.equal(result.correct, false);
   assert.equal(state.absentResultId, 'stopped', 'a wrong placement remains editable');
   assert.equal(state.actualResultId, 'stopped');
+  assert.equal(state.resultSlot, 'absent', 'review activates the wrong slot');
 
   state = M.applyAction(config, state, { type: 'select-slot', value: 'absent' }).state;
   state = M.applyAction(config, state, { type: 'select-result', value: 'faster' }).state;
@@ -386,7 +387,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
     assert.match(html, new RegExp(`${asset}\\.js\\?v=20261004-towerreview1`));
   }
   assert.match(html, /academic-tower-content\.js\?v=20261005-towerpair1/);
-  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerpair1/);
+  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerpair2/);
   assert.match(html, /lexicon-content\.js\?v=20260927-towerfoundation1/);
   assert.match(html, /story-pronunciation-content\.js\?v=20261004-towerreview1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);

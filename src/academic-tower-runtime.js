@@ -262,6 +262,7 @@
       const absentCorrect = next.absentResultId === item.absentResultId;
       const actualCorrect = next.actualResultId === item.actualResultId;
       correct = absentCorrect && actualCorrect;
+      if (!correct) next.resultSlot = absentCorrect ? 'actual' : 'absent';
       const notes = [];
       if (!absentCorrect) notes.push(`예상 칸: ${item.cards.find(card => card.id === next.absentResultId)?.absentFeedbackKo || '생기지 않은 예상을 다시 찾아.'}`);
       if (!actualCorrect) notes.push(`실제 칸: ${item.cards.find(card => card.id === next.actualResultId)?.actualFeedbackKo || '실제 결과를 다시 찾아.'}`);
@@ -759,7 +760,15 @@
       const feedback = gridEl.querySelector('.academicMvpFeedback');
       if (feedback && result.feedback) {
         feedback.textContent = result.feedback;
-        if (result.correct === false) feedback.scrollIntoView({ block: 'nearest' });
+        if (result.correct === false) {
+          const wrongSlot = type === 'submit-results'
+            ? gridEl.querySelector(`[data-academic-action="select-slot"][data-value="${state.academicTower.resultSlot}"]`)
+            : null;
+          if (wrongSlot) {
+            wrongSlot.focus({ preventScroll: true });
+            wrongSlot.scrollIntoView({ block: 'nearest' });
+          } else feedback.scrollIntoView({ block: 'nearest' });
+        }
       }
     } else if (result.feedback) setStatus(result.feedback, result.correct === false ? 'info' : 'good');
     if (!solved) return;
