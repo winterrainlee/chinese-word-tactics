@@ -3,16 +3,13 @@
   const copy = value => JSON.parse(JSON.stringify(value));
   const orderKey = (caseId, step) => `${caseId}:${step}`;
 
-  function orderedIds(items, correctId, correctSlot) {
-    const ids = items.map(item => item.id);
-    const wrong = ids.filter(id => id !== correctId);
-    const result = new Array(ids.length);
-    result[correctSlot] = correctId;
-    let wrongIndex = 0;
-    for (let index = 0; index < result.length; index += 1) {
-      if (result[index] === undefined) result[index] = wrong[wrongIndex++];
+  function shuffledIds(items, rng = Math.random) {
+    const ids = items.map(item => typeof item === 'string' ? item : item.id);
+    for (let i = ids.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.max(0, Math.min(.999999, Number(rng()) || 0)) * (i + 1));
+      [ids[i], ids[j]] = [ids[j], ids[i]];
     }
-    return result;
+    return ids;
   }
 
   function optionOrders(config, rng = Math.random) {
@@ -20,19 +17,11 @@
     if (config?.kind === 'connector-cloze') return clozeOptionOrders(config, rng);
     if (config?.kind !== 'claim-revision') return {};
     const result = {};
-    const baseFraction = Math.max(0, Math.min(.999999, Number(rng()) || 0));
-    let challengeIndex = 0;
     for (const item of config.cases || []) {
       if (item.mode === 'guided') {
-        const baseSlot = Math.floor(baseFraction * item.claims.length);
-        result[orderKey(item.id, 'claim')] = orderedIds(
-          item.claims, item.repairTargetId, (baseSlot + challengeIndex++) % item.claims.length
-        );
+        result[orderKey(item.id, 'claim')] = shuffledIds(item.claims, rng);
       }
-      const baseSlot = Math.floor(baseFraction * item.revisions.length);
-      result[orderKey(item.id, 'revision')] = orderedIds(
-        item.revisions, item.correctRevisionId, (baseSlot + challengeIndex++) % item.revisions.length
-      );
+      result[orderKey(item.id, 'revision')] = shuffledIds(item.revisions, rng);
     }
     return result;
   }
@@ -196,16 +185,11 @@
 
   function replacementOptionOrders(config, rng = Math.random) {
     const result = {};
-    const fraction = Math.max(0, Math.min(.999999, Number(rng()) || 0));
-    const base = Math.floor(fraction * 4);
-    (config?.cases || []).forEach((item, index) => {
+    (config?.cases || []).forEach(item => {
       const cards = item.cards || [];
-      const shift = cards.length ? (base + index) % cards.length : 0;
-      result[orderKey(item.id, 'results')] = cards.map((card, cardIndex) => cards[(cardIndex + shift) % cards.length].id);
+      result[orderKey(item.id, 'results')] = shuffledIds(cards, rng);
       if (item.mode !== 'guided') {
-        result[orderKey(item.id, 'links')] = orderedIds(
-          config.linkOptions || [], config.correctLinkId, (base + index) % (config.linkOptions?.length || 1)
-        );
+        result[orderKey(item.id, 'links')] = shuffledIds(config.linkOptions || [], rng);
       }
     });
     return result;
@@ -319,11 +303,8 @@
 
   function clozeOptionOrders(config, rng = Math.random) {
     const result = {};
-    const fraction = Math.max(0, Math.min(.999999, Number(rng()) || 0));
-    const base = Math.floor(fraction * 4);
-    (config?.blanks || []).forEach((item, index) => {
-      const options = item.options.map(id => ({ id }));
-      result[item.id] = orderedIds(options, item.correctConnectorId, (base + index) % options.length);
+    (config?.blanks || []).forEach(item => {
+      result[item.id] = shuffledIds(item.options, rng);
     });
     return result;
   }
@@ -369,7 +350,8 @@
     } else if (action.type === 'submit-connector' && next.phase === 'choose-connector' && next.selectedConnectorId) {
       correct = next.selectedConnectorId === item.correctConnectorId;
       next.lastCheck = { step: 'connector', id: next.selectedConnectorId, correct };
-      feedback = correct ? item.successFeedbackKo : config.connectorFeedback[next.selectedConnectorId];
+      feedback = correct ? item.successFeedbackKo :
+        (item.optionFeedback?.[next.selectedConnectorId] || config.connectorFeedback[next.selectedConnectorId]);
       if (correct) {
         if (!next.completedBlankIds.includes(item.id)) next.completedBlankIds.push(item.id);
         next.phase = next.blankIndex === config.blanks.length - 1 ? 'complete' : 'review';
@@ -382,7 +364,9 @@
         next.selectedConnectorId = null;
         next.lastCheck = null;
         changed = true;
-        feedback = '다음 빈칸도 문장 전체를 읽고 관계를 확인해 보자.';
+        feedback = config.blanks[next.blankIndex].kind === 'decision'
+          ? '필요하면 복원한 기록을 다시 펼쳐 보고, 전달할 판단을 골라.'
+          : '다음 빈칸도 문장 전체를 읽고 관계를 확인해 보자.';
       }
     }
     return { changed, state: next, feedback: feedback || '', correct };
@@ -427,7 +411,7 @@
 
   const Mechanic = Object.freeze({
     createState, applyAction, isSolved, isValidState, optionOrders,
-    __test: Object.freeze({ openingPhase, orderedIds })
+    __test: Object.freeze({ openingPhase, shuffledIds })
   });
   globalThis.AcademicTowerMechanic = Mechanic;
 
@@ -474,7 +458,7 @@
     const relation = item.sources.length > 1
       ? `<div class="academicSourceRelation" aria-label="${escapeHtml(item.connectorZh)}로 이어지는 기록"><span aria-hidden="true">↳</span><small>${item.scope === 'sentence' ? '한 문장 안의 대조' : '두 기록 사이의 전환'}</small></div>`
       : '';
-    const cards = item.sources.map(source => `<article class="academicSourceCard" data-source-id="${escapeHtml(source.id)}"><p lang="zh-Hant">${markedText(source)}</p><small>${escapeHtml(source.labelKo)}</small></article>`);
+    const cards = item.sources.map(source => `<article class="academicSourceCard" data-source-id="${escapeHtml(source.id)}"><p lang="zh-Hant">${markedText(source)}</p>${item.mode === 'guided' ? `<small>${escapeHtml(source.labelKo)}</small>` : `<details class="academicTranslation"><summary>뜻 보기</summary><small>${escapeHtml(source.labelKo)}</small></details>`}</article>`);
     const content = cards.length > 1 ? `${cards[0]}${relation}${cards.slice(1).join('')}` : cards.join('');
     return `<div class="academicSources ${item.scope === 'sentence' ? 'sentence' : 'records'}">${content}</div>`;
   }
@@ -486,7 +470,7 @@
     const submitAction = isClaim ? 'submit-claim' : 'submit-revision';
     const heading = isClaim ? '고칠 주장 찾기' : (item.mode === 'guided' ? '메모 수정' : '두 사실을 반영한 메모');
     const submitLabel = isClaim ? '이 주장 검토' : '이 메모로 수정';
-    const buttons = orderedItems(workbench, item, step).map(option => `<button type="button" class="academicMemoChoice${selected(value, option.id)}" data-academic-action="${selectAction}" data-value="${escapeHtml(option.id)}" aria-pressed="${pressed(value, option.id)}">${escapeHtml(option.labelKo)}</button>`).join('');
+    const buttons = orderedItems(workbench, item, step).map(option => `<div><button type="button" class="academicMemoChoice${selected(value, option.id)}" data-academic-action="${selectAction}" data-value="${escapeHtml(option.id)}" aria-pressed="${pressed(value, option.id)}" lang="${option.labelZh ? 'zh-Hant' : 'ko'}">${escapeHtml(option.labelZh || option.labelKo)}</button>${option.labelZh ? `<details class="academicTranslation"><summary>뜻 보기</summary><small>${escapeHtml(option.labelKo)}</small></details>` : ''}</div>`).join('');
     return `<section class="academicStep"><h2>${heading}</h2><div class="academicMemoChoices">${buttons}</div></section><button type="button" class="academicConfirm" data-academic-action="${submitAction}" ${value ? '' : 'disabled'}>${submitLabel}</button>`;
   }
 
@@ -565,10 +549,11 @@
   }
 
   function renderClozeSentence(item, connectorId = null) {
+    if (item.kind === 'decision') return `<p class="academicClozeSentence" lang="zh-Hant">${escapeHtml(connectorId || item.promptZh)}</p>`;
     const blank = connectorId
       ? `<strong class="academicConnector" lang="zh-Hant">${escapeHtml(connectorId)}</strong>`
       : '<span class="academicClozeBlank" aria-label="빈칸">　　</span>';
-    return `<p class="academicClozeSentence" lang="zh-Hant">${escapeHtml(item.beforeZh)}${blank}${escapeHtml(item.afterZh)}</p>`;
+    return `<p class="academicClozeSentence" lang="zh-Hant">${escapeHtml(item.beforeZh)}${blank}${escapeHtml(item.afterZh)}${item.tailZh ? `<span>${escapeHtml(item.tailZh)}</span>` : ''}</p>`;
   }
 
   function renderClozeWorkbench(config, workbench) {
@@ -580,11 +565,14 @@
     if (workbench.phase === 'choose-connector') {
       const ids = workbench.optionOrders[item.id] || item.options;
       const choices = ids.map(id => `<button type="button" class="academicConnectorChoice${selected(workbench.selectedConnectorId, id)}" data-academic-action="select-connector" data-value="${escapeHtml(id)}" aria-pressed="${pressed(workbench.selectedConnectorId, id)}" lang="zh-Hant">${escapeHtml(id)}</button>`).join('');
-      action = `${renderClozeSentence(item)}<section class="academicStep"><h2>빈칸에 들어갈 말</h2><div class="academicConnectorChoices">${choices}</div></section><button type="button" class="academicConfirm" data-academic-action="submit-connector" ${workbench.selectedConnectorId ? '' : 'disabled'}>이 말로 복원</button>`;
+      action = `${renderClozeSentence(item)}<section class="academicStep"><h2>${escapeHtml(item.questionKo || '빈칸에 들어갈 말')}</h2><div class="academicConnectorChoices${item.kind === 'decision' ? ' academicDecisionChoices' : ''}">${choices}</div></section><button type="button" class="academicConfirm" data-academic-action="submit-connector" ${workbench.selectedConnectorId ? '' : 'disabled'}>${item.kind === 'decision' ? '이 판단을 전달' : '이 말로 복원'}</button>`;
     } else {
-      action = `<section class="academicClozeReview" aria-live="polite"><div class="academicReviewLabel">복원 완료</div>${renderClozeSentence(item, item.correctConnectorId)}<small>${escapeHtml(item.successFeedbackKo)}</small></section>${workbench.phase === 'complete' ? '' : '<button type="button" class="academicConfirm" data-academic-action="next-blank">다음 빈칸</button>'}`;
+      const nextLabel = config.blanks[workbench.blankIndex + 1]?.kind === 'decision' ? '전달할 판단 정리' : '다음 빈칸';
+      action = `<section class="academicClozeReview" aria-live="polite"><div class="academicReviewLabel">${item.kind === 'decision' ? '판단 정리 완료' : '복원 완료'}</div>${renderClozeSentence(item, item.correctConnectorId)}<small>${escapeHtml(item.successFeedbackKo)}</small></section>${workbench.phase === 'complete' ? '' : `<button type="button" class="academicConfirm" data-academic-action="next-blank">${nextLabel}</button>`}`;
     }
-    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">문장을 끝까지 읽고 바랜 말을 복원해.</h2><div class="academicClozeRecord">${context}${action}</div>`;
+    const archive = config.blanks.filter(blank => workbench.completedBlankIds.includes(blank.id) && blank.id !== item.id)
+      .map(blank => `<details class="academicArchive"><summary>${escapeHtml(blank.sectionKo)} · 다시 읽기</summary>${blank.contextZh ? `<p lang="zh-Hant">${escapeHtml(blank.contextZh)}</p>` : ''}${renderClozeSentence(blank, blank.correctConnectorId)}</details>`).join('');
+    return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">${item.kind === 'decision' ? '기록으로 뒷받침할 수 있는 판단을 골라.' : '문장 전체와 기록 목적을 함께 읽어.'}</h2><div class="academicClozeRecord">${context}${action}</div>${archive}`;
   }
 
   function renderWorkbench(config, workbench) {
@@ -615,9 +603,11 @@
       if (workbench.phase === 'review') return '같은 관계를 <span class="done">새 기록</span>에서도 찾아.';
       return '예상 대신 생긴 결과를 <span class="done">反而</span>로 연결했어.';
     }
-    if (workbench.phase === 'choose-connector') return '빈칸보다 먼저 <span class="hot">문장 전체</span>를 읽어.';
+    if (workbench.phase === 'choose-connector') return blankFor(config, workbench)?.kind === 'decision'
+      ? '복원한 기록으로 <span class="hot">어디까지 판단할 수 있는지</span> 확인해.'
+      : '빈칸보다 먼저 <span class="hot">문장 전체</span>를 읽어.';
     if (workbench.phase === 'review') return '복원한 말이 앞뒤 관계와 맞는지 <span class="done">확인</span>해.';
-    return '일곱 빈칸의 <span class="done">관계를 모두 복원</span>했어.';
+    return '기록을 복원하고 <span class="done">전달할 판단</span>을 정했어.';
   }
 
   function renderWords(stage, workbench) {

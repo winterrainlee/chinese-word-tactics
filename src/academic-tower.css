@@ -1,4 +1,12 @@
 /* Academic Tower hub and claim-revision workbench. */
+.academicTranslation summary,.academicArchive summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:12px;color:#31516e}
+.academicArchive{margin-top:8px;padding:0 9px;border:1px solid #c9bcaa;border-radius:10px;background:#fffdf7}.academicArchive p{font-size:14px;line-height:1.5}
+.academicConnectorChoices.academicDecisionChoices{grid-template-columns:1fr}.academicDecisionChoices button{font-size:14px;line-height:1.45;text-align:left}
+.shell.academicTowerStage{height:calc(100svh - max(10px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));min-height:0;overflow:hidden}
+.shell.academicTowerStage .mapwrap{flex:1 1 0;min-height:0;overflow:hidden}
+.shell.academicTowerStage>.topbar,.shell.academicTowerStage>.goalbox,.shell.academicTowerStage>.words,.shell.academicTowerStage>.status,.shell.academicTowerStage>.controls{flex-shrink:0}
+.shell.academicTowerStage .academicTowerWorkbench{height:100%;min-height:0;overflow-y:auto}
+.academicHubNote{margin:0;padding:9px;font-size:12px;line-height:1.5;color:var(--muted)}
 .academicTowerShell{width:min(100%,430px);height:calc(100svh - max(10px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));min-height:360px;display:flex;flex-direction:column;gap:10px}
 .academicTowerHeader{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;min-height:48px}
 .academicTowerHeading{text-align:center;min-width:0}.academicTowerHeading h1{margin:0;font-size:23px;line-height:1.1}.academicTowerHeading small{display:block;margin-top:2px;color:var(--muted);font-size:12px}

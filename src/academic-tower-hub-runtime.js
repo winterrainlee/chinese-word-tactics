@@ -26,6 +26,12 @@
     const completeCount = bundle.rooms.filter(room => progress.completedStages.includes(room.id)).length;
     summary.textContent = `연구한 방 ${completeCount} / ${bundle.rooms.length} · 탑 전체 완료 조건 없음`;
     list.replaceChildren();
+    const note = document.createElement('p');
+    note.className = 'academicHubNote';
+    note.textContent = progress.completedMilestones.includes('academic-tower-turn-foundation')
+      ? '네 기록 칸 · 첫 관찰 메모를 보관했다. 전달용 사본은 장인골로 보낼 묶음에 넣었다. 다음 비교 자료를 모으는 중이다.'
+      : '수로 기록 연구실 · 표식이 남은 기록을 살펴보는 중이다. 01 뒤에는 02와 03 중 어느 쪽부터 연구해도 된다.';
+    list.append(note);
 
     for (const room of bundle.rooms) {
       const state = roomState(room, progress);
@@ -44,6 +50,14 @@
       terms.className = 'academicTowerRoomTerms'; terms.lang = 'zh-Hant';
       terms.textContent = room.expressions.join(' · ') || '종합';
       names.append(ko, zh, terms);
+      if (state === 'locked') {
+        const prerequisite = document.createElement('small');
+        const missing = (room.requires || []).filter(id => !progress.completedStages.includes(id));
+        prerequisite.textContent = missing.length
+          ? `먼저 연구: ${missing.map(id => bundle.rooms.find(candidate => candidate.id === id)?.titleKo || id).join(' · ')}`
+          : '여정에서 앞선 이야기를 먼저 확인해.';
+        names.append(prerequisite);
+      }
       const stateLabel = document.createElement('span');
       stateLabel.className = 'academicTowerRoomState';
       stateLabel.textContent = state === 'complete' ? '다시 연구' : state === 'available' ? '열림' : state === 'planned' ? '준비 중' : '잠김';

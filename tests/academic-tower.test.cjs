@@ -190,18 +190,20 @@ test('04 keeps surprise separate from replacement and uses positive and negative
   assert.equal(M.isSolved(config, state), true);
 });
 
-test('05 restores seven connector blanks against basic forward-link decoys', () => {
+test('05 requires seven restorations and an evidence-bounded dispatch decision', () => {
   const context = contentContext(), M = mechanics();
   const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-05-synthesis').academicTower", context);
   assert.equal(config.kind, 'connector-cloze');
-  assert.equal(config.blanks.length, 7);
+  assert.equal(config.blanks.length, 8);
   assert.ok(config.blanks.every(item => item.options.length === 4));
-  assert.ok(config.blanks.every(item => item.options.some(option => ['然後', '所以', '而且'].includes(option))));
-  assert.deepEqual(plain(config.blanks.map(item => item.correctConnectorId)), ['果然', '卻', '竟然', '然而', '反而', '然而', '反而']);
+  assert.ok(config.blanks.slice(0, 7).every(item => item.options.some(option => ['然後', '所以', '而且'].includes(option))));
+  assert.deepEqual(plain(config.blanks.slice(0, 7).map(item => item.correctConnectorId)), ['果然', '卻', '竟然', '然而', '反而', '然而', '反而']);
+  assert.equal(config.blanks[7].kind, 'decision');
+  assert.match(config.blanks[5].tailZh, /裝置也可能損壞/);
 
   let state = M.createState(config, () => 0);
   const correctSlots = config.blanks.map(item => state.optionOrders[item.id].indexOf(item.correctConnectorId));
-  assert.deepEqual(plain(correctSlots), [0, 1, 2, 3, 0, 1, 2]);
+  assert.notDeepEqual(plain(correctSlots.slice(0, 7)), [0, 1, 2, 3, 0, 1, 2]);
   const savedOrders = plain(state.optionOrders);
   state = M.applyAction(config, state, { type: 'select-connector', value: '所以' }).state;
   let result = M.applyAction(config, state, { type: 'submit-connector' });
@@ -212,17 +214,27 @@ test('05 restores seven connector blanks against basic forward-link decoys', () 
   assert.deepEqual(plain(state.optionOrders), savedOrders);
 
   for (const item of config.blanks) {
+    if (item.kind === 'decision') {
+      assert.equal(M.isSolved(config, state), false, 'restoring connectors alone does not complete 05');
+      for (const wrong of item.options.filter(id => id !== item.correctConnectorId)) {
+        state = M.applyAction(config, state, { type: 'select-connector', value: wrong }).state;
+        const rejected = M.applyAction(config, state, { type: 'submit-connector' });
+        assert.equal(rejected.correct, false);
+        assert.ok(rejected.feedback);
+        state = rejected.state;
+      }
+    }
     state = M.applyAction(config, state, { type: 'select-connector', value: item.correctConnectorId }).state;
     result = M.applyAction(config, state, { type: 'submit-connector' });
     state = result.state;
     assert.equal(result.correct, true);
     if (state.phase === 'review') state = M.applyAction(config, state, { type: 'next-blank' }).state;
   }
-  assert.equal(state.completedBlankIds.length, 7);
+  assert.equal(state.completedBlankIds.length, 8);
   assert.equal(M.isSolved(config, state), true);
 });
 
-test('answer slots rotate per entry and remain stable in saved workbench state', () => {
+test('answer orders are independent permutations and remain stable in saved state', () => {
   const context = contentContext(), M = mechanics();
   const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
   for (const random of [0, .26, .51, .76]) {
@@ -233,10 +245,27 @@ test('answer slots rotate per entry and remain stable in saved workbench state',
       ['transfer:revision', 'old-and-working']
     ];
     const slots = targets.map(([key, id]) => state.optionOrders[key].indexOf(id));
-    assert.equal(new Set(slots).size, 3, 'always tapping one slot must not clear the room');
+    for (const [key] of targets) assert.equal(new Set(state.optionOrders[key]).size, 4);
     assert.ok(slots.every(slot => slot >= 0 && slot < 4));
     assert.deepEqual(plain(M.applyAction(config, state, { type: 'select-claim', value: 'fact-short' }).state.optionOrders), plain(state.optionOrders));
   }
+});
+
+test('cloze shuffling consumes independent randomness and old in-progress schemas restart safely', () => {
+  const context = contentContext(), M = mechanics();
+  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-05-synthesis').academicTower", context);
+  let calls = 0;
+  const state = M.createState(config, () => { calls += 1; return (calls * .137) % 1; });
+  assert.equal(calls, 24);
+  const restored = plain(state);
+  const action = M.applyAction(config, restored, { type: 'select-connector', value: '所以' });
+  assert.deepEqual(plain(action.state.optionOrders), plain(state.optionOrders));
+  const legacy = { ...state, schemaVersion: 1, phase: 'complete', completedBlankIds: config.blanks.slice(0, 7).map(b => b.id) };
+  assert.equal(M.isSolved(config, legacy), false);
+  const restarted = M.applyAction(config, legacy, { type: 'select-connector', value: '果然' });
+  assert.equal(restarted.state.schemaVersion, 2);
+  assert.equal(restarted.state.blankIndex, 0);
+  assert.deepEqual(plain(restarted.state.completedBlankIds), []);
 });
 
 test('a pre-full-source in-progress workbench restarts safely without changing stage identity', () => {
@@ -341,13 +370,13 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20260927-towerfoundation1/);
+  assert.match(html, /academic-tower\.css\?v=20261004-towerreview1/);
   for (const asset of ['academic-tower-content', 'academic-tower-journey-content', 'academic-tower-hub-runtime']) {
-    assert.match(html, new RegExp(`${asset}\\.js\\?v=20260927-towerfoundation1`));
+    assert.match(html, new RegExp(`${asset}\\.js\\?v=20261004-towerreview1`));
   }
-  assert.match(html, /academic-tower-runtime\.js\?v=20260927-towerfoundation1/);
+  assert.match(html, /academic-tower-runtime\.js\?v=20261004-towerreview1/);
   assert.match(html, /lexicon-content\.js\?v=20260927-towerfoundation1/);
-  assert.match(html, /story-pronunciation-content\.js\?v=20260927-towerfoundation1/);
+  assert.match(html, /story-pronunciation-content\.js\?v=20261004-towerreview1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
 });

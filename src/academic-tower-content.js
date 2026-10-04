@@ -68,7 +68,7 @@
   };
 
   const claim = (id, labelKo, feedbackKo) => ({ id, labelKo, feedbackKo });
-  const revision = (id, labelKo, feedbackKo) => ({ id, labelKo, feedbackKo });
+  const revision = (id, labelKo, feedbackKo, labelZh) => ({ id, labelKo, feedbackKo, labelZh });
 
   STAGES.push({
     id: 'academic-tower-turn-01-que',
@@ -121,10 +121,10 @@
             { id: 'working', text: '卻還能正常運作。', labelKo: '지금도 정상 작동한다', connectorZh: '卻' }
           ],
           revisions: [
-            revision('cancel-old', '정상 작동하므로 오래되었다는 기록을 취소한다.', '현재의 작동 상태가 장치의 나이를 바꾸지는 않아.'),
-            revision('old-not-working', '오래되었으므로 현재 정상 작동한다는 기록을 취소한다.', '오래되었다는 이유로 확인된 작동 상태를 지우지는 마.'),
-            revision('old-and-working', '장치는 오래되었다. 그래도 지금은 정상 작동한다.', ''),
-            revision('skip-maintenance', '오래됐지만 정상 작동하므로 점검이나 수리는 필요 없다.', '현재 작동한다는 사실만으로 앞으로의 점검 필요성까지 판단할 수는 없어.')
+            revision('cancel-old', '정상 작동하므로 오래되었다는 기록을 취소한다.', '현재의 작동 상태가 장치의 나이를 바꾸지는 않아.', '裝置運作正常，所以它並不舊。'),
+            revision('old-not-working', '오래되었으므로 현재 정상 작동한다는 기록을 취소한다.', '오래되었다는 이유로 확인된 작동 상태를 지우지는 마.', '裝置很舊，所以正常運作的記錄不可信。'),
+            revision('old-and-working', '장치는 오래되었다. 그래도 지금은 정상 작동한다.', '', '裝置很舊，目前仍能正常運作。'),
+            revision('skip-maintenance', '오래됐지만 정상 작동하므로 점검이나 수리는 필요 없다.', '현재 작동한다는 사실만으로 앞으로의 점검 필요성까지 판단할 수는 없어.', '裝置很舊，但運作正常，以後不必檢查。')
           ],
           correctRevisionId: 'old-and-working',
           successFeedbackKo: '오래되었다는 사실과 현재의 작동 상태를 함께 남겼어.',
@@ -258,14 +258,14 @@
           questionKo: '새 기록 두 장을 함께 반영한 메모는?',
           draftKo: '새 기록 · 미수리 상태와 현재 수량을 함께 정리하자.',
           sources: [
-            { id: 'not-repaired', text: '舊水道還沒有修復。', labelKo: '옛 수로는 아직 수리되지 않았다' },
+            { id: 'not-repaired', text: '舊水道還沒有修復。工匠先看了水量，再調整裝置。', labelKo: '옛 수로는 아직 수리되지 않았다. 장인은 수량을 살피고 장치를 조정했다' },
             { id: 'water-restored', text: '然而，調整裝置以後，水量已經恢復正常。', labelKo: '장치 조정 뒤 수량은 정상으로 돌아왔다', connectorZh: '然而' }
           ],
           revisions: [
-            revision('assume-repaired', '수량이 정상이므로 옛 수로도 수리 완료로 처리한다.', '수량 회복이 옛 수로의 수리 완료를 뜻하지는 않아.'),
-            revision('keep-both', '옛 수로는 아직 미수리 상태다. 장치 조정 뒤 수량은 정상이다.', ''),
-            revision('deny-water', '옛 수로가 미수리 상태이므로 수량 회복 기록을 취소한다.', '옛 수로 상태만으로 장치 조정 뒤의 수량을 부정할 수 없어.'),
-            revision('skip-repair', '수량이 정상으로 돌아왔으므로 옛 수로는 더 수리할 필요가 없다.', '현재 수량만으로 미수리 수로의 정비 필요성까지 판단할 수는 없어.')
+            revision('assume-repaired', '수량이 정상이므로 옛 수로도 수리 완료로 처리한다.', '수량 회복이 옛 수로의 수리 완료를 뜻하지는 않아.', '水量正常，表示舊水道也已修復。'),
+            revision('keep-both', '옛 수로는 아직 미수리 상태다. 장치 조정 뒤 수량은 정상이다.', '', '舊水道尚未修復，調整裝置後水量已正常。'),
+            revision('deny-water', '옛 수로가 미수리 상태이므로 수량 회복 기록을 취소한다.', '옛 수로 상태만으로 장치 조정 뒤의 수량을 부정할 수 없어.', '水道未修復，水量恢復的記錄一定有錯。'),
+            revision('skip-repair', '수량이 정상으로 돌아왔으므로 옛 수로는 더 수리할 필요가 없다.', '현재 수량만으로 미수리 수로의 정비 필요성까지 판단할 수는 없어.', '水量正常，以後不必修復舊水道。')
           ],
           correctRevisionId: 'keep-both',
           successFeedbackKo: '미수리 상태와 수량 회복을 함께 남겼어. 앞 기록만으로 뒤 결과를 지우지 않았어.',
@@ -301,8 +301,8 @@
       kind: 'replacement-link',
       correctLinkId: 'faner',
       linkOptions: [
-        { id: 'que', labelZh: '卻', feedbackKo: '앞뒤가 예상과 다르다는 대비는 드러나지만, 어떤 예상이 사라지고 무엇이 그 자리를 대신했는지는 아직 연결되지 않았어.' },
-        { id: 'raner', labelZh: '然而', feedbackKo: '앞 기록을 뒤 기록으로 제한하는 관계는 보이지만, 예상 대신 생긴 결과라는 관계는 아직 남지 않았어.' },
+        { id: 'que', labelZh: '卻', feedbackKo: '대조하는 문장으로는 가능해. 이번 기록에서는 대조에 더해, 기대한 효과 대신 생긴 결과를 강조하려고 해.' },
+        { id: 'raner', labelZh: '然而', feedbackKo: '앞뒤를 전환하는 문장으로는 가능해. 이번에는 기대한 효과 대신 생긴 결과를 강조해 남겨 보자.' },
         { id: 'jingran', labelZh: '竟然', feedbackKo: '실제 결과가 뜻밖이라는 평가는 붙였어. 이제 생기지 않은 예상과 그 대신 나타난 결과를 직접 이어야 해.' },
         { id: 'faner', labelZh: '反而', feedbackKo: '' }
       ],
@@ -355,11 +355,11 @@
     rule: '빈칸만 보지 말고 앞뒤 문장을 끝까지 읽어. 순서·결과·덧붙임과 예상·대조·대체 관계를 구별해.',
     words: ['卻', '然而', '果然', '竟然', '反而'],
     win: [],
-    story: '복사본의 앞뒤 문장을 모두 읽고, 바랜 접속어를 관계에 맞게 되돌려 놓았다.',
-    completionTitle: '✓ 바랜 접속어를 모두 복원함',
+    story: '기록의 관계를 복원하고, 적정 수량은 아직 확정할 수 없다는 주의사항을 전달용 사본에 남겼다.',
+    completionTitle: '✓ 기록과 전달할 판단을 정리함',
     completionAction: '이야기 계속',
     academicTower: {
-      schemaVersion: 1,
+      schemaVersion: 2,
       kind: 'connector-cloze',
       connectorFeedback: {
         '卻': '한 문장 안의 예상과 다른 사실을 대조하는 말이야. 지금 빈칸이 요구하는 관계와 범위를 다시 봐.',
@@ -381,9 +381,10 @@
         },
         {
           id: 'r2-a', sectionKo: '기록 2 · 첫 문장',
+          questionKo: '놀라움의 평가를 덧붙이지 않고, 예상과 다른 사실을 대조하려면?',
           contextZh: '第二次增加水量前，研究員仍預計水車會轉得更快。',
           beforeZh: '第二次增加水量後，水車', afterZh: '沒有轉得更快。',
-          correctConnectorId: '卻', options: ['卻', '然後', '所以', '而且'],
+          correctConnectorId: '卻', options: ['卻', '竟然', '所以', '而且'],
           successFeedbackKo: '한 문장 안에서 앞선 예상과 다른 사실을 卻로 대조했어.'
         },
         {
@@ -396,30 +397,58 @@
         {
           id: 'r3-a', sectionKo: '기록 3 · 첫 문장',
           contextZh: '',
-          beforeZh: '修復舊裝置通常能讓水車恢復。', afterZh: '，這次增加水量沒有幫助。',
-          correctConnectorId: '然而', options: ['然而', '然後', '所以', '而且'],
+          beforeZh: '增加水量通常能讓水車轉得更快。', afterZh: '，這次增加水量沒有幫助。',
+          questionKo: '앞의 일반적인 효과와 이번 기록을 문장 사이에서 대조하려면?',
+          correctConnectorId: '然而', options: ['然而', '果然', '所以', '而且'],
           successFeedbackKo: '앞의 일반 기록을 인정하면서 이번 기록으로 판단을 제한해 然而가 맞아.'
         },
         {
           id: 'r3-b', sectionKo: '기록 3 · 둘째 문장',
-          contextZh: '',
+          contextZh: '原本希望水車轉得更快。',
+          questionKo: '피해를 추가로 나열하기보다, 기대한 효과 대신 손상이 생겼음을 강조하려면?',
           beforeZh: '這次增加水量沒有幫助，', afterZh: '使另一個齒輪損壞。',
-          correctConnectorId: '反而', options: ['反而', '然後', '所以', '而且'],
+          correctConnectorId: '反而', options: ['反而', '竟然', '所以', '而且'],
+          optionFeedback: {
+            '而且': '추가 피해를 나열하는 문장으로는 가능해. 이번에는 기대한 효과와 반대로 생긴 결과를 강조하려고 해.',
+            '竟然': '뜻밖이라는 평가도 가능해. 이번 기록의 목적은 예상했던 효과 대신 손상이 생겼다는 관계를 남기는 거야.'
+          },
           successFeedbackKo: '도움이 되지 않았을 뿐 아니라 그 대신 손상이라는 결과가 생겨 反而야.'
         },
         {
           id: 's-a', sectionKo: '안전 기록 · 첫 빈칸',
-          contextZh: '',
+          contextZh: '舊圖旁另有警語：「水量超過安全範圍，裝置可能損壞。」但圖上的水量刻度已經模糊。',
+          questionKo: '앞의 효과를 인정하면서 뒤의 주의사항으로 전환하려면?',
           beforeZh: '雖然增加水量可以讓水流更快，', afterZh: '如果水量超過安全範圍，',
-          correctConnectorId: '然而', options: ['然而', '然後', '所以', '而且'],
+          tailZh: '剛修復的裝置也可能損壞。',
+          correctConnectorId: '然而', options: ['然而', '竟然', '所以', '而且'],
           successFeedbackKo: '앞의 효과를 인정한 뒤 안전 조건으로 판단을 제한해 然而가 맞아.'
         },
         {
           id: 's-b', sectionKo: '안전 기록 · 둘째 빈칸',
+          questionKo: '효과를 기대한 조작이 손상을 부를 수 있다는 역전을 강조하려면?',
           contextZh: '雖然增加水量可以讓水流更快，然而如果水量超過安全範圍，',
           beforeZh: '剛修復的裝置', afterZh: '可能損壞。',
           correctConnectorId: '反而', options: ['反而', '果然', '然後', '所以'],
           successFeedbackKo: '더 빨라질 것이라는 기대 대신 손상이 생길 수 있어 反而가 맞아.'
+        },
+        {
+          id: 'dispatch', kind: 'decision', sectionKo: '전달할 판단',
+          contextZh: '同一座水車在不同日期有不同結果。舊圖提醒不可超過安全範圍，但水量刻度已經模糊。',
+          promptZh: '現在可以把哪一項判斷送到工坊？',
+          questionKo: '관찰된 사실을 지키고, 아직 모르는 범위는 확정하지 않는 판단은?',
+          correctConnectorId: '不能只憑這些記錄決定水量，還要確認裝置的情況。',
+          options: [
+            '不能只憑這些記錄決定水量，還要確認裝置的情況。',
+            '第一次增加水量有效，以後也應該繼續增加。',
+            '增加水量曾造成損壞，以後一律減少就安全。',
+            '已經知道確切的安全水量，不用再檢查。'
+          ],
+          optionFeedback: {
+            '第一次增加水量有效，以後也應該繼續增加。': '첫 기록의 효과를 다른 시기와 장치 상태까지 넓힌 판단이야. 뒤 기록도 함께 봐.',
+            '增加水量曾造成損壞，以後一律減少就安全。': '증가가 위험했던 사례만으로 항상 감소가 안전하다고 할 수는 없어.',
+            '已經知道確切的安全水量，不用再檢查。': '주의사항은 남았지만 눈금은 흐려졌어. 정확한 적정량은 아직 확인하지 못했어.'
+          },
+          successFeedbackKo: '무조건 늘리거나 줄이지 않고 장치 상태와 적정량을 확인해야 한다는 주의사항을 남겼어.'
         }
       ]
     }

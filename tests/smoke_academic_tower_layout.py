@@ -24,7 +24,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 def visible_button_metrics(page, root):
-    return page.locator(f"{root} button").evaluate_all("""items => items.filter(el => {
+    return page.locator(f"{root} button, {root} summary").evaluate_all("""items => items.filter(el => {
       const r = el.getBoundingClientRect(), s = getComputedStyle(el);
       return !el.hidden && s.display !== 'none' && s.visibility !== 'hidden' && r.width && r.height;
     }).map(el => { const r = el.getBoundingClientRect(); return {
@@ -40,6 +40,8 @@ def assert_view(page, selector, width, height, label):
         width:r.width,height:r.height,left:r.left,right:r.right,top:r.top,bottom:r.bottom};
     }""", selector)
     assert metrics["docWidth"] <= width, (label, metrics)
+    assert metrics["docHeight"] <= height + 1, (label, metrics)
+    assert metrics["bottom"] <= height + .5, (label, metrics)
     assert metrics["left"] >= -0.5 and metrics["right"] <= width + 0.5, (label, metrics)
     if height == 640:
         assert metrics["height"] <= 620.5, (label, metrics)
@@ -129,6 +131,26 @@ try:
             assert_view(page, "#tutorialView", width, height, f"05-safety-{width}x{height}")
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-05-{width}x{height}.png"), full_page=True)
+            page.locator('[data-academic-action="select-connector"][data-value="反而"]').click()
+            page.locator('[data-academic-action="submit-connector"]').click()
+            page.locator('[data-academic-action="next-blank"]').click()
+            assert_view(page, "#tutorialView", width, height, f"05-dispatch-{width}x{height}")
+            page.locator(".academicArchive summary").last.click()
+            assert_view(page, "#tutorialView", width, height, f"05-archive-{width}x{height}")
+            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
+            page.screenshot(path=str(OUT / f"academic-tower-dispatch-{width}x{height}.png"), full_page=True)
+
+            page.evaluate("TacticalGame.playStage('academic-tower-turn-02-raner', {mode:'replay', returnTo:'academic-tower'})")
+            for action, value in [("select-claim", "overreach-restored"), ("submit-claim", None), ("select-revision", "keep-both"), ("submit-revision", None), ("next-case", None)]:
+                selector = f'[data-academic-action="{action}"]'
+                if value:
+                    selector += f'[data-value="{value}"]'
+                page.locator(selector).click()
+            page.locator(".academicTranslation summary").first.click()
+            page.locator(".academicMemoChoices summary").last.click()
+            assert_view(page, "#tutorialView", width, height, f"02-translation-{width}x{height}")
+            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
+            page.screenshot(path=str(OUT / f"academic-tower-translation-{width}x{height}.png"), full_page=True)
             context.close()
         assert not errors, errors
         assert not missing, missing

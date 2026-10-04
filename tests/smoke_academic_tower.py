@@ -99,6 +99,10 @@ try:
         choose(page, "submit-revision")
         assert "卻" in page.locator(".academicEvidenceMap").inner_text()
         choose(page, "next-case")
+        assert not page.locator(".academicSourceCard .academicTranslation small").first.is_visible()
+        assert page.locator('.academicMemoChoice[lang="zh-Hant"]').count() == 4
+        page.locator(".academicSourceCard summary").first.click()
+        assert page.locator(".academicSourceCard .academicTranslation small").first.is_visible()
         choose(page, "select-revision", "old-not-working")
         choose(page, "submit-revision")
         assert page.locator("#flowNext").count() == 0 or not page.locator("#flowNext").is_visible()
@@ -212,19 +216,35 @@ try:
         choose(page, "select-connector", "所以")
         choose(page, "submit-connector")
         assert "결과로 잇는 말" in page.locator("#status").inner_text()
-        for connector in ["果然", "卻", "竟然", "然而", "反而", "然而", "反而"]:
+        for connector in ["果然", "卻", "竟然", "然而", "反而", "然而", "反而", "不能只憑這些記錄決定水量，還要確認裝置的情況。"]:
+            if connector == "反而" and "記錄 3" in page.locator(".academicCaseProgress").inner_text():
+                choose(page, "select-connector", "而且")
+                choose(page, "submit-connector")
+                assert "문장으로는 가능해" in page.locator("#status").inner_text()
+            if "안전 기록 · 첫" in page.locator(".academicCaseProgress").inner_text():
+                assert "剛修復的裝置也可能損壞" in page.locator(".academicClozeRecord").inner_text()
+            if connector.startswith("不能"):
+                assert page.locator(".academicArchive").count() == 7
+                page.locator(".academicArchive summary").first.click()
+                assert "第一次增加水量後" in page.locator(".academicArchive").first.inner_text()
+                choose(page, "select-connector", "已經知道確切的安全水量，不用再檢查。")
+                choose(page, "submit-connector")
+                assert "정확한 적정량" in page.locator("#status").inner_text()
+                assert not page.locator("#flowNext").is_visible()
+                page.locator("#undoBtn").click()
             choose(page, "select-connector", connector)
             choose(page, "submit-connector")
             if page.locator('[data-academic-action="next-blank"]').count():
                 choose(page, "next-blank")
         page.locator("#flowNext").wait_for(state="visible")
-        assert "바랜 접속어를 모두 복원함" in page.locator("#completionBar").inner_text()
+        assert "기록과 전달할 판단을 정리함" in page.locator("#completionBar").inner_text()
         page.screenshot(path=str(OUT / "academic-tower-05-complete-375x812.png"), full_page=True)
         page.locator("#flowNext").click()
         assert "첫 번째 가설" in page.locator("#storyTitle").inner_text()
         finish_story(page)
         page.locator("#academicTowerView").wait_for(state="visible")
         assert "연구한 방 5 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert "네 기록 칸" in page.locator(".academicHubNote").inner_text()
         assert page.evaluate("GameFlow.progress().completedMilestones.includes('academic-tower-turn-foundation')")
         assert not page.evaluate("GameFlow.progress().completedMilestones.some(id => /academic-tower.*complete/.test(id))")
 
