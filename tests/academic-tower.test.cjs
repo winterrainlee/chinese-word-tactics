@@ -375,7 +375,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
     assert.match(html, new RegExp(`${asset}\\.js\\?v=20261004-towerreview1`));
   }
   assert.match(html, /academic-tower-content\.js\?v=20261005-toweruimvp1/);
-  assert.match(html, /academic-tower-runtime\.js\?v=20261005-toweruimvp1/);
+  assert.match(html, /academic-tower-runtime\.js\?v=20261005-toweruimvp2/);
   assert.match(html, /lexicon-content\.js\?v=20260927-towerfoundation1/);
   assert.match(html, /story-pronunciation-content\.js\?v=20261004-towerreview1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);

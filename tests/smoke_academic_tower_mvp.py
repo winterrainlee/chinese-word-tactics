@@ -74,8 +74,15 @@ try:
         action('select-result', 'stopped'); action('submit-result'); action('next-case')
         action('select-result', 'stop'); action('submit-result')
         action('select-result', 'normal'); action('submit-result')
-        page.locator('[data-mvp-detail="edit-link"] summary').click()
+        links = page.locator('[data-mvp-detail="edit-link"]')
+        assert links.get_attribute('open') is not None
+        assert page.evaluate('document.activeElement.parentElement.dataset.mvpDetail') == 'edit-link'
+        assert links.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
+        links.locator('summary').click()
+        assert links.get_attribute('open') is None
+        links.locator('summary').click()
         action('select-link', 'jingran')
+        assert links.get_attribute('open') is not None
         assert '竟然' in page.locator('.academicMvpPreview').inner_text()
         action('submit-link')
         assert '뜻밖' in page.locator('.academicMvpFeedback').inner_text()

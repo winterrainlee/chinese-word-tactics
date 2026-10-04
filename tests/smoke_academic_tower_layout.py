@@ -117,6 +117,9 @@ try:
                 page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()
                 page.locator('[data-academic-action="submit-result"]').click()
             assert_view(page, "#tutorialView", width, height, f"04-links-{width}x{height}")
+            links = page.locator('[data-mvp-detail="edit-link"]')
+            assert links.get_attribute('open') is not None
+            assert links.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-04-{width}x{height}.png"), full_page=True)
 

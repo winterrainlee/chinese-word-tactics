@@ -649,7 +649,7 @@
       body += '</section>';
     }
     const check = workbench.lastCheck;
-    let feedback = done ? item.successFeedbackKo : '';
+    let feedback = done || workbench.phase === 'choose-link' ? item.successFeedbackKo : '';
     if (check && !done) {
       const option = [...(item.claims || []), ...(item.revisions || []), ...(item.cards || []), ...(config.linkOptions || [])].find(option => option.id === check.id);
       feedback = check.step === 'absent' ? option?.absentFeedbackKo : check.step === 'actual' ? option?.actualFeedbackKo : option?.feedbackKo;
@@ -784,6 +784,8 @@
     gridEl.setAttribute('aria-label', '학술탑 기록 검토 작업대');
     const recordKey = `${stage.id}:${workbench.caseIndex}`;
     const sameRecord = gridEl.dataset.mvpRecord === recordKey;
+    const enteringLink = workbench.phase === 'choose-link' &&
+      (!sameRecord || gridEl.dataset.mvpPhase !== 'choose-link');
     const scroll = sameRecord ? gridEl.scrollTop : 0;
     const opened = sameRecord ? [...gridEl.querySelectorAll('details[open][data-mvp-detail]')].map(el => el.dataset.mvpDetail) : [];
     const focused = priorFocus;
@@ -791,6 +793,7 @@
     const focusValue = focused?.dataset?.value;
     gridEl.innerHTML = renderWorkbench(config, workbench);
     gridEl.dataset.mvpRecord = recordKey;
+    gridEl.dataset.mvpPhase = workbench.phase;
     if (isMvp(stage)) {
       gridEl.querySelectorAll('details[data-mvp-detail]').forEach(el => { el.open = opened.includes(el.dataset.mvpDetail); });
       gridEl.querySelectorAll('[data-academic-word]').forEach(button => {
@@ -808,6 +811,14 @@
         const anchor = gridEl.querySelector('.academicMvpMemo');
         anchor?.setAttribute('tabindex', '-1');
         anchor?.focus({ preventScroll: true });
+      }
+      if (enteringLink) {
+        const links = gridEl.querySelector('[data-mvp-detail="edit-link"]');
+        if (links) {
+          links.open = true;
+          links.querySelector('summary')?.focus({ preventScroll: true });
+          links.scrollIntoView({ block: 'nearest' });
+        }
       }
     }
     bindActions();
