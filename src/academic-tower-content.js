@@ -314,9 +314,9 @@
           absentResultId: 'faster', actualResultId: 'stopped',
           completedZh: '水量增加以後，水車沒有轉得更快，反而停了下來。',
           cards: [
-            { id: 'faster', textZh: '轉得更快', absentFeedbackKo: '', actualFeedbackKo: '이것은 기록에 적힌 예상이야. 실제로 생긴 결과를 골라.' },
-            { id: 'stopped', textZh: '停了下來', absentFeedbackKo: '이것은 실제로 생긴 결과야. 생기지 않은 예상을 골라.', actualFeedbackKo: '' },
-            { id: 'more-water', textZh: '水量增加', absentFeedbackKo: '이것은 예상 결과가 아니라 먼저 확인된 조건이야.', actualFeedbackKo: '이것은 뒤에 생긴 결과가 아니라 먼저 확인된 조건이야.' },
+            { id: 'faster', sourceZh: '轉得更快', textZh: '轉得更快', absentFeedbackKo: '', actualFeedbackKo: '이것은 기록에 적힌 예상이야. 실제로 생긴 결과를 골라.' },
+            { id: 'stopped', sourceZh: '停了下來', textZh: '停了下來', absentFeedbackKo: '이것은 실제로 생긴 결과야. 생기지 않은 예상을 골라.', actualFeedbackKo: '' },
+            { id: 'more-water', sourceZh: '水量增加', textZh: '水量增加', absentFeedbackKo: '이것은 예상 결과가 아니라 먼저 확인된 조건이야.', actualFeedbackKo: '이것은 뒤에 생긴 결과가 아니라 먼저 확인된 조건이야.' },
             { id: 'destroyed', textZh: '裝置完全損壞', absentFeedbackKo: '기록에 없던 결과야. 적힌 예상 가운데 생기지 않은 것을 찾아.', actualFeedbackKo: '기록은 멈췄다고만 했어. 완전히 망가졌다고 넓히지 마.' }
           ],
           successFeedbackKo: '더 빨라질 것이라는 예상은 생기지 않았고, 그 대신 멈추는 결과가 나타났어.'
@@ -328,9 +328,9 @@
           absentResultId: 'stop', actualResultId: 'normal',
           completedZh: '水量減少以後，水車沒有停下來，反而恢復了正常。',
           cards: [
-            { id: 'stop', textZh: '停下來', absentFeedbackKo: '', actualFeedbackKo: '이것은 기록에 적힌 예상이야. 실제 결과는 다른 곳에 있어.' },
-            { id: 'normal', textZh: '恢復正常', absentFeedbackKo: '이것은 실제로 생긴 결과야. 생기지 않은 예상을 먼저 찾아.', actualFeedbackKo: '' },
-            { id: 'less-water', textZh: '水量減少', absentFeedbackKo: '이것은 예상 결과가 아니라 먼저 확인된 조건이야.', actualFeedbackKo: '이것은 뒤에 생긴 결과가 아니라 먼저 확인된 조건이야.' },
+            { id: 'stop', sourceZh: '停下來', textZh: '停下來', absentFeedbackKo: '', actualFeedbackKo: '이것은 기록에 적힌 예상이야. 실제 결과는 다른 곳에 있어.' },
+            { id: 'normal', sourceZh: '恢復了正常', textZh: '恢復正常', absentFeedbackKo: '이것은 실제로 생긴 결과야. 생기지 않은 예상을 먼저 찾아.', actualFeedbackKo: '' },
+            { id: 'less-water', sourceZh: '水量減少', textZh: '水量減少', absentFeedbackKo: '이것은 예상 결과가 아니라 먼저 확인된 조건이야.', actualFeedbackKo: '이것은 뒤에 생긴 결과가 아니라 먼저 확인된 조건이야.' },
             { id: 'all-repaired', textZh: '所有水道都修復', absentFeedbackKo: '기록에 없던 결과야. 적힌 예상 가운데 생기지 않은 것을 찾아.', actualFeedbackKo: '수차가 정상으로 돌아왔다고 모든 수로가 수리된 것은 아니야.' }
           ],
           successFeedbackKo: '멈출 것이라는 예상은 생기지 않았고, 정상으로 돌아온 결과가 그 자리를 대신했어.'

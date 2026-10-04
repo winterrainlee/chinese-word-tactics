@@ -33,6 +33,10 @@ def choose(page, action, value=None):
     selector = f'[data-academic-action="{action}"]'
     if value is not None:
         selector += f'[data-value="{value}"]'
+    for key in ['edit-memo', 'edit-link']:
+        panel = page.locator(f'details[data-mvp-detail="{key}"]')
+        if panel.count() and panel.locator(selector).count() and panel.get_attribute('open') is None:
+            panel.locator('summary').first.click()
     page.locator(selector).click()
 
 
@@ -82,32 +86,34 @@ try:
 
         page.wait_for_function("TacticalGame.stageId() === 'academic-tower-turn-01-que'")
         assert page.locator("#tutorialView").is_visible()
-        page.locator("#words .wordbtn", has_text="卻").click()
+        page.locator('[data-academic-word="卻"]').click()
         assert "그런데" in page.locator("#sheet").inner_text()
         page.locator("#sheet .sheetactions button").click()
         choose(page, "select-claim", "fact-short")
         choose(page, "submit-claim")
         assert page.locator("#flowNext").count() == 0 or not page.locator("#flowNext").is_visible()
-        assert "수로의 길이" in page.locator("#status").inner_text()
+        assert "수로의 길이" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
         page.locator("#undoBtn").click()
         choose(page, "select-claim", "overreach-use")
         choose(page, "submit-claim")
         choose(page, "select-revision", "ignore-danger")
         choose(page, "submit-revision")
-        assert "위험을 빼면 안 돼" in page.locator("#status").inner_text()
+        assert "위험을 빼면 안 돼" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
         choose(page, "select-revision", "keep-both")
         choose(page, "submit-revision")
-        assert "卻" in page.locator(".academicEvidenceMap").inner_text()
+        assert "卻" in page.locator(".academicMvpMemo").inner_text()
         choose(page, "next-case")
-        assert not page.locator(".academicSourceCard .academicTranslation small").first.is_visible()
-        assert page.locator('.academicMemoChoice[lang="zh-Hant"]').count() == 4
-        page.locator(".academicSourceCard summary").first.click()
-        assert page.locator(".academicSourceCard .academicTranslation small").first.is_visible()
+        assert not page.locator('[data-mvp-detail="source-meaning"] p').is_visible()
+        assert page.locator('[data-academic-action="select-revision"] [lang="zh-Hant"]').count() == 4
+        page.locator('[data-mvp-detail="source-meaning"] summary').click()
+        assert page.locator('[data-mvp-detail="source-meaning"] p').is_visible()
         choose(page, "select-revision", "old-not-working")
         choose(page, "submit-revision")
         assert page.locator("#flowNext").count() == 0 or not page.locator("#flowNext").is_visible()
         choose(page, "select-revision", "old-and-working")
         choose(page, "submit-revision")
+        if page.locator('[data-academic-action="finish-mvp"]').count():
+            choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         assert "두 사실을 살려 메모를 고침" in page.locator("#completionBar").inner_text()
         page.screenshot(path=str(OUT / "academic-tower-01-complete-375x812.png"), full_page=True)
@@ -131,7 +137,7 @@ try:
         page.locator("#sheet .sheetactions button").click()
         choose(page, "select-relation", "surprising")
         choose(page, "submit-relation")
-        assert "다시 비교" in page.locator("#status").inner_text()
+        assert "다시 비교" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
         choose(page, "select-relation", "matched")
         choose(page, "submit-relation")
         choose(page, "next-case")
@@ -172,6 +178,8 @@ try:
         choose(page, "submit-revision")
         choose(page, "select-revision", "keep-both")
         choose(page, "submit-revision")
+        if page.locator('[data-academic-action="finish-mvp"]').count():
+            choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         page.locator("#flowNext").click()
         assert "다르다는 것과 대신 생긴 것" in page.locator("#storyTitle").inner_text()
@@ -181,17 +189,17 @@ try:
         assert page.locator('[data-room-id="academic-tower-turn-04-faner"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-04-faner"]').click()
-        replacement_records = page.locator(".academicReplacementRecords").inner_text()
+        replacement_records = " ".join(page.locator(".academicMvpSource").all_inner_texts())
         assert "水量增加了" in replacement_records
         assert "수량이 늘었다" not in replacement_records
         choose(page, "select-result", "stopped")
         choose(page, "submit-result")
-        assert "실제로 생긴 결과" in page.locator("#status").inner_text()
+        assert "실제로 생긴 결과" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
         choose(page, "select-result", "faster")
         choose(page, "submit-result")
         choose(page, "select-result", "stopped")
         choose(page, "submit-result")
-        assert "反而" in page.locator(".academicReplacementReview").inner_text()
+        assert "反而" in page.locator(".academicMvpMemo").inner_text()
         choose(page, "next-case")
         choose(page, "select-result", "stop")
         choose(page, "submit-result")
@@ -199,9 +207,10 @@ try:
         choose(page, "submit-result")
         choose(page, "select-link", "jingran")
         choose(page, "submit-link")
-        assert "뜻밖" in page.locator("#status").inner_text()
+        assert "뜻밖" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
         choose(page, "select-link", "faner")
         choose(page, "submit-link")
+        choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         page.locator("#flowNext").click()
         assert "흩어진 세 장" in page.locator("#storyTitle").inner_text()
@@ -215,12 +224,12 @@ try:
         assert "더 빨라질" not in page.locator(".academicClozeRecord").inner_text()
         choose(page, "select-connector", "所以")
         choose(page, "submit-connector")
-        assert "결과로 잇는 말" in page.locator("#status").inner_text()
+        assert "결과로 잇는 말" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
         for connector in ["果然", "卻", "竟然", "然而", "反而", "然而", "反而", "不能只憑這些記錄決定水量，還要確認裝置的情況。"]:
             if connector == "反而" and "記錄 3" in page.locator(".academicCaseProgress").inner_text():
                 choose(page, "select-connector", "而且")
                 choose(page, "submit-connector")
-                assert "문장으로는 가능해" in page.locator("#status").inner_text()
+                assert "문장으로는 가능해" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
             if "안전 기록 · 첫" in page.locator(".academicCaseProgress").inner_text():
                 assert "剛修復的裝置也可能損壞" in page.locator(".academicClozeRecord").inner_text()
             if connector.startswith("不能"):
@@ -229,7 +238,7 @@ try:
                 assert "第一次增加水量後" in page.locator(".academicArchive").first.inner_text()
                 choose(page, "select-connector", "已經知道確切的安全水量，不用再檢查。")
                 choose(page, "submit-connector")
-                assert "정확한 적정량" in page.locator("#status").inner_text()
+                assert "정확한 적정량" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
                 assert not page.locator("#flowNext").is_visible()
                 page.locator("#undoBtn").click()
             choose(page, "select-connector", connector)

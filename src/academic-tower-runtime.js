@@ -575,7 +575,105 @@
     return `<div class="academicCaseProgress">${progress}</div><h2 class="academicQuestion">${item.kind === 'decision' ? '기록으로 뒷받침할 수 있는 판단을 골라.' : '문장 전체와 기록 목적을 함께 읽어.'}</h2><div class="academicClozeRecord">${context}${action}</div>${archive}`;
   }
 
+  function isMvp(stage = current()) {
+    return ['academic-tower-turn-01-que', 'academic-tower-turn-04-faner'].includes(stage?.id);
+  }
+
+  function mvpButton(action, value, label, active = false) {
+    return `<button type="button" data-academic-action="${action}" data-value="${escapeHtml(value)}" aria-pressed="${active}" class="academicMvpChoice${active ? ' selected' : ''}">${label}</button>`;
+  }
+
+  function mvpWord(word) {
+    return `<button type="button" class="academicMvpWord" data-academic-word="${escapeHtml(word)}" lang="zh-Hant" aria-label="${escapeHtml(word)} 뜻 보기">${escapeHtml(word)}</button>`;
+  }
+
+  function mvpMarked(text, word) {
+    return escapeHtml(text).replace(escapeHtml(word), WORDS[word] ? mvpWord(word) : escapeHtml(word));
+  }
+
+  function mvpDetails(key, label, body) {
+    return `<details data-mvp-detail="${key}"><summary>${label}</summary>${body}</details>`;
+  }
+
+  function renderMvp(config, workbench) {
+    const item = caseFor(config, workbench);
+    const done = ['review', 'complete'].includes(workbench.phase);
+    let body = '';
+    if (config.kind === 'claim-revision') {
+      const original = item.sources.map(source => source.text).join('，');
+      const translation = item.sources.map(source => source.labelKo).join(' / ');
+      body = `<article class="academicMvpSource"><h2>원본 기록</h2><p lang="zh-Hant">${mvpMarked(original, item.connectorZh)}</p>${mvpDetails('source-meaning', '뜻 보기', `<p>${escapeHtml(translation)}</p>`)}</article>`;
+      if (workbench.phase === 'claim') {
+        const claims = orderedItems(workbench, item, 'claim').map(option => mvpButton('select-claim', option.id, escapeHtml(option.labelKo), workbench.claimId === option.id)).join('');
+        body += `<section class="academicMvpMemo"><h2>검토 메모 · 고칠 주장을 눌러</h2>${claims}</section>`;
+      } else {
+        const chosen = item.revisions.find(option => option.id === (done ? item.correctRevisionId : workbench.revisionId));
+        const preview = chosen ? chosen.labelZh || chosen.labelKo : item.draftKo;
+        const choices = orderedItems(workbench, item, 'revision').map(option => {
+          const meaning = option.labelZh ? mvpDetails(`meaning-${option.id}`, '뜻 보기', `<p>${escapeHtml(option.labelKo)}</p>`) : '';
+          return mvpButton('select-revision', option.id, `<span lang="${option.labelZh ? 'zh-Hant' : 'ko'}">${escapeHtml(option.labelZh || option.labelKo)}</span>`, workbench.revisionId === option.id) + meaning;
+        }).join('');
+        body += `<section class="academicMvpMemo"><h2>${done ? '확정한 메모' : '수정 중인 메모'}</h2><p class="academicMvpPreview" lang="${chosen?.labelZh ? 'zh-Hant' : 'ko'}">${escapeHtml(preview)}</p>${done ? `<p>${escapeHtml(item.connectionKo)}</p>` : mvpDetails('edit-memo', '메모를 눌러 수정안 고르기', choices)}</section>`;
+      }
+    } else {
+      // Source spans are explicit: a normalized result such as 恢復正常 may contain 了 in the original.
+      const sourceCards = item.cards.filter(card => card.sourceZh);
+      const source = (text, title) => {
+        let html = escapeHtml(text);
+        for (const card of sourceCards) {
+          if (!text.includes(card.sourceZh)) continue;
+          const label = escapeHtml(card.sourceZh);
+          html = html.replace(label, workbench.phase === 'place-results'
+            ? mvpButton('select-result', card.id, label, workbench.resultId === card.id)
+            : `<span class="academicMvpPhrase">${label}</span>`);
+        }
+        return `<article class="academicMvpSource"><h2>${title}</h2><p lang="zh-Hant">${html}</p></article>`;
+      };
+      body = source(item.expectationZh, '예상 기록') + source(item.actualZh, '실제 기록');
+      const selectedCard = item.cards.find(card => card.id === workbench.resultId);
+      const absent = item.cards.find(card => card.id === workbench.absentResultId);
+      const actual = item.cards.find(card => card.id === workbench.actualResultId);
+      const absentText = workbench.resultSlot === 'absent' && selectedCard ? selectedCard.textZh : absent?.textZh;
+      const actualText = workbench.resultSlot === 'actual' && selectedCard ? selectedCard.textZh : actual?.textZh;
+      body += `<section class="academicMvpMemo"><h2>기록에서 찾은 관계 ${mvpWord('反而')}</h2><div class="academicMvpSlots"><div><small>생기지 않은 예상</small><p lang="zh-Hant">${escapeHtml(absentText || '원문 구절을 눌러')}</p></div><div><small>실제로 생긴 결과</small><p lang="zh-Hant">${escapeHtml(actualText || '원문 구절을 눌러')}</p></div></div>`;
+      if (workbench.phase === 'place-results') {
+        body += `<p class="academicMvpHint">${workbench.resultSlot === 'absent' ? '생기지 않은 예상' : '실제로 생긴 결과'}에 놓을 구절을 원문에서 골라.</p>`;
+      } else {
+        const link = config.linkOptions.find(option => option.id === workbench.linkId);
+        body += `<p class="academicMvpPreview" lang="zh-Hant">${mvpMarked(item.completedZh.replace('反而', link?.labelZh || '＿＿'), link?.labelZh || '＿＿')}</p>`;
+        if (!done) body += mvpDetails('edit-link', '연결할 말 고르기', `<div class="academicMvpLinks">${(workbench.optionOrders[orderKey(item.id, 'links')] || config.linkOptions.map(option => option.id)).map(id => {
+          const option = config.linkOptions.find(candidate => candidate.id === id);
+          return mvpButton('select-link', id, escapeHtml(option.labelZh), workbench.linkId === id);
+        }).join('')}</div>`);
+      }
+      body += '</section>';
+    }
+    const check = workbench.lastCheck;
+    let feedback = done ? item.successFeedbackKo : '';
+    if (check && !done) {
+      const option = [...(item.claims || []), ...(item.revisions || []), ...(item.cards || []), ...(config.linkOptions || [])].find(option => option.id === check.id);
+      feedback = check.step === 'absent' ? option?.absentFeedbackKo : check.step === 'actual' ? option?.actualFeedbackKo : option?.feedbackKo;
+    }
+    const feedbackHtml = `<p class="academicMvpFeedback" role="status" aria-live="polite">${escapeHtml(feedback || '')}</p>`;
+    body = body.replace(/(<section class="academicMvpMemo"><h2>[\s\S]*?<\/h2>)/, `$1${feedbackHtml}`);
+    return `<div class="academicCaseProgress">${item.mode === 'guided' ? '연습' : '적용'} · ${workbench.caseIndex + 1} / ${config.cases.length}</div>${body}`;
+  }
+
+  function mvpFooter(workbench) {
+    const actions = {
+      claim: ['submit-claim', '이 주장 검토', workbench.claimId],
+      revision: ['submit-revision', '메모 확정', workbench.revisionId],
+      'place-results': ['submit-result', '이 구절 놓기', workbench.resultId],
+      'choose-link': ['submit-link', '기록 연결', workbench.linkId],
+      review: ['next-case', '다음 기록', true],
+      complete: ['finish-mvp', '완성 기록 확인 · 계속', true]
+    };
+    const [action, label, enabled] = actions[workbench.phase];
+    return `<button type="button" id="academicMvpConfirm" class="control academicConfirm" data-academic-action="${action}" ${enabled ? '' : 'disabled'}>${label}</button>`;
+  }
+
   function renderWorkbench(config, workbench) {
+    if (isMvp()) return renderMvp(config, workbench);
     if (config.kind === 'claim-revision') return renderClaimRevisionWorkbench(config, workbench);
     if (config.kind === 'expectation-sort') return renderExpectationWorkbench(config, workbench);
     if (config.kind === 'replacement-link') return renderReplacementWorkbench(config, workbench);
@@ -625,13 +723,14 @@
   }
 
   function bindActions() {
-    gridEl.querySelectorAll('[data-academic-action]').forEach(button => {
+    document.querySelectorAll('#tutorialView [data-academic-action]').forEach(button => {
       button.addEventListener('click', () => runAction(button.dataset.academicAction, button.dataset.value));
     });
   }
 
   function runAction(type, value) {
     const stage = current();
+    if (type === 'finish-mvp' && isMvp(stage) && isWin()) { showComplete(); return; }
     const config = configFor(stage);
     if (!config || screen !== 'tutorial' || isWin()) return;
     const result = applyAction(config, state.academicTower, { type, value });
@@ -642,12 +741,19 @@
     save();
     render();
     const solved = isSolved(config, state.academicTower);
-    if (result.feedback) setStatus(result.feedback, result.correct === false ? 'info' : 'good');
+    if (isMvp(stage)) {
+      const feedback = gridEl.querySelector('.academicMvpFeedback');
+      if (feedback && result.feedback) {
+        feedback.textContent = result.feedback;
+        if (result.correct === false) feedback.scrollIntoView({ block: 'nearest' });
+      }
+    } else if (result.feedback) setStatus(result.feedback, result.correct === false ? 'info' : 'good');
     if (!solved) return;
     if (stageSession.mode !== 'replay') completed.add(stage.id);
     window.GameFlow?.recordStageComplete(stage.id, stageSession);
     save();
     clearTimeout(completionTimer);
+    if (isMvp(stage)) return;
     completionTimer = setTimeout(() => {
       if (screen === 'tutorial' && current().id === stage.id && isWin()) showComplete();
     }, 220);
@@ -659,6 +765,9 @@
     const config = configFor(stage);
     const view = document.getElementById('tutorialView');
     view?.classList.toggle('academicTowerStage', !!config);
+    view?.classList.toggle('academicTowerMvp', !!config && isMvp(stage));
+    const priorFocus = document.activeElement;
+    document.getElementById('academicMvpConfirm')?.remove();
     if (!config) {
       gridEl.classList.remove('academicTowerWorkbench');
       return baseRender();
@@ -673,13 +782,40 @@
     gridEl.className = 'grid academicTowerWorkbench';
     gridEl.setAttribute('role', 'group');
     gridEl.setAttribute('aria-label', '학술탑 기록 검토 작업대');
+    const recordKey = `${stage.id}:${workbench.caseIndex}`;
+    const sameRecord = gridEl.dataset.mvpRecord === recordKey;
+    const scroll = sameRecord ? gridEl.scrollTop : 0;
+    const opened = sameRecord ? [...gridEl.querySelectorAll('details[open][data-mvp-detail]')].map(el => el.dataset.mvpDetail) : [];
+    const focused = priorFocus;
+    const focusAction = focused?.dataset?.academicAction;
+    const focusValue = focused?.dataset?.value;
     gridEl.innerHTML = renderWorkbench(config, workbench);
+    gridEl.dataset.mvpRecord = recordKey;
+    if (isMvp(stage)) {
+      gridEl.querySelectorAll('details[data-mvp-detail]').forEach(el => { el.open = opened.includes(el.dataset.mvpDetail); });
+      gridEl.querySelectorAll('[data-academic-word]').forEach(button => {
+        button.onclick = () => {
+          if (!WORDS[button.dataset.academicWord]) return;
+          showWord(button.dataset.academicWord);
+          document.querySelector('#sheet .sheetactions button')?.addEventListener('click', () => button.focus({ preventScroll: true }));
+        };
+      });
+      $('.controls').insertAdjacentHTML('beforeend', mvpFooter(workbench));
+      gridEl.scrollTop = scroll;
+      const target = [...view.querySelectorAll('[data-academic-action]')].find(el => el.dataset.academicAction === focusAction && el.dataset.value === focusValue);
+      if (sameRecord && target) target.focus({ preventScroll: true });
+      else if (focusAction) {
+        const anchor = gridEl.querySelector('.academicMvpMemo');
+        anchor?.setAttribute('tabindex', '-1');
+        anchor?.focus({ preventScroll: true });
+      }
+    }
     bindActions();
     renderWords(stage, workbench);
     $('#waitBtn').hidden = true;
     $('#inspectBtn').hidden = true;
     $('#undoBtn').hidden = false;
     $('#undoBtn').disabled = !history.length;
-    $('.controls').style.gridTemplateColumns = '1fr';
+    $('.controls').style.gridTemplateColumns = isMvp(stage) ? 'minmax(80px, 1fr) minmax(0, 2fr)' : '1fr';
   };
 })();

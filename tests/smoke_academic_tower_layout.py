@@ -107,7 +107,7 @@ try:
             page.screenshot(path=str(OUT / f"academic-tower-03-{width}x{height}.png"), full_page=True)
 
             page.evaluate("TacticalGame.playStage('academic-tower-turn-04-faner', {mode:'replay', returnTo:'academic-tower'})")
-            assert "수량이 늘었다" not in page.locator(".academicReplacementRecords").inner_text()
+            assert "수량이 늘었다" not in " ".join(page.locator(".academicMvpSource").all_inner_texts())
             assert_view(page, "#tutorialView", width, height, f"04-initial-{width}x{height}")
             for value in ["faster", "stopped"]:
                 page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()

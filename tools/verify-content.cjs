@@ -76,6 +76,7 @@ if (args.has('--browser')) {
     'tests/smoke_first_free_quest.py',
     'tests/smoke_north_forest.py',
     'tests/smoke_academic_tower.py',
+    'tests/smoke_academic_tower_mvp.py',
     'tests/smoke_gate_layout.py',
     'tests/smoke_workshop_layout.py',
     'tests/smoke_market_layout.py',
