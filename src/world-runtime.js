@@ -105,10 +105,13 @@
     const overview = `<div class="meaning worldPlaceSummary">${region.summary || region.note}</div>`;
     const advice = recommendation ? `<div class="gamerule worldAdvice"><strong>권장</strong><br>${recommendation}</div>` : '';
     const lock = locked ? `<div class="gamerule worldLockReason"><strong>아직 갈 수 없어</strong><br>${region.lockHint || '앞선 의뢰를 마치면 이곳으로 이어지는 길이 열려.'}</div>` : '';
+    const actionLabel = region.id === 'academic-tower'
+      ? (milestones().includes('academic-tower-turn-foundation') ? '탑으로 돌아가기' : '탑으로 들어가기')
+      : (complete ? '다시 연습하기' : '이곳으로 가기');
     const action = locked
       ? '<button id="worldPlaceClose">확인</button>'
       : hasJourneyContent(region)
-        ? `<button class="secondary" id="worldPlaceClose">닫기</button><button id="worldPlaceGo">${complete ? '다시 연습하기' : '이곳으로 가기'}</button>`
+        ? `<button class="secondary" id="worldPlaceClose">닫기</button><button id="worldPlaceGo">${actionLabel}</button>`
         : '<button class="secondary" id="worldPlaceClose">닫기</button><button disabled>의뢰 준비 중</button>';
 
     globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}<div class="sheetactions">${action}</div>`);
