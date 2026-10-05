@@ -144,7 +144,7 @@
 }
 .academicTowerHeader{min-height:58px}
 
-/* Tower crown: the first and last merlons are flush with the outer walls.
+/* Tower crown: five merlons, with the first and last flush against the outer walls.
    Clipping the shell itself lets the exterior sky show through the four notches. */
 .academicTowerShell{
   border-radius:0 0 18px 18px;
