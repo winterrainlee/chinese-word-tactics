@@ -147,9 +147,16 @@
 .shell.academicTowerStage>.topbar .stagetitle{color:#faf7ef;text-shadow:0 1px 1px rgba(0,0,0,.24)}
 .academicTowerHeader .academicTowerHeading small,
 .shell.academicTowerStage>.topbar .stagekicker{color:#d7d7d2}
-.academicTowerHeader .academicTowerBack,
+.academicTowerHeader .academicTowerBack{
+  color:#2f3436;
+  background:#f7f3eb;
+  border-color:#d7d2c8;
+  box-shadow:0 1px 3px rgba(0,0,0,.20);
+}
 .shell.academicTowerStage>.topbar .iconbtn{color:#faf7ef}
-.academicTowerHeader .academicTowerBack:active,
+.academicTowerHeader .academicTowerBack:active{
+  background:#e8e2d7;
+}
 .shell.academicTowerStage>.topbar .iconbtn:active{background:rgba(255,255,255,.10)}
 
 .academicTowerShell .academicTowerIntro{
