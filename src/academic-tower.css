@@ -303,3 +303,19 @@
 @media(max-height:650px){
   .shell.academicTowerStage>.topbar{padding-top:4px;padding-bottom:7px}
 }
+
+
+/* 03A comparison review: one compact answer + one explanation, no stacked verdict cards. */
+.academicTowerMvp .academicRanAnswer{
+  margin:8px 0 6px;
+  color:#28563f;
+  font-size:17px;
+  font-weight:800;
+  line-height:1.45;
+}
+.academicTowerMvp .academicRanExplanation{
+  margin:0;
+  color:#514b43;
+  font-size:15px;
+  line-height:1.6;
+}
