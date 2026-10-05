@@ -426,6 +426,11 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(css, /\.academicTowerShell \.academicHubGroup h3\{/);
   assert.match(css, /background-color:var\(--tower-wall\)/);
   assert.match(css, /background-size:22px 22px/);
+  assert.match(css, /Tower crown: the first and last merlons are flush with the outer walls/);
+  assert.match(css, /clip-path:polygon\(/);
+  assert.match(css, /0 0,[\s\S]*13% 0,13% 12px/);
+  assert.match(css, /87% 12px,87% 0,[\s\S]*100% 0/);
+  assert.match(css, /\.academicTowerShell \.academicTowerHeader\{[\s\S]*padding-top:18px/);
   assert.match(css, /\.academicTowerShell \.academicHubGroup\[data-group="optional"\] h3/);
   assert.match(css, /\.academicTowerHeader \.academicTowerBack\{/);
   assert.match(css, /color:#2f3436/);
@@ -460,7 +465,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towerback1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towercrown1/);
   assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
   assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-towerfloors1/);
   assert.match(html, /academic-tower-content\.js\?v=20261005-towercompare1/);
