@@ -394,7 +394,8 @@ try:
             if region_id in completed_region_ids:
                 assert page.locator('#worldPlaceGo').inner_text() == '다시 연습하기', region_id
             elif region_id in enterable_region_ids:
-                assert page.locator('#worldPlaceGo').inner_text() == '이곳으로 가기', region_id
+                expected_action = '탑으로 들어가기' if region_id == 'academic-tower' else '이곳으로 가기'
+                assert page.locator('#worldPlaceGo').inner_text() == expected_action, region_id
             else:
                 assert page.locator('#worldPlaceGo').count() == 0, region_id
                 assert page.locator('#sheet .sheetactions button:disabled').inner_text() == '의뢰 준비 중', region_id
