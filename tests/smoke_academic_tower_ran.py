@@ -94,6 +94,9 @@ try:
                 assert page.locator('.academicRanAnswer').count() == 1
                 assert page.locator('.academicRanExplanation').inner_text() == card['explanation']
                 assert page.locator('#grid').inner_text().count(card['explanation']) == 1
+                assert page.locator('.academicRanCompare').count() == 1
+                assert card['compareWord'] in page.locator('.academicRanCompare').inner_text()
+                assert card['compareKo'] in page.locator('.academicRanCompare').inner_text()
                 assert page.locator('.academicVerdictTitle').count() == 0
                 action('next-comparison')
             for wrong, correct in [('如果', '既然'), ('然後', '不然')]:
