@@ -104,15 +104,15 @@
     const recommendation = recommendationNeeded(region) ? region.recommendation : '';
     const overview = `<div class="meaning worldPlaceSummary">${region.summary || region.note}</div>`;
     const advice = recommendation ? `<div class="gamerule worldAdvice"><strong>권장</strong><br>${recommendation}</div>` : '';
-    const lock = locked ? `<div class="gamerule worldLockReason"><strong>아직 갈 수 없어</strong><br>${region.lockHint || '앞선 의뢰를 마치면 이곳으로 이어지는 길이 열려.'}</div>` : '';
+    const lock = locked ? `<div class="gamerule worldLockReason" id="worldPlaceLockReason"><strong>아직 갈 수 없어</strong><br>${region.lockHint || '앞선 의뢰를 마치면 이곳으로 이어지는 길이 열려.'}</div>` : '';
     const actionLabel = region.id === 'academic-tower'
       ? (milestones().includes('academic-tower-turn-foundation') ? '탑으로 돌아가기' : '탑으로 들어가기')
       : (complete ? '다시 연습하기' : '이곳으로 가기');
     const action = locked
-      ? '<button id="worldPlaceClose">확인</button>'
+      ? '<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceLockedGo" data-action-role="primary" aria-describedby="worldPlaceLockReason" disabled>조건 미충족</button>'
       : hasJourneyContent(region)
-        ? `<button class="secondary" id="worldPlaceClose">닫기</button><button id="worldPlaceGo">${actionLabel}</button>`
-        : '<button class="secondary" id="worldPlaceClose">닫기</button><button disabled>의뢰 준비 중</button>';
+        ? `<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceGo" data-action-role="primary">${actionLabel}</button>`
+        : '<button id="worldPlaceClose" data-action-role="close">닫기</button><button data-action-role="primary" disabled>의뢰 준비 중</button>';
 
     globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}<div class="sheetactions">${action}</div>`);
 
@@ -182,8 +182,8 @@
       card.dataset.mapKind = region.map?.kind || 'district';
       card.style.setProperty('--map-x', `${region.map?.x ?? 50}%`);
       card.style.setProperty('--map-y', `${region.map?.y ?? 50}%`);
-      card.setAttribute('aria-disabled', locked ? 'true' : 'false');
-      card.setAttribute('aria-label', `${mapName}, ${region.name}. ${locked ? '아직 이동할 수 없음. 눌러서 조건 확인.' : complete ? '핵심 의뢰 완료.' : '눌러서 살펴보기.'}`);
+      card.removeAttribute('aria-disabled');
+      card.setAttribute('aria-label', `${mapName}, ${region.name}. ${locked ? '잠긴 장소. 눌러서 조건 확인.' : complete ? '핵심 의뢰 완료.' : '눌러서 살펴보기.'}`);
       card.onclick = event => {
         event.preventDefault();
         showRegionInfo(region);

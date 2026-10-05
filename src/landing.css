@@ -8,7 +8,7 @@
 .landingPrimary:active{transform:translateY(1px)}
 .landingPrimary:focus-visible,.landingSecondary button:focus-visible,.landingSettings:focus-visible{outline:3px solid #2c65a2;outline-offset:2px}
 .landingSecondary{min-height:44px;display:flex;align-items:center;justify-content:center;gap:13px;color:var(--muted)}
-.landingSecondary button{min-height:44px;padding:0 4px;border:0;background:transparent;color:#5f584e;font-weight:720}
+.landingSecondary button{min-width:44px;min-height:44px;padding:0 4px;border:0;background:transparent;color:#5f584e;font-weight:720}
 .landingSecondaryMark{display:none}
 #landingWords:not([hidden])::before{content:"·";margin-right:13px;color:#aaa296;font-weight:400}
 .landingSettings{position:absolute;top:4px;right:0}

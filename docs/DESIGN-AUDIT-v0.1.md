@@ -1,7 +1,7 @@
 # 전체 디자인 감사 v0.1
 
 작성: 2026-10-05. 대상: **따라온 단어들 전체 경험**. 랜딩·월드맵·방을 학습 화면과 동등하게 점검한다.
-상태: 구조 조사·대표 화면 시각 감사·공통 DNA·수정 우선순위를 정리했다. **UI 개선 구현과 iPhone 최종 승인은 아직 하지 않았다.**
+상태: 구조 조사·대표 화면 시각 감사·공통 DNA·수정 우선순위를 정리했고, **A01~A03의 1차 구현과 Chromium 회귀 검증을 완료했다.** iPhone Safari·VoiceOver 최종 승인은 아직 하지 않았다. A04 이후는 이번 구현에 포함하지 않았다.
 공통 기준: [디자인 원칙 v0.3](DESIGN-PRINCIPLES-v0.3.md). 이번 작업은 새 디자인 시스템이나 전역 CSS 교체가 아니다.
 
 ## 1. 결론
@@ -74,6 +74,13 @@ P1은 조작 의미·접근성의 직접 문제, P2는 이해·탐색 비용, P3
 
 **완료 기준:** 네 viewport에서 실제 클릭 영역이 44×44px 이상이고 인접 행동과 겹치지 않는다. 글자만 키워 문제를 우회하지 않는다. D3·D5.
 
+**구현 상태 · 2026-10-05:** Chromium 자동 검증 완료. iPhone Safari 실기기 확인 대기.
+
+- 변경 파일: `src/landing.css`, `src/first-free-quest.css`, `src/north-forest-world-runtime.js`, `src/first-free-quest-world-runtime.js`, `tests/design-actions.test.cjs`, `tests/smoke_design_actions.py`, `tools/verify-content.cjs`, `.github/workflows/deploy.yml`, `index.html`.
+- 해결 방식: 랜딩의 같은 보조 링크에 `min-width:44px`, 첫 자유 의뢰의 제안·보고 뜻 보기 버튼에 `min-width/min-height:44px`, 게시판의 모든 `의뢰 확인/이어가기`에 44px 최소 크기와 동일한 조용한 보조 스타일을 적용했다. 글자 크기와 랜딩 풍경, 게시판 카드 구조는 바꾸지 않았다.
+- 자동 검사: 375×812, 375×667, 375×640, 360×640에서 각각 `여정` 44×44px, `한국어 뜻 보기` 약 77.9×44px, `의뢰 확인` 약 77.9×44px로 측정했다. 실제 클릭 전환과 인접 target 비겹침도 검사한다. `node tools/verify-content.cjs`와 `node tools/verify-content.cjs --browser`가 통과했다.
+- 후속 확인: 실제 iPhone 13 mini Safari에서 손가락 입력, safe-area, 실제 글꼴 렌더링을 확인해야 한다. 별도 A04 이후 문제는 이 변경에 섞지 않았다.
+
 ### A02 · P1 · 잠긴 장소와 잠금 이유를 여는 버튼을 구분해야 한다
 
 **확인:** `world-runtime.js`는 잠긴 장소의 버튼에 `aria-disabled="true"`를 주면서 접근성 이름에는 `눌러서 조건 확인`을 넣고 클릭 시 정보 창을 연다. 최초 수집에서도 Playwright의 일반 클릭이 이 상태를 비활성으로 판단했다.
@@ -86,6 +93,13 @@ P1은 조작 의미·접근성의 직접 문제, P2는 이해·탐색 비용, P3
 
 **완료 기준:** 잠금 설명은 일반 클릭·키보드·VoiceOver로 접근하고, 조건 불충족 상태에서 입장 자체는 열리지 않는다. D3·D6.
 
+**구현 상태 · 2026-10-05:** 일반 클릭·키보드·스크린리더 DOM 의미의 자동 검증 완료. iPhone Safari·VoiceOver 실기기 확인 대기.
+
+- 변경 파일: `src/world-runtime.js`, `src/styles.css`, `tools/capture_design_audit.py`, `tests/world-v06.test.cjs`, `tests/smoke_journey.py`, `tests/smoke_design_actions.py`, `index.html`.
+- 해결 방식: 조건 정보를 여는 지도 표식은 enabled 버튼으로 두고 `aria-disabled`를 제거했다. 접근성 이름은 `잠긴 장소. 눌러서 조건 확인.`으로 상태와 동작을 함께 알린다. 정보 sheet에서는 잠금 이유를 `aria-describedby`로 연결하고, 실제 입장 행동만 `조건 미충족` disabled 버튼으로 분리했다. 미구현 장소의 `의뢰 준비 중`과 문구를 합치지 않았다.
+- 자동 검사: 잠긴 학술탑 표식은 네 viewport에서 약 82×76~78px, `disabled=false`, `aria-disabled` 없음으로 측정됐다. 정상 pointer click과 Enter 모두 잠금 이유를 열고, 실행 가능한 `#worldPlaceGo`는 생기지 않으며 진행 저장도 바뀌지 않는다. 강제 `dispatch_event` 수집 우회를 제거한 뒤 디자인 감사 160개 상태 수집이 오류 0개로 통과했다.
+- 후속 확인: iPhone Safari의 VoiceOver에서 표식 이름·버튼 역할·잠금 이유 읽기 순서를 실기기로 확인해야 한다.
+
 ### A03 · P2 · 실행과 닫기의 시각적 우선순위가 뒤집힌다
 
 **확인:** 게시판은 작은 기본 버튼으로 의뢰를 고르는 반면 하단 `닫기`는 넓은 짙은 녹색 버튼이다. 일반 메뉴도 이동 행보다 닫기가 더 강한 채움색을 가진다.
@@ -97,6 +111,13 @@ P1은 조작 의미·접근성의 직접 문제, P2는 이해·탐색 비용, P3
 **근거:** `quest-board-new-375x640.png`, `menu-from-story-375x640.png`, `src/styles.css`의 `.sheetactions`.
 
 **완료 기준:** 창의 목적 행동을 먼저 발견하고 닫기 역시 쉽게 찾는다. 취소·복원·초기화의 역할을 별도 회귀한다. D3.
+
+**구현 상태 · 2026-10-05:** 역할별 자동·시각 회귀 완료. iPhone Safari 실기기 확인 대기.
+
+- 변경 파일: `src/styles.css`, `src/flow-runtime.js`, `src/north-forest-world-runtime.js`, `src/first-free-quest-world-runtime.js`, `tests/design-actions.test.cjs`, `tests/smoke_design_actions.py`, `tools/verify-content.cjs`, `.github/workflows/deploy.yml`, `index.html`.
+- 해결 방식: 공통 `.sheetactions button` 기본값은 유지하고, 게시판과 이야기 중 게임 메뉴의 닫기에 `data-action-role="close"`를 명시해 48px의 조용한 secondary 표현을 적용했다. 게시판의 동등한 의뢰는 모두 `secondary` 역할과 동일한 스타일을 쓴다. 잠금 장소의 실제 입장, 사용 가능한 입장, 닫기도 역할을 코드에 명시했고 sheet의 disabled 행동만 비활성 색으로 구분했다.
+- 자동 검사: 게시판·게임 메뉴 닫기는 네 viewport에서 300~315×48px이며 accent가 아닌 `rgb(233, 227, 216)`로 계산됐다. 일반 단어 뜻 sheet의 닫기와 설정의 복원 확정은 기존 accent를 유지하고, 여정 초기화는 secondary 취소와 destructive 확정을 유지한다. 대표 버튼의 잘림·겹침과 기능 전환을 함께 검사했다. 최종 빠른 게이트는 Node 309개와 모든 감사를, 브라우저 게이트는 새 4-viewport 회귀와 기존 전체 browser suite를 통과했다.
+- 후속 확인: 실제 iPhone 13 mini Safari에서 게시판·이야기 메뉴·일반 단어 뜻·복원/초기화의 위계를 비교한다. 이번 검수에서 A04 이후로 넘길 새 구현 항목은 추가하지 않았다.
 
 ### A04 · P2 · 지도는 줄이지 말고 탐색의 진입 위치를 검토한다
 

@@ -35,7 +35,7 @@
       <h2>여관 주인의 부탁</h2>
       <div class="regionSheetNameZh" lang="zh-Hant">客棧</div>
       <p class="firstQuestPromptZh" lang="zh-Hant">北邊森林外圍有一種月白菇，我做湯還差三個。你如果要出去走走，可以幫我找嗎？</p>
-      <button class="firstQuestMeaningToggle" id="firstQuestOfferMeaning" type="button" aria-expanded="false" aria-controls="firstQuestOfferKo">한국어 뜻 보기</button>
+      <button class="firstQuestMeaningToggle" id="firstQuestOfferMeaning" type="button" data-action-role="secondary" aria-expanded="false" aria-controls="firstQuestOfferKo">한국어 뜻 보기</button>
       <p class="firstQuestPromptKo" id="firstQuestOfferKo" hidden>북쪽 숲 바깥쪽에 월백버섯이라는 버섯이 있는데, 수프에 쓸 세 개가 더 필요해. 밖에 나갈 일이 있으면 좀 찾아줄래?</p>
       <div class="sheetactions"><button class="secondary" id="firstQuestLater">나중에</button><button id="firstQuestAccept">찾으러 가기</button></div>
     `);
@@ -56,7 +56,7 @@
       <h2>여관</h2>
       <div class="regionSheetNameZh" lang="zh-Hant">客棧</div>
       <p class="firstQuestPromptZh" lang="zh-Hant">月白菇三個都找到了。帶給老闆吧。</p>
-      <button class="firstQuestMeaningToggle" id="firstQuestReportMeaning" type="button" aria-expanded="false" aria-controls="firstQuestReportKo">한국어 뜻 보기</button>
+      <button class="firstQuestMeaningToggle" id="firstQuestReportMeaning" type="button" data-action-role="secondary" aria-expanded="false" aria-controls="firstQuestReportKo">한국어 뜻 보기</button>
       <p class="firstQuestPromptKo" id="firstQuestReportKo" hidden>월백버섯 세 개를 모두 찾았다. 여관 주인에게 가져가자.</p>
       <div class="sheetactions"><button class="secondary" id="firstQuestReportLater">잠깐 둘러보기</button><button id="firstQuestReport">보고하기</button></div>
     `);
@@ -157,7 +157,7 @@
         <div class="questBoardNoteZh" lang="zh-Hant">北邊森林 · 月白菇三個</div>
       </div>
       <p class="questBoardEmpty">지금은 새로 적힌 부탁이 없다.</p>
-      <div class="sheetactions"><button id="questBoardClose">닫기</button></div>
+      <div class="sheetactions"><button id="questBoardClose" data-action-role="close">닫기</button></div>
     `);
     const close = $('questBoardClose');
     if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();

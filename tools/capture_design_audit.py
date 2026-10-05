@@ -119,11 +119,7 @@ try:
                         world(page); snap('world-arrival')
                         for region in ['gate-town','academic-tower','council-town','border-village']:
                             marker = page.locator(f'[data-region-id="{region}"]')
-                            if marker.get_attribute('aria-disabled') == 'true':
-                                # Inspect its information sheet, not proof of pointer/assistive usability.
-                                marker.dispatch_event('click')
-                            else:
-                                marker.click()
+                            marker.click()
                             snap('place-'+region); page.evaluate('TacticalGame.closeSheet()')
                         page.evaluate('GameFlow.showJourney()'); snap('journey-arrival')
                     elif fixture=='home':
@@ -160,7 +156,7 @@ try:
         browser.close()
 finally:
     server.shutdown()
-    (OUT / 'manifest.json').write_text(json.dumps({'commit':os.environ.get('GITHUB_SHA'),'viewports':VIEWPORTS,'captureCount':len(results),'failures':failures,'method':'isolated synthetic progress snapshots; finite animations settled; not an end-to-end playthrough; geometry includes offscreen scroll content; input targets use wrapping labels; aria-disabled landmark information uses dispatch_event rather than a pointer click' },ensure_ascii=False,indent=2),encoding='utf-8')
+    (OUT / 'manifest.json').write_text(json.dumps({'commit':os.environ.get('GITHUB_SHA'),'viewports':VIEWPORTS,'captureCount':len(results),'failures':failures,'method':'isolated synthetic progress snapshots; finite animations settled; not an end-to-end playthrough; geometry includes offscreen scroll content; input targets use wrapping labels; place information uses normal pointer clicks' },ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps({'captureCount':len(results),'failures':failures},ensure_ascii=False))
 if failures:
     raise SystemExit(1)

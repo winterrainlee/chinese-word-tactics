@@ -112,7 +112,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
-  assert.match(html, /world-runtime\.js\?v=20261005-towerreturn1/);
+  assert.match(html, /world-runtime\.js\?v=20261005-actioncontract1/);
   assert.match(html, /journey\.css\?v=20261005-towerjourney1/);
   assert.match(html, /journey-runtime\.js\?v=20261005-towerjourney1/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);
@@ -125,6 +125,9 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(runtime, /dataset\.regionId/);
   assert.match(runtime, /regionIconWrap/);
   assert.match(runtime, /card\.disabled = false/);
+  assert.match(runtime, /card\.removeAttribute\('aria-disabled'\)/);
+  assert.doesNotMatch(runtime, /card\.setAttribute\('aria-disabled'/);
+  assert.match(runtime, /잠긴 장소\. 눌러서 조건 확인\./);
   assert.match(runtime, /showRegionInfo/);
   assert.match(runtime, /region\.summary \|\| region\.note/);
   assert.match(runtime, /worldPlaceSummary/);
@@ -132,6 +135,8 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(runtime, /'탑으로 돌아가기' : '탑으로 들어가기'/);
   assert.match(runtime, /complete \? '다시 연습하기' : '이곳으로 가기'/);
   assert.match(runtime, /showRegionPractice\?\.\(region\.id\)/);
+  assert.match(runtime, /id="worldPlaceLockReason"/);
+  assert.match(runtime, /id="worldPlaceLockedGo" data-action-role="primary" aria-describedby="worldPlaceLockReason" disabled>조건 미충족/);
   assert.doesNotMatch(runtime, /핵심 의뢰를 완료했어/);
   assert.doesNotMatch(runtime, /mapRiverWest/);
 

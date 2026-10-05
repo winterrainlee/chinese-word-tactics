@@ -66,6 +66,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_ux.py
 
+      - name: Run design action contract browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_design_actions.py
+
       - name: Run settings backup browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots

@@ -36,14 +36,14 @@
       const finished = questFinished(quest, value), started = questStarted(quest, value);
       const node = firstPlayable(quest.id, value);
       const status = finished ? '완료' : started ? '진행 중' : '새 의뢰';
-      const button = node ? `<button class="questBoardAction" data-quest-id="${quest.id}">${started ? '이어가기' : '의뢰 확인'}</button>` : '';
+      const button = node ? `<button class="questBoardAction" data-action-role="secondary" data-quest-id="${quest.id}">${started ? '이어가기' : '의뢰 확인'}</button>` : '';
       return `<article class="questBoardNote"><div class="questBoardNoteHead"><strong>${quest.titleKo}</strong><span>${status}</span></div><div class="questBoardNoteZh" lang="zh-Hant">北邊森林 · ${quest.titleZh}</div>${button}</article>`;
     }).join('');
     globalThis.TacticalGame?.openSheet?.(`
       <h2>의뢰 게시판</h2><div class="regionSheetNameZh" lang="zh-Hant">委託板</div>
       <article class="questBoardNote"><div class="questBoardNoteHead"><strong>북쪽 숲의 버섯</strong><span>완료</span></div><div class="questBoardNoteZh" lang="zh-Hant">北邊森林 · 月白菇三個</div></article>
       ${notes || '<p class="questBoardEmpty">지금은 새로 적힌 부탁이 없다.</p>'}
-      <div class="sheetactions"><button id="questBoardClose">닫기</button></div>`);
+      <div class="sheetactions"><button id="questBoardClose" data-action-role="close">닫기</button></div>`);
     $('questBoardClose').onclick = () => globalThis.TacticalGame?.closeSheet?.();
     document.querySelectorAll('[data-quest-id]').forEach(button => {
       button.onclick = () => playNode(firstPlayable(button.dataset.questId));

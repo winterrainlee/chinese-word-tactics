@@ -364,5 +364,5 @@ test('index loads northern forest content, mechanics, world integration, and art
   assert.match(html, /north-forest\.css\?v=20260922-regionlayout1/);
   assert.match(html, /north-forest-content\.js\?v=20260922-regionlayout1/);
   assert.match(html, /north-forest-runtime\.js\?v=20260922-regionlayout1/);
-  assert.match(html, /north-forest-world-runtime\.js\?v=20260920-northforestux2/);
+  assert.match(html, /north-forest-world-runtime\.js\?v=20261005-actioncontract1/);
 });

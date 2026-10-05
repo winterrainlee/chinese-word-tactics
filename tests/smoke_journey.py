@@ -258,6 +258,31 @@ try:
             assert box['y'] >= map_box['y'] and box['y'] + box['height'] <= map_box['y'] + map_box['height'], marker
         print('WORLD_LAYOUT:', json.dumps(world_layout, ensure_ascii=False), flush=True)
         passed('375x812 world map keeps every 44px+ place marker in-map and bottom navigation within 96px scroll')
+
+        locked_tower = page.locator('[data-region-id="academic-tower"]')
+        assert locked_tower.is_enabled()
+        assert locked_tower.get_attribute('aria-disabled') is None
+        locked_label = locked_tower.get_attribute('aria-label')
+        assert '잠긴 장소' in locked_label and '조건 확인' in locked_label, locked_label
+        locked_tower.click()
+        assert_view(page, 'world')
+        assert page.locator('#worldPlaceLockReason').is_visible()
+        assert '세 갈래 여행' in page.locator('#worldPlaceLockReason').inner_text()
+        assert page.locator('#worldPlaceGo').count() == 0
+        locked_go = page.locator('#worldPlaceLockedGo')
+        assert locked_go.is_disabled()
+        assert locked_go.inner_text() == '조건 미충족'
+        assert locked_go.get_attribute('aria-describedby') == 'worldPlaceLockReason'
+        page.locator('#worldPlaceClose').click()
+
+        locked_tower.focus()
+        page.keyboard.press('Enter')
+        assert page.locator('#worldPlaceLockReason').is_visible()
+        assert page.locator('#worldPlaceLockedGo').is_disabled()
+        assert_view(page, 'world')
+        page.locator('#worldPlaceClose').click()
+        passed('locked place opens condition information by pointer and keyboard without exposing an enabled entry action')
+
         page.locator('[data-region-id="gate-town"]').click()
         assert page.locator('#worldPlaceGo').is_visible()
         page.locator('#worldPlaceGo').click()
