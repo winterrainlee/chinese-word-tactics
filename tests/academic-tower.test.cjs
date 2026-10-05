@@ -449,7 +449,8 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(hub, /function makeSideRoomButton\(room, progress\)/);
   assert.match(hub, /button\.className = 'academicTowerRoom academicTowerSideRoomButton'/);
   assert.match(hub, /button\.textContent = room\.titleKo/);
-  assert.doesNotMatch(hub, /number\.textContent = room\.optional \? '＋'/);
+  const sideButtonSource = hub.slice(hub.indexOf('function makeSideRoomButton'), hub.indexOf('function appendSideRoom'));
+  assert.doesNotMatch(sideButtonSource, /＋|academicTowerRoomNumber|academicTowerRoomTerms|academicTowerRoomState/);
   assert.match(css, /\.academicTowerShell \.academicTowerSideRoomButton\{/);
   assert.match(css, /white-space:nowrap/);
   assert.match(hub, /title: '두 갈래 연구'/);
@@ -483,9 +484,9 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towersidegroup1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-sidecompact1/);
   assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
-  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-towersidegroup1/);
+  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-sidecompact1/);
   assert.match(html, /academic-tower-content\.js\?v=20261005-towersidegroup1/);
   assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerbooth4/);
   assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
