@@ -77,12 +77,8 @@
     return group;
   }
 
-  function sideRoomsFor(groupRooms, optionalRooms) {
-    const ids = new Set(groupRooms.map(room => room.id));
-    return optionalRooms.filter(room => {
-      const requires = room.requires || [];
-      return requires.length && requires.every(id => ids.has(id));
-    });
+  function sideRoomsFor(groupKey, optionalRooms) {
+    return optionalRooms.filter(room => room.sideGroup === groupKey);
   }
 
   function appendSideRoom(group, rooms, progress) {
@@ -138,7 +134,7 @@
     for (const config of groups) {
       const group = makeGroup(config.title, config.key, config.note || '');
       config.rooms.forEach(room => group.append(makeRoomButton(room, progress)));
-      const sideRooms = sideRoomsFor(config.rooms, optionalRooms)
+      const sideRooms = sideRoomsFor(config.key, optionalRooms)
         .filter(room => !placedOptionalIds.has(room.id));
       sideRooms.forEach(room => placedOptionalIds.add(room.id));
       appendSideRoom(group, sideRooms, progress);
