@@ -462,7 +462,10 @@
         changed = true;
       }
     }
-    if (correct !== null) next.lastCheck = { correct, feedbackKo: feedback };
+    // Correct answers that advance to a new phase should not leak a generic
+    // success verdict into the next task. Keep lastCheck only while the user
+    // still needs corrective feedback on the current choice.
+    if (correct !== null) next.lastCheck = correct ? null : { correct, feedbackKo: feedback };
     return { changed, state: next, correct, feedback };
   }
 
@@ -900,14 +903,19 @@
       body = '<h2>같은 然</h2><p lang="zh-Hant">……怎麼又有「然」？</p><p>“왜 또 然이지?” 소년이 물었다.</p><p lang="zh-Hant">有同一個字，不代表用法都一樣。</p><p>연구원은 같은 글자가 있어도 쓰임은 다를 수 있다고 답하며 색인 옆의 문장 카드를 꺼냈다.</p><p>글자 풀이를 기억의 단서로 삼되, 뜻을 계산하는 공식으로 보지는 말자.</p>';
     } else if (['compare', 'compare-review'].includes(workbench.phase)) {
       const card = config.cards[workbench.caseIndex], done = workbench.phase === 'compare-review';
-      body = `<div class="academicCaseProgress">문장 비교 ${workbench.caseIndex + 1} / ${config.cards.length}</div><p lang="zh-Hant">${mvpMarked(card.sentence, card.word)}</p>${mvpDetails('character-sense', '글자 감각 살펴보기', `<p>${escapeHtml(card.sense)}. 기억 보조일 뿐 현대어의 모든 뜻을 계산하는 공식은 아니야.</p>`)}<section class="academicMvpMemo"><h2>글자 위치와 문장 관계</h2><p class="academicMvpPreview">${workbench.selectedPosition ? workbench.selectedPosition === 'first' ? '然이 앞에 있다.' : '然이 뒤에 있다.' : '글자 위치를 골라.'} ${escapeHtml(workbench.selectedRelation || '')}</p>${done ? `<p>${escapeHtml(card.explanation)}</p>` : `<div class="academicMvpLinks">${mvpButton('select-position', 'first', '然이 앞', workbench.selectedPosition === 'first')}${mvpButton('select-position', 'last', '然이 뒤', workbench.selectedPosition === 'last')}</div><h3>이 문장에서 하는 일</h3>${workbench.optionOrders[card.word].map(option => mvpButton('select-ran-relation', option, escapeHtml(option), workbench.selectedRelation === option)).join('')}`}</section>`;
+      const positionLabel = card.position === 'first' ? '然이 앞' : '然이 뒤';
+      const work = done
+        ? `<p class="academicRanAnswer">✓ ${escapeHtml(positionLabel)} · ${escapeHtml(card.relation)}</p><p class="academicRanExplanation">${escapeHtml(card.explanation)}</p>`
+        : `<div class="academicMvpLinks">${mvpButton('select-position', 'first', '然이 앞', workbench.selectedPosition === 'first')}${mvpButton('select-position', 'last', '然이 뒤', workbench.selectedPosition === 'last')}</div><h3>이 문장에서 하는 일</h3>${workbench.optionOrders[card.word].map(option => mvpButton('select-ran-relation', option, escapeHtml(option), workbench.selectedRelation === option)).join('')}`;
+      body = `<div class="academicCaseProgress">문장 비교 ${workbench.caseIndex + 1} / ${config.cards.length}</div><p lang="zh-Hant">${mvpMarked(card.sentence, card.word)}</p>${mvpDetails('character-sense', '글자 감각 살펴보기', `<p>${escapeHtml(card.sense)}. 기억 보조일 뿐 현대어의 모든 뜻을 계산하는 공식은 아니야.</p>`)}<section class="academicMvpMemo"><h2>글자 위치와 문장 관계</h2>${work}</section>`;
     } else if (workbench.phase === 'complete') {
       body = `<h2>같은 흔적, 다른 쓰임</h2><p>공통 글자는 단서지만, 문장 전체를 대신 읽어 주지는 않는다.</p><p lang="zh-Hant">既然齒輪損壞，就先修復。</p><p lang="zh-Hant">先綁好，不然紙張會散開。</p><p>확인된 전제와 하지 않았을 경우의 귀결을 구별해 메모를 완성했어.</p>`;
     } else {
       const item = config.applications[workbench.phase === 'apply-premise' ? 0 : 1];
       body = `<div class="academicCaseProgress">새 문장 적용 ${workbench.applicationsCompleted + 1} / 2</div><p lang="zh-Hant">${escapeHtml(item.context)}</p><p class="academicMvpPreview" lang="zh-Hant">${escapeHtml(item.before)}${workbench.selectedWord ? mvpMarked(workbench.selectedWord, workbench.selectedWord) : '＿＿'}${escapeHtml(item.after)}</p><div class="academicMvpLinks">${workbench.optionOrders[item.id].map(word => mvpButton('select-ran-word', word, escapeHtml(word), workbench.selectedWord === word)).join('')}</div>`;
     }
-    return `<article class="academicMvpSource academicRanWorkbench">${body}${mvpFeedback(workbench.lastCheck?.feedbackKo)}</article>`;
+    const feedback = workbench.lastCheck?.correct === false ? mvpFeedback(workbench.lastCheck.feedbackKo) : '';
+    return `<article class="academicMvpSource academicRanWorkbench">${body}${feedback}</article>`;
   }
 
   function mvpFooter(workbench) {
