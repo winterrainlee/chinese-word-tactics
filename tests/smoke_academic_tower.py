@@ -270,6 +270,12 @@ try:
         assert side_room.count() == 1
         assert side_room.locator('h4').inner_text() == '곁가지 연구'
         assert side_room.locator('[data-room-id="academic-tower-turn-03a-ran-family"]').count() == 1
+        assert page.locator('.academicHubGroup[data-group="branch"] .academicHubSideRoom').count() == 1
+        assert page.evaluate("""() => {
+            const side = document.querySelector('.academicHubGroup[data-group="branch"] .academicHubSideRoom');
+            const synthesis = document.querySelector('.academicHubGroup[data-group="synthesis"]');
+            return !!(side && synthesis && (side.compareDocumentPosition(synthesis) & Node.DOCUMENT_POSITION_FOLLOWING));
+        }""")
         branch_box = page.locator('.academicHubGroup[data-group="branch"]').bounding_box()
         side_box = side_room.bounding_box()
         assert branch_box and side_box and side_box['width'] < branch_box['width']
