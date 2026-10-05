@@ -280,6 +280,13 @@ try:
         assert page.evaluate("GameFlow.progress().completedMilestones.includes('academic-tower-turn-foundation')")
         assert not page.evaluate("GameFlow.progress().completedMilestones.some(id => /academic-tower.*complete/.test(id))")
 
+        page.evaluate('GameFlow.showWorld()')
+        page.locator('#worldView').wait_for(state='visible')
+        page.locator('.regionCard[data-region-id="academic-tower"]').click()
+        assert page.locator('#worldPlaceGo').inner_text() == '탑으로 돌아가기'
+        page.locator('#worldPlaceGo').click()
+        page.locator('#academicTowerView').wait_for(state='visible')
+
         before_replay = json.loads(page.evaluate(
             "localStorage.getItem('chinese-word-tactics-journey-v1')"
         ))
