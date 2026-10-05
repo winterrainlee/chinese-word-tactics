@@ -107,7 +107,6 @@
         next.revisionId = null;
         next.lastCheck = null;
         changed = true;
-        feedback = '같은 방법이 새 기록에서도 통하는지 확인해 보자.';
       }
     }
     return { changed, state: next, feedback, correct };
@@ -170,9 +169,6 @@
         next.relationId = null;
         next.lastCheck = null;
         changed = true;
-        feedback = nextIndex < 2
-          ? '다음 안내 기록도 예상과 실제를 비교해 보자.'
-          : '이번에는 표지어 없이 두 기록의 관계부터 판단해 보자.';
       }
     }
     return { changed, state: next, feedback, correct };
@@ -302,7 +298,6 @@
         next.linkId = null;
         next.lastCheck = null;
         changed = true;
-        feedback = '이번에는 두 결과를 직접 찾고, 알맞은 연결어까지 골라 보자.';
       }
     }
     return { changed, state: next, feedback: feedback || '', correct };
@@ -376,9 +371,6 @@
         next.selectedConnectorId = null;
         next.lastCheck = null;
         changed = true;
-        feedback = config.blanks[next.blankIndex].kind === 'decision'
-          ? '필요하면 복원한 기록을 다시 펼쳐 보고, 전달할 판단을 골라.'
-          : '다음 빈칸도 문장 전체를 읽고 관계를 확인해 보자.';
       }
     }
     return { changed, state: next, feedback: feedback || '', correct };
@@ -737,6 +729,91 @@
     return `<p class="academicMvpFeedback" role="status" aria-live="polite">${escapeHtml(text || '')}</p>`;
   }
 
+  // Region labels describe ownership; the persistent title describes the task.
+  // Arrange the existing controls without duplicating source sentences or listeners.
+  function renderWorkbenchHierarchy(config, workbench) {
+    const label = text => {
+      const el = document.createElement('div');
+      el.className = 'academicRegionLabel'; el.textContent = text; return el;
+    };
+    const original = (nodes, name = '원본 기록') => {
+      const section = document.createElement('section');
+      section.className = 'academicOriginal'; section.dataset.academicZone = 'original';
+      section.setAttribute('aria-label', name);
+      nodes[0].before(section); section.append(label(name), ...nodes); return section;
+    };
+    const work = (section, title, name = '나의 해석') => {
+      section.dataset.academicZone = 'work'; section.setAttribute('aria-label', name);
+      section.classList.add('academicMvpMemo');
+      let heading = section.querySelector(':scope > h2');
+      if (!heading) { heading = document.createElement('h2'); section.prepend(heading); }
+      const words = [...heading.querySelectorAll('[data-academic-word]')];
+      heading.className = 'academicTaskTitle'; heading.textContent = title;
+      if (words.length) {
+        const help = document.createElement('details'), summary = document.createElement('summary');
+        help.dataset.mvpDetail = 'task-words'; summary.textContent = '표현 뜻 살펴보기';
+        help.append(summary, ...words); heading.after(help);
+      }
+      section.prepend(label(name));
+      const feedback = gridEl.querySelector('.academicMvpFeedback');
+      if (feedback) heading.after(feedback);
+    };
+    if (config.kind === 'connector-cloze') {
+      const item = blankFor(config, workbench), record = gridEl.querySelector('.academicClozeRecord');
+      record.classList.remove('academicMvpSource');
+      const context = record.querySelector('.academicClozeContext');
+      if (context) original([context]);
+      record.querySelector(':scope > h2')?.remove();
+      record.querySelector(':scope > h3')?.remove();
+      const section = document.createElement('section');
+      section.append(...[...record.children].filter(el => !el.matches('.academicOriginal')));
+      record.append(section);
+      work(section, item.questionKo || (item.kind === 'decision' ? '기록이 뒷받침하는 판단을 전달해 보자.' : '앞뒤 관계에 맞게 기록을 복원해 보자.'), item.kind === 'decision' ? '전달할 판단' : '원본에 직접 복원');
+      return;
+    }
+    if (config.kind === 'ran-observation') {
+      const root = gridEl.querySelector('.academicRanWorkbench');
+      root.classList.remove('academicMvpSource');
+      if (['compare', 'compare-review'].includes(workbench.phase)) {
+        original([root.querySelector(':scope > p'), root.querySelector('[data-mvp-detail="character-sense"]')]);
+        work(root.querySelector('.academicMvpMemo'), '글자 위치와 문장 속 역할을 살펴보자.');
+      } else if (['apply-premise', 'apply-alternative'].includes(workbench.phase)) {
+        original([root.querySelector(':scope > p')]);
+        const section = document.createElement('section');
+        section.append(...root.querySelectorAll(':scope > .academicMvpPreview, :scope > .academicMvpLinks'));
+        root.append(section);
+        work(section, workbench.phase === 'apply-premise' ? '확인된 사실에서 다음 판단을 이어보자.' : '앞 행동을 하지 않으면 어떻게 될지 읽어보자.');
+      } else {
+        // Discovery uses the original characters themselves as controls.
+        const title = root.querySelector('h2')?.textContent || '관찰한 내용을 정리해 보자.';
+        work(root, title, workbench.phase === 'notice' ? '원본에서 관찰' : workbench.phase === 'discovery' ? '발견한 단서' : '완성한 관찰 메모');
+      }
+      return;
+    }
+    const sources = [...gridEl.querySelectorAll(':scope > .academicMvpSource, :scope > .academicExpectationPair')];
+    if (sources.length) {
+      const region = original(sources);
+      region.querySelectorAll('h2').forEach(heading => {
+        const text = heading.textContent;
+        if (text === '원본 기록') heading.remove();
+        else heading.textContent = text.replace('원본 기록 ', '기록 ').replace('예상 기록', '예상').replace('실제 기록', '실제');
+      });
+    }
+    let title;
+    if (config.kind === 'claim-revision') {
+      const item = caseFor(config, workbench);
+      title = workbench.phase === 'claim' ? item.draftParts ? '보고에서 고칠 부분을 찾아보자.' : '기록과 맞지 않는 주장을 찾아보자.'
+        : item.scope === 'records' ? '두 기록을 함께 남기는 보고를 만들어 보자.' : '앞뒤 사실을 함께 남기는 메모로 고쳐보자.';
+      gridEl.querySelector('.academicReportDraft > .academicMvpHint')?.remove();
+    } else if (config.kind === 'expectation-sort') title = '예상과 실제를 비교해 보자.';
+    else {
+      title = workbench.phase === 'place-results' || caseFor(config, workbench).mode === 'guided'
+        ? '생기지 않은 예상과 실제 결과를 나눠 보자.' : '두 결과의 관계를 표현해 보자.';
+      gridEl.querySelector('[data-mvp-links] > h3')?.remove();
+    }
+    work(gridEl.querySelector('.academicMvpMemo'), title);
+  }
+
   // Selection is only a preview. Verdicts are derived from the saved check,
   // so undo/reload never leave a stale red or green mark on a new answer.
   function renderVerdict(config, workbench, message) {
@@ -749,7 +826,8 @@
       : finished || (pairAccepted && !workbench.linkId) ? true : null;
     const text = message ?? feedback.querySelector('.academicVerdictReason')?.textContent ?? feedback.textContent;
     feedback.id = 'academicVerdict';
-    const label = correct === true ? check?.step === 'claim' ? '✓ 고칠 부분을 찾았어' : '✓ 기록과 맞아'
+    const label = correct === true ? check?.step === 'claim' ? '✓ 고칠 부분을 찾았어'
+      : config.kind === 'ran-observation' && workbench.phase === 'apply-alternative' ? '✓ 앞 문장을 완성했어' : '✓ 기록과 맞아'
       : correct === false ? '! 다시 살펴봐' : '';
     feedback.dataset.verdict = correct === null ? 'neutral' : correct ? 'correct' : 'incorrect';
     feedback.innerHTML = `${label ? `<strong class="academicVerdictTitle">${label}</strong>` : ''}${text ? `<span class="academicVerdictReason">${escapeHtml(text)}</span>` : ''}`;
@@ -914,6 +992,7 @@
     if (!config || screen !== 'tutorial' || isWin()) return;
     const result = applyAction(config, state.academicTower, { type, value });
     if (!result.changed) return;
+    const previousRecord = gridEl.dataset.mvpRecord;
     history.push(clone(state));
     state.academicTower = result.state;
     state.turn += 1;
@@ -942,7 +1021,7 @@
           else feedback.scrollIntoView({ block: 'nearest' });
         }
       }
-      if (result.correct === true && feedback && state.academicTower.phase !== 'choose-link') {
+      if (result.correct === true && feedback && state.academicTower.phase !== 'choose-link' && gridEl.dataset.mvpRecord === previousRecord) {
         feedback.setAttribute('tabindex', '-1');
         feedback.focus({ preventScroll: true });
         feedback.scrollIntoView({ block: 'nearest' });
@@ -992,7 +1071,8 @@
     gridEl.className = 'grid academicTowerWorkbench';
     gridEl.setAttribute('role', 'group');
     gridEl.setAttribute('aria-label', '학술탑 기록 검토 작업대');
-    const recordKey = `${stage.id}:${workbench.blankIndex ?? workbench.caseIndex}:${config.kind === 'ran-observation' ? workbench.phase : ''}`;
+    const observationRecord = ['compare', 'compare-review'].includes(workbench.phase) ? 'compare' : workbench.phase;
+    const recordKey = `${stage.id}:${workbench.blankIndex ?? workbench.caseIndex}:${config.kind === 'ran-observation' ? observationRecord : ''}`;
     const sameRecord = gridEl.dataset.mvpRecord === recordKey;
     const enteringLink = workbench.phase === 'choose-link' &&
       (!sameRecord || gridEl.dataset.mvpPhase !== 'choose-link');
@@ -1004,6 +1084,7 @@
     const focusAction = focused?.dataset?.academicAction;
     const focusValue = focused?.dataset?.value;
     gridEl.innerHTML = renderWorkbench(config, workbench);
+    renderWorkbenchHierarchy(config, workbench);
     renderVerdict(config, workbench);
     gridEl.dataset.mvpRecord = recordKey;
     gridEl.dataset.mvpPhase = workbench.phase;
@@ -1022,7 +1103,7 @@
       const target = [...view.querySelectorAll('[data-academic-action]')].find(el => el.dataset.academicAction === focusAction && el.dataset.value === focusValue);
       if (sameRecord && target) target.focus({ preventScroll: true });
       else if (focusAction) {
-        const anchor = gridEl.querySelector('.academicMvpMemo');
+        const anchor = gridEl.querySelector(sameRecord ? '[data-academic-zone="work"]' : '[data-academic-zone="original"]') || gridEl.querySelector('.academicTaskTitle');
         anchor?.setAttribute('tabindex', '-1');
         anchor?.focus({ preventScroll: true });
       }

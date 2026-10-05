@@ -111,7 +111,9 @@ try:
         assert not page.locator('#words').is_visible()
         assert page.locator('.academicMvpSource').count() == 2
         assert page.locator('#academicMvpConfirm').count() == 1
-        assert '복구 보고 초안' in page.locator('.academicReportDraft').inner_text()
+        assert '보고에서 고칠 부분을 찾아보자.' in page.locator('.academicTaskTitle').inner_text()
+        assert page.locator('[data-academic-zone="original"]').count() == 1
+        assert page.locator('[data-academic-zone="work"]').count() == 1
         assert page.locator('[data-academic-action="select-claim"]').count() == 2
         assert '그러므로 장치 전체도 정상' in page.locator('.academicReportDraft').inner_text()
         action('select-claim', 'fact-increased')
@@ -138,15 +140,21 @@ try:
         # The new wording/layout must also work with the existing saved schema.
         page.evaluate('TacticalGame.playStage("academic-tower-turn-03-expectation",{mode:"first-play"})')
         for i, correct in enumerate(['matched', 'surprising', 'matched', 'surprising']):
+            assert page.locator('.academicTaskTitle').inner_text() == '예상과 실제를 비교해 보자.'
+            assert page.locator('.academicMvpFeedback').inner_text() == ''
+            assert '예상과 실제를 잇는 말' not in page.locator('#grid').inner_text()
+            assert page.locator('[data-academic-zone="original"] .academicMvpPreview').count() == 0
             source = page.locator('.academicExpectationPair').inner_text()
             assert '果然' not in source and '竟然' not in source
             assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
             action('select-relation', 'surprising' if correct == 'matched' else 'matched')
+            assert page.locator('.academicTaskTitle').inner_text() == '예상과 실제를 비교해 보자.'
             action('submit-relation')
             assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
             if i == 0:
                 page.reload(); page.wait_for_function('!!window.AcademicTowerRuntime')
                 assert page.evaluate('TacticalGame.resumeStage("academic-tower-turn-03-expectation")')
+                assert page.locator('.academicTaskTitle').inner_text() == '예상과 실제를 비교해 보자.'
                 assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
                 page.screenshot(path='/tmp/academic-tower-feedback-03-wrong.png', full_page=True)
             action('select-relation', correct)

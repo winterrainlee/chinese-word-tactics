@@ -223,6 +223,9 @@ try:
         assert page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').click()
+        assert page.locator('[data-academic-zone="original"]').count() == 1
+        assert page.locator('[data-academic-zone="work"]').count() == 1
+        assert page.locator('.academicMvpPreview').count() == 1
         assert "研究員先前預計" in page.locator(".academicClozeRecord").inner_text()
         assert "더 빨라질" not in page.locator(".academicClozeRecord").inner_text()
         choose(page, "select-connector", "所以")
@@ -246,6 +249,7 @@ try:
                 assert not page.locator("#flowNext").is_visible()
                 page.locator("#undoBtn").click()
             choose(page, "select-connector", connector)
+            assert page.locator('[data-academic-zone="work"] .academicTaskTitle').count() == 1
             assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
             choose(page, "submit-connector")
             assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'

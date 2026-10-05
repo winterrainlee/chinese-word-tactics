@@ -99,6 +99,10 @@ try:
                 assert correct in page.locator('#sheet').inner_text()
                 page.locator('#sheet .sheetactions button').click()
                 layout(); action('submit-ran-word')
+                if correct == '既然':
+                    assert page.locator('#grid').evaluate('e=>e.scrollTop') == 0
+                    assert page.evaluate('document.activeElement.dataset.academicZone') == 'original'
+                    assert '앞 문장을 완성했어' in page.locator('.academicVerdictTitle').inner_text()
             assert not page.locator('#flowNext').is_visible()
             action('finish-mvp'); page.locator('#flowNext').click(); story()
             page.locator('#academicTowerView').wait_for(state='visible')
