@@ -446,6 +446,12 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(hub, /room\.sideGroup === groupKey/);
   assert.doesNotMatch(hub, /requires\.every\(id => ids\.has\(id\)\)/);
   assert.match(hub, /side\.className = 'academicHubSideRoom'/);
+  assert.match(hub, /function makeSideRoomButton\(room, progress\)/);
+  assert.match(hub, /button\.className = 'academicTowerRoom academicTowerSideRoomButton'/);
+  assert.match(hub, /button\.textContent = room\.titleKo/);
+  assert.doesNotMatch(hub, /number\.textContent = room\.optional \? '＋'/);
+  assert.match(css, /\.academicTowerShell \.academicTowerSideRoomButton\{/);
+  assert.match(css, /white-space:nowrap/);
   assert.match(hub, /title: '두 갈래 연구'/);
   assert.match(hub, /room\.number === '02' \|\| room\.number === '03'/);
   assert.match(hub, /title: '기록 종합'/);
