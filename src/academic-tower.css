@@ -104,3 +104,188 @@
 .academicTowerFooter{grid-template-columns:1fr 1.4fr}
 .academicTowerFooter button{font-size:14px;padding:10px 6px;word-break:keep-all}
 .academicTowerHeader,.academicTowerIntro,.academicTowerFooter{flex-shrink:0}
+
+
+/* 2026-10-05 Academic Tower reading-booth spatial layer.
+   The major boundary is source vs. user work; sentence-level dividers stay subordinate. */
+.academicTowerShell,
+.shell.academicTowerStage{
+  --tower-wall:#363a3d;
+  --tower-wall-hole:#17191a;
+  --tower-rail-hi:#d3d0c7;
+  --tower-rail-mid:#a6a6a0;
+  --tower-rail-low:#6f7375;
+  --tower-desk:#ece7dc;
+  --tower-paper:#fffdf7;
+  --tower-work:#edf0ea;
+  --tower-restore:#f1ede3;
+  --tower-decision:#edf0f2;
+  background:linear-gradient(180deg,#eee9df 0%,var(--tower-desk) 100%);
+  border:1px solid #d5cec1;
+  border-radius:18px;
+  box-shadow:0 10px 28px rgba(48,43,35,.08);
+  overflow:hidden;
+  padding:0 8px 8px;
+}
+.academicTowerHeader,
+.shell.academicTowerStage>.topbar{
+  position:relative;
+  margin:0 -8px 4px;
+  padding:8px 8px 12px;
+  background-color:var(--tower-wall);
+  background-image:
+    radial-gradient(circle at 7px 7px,var(--tower-wall-hole) 0 1.8px,rgba(255,255,255,.07) 2px 2.7px,transparent 2.9px);
+  background-size:22px 22px;
+  box-shadow:
+    inset 0 -1px 0 rgba(255,255,255,.12),
+    0 4px 0 var(--tower-rail-hi),
+    0 6px 0 var(--tower-rail-mid),
+    0 7px 0 var(--tower-rail-low);
+}
+.academicTowerHeader{min-height:58px}
+.academicTowerHeader .academicTowerHeading h1,
+.shell.academicTowerStage>.topbar .stagetitle{color:#faf7ef;text-shadow:0 1px 1px rgba(0,0,0,.24)}
+.academicTowerHeader .academicTowerHeading small,
+.shell.academicTowerStage>.topbar .stagekicker{color:#d7d7d2}
+.academicTowerHeader .academicTowerBack,
+.shell.academicTowerStage>.topbar .iconbtn{color:#faf7ef}
+.academicTowerHeader .academicTowerBack:active,
+.shell.academicTowerStage>.topbar .iconbtn:active{background:rgba(255,255,255,.10)}
+
+.academicTowerShell .academicTowerIntro{
+  margin-top:7px;
+  border-color:#d5cdc0;
+  border-radius:5px;
+  background:rgba(255,253,247,.94);
+  box-shadow:0 3px 10px rgba(55,45,30,.05);
+}
+.academicTowerShell .academicTowerRooms{padding:3px 2px 5px}
+.academicTowerShell .academicTowerRoom{
+  border-radius:5px;
+  box-shadow:0 2px 7px rgba(55,45,30,.045);
+}
+.academicTowerShell .academicTowerFooter{padding-top:2px}
+.academicTowerShell .academicTowerFooter button{border-radius:10px}
+
+.academicTowerMvp .academicTowerWorkbench{
+  background:transparent;
+  padding:18px 8px 22px;
+  border-radius:0;
+}
+.academicTowerMvp [data-academic-zone]{
+  position:relative;
+  scroll-margin-top:16px;
+}
+.academicTowerMvp .academicOriginal,
+.academicTowerMvp [data-academic-zone="work"]{
+  margin:0;
+  padding:18px 16px 20px;
+  border:1px solid rgba(124,115,101,.30);
+  border-bottom:1px solid rgba(124,115,101,.30);
+  border-radius:5px;
+  box-shadow:0 5px 16px rgba(52,45,35,.08);
+}
+.academicTowerMvp .academicOriginal{
+  margin-bottom:24px;
+  background:var(--tower-paper);
+}
+.academicTowerMvp [data-academic-zone="work"]{
+  background:var(--tower-work);
+  border-color:rgba(90,111,99,.28);
+}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="restore"]{
+  background:var(--tower-restore);
+  border-color:rgba(135,118,88,.28);
+}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="decision"]{
+  background:var(--tower-decision);
+  border-color:rgba(83,104,123,.28);
+}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="observe"]{
+  background:#eef0ea;
+  border-color:rgba(90,111,99,.25);
+}
+
+/* Zone ownership is the first visual hierarchy. */
+.academicTowerMvp .academicRegionLabel{
+  margin:0 0 16px;
+  font-size:22px;
+  font-weight:750;
+  line-height:1.35;
+  text-align:center;
+  color:#332f29;
+}
+.academicTowerMvp [data-academic-zone="work"]>.academicRegionLabel{color:#334a40}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="restore"]>.academicRegionLabel{color:#5a4d38}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="decision"]>.academicRegionLabel{color:#3b5062}
+.academicTowerMvp .academicTaskTitle{
+  margin:0 0 12px;
+  font-size:18px;
+  font-weight:650;
+  line-height:1.55;
+  text-align:left;
+}
+
+/* Sentence and record blocks sit inside one source sheet.
+   Do not let their old separators compete with the source/work boundary. */
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource,
+.academicTowerMvp [data-academic-zone="original"] .academicSourceCard,
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard{
+  margin:0;
+  padding:0;
+  border:0;
+  border-bottom:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource + .academicMvpSource,
+.academicTowerMvp [data-academic-zone="original"] .academicSourceCard + .academicSourceCard{margin-top:18px}
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationPair{gap:18px}
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard + .academicExpectationCard{margin-top:0}
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource>h2,
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard>div{
+  margin:0 0 4px;
+  color:#777064;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.35;
+}
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource p,
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard p{
+  margin:0;
+  font-size:19px;
+  font-weight:400;
+  line-height:1.8;
+}
+.academicTowerMvp [data-academic-zone="original"] details{margin-top:5px}
+
+/* The work surface owns its controls. Internal controls may still have borders;
+   the section itself no longer ends with the old sentence divider. */
+.academicTowerMvp [data-academic-zone="work"].academicMvpMemo{
+  border-bottom:1px solid rgba(90,111,99,.28);
+}
+.academicTowerMvp [data-academic-zone="work"]>.academicMvpFeedback:empty{display:none}
+.academicTowerMvp [data-academic-zone="work"]>.academicMvpFeedback{
+  margin:0 0 10px;
+  border-radius:6px;
+}
+.academicTowerMvp [data-academic-zone="work"] .academicMvpPreview{
+  font-size:19px;
+  line-height:1.8;
+}
+
+/* The controls below the desk should feel attached to the same workspace. */
+.shell.academicTowerStage>.controls{padding:0 2px}
+.shell.academicTowerStage>.controls .control,
+.shell.academicTowerStage>.controls .academicConfirm{border-radius:10px}
+
+@media(max-height:650px){
+  .academicTowerHeader,
+  .shell.academicTowerStage>.topbar{padding-top:6px;padding-bottom:10px}
+  .academicTowerMvp .academicTowerWorkbench{padding:14px 6px 18px}
+  .academicTowerMvp .academicOriginal,
+  .academicTowerMvp [data-academic-zone="work"]{padding:14px 12px 16px}
+  .academicTowerMvp .academicOriginal{margin-bottom:18px}
+  .academicTowerMvp .academicRegionLabel{margin-bottom:12px;font-size:20px}
+}
