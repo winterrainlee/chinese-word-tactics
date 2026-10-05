@@ -422,7 +422,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towerbooth1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towerbooth2/);
   for (const asset of ['academic-tower-journey-content', 'academic-tower-hub-runtime']) {
     assert.match(html, new RegExp(`${asset}\\.js\\?v=20261005-towerjourney1`));
   }
