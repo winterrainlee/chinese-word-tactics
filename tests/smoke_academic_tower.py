@@ -275,7 +275,7 @@ try:
         assert '＋' not in side_button.inner_text()
         assert '연구 완료' not in side_button.inner_text()
         assert '선택 연구' not in side_button.inner_text()
-        assert side_button.evaluate('(el) => getComputedStyle(el).whiteSpace') == 'nowrap'
+        assert side_button.locator('.academicTowerSideRoomTitle').evaluate('(el) => getComputedStyle(el).whiteSpace') == 'nowrap'
         assert page.locator('.academicHubGroup[data-group="branch"] .academicHubSideRoom').count() == 1
         assert page.evaluate("""() => {
             const side = document.querySelector('.academicHubGroup[data-group="branch"] .academicHubSideRoom');
