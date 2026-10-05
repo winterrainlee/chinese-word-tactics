@@ -121,8 +121,39 @@ try:
         assert not finale_missing, finale_missing
         finale_context.close()
 
+        # Academic Tower reward: the observation card should appear as a paper keepsake on the desk.
+        tower_progress = {
+            'seenStories': ['academic-tower-turn-result'],
+            'completedStages': ['academic-tower-turn-05-synthesis'],
+            'completedMilestones': ['academic-tower-turn-foundation', 'inn-unlocked'],
+            'acknowledgedNodes': [],
+            'stageOutcomes': {},
+            'lastLocation': {'view': 'world'}
+        }
+        tower_context = browser.new_context(viewport={'width': 375, 'height': 812}, device_scale_factor=1, is_mobile=True, has_touch=True)
+        tower_context.add_init_script(
+            "localStorage.setItem('chinese-word-tactics-journey-v1', JSON.stringify(%s));" % json.dumps(tower_progress, ensure_ascii=False)
+        )
+        tower_page = tower_context.new_page()
+        tower_errors = []
+        tower_page.on('pageerror', lambda error: tower_errors.append(str(error)))
+        tower_page.goto(url)
+        tower_page.wait_for_function('!!window.WorldInn && !!window.InnKeepsakes')
+        tower_page.evaluate('WorldInn.openRoom()')
+        tower_page.locator('#innRoomView').wait_for(state='visible')
+        card = tower_page.locator('[data-keepsake-id="observation-card"]')
+        card.wait_for(state='visible')
+        assert card.get_attribute('aria-label') == '觀察卡, 관찰 카드'
+        card.click()
+        sheet_text = tower_page.locator('#sheet').inner_text()
+        assert '觀察卡' in sheet_text and '관찰 카드' in sheet_text and 'ㄍㄨㄢ ㄔㄚˊ ㄎㄚˇ' in sheet_text
+        tower_page.locator('#innKeepsakeClose').click()
+        tower_page.screenshot(path=str(OUT / 'ux-inn-observation-card-375x812.png'), full_page=True)
+        assert not tower_errors, tower_errors
+        tower_context.close()
+
         browser.close()
 finally:
     server.shutdown()
 
-print(f'PASS: inn room + Chapter 1 finale browser smoke. Screenshots: {OUT / "ux-inn-room-375x812.png"}, {OUT / "ux-chapter1-finale-room-375x812.png"}')
+print(f'PASS: inn room + Chapter 1 finale + Academic Tower observation card smoke. Screenshots: {OUT / "ux-inn-room-375x812.png"}, {OUT / "ux-chapter1-finale-room-375x812.png"}, {OUT / "ux-inn-observation-card-375x812.png"}')
