@@ -432,6 +432,19 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(hub, /group\.dataset\.group = room\.optional \? 'optional' : room\.number === '01' \? 'first' : room\.number === '02' \? 'branch' : 'synthesis'/);
 });
 
+test('Academic Tower sky stays outside the warm tower shell and outside other views', () => {
+  const css = read('src/academic-tower.css');
+  const towerView = /body:has\(> #app > #academicTowerView:not\(\[hidden\]\)\)/;
+  assert.match(css, /Academic Tower exterior sky/);
+  assert.match(css, towerView);
+  assert.match(css, /--tower-sky-top:#dfeaf4/);
+  assert.match(css, /linear-gradient\(180deg,var\(--tower-sky-top\)/);
+  assert.match(css, /radial-gradient\(ellipse 48% 17%/);
+  assert.match(css, /pointer-events:none/);
+  assert.doesNotMatch(css, /\.academicTowerShell::(?:before|after)/);
+  assert.doesNotMatch(css, /(?:^|\})body\{[^}]*--tower-sky/s);
+});
+
 test('browser entrypoints load the tower in dependency order and expose a dedicated hub', () => {
   const html = read('index.html');
   const content = html.indexOf('academic-tower-content.js');
@@ -444,7 +457,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towerfloors1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towersky1/);
   assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
   assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-towerfloors1/);
   assert.match(html, /academic-tower-content\.js\?v=20261005-towercompare1/);

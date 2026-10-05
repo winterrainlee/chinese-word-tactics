@@ -76,7 +76,28 @@ try:
             page.evaluate("AcademicTowerRuntime.showHub()")
             assert_view(page, "#academicTowerView", width, height, f"hub-{width}x{height}")
             assert page.locator("#academicTowerRooms").evaluate("el => el.scrollHeight >= el.clientHeight")
+            sky = page.evaluate("""() => {
+              const body = document.body, shell = document.querySelector('#academicTowerView');
+              const app = document.querySelector('#app'), appStyle = getComputedStyle(app);
+              const cloud = getComputedStyle(body, '::before'), midCloud = getComputedStyle(body, '::after');
+              return {
+                bodyBackground: getComputedStyle(body).backgroundImage,
+                cloudBackground: cloud.backgroundImage,
+                cloudPointerEvents: cloud.pointerEvents,
+                midCloudPointerEvents: midCloud.pointerEvents,
+                shellWidth: shell.getBoundingClientRect().width,
+                appContentWidth: app.clientWidth - parseFloat(appStyle.paddingLeft) - parseFloat(appStyle.paddingRight)
+              };
+            }""")
+            assert "linear-gradient" in sky["bodyBackground"], sky
+            assert "radial-gradient" in sky["cloudBackground"], sky
+            assert sky["cloudPointerEvents"] == "none" and sky["midCloudPointerEvents"] == "none", sky
+            assert abs(sky["shellWidth"] - sky["appContentWidth"]) <= 1, sky
             page.screenshot(path=str(OUT / f"academic-tower-hub-{width}x{height}.png"), full_page=True)
+
+            page.evaluate("TacticalGame.showWorld()")
+            assert page.evaluate("getComputedStyle(document.body, '::before').content") == "none"
+            page.evaluate("AcademicTowerRuntime.showHub()")
 
             page.evaluate("TacticalGame.playStage('academic-tower-turn-01-que', {mode:'replay', returnTo:'academic-tower'})")
             assert_view(page, "#tutorialView", width, height, f"01-initial-{width}x{height}")

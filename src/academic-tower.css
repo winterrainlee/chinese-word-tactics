@@ -425,3 +425,43 @@
   .academicTowerShell .academicHubGroup[data-group="optional"] h3{width:76%;margin-right:-4px}
   .academicTowerShell .academicTowerRoom{margin-left:2px;margin-right:2px;width:calc(100% - 4px)}
 }
+
+/* Academic Tower exterior sky.
+   The clouds belong to the viewport behind the tower, never to the warm interior shell. */
+body:has(> #app > #academicTowerView:not([hidden])){
+  --tower-sky-top:#dfeaf4;
+  --tower-sky-mid:#e7eef5;
+  --tower-sky-low:#eef0ed;
+  background-color:var(--tower-sky-low);
+  background-image:linear-gradient(180deg,var(--tower-sky-top) 0%,var(--tower-sky-mid) 46%,#ebeff1 68%,var(--tower-sky-low) 100%);
+  background-repeat:no-repeat;
+}
+body:has(> #app > #academicTowerView:not([hidden]))::before,
+body:has(> #app > #academicTowerView:not([hidden]))::after{
+  content:"";
+  position:fixed;
+  z-index:0;
+  pointer-events:none;
+}
+body:has(> #app > #academicTowerView:not([hidden]))::before{
+  inset:0;
+  background:
+    radial-gradient(ellipse 48% 17% at -5% 10%,rgba(255,255,255,.52) 0 34%,rgba(251,253,254,.22) 55%,transparent 74%),
+    radial-gradient(ellipse 56% 20% at 106% 14%,rgba(255,255,255,.48) 0 36%,rgba(251,253,254,.20) 57%,transparent 75%);
+}
+body:has(> #app > #academicTowerView:not([hidden]))::after{
+  left:-18vw;
+  right:-18vw;
+  top:22svh;
+  height:16svh;
+  background:
+    radial-gradient(ellipse 45% 60% at 26% 45%,rgba(255,255,255,.24) 0 40%,rgba(251,253,254,.10) 60%,transparent 78%),
+    radial-gradient(ellipse 52% 66% at 72% 54%,rgba(255,255,255,.20) 0 38%,rgba(251,253,254,.08) 60%,transparent 79%);
+}
+body:has(> #app > #academicTowerView:not([hidden])) #app{
+  position:relative;
+  z-index:1;
+}
+body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
+  box-shadow:0 1px 0 rgba(255,255,255,.46),0 10px 24px rgba(55,64,69,.12);
+}
