@@ -34,6 +34,9 @@
 
 ## 변경 방식
 
+- 전체 디자인 변경은 `docs/DESIGN-PRINCIPLES-v0.3.md`에서 시작한다. 랜딩·지도·방을 학습 화면에 종속시키지 않고, 공통 조작 계약과 장소별 개성을 구분한다. v0.2의 상세 전술·단어장 계약과 지역별 가이드는 보존한다.
+- `docs/DESIGN-AUDIT-v0.1.md`의 확인 사실·검증 대기·제안을 구분한다. 수집기의 작은 DOM 경계만으로 터치 위반을 단정하지 말고 label·가상 요소·겹침을 확인한다.
+
 - 신규 지역·스테이지·자유 의뢰는 `docs/REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md`의 게이트, 사양 템플릿, Definition of Ready/Done을 따른다.
 - 학술탑 신규 스테이지·연구는 `docs/ACADEMIC-TOWER-UI-GUIDE-v0.1.md`의 원본/작업 영역 위계와 연구실 공간 디자인을 기본 계약으로 재사용한다.
 - 기능을 장기 작업 브랜치에 묵히기보다 `main`에 작게 완결된 단위로 빠르게 반영한다.

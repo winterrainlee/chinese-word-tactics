@@ -28,7 +28,7 @@ METRICS = """() => {
  const root = document.querySelector('#scrim.open #sheet') || document.querySelector('.appView:not([hidden])');
  const rect = el => {const r=el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom};};
  const shown = el => {const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0;};
- const targetRect = el => rect(el.tagName==='INPUT' && el.labels?.length ? el.labels[0] : el);
+ const targetRect = el => rect(el.tagName==='INPUT' && el.labels?.length && el.labels[0].contains(el) ? el.labels[0] : el);
  const targets = [...root.querySelectorAll('button,summary,select,input,[role="button"]')].filter(shown).map(el => ({
    id:el.id, text:(el.getAttribute('aria-label')||el.innerText||'').trim().slice(0,150),
    disabled:!!el.disabled, ariaDisabled:el.getAttribute('aria-disabled'), ...rect(el), effectiveTarget:targetRect(el), fontSize:getComputedStyle(el).fontSize,
