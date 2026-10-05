@@ -28,9 +28,10 @@ METRICS = """() => {
  const root = document.querySelector('#scrim.open #sheet') || document.querySelector('.appView:not([hidden])');
  const rect = el => {const r=el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom};};
  const shown = el => {const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0;};
+ const targetRect = el => rect(el.tagName==='INPUT' && el.labels?.length ? el.labels[0] : el);
  const targets = [...root.querySelectorAll('button,summary,select,input,[role="button"]')].filter(shown).map(el => ({
    id:el.id, text:(el.getAttribute('aria-label')||el.innerText||'').trim().slice(0,150),
-   disabled:!!el.disabled, ...rect(el), fontSize:getComputedStyle(el).fontSize,
+   disabled:!!el.disabled, ariaDisabled:el.getAttribute('aria-disabled'), ...rect(el), effectiveTarget:targetRect(el), fontSize:getComputedStyle(el).fontSize,
    color:getComputedStyle(el).color, background:getComputedStyle(el).backgroundColor
  }));
  return {view:document.querySelector('.appView:not([hidden])')?.id, modal:root.id==='sheet',
@@ -38,7 +39,7 @@ METRICS = """() => {
    document:{width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight},
    root:rect(root),focus:document.activeElement?.id,
    headings:[...root.querySelectorAll('h1,h2,h3')].filter(shown).map(el=>({text:el.innerText,fontSize:getComputedStyle(el).fontSize,...rect(el)})),
-   targets, smallTargets:targets.filter(t=>t.width<43.5||t.height<43.5),
+   targets, smallTargets:targets.filter(t=>t.effectiveTarget.width<43.5||t.effectiveTarget.height<43.5),
    text:root.innerText, stylesheets:[...document.styleSheets].map(s=>s.href)};
 }"""
 
@@ -114,10 +115,16 @@ try:
                         page.locator('#storyMenu').click(); snap('menu-from-story'); page.locator('#flowMenuClose').click()
                         page.evaluate('GameFlow.showWords()'); snap('lexicon-empty')
                     elif fixture=='arrival':
-                        page.evaluate("LexiconRuntime.visitStage('stage-0');GameFlow.showLanding()"); snap('landing-returning')
+                        page.evaluate("LexiconRuntime.syncProgress(GameFlow.progress());GameFlow.showLanding()"); snap('landing-returning')
                         world(page); snap('world-arrival')
                         for region in ['gate-town','academic-tower','council-town','border-village']:
-                            page.locator(f'[data-region-id="{region}"]').click(); snap('place-'+region); page.evaluate('TacticalGame.closeSheet()')
+                            marker = page.locator(f'[data-region-id="{region}"]')
+                            if marker.get_attribute('aria-disabled') == 'true':
+                                # Inspect its information sheet, not proof of pointer/assistive usability.
+                                marker.dispatch_event('click')
+                            else:
+                                marker.click()
+                            snap('place-'+region); page.evaluate('TacticalGame.closeSheet()')
                         page.evaluate('GameFlow.showJourney()'); snap('journey-arrival')
                     elif fixture=='home':
                         world(page); snap('world-chapter-complete')
@@ -153,7 +160,7 @@ try:
         browser.close()
 finally:
     server.shutdown()
-    (OUT / 'manifest.json').write_text(json.dumps({'commit':os.environ.get('GITHUB_SHA'),'viewports':VIEWPORTS,'captureCount':len(results),'failures':failures,'method':'isolated synthetic progress snapshots; finite animations settled; not an end-to-end playthrough; geometry includes offscreen scroll content'},ensure_ascii=False,indent=2),encoding='utf-8')
+    (OUT / 'manifest.json').write_text(json.dumps({'commit':os.environ.get('GITHUB_SHA'),'viewports':VIEWPORTS,'captureCount':len(results),'failures':failures,'method':'isolated synthetic progress snapshots; finite animations settled; not an end-to-end playthrough; geometry includes offscreen scroll content; input targets use wrapping labels; aria-disabled landmark information uses dispatch_event rather than a pointer click' },ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps({'captureCount':len(results),'failures':failures},ensure_ascii=False))
 if failures:
     raise SystemExit(1)
