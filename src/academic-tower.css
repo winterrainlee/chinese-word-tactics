@@ -471,17 +471,28 @@
 }
 .academicTowerShell .academicTowerSideRoomButton{
   min-height:52px;
-  display:block;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
   padding:10px 12px;
-  grid-template-columns:1fr;
   border-radius:8px;
   font-size:15px;
   font-weight:800;
   line-height:1.3;
-  text-align:center;
+  text-align:left;
+}
+.academicTowerShell .academicTowerSideRoomTitle{
+  min-width:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+}
+.academicTowerShell .academicTowerSideRoomCheck{
+  color:#28563f;
+  font-size:18px;
+  font-weight:900;
+  line-height:1;
 }
 @media(max-width:360px){
   .academicTowerShell .academicHubGroup{padding-left:4px;padding-right:4px}
