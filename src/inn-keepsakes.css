@@ -11,10 +11,10 @@
 .innDeskKeepsake.pass-single{left:18.7%;top:49.6%;transform:translate(-50%,-50%) rotate(-5deg)}
 /* 貨車引路牌: the representative gate-route reward, hung above the bed. */
 .innDeskKeepsake.guide-plaque{left:43%;top:23.5%;width:clamp(35px,10vw,56px);height:clamp(24px,6.6vw,35px);transform:translate(-50%,-50%) rotate(-3deg);background:linear-gradient(160deg,#d2a66c,#ae733f)}
-/* 修繕牌: kept at the desk as a working credential. */
-.innDeskKeepsake.repair-plaque{left:84%;top:34.5%;width:clamp(34px,9.5vw,54px);height:clamp(23px,6.4vw,34px);transform:translate(-50%,-50%) rotate(-4deg);background:linear-gradient(160deg,#c99b62,#a86f3d)}
+/* 修繕牌: hung on the open wall beside the bed. */
+.innDeskKeepsake.repair-plaque{left:56.5%;top:24.8%;width:clamp(34px,9.5vw,54px);height:clamp(23px,6.4vw,34px);transform:translate(-50%,-50%) rotate(-4deg);background:linear-gradient(160deg,#c99b62,#a86f3d)}
 /* 觀察卡: a paper note from the Academic Tower, left loose on the desk. */
-.innDeskKeepsake.observation-card{left:72.5%;top:35.5%;width:clamp(44px,12vw,68px);height:clamp(29px,8vw,43px);transform:translate(-50%,-50%) rotate(3deg);border-color:#b7ab97;background:linear-gradient(160deg,#fffdf7,#e9e2d4);box-shadow:0 2px 5px rgba(45,30,18,.20),inset 0 0 0 1px rgba(255,255,255,.45);color:#4f4a42}
+.innDeskKeepsake.observation-card{left:79%;top:30.5%;width:clamp(44px,12vw,68px);height:clamp(29px,8vw,43px);transform:translate(-50%,-50%) rotate(3deg);border-color:#b7ab97;background:linear-gradient(160deg,#fffdf7,#e9e2d4);box-shadow:0 2px 5px rgba(45,30,18,.20),inset 0 0 0 1px rgba(255,255,255,.45);color:#4f4a42}
 .innDeskKeepsake.observation-card .innDeskKeepsakeHole{display:none}
 .innDeskKeepsake.observation-card .innDeskKeepsakeMark{font-size:clamp(13px,3.8vw,18px);font-weight:650;text-shadow:none}
 .innDeskKeepsake.observation-card::after{content:"";position:absolute;left:12%;right:12%;bottom:19%;height:1px;background:rgba(99,91,79,.28);box-shadow:0 -6px 0 rgba(99,91,79,.18)}
