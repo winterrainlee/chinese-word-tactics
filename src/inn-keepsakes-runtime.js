@@ -4,6 +4,7 @@
   const ROUTE_STAGE_ID = 'gate-stage-3';
   const GUIDE_STORY_ID = 'gate-after-convoy';
   const WORKSHOP_STORY_ID = 'workshop-finale';
+  const ACADEMIC_OBSERVATION_STORY_ID = 'academic-tower-turn-result';
 
   const progress = () => globalThis.GameFlow?.progress?.() || {};
   const strings = value => Array.isArray(value) ? [...new Set(value.filter(item => typeof item === 'string'))] : [];
@@ -38,6 +39,14 @@
       zh: '修繕牌',
       ko: '공방 수리패',
       note: '장인골 사람들이 간단한 수리 일을 맡겨도 된다는 뜻으로 건넨 작은 신뢰의 표식이야.'
+    }),
+    'observation-card': Object.freeze({
+      id: 'observation-card',
+      mark: '觀',
+      zh: '觀察卡',
+      ko: '관찰 카드',
+      pronunciation: 'ㄍㄨㄢ ㄔㄚˊ ㄎㄚˇ',
+      note: '학술탑 연구원이 건넨 작은 기록 카드야. 같은 표식이나 읽히지 않는 기록을 만나면 결론부터 내리지 말고, 먼저 본 것을 적어 두라고 했다.'
     })
   });
 
@@ -50,12 +59,14 @@
     }
     if (hasSeenStory(GUIDE_STORY_ID, value)) result.push(KEEPERS['guide-plaque']);
     if (hasSeenStory(WORKSHOP_STORY_ID, value)) result.push(KEEPERS['repair-plaque']);
+    if (hasSeenStory(ACADEMIC_OBSERVATION_STORY_ID, value)) result.push(KEEPERS['observation-card']);
     return result;
   }
 
   function showKeepsake(item) {
     globalThis.TacticalGame?.openSheet?.(`
       <h2 lang="zh-Hant">${item.zh}</h2>
+      ${item.pronunciation ? `<div class="pinyin">${item.pronunciation}</div>` : ''}
       <div class="meaning">${item.ko}</div>
       <div class="gamerule">${item.note}</div>
       <div class="sheetactions"><button id="innKeepsakeClose">닫기</button></div>
@@ -127,7 +138,7 @@
   setTimeout(syncVisibleRoom, 0);
 
   globalThis.InnKeepsakes = Object.freeze({
-    ROUTE_STORY_ID, ROUTE_STAGE_ID, GUIDE_STORY_ID, WORKSHOP_STORY_ID, KEEPERS,
+    ROUTE_STORY_ID, ROUTE_STAGE_ID, GUIDE_STORY_ID, WORKSHOP_STORY_ID, ACADEMIC_OBSERVATION_STORY_ID, KEEPERS,
     hasSeenStory, isPass, keepsakes, renderDeskKeepsakes, syncVisibleRoom, mutationOpensOrCreatesRoom
   });
 })();
