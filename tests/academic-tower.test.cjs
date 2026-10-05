@@ -57,6 +57,13 @@ test('03A requires discovery, all comparisons and two independent applications',
   assert.equal(M.isSolved(config, state), true);
 });
 
+test('Academic Tower result story explicitly awards the observation card', () => {
+  const source = read('src/academic-tower-journey-content.js');
+  assert.match(source, /這張觀察卡你帶著/);
+  assert.match(source, /실제로 본 것부터 적어서 가져와/);
+  assert.match(source, /‘관찰’이라는 두 글자/);
+});
+
 test('03A is optional, unlocks after both branches and remains available after foundation', () => {
   const c = contentContext();
   const result = vm.runInContext(`(() => {
@@ -424,9 +431,8 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
   assert.match(html, /academic-tower\.css\?v=20261005-towerbooth4/);
-  for (const asset of ['academic-tower-journey-content', 'academic-tower-hub-runtime']) {
-    assert.match(html, new RegExp(`${asset}\\.js\\?v=20261005-towerjourney1`));
-  }
+  assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
+  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-towerjourney1/);
   assert.match(html, /academic-tower-content\.js\?v=20261005-towercompare1/);
   assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerbooth4/);
   assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
