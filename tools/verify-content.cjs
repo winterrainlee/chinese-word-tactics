@@ -85,6 +85,7 @@ if (args.has('--browser')) {
     'tests/smoke_market_layout.py',
     'tests/smoke_north_forest_layout.py',
     'tests/smoke_academic_tower_layout.py',
+    'tests/smoke_story_pronunciation.py',
     'tests/smoke_lexicon.py',
     'tests/smoke_journey.py'
   ];

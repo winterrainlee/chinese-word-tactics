@@ -11,11 +11,14 @@
 .storyReading{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:18px}
 .storySpeakerRow{display:flex;align-items:center;gap:9px;min-height:36px;margin-bottom:10px}
 .storyPortrait{width:40px;height:40px}
+.storyZh,.storySpeaker,.storyPlace{font-family:"PingFang TC","Noto Sans TC",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif}
 .storySpeaker{font-weight:800;color:var(--accent);font-size:16px}
 .storyZh{font-size:22px;line-height:1.65;margin:0 0 12px;overflow-wrap:anywhere}
 .storyZh[data-pronunciation="true"]{line-height:2.05;padding-top:.25em}
-.storyZh ruby,.storySpeaker ruby,.storyPlace ruby{ruby-position:over;ruby-align:center;white-space:nowrap}
-.storyZh rt,.storySpeaker rt,.storyPlace rt{font-size:.46em;line-height:1;color:#6b655d;font-weight:650;letter-spacing:-.03em;user-select:none}
+.storyZh ruby,.storySpeaker ruby,.storyPlace ruby{display:inline-block;position:relative;width:1em;height:1em;line-height:1;vertical-align:baseline;ruby-position:over;ruby-align:center;white-space:nowrap}
+.storyZh rb,.storySpeaker rb,.storyPlace rb{display:block;width:1em;line-height:1;text-align:center}
+.storyZh rt,.storySpeaker rt,.storyPlace rt{display:contents;margin:0;padding:0;font-size:.32em;line-height:0;white-space:nowrap;user-select:none;pointer-events:none}
+.storyZh .storyPronunciation,.storySpeaker .storyPronunciation,.storyPlace .storyPronunciation{display:block;position:absolute;left:50%;bottom:100%;min-width:100%;width:max-content;margin:0;padding:0;transform:translateX(-50%);font-family:"PingFang TC","Noto Sans TC",-apple-system,BlinkMacSystemFont,sans-serif;font-size:1em;line-height:1.2;text-align:center;color:#6b655d;font-weight:650;letter-spacing:0;white-space:nowrap}
 .storySpeaker[data-pronunciation="true"]{padding-top:.35em}
 .storyPlace[data-pronunciation="true"]{padding-top:.45em}
 .storyTranslate{min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:14px}

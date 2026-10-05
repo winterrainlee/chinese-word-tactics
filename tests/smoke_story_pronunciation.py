@@ -45,8 +45,155 @@ try:
         page.evaluate("TacticalGame.showView('story')")
 
         matrix = [(360, 640), (375, 812), (390, 844)]
+        geometry_results = []
         for width, height in matrix:
             page.set_viewport_size({'width': width, 'height': height})
+            geometry = page.evaluate('''async () => {
+              await document.fonts.ready;
+              const text = '天亮了。少年站在村口，背上是小小的行李。';
+              const story = JourneyContent.STORIES['prologue-departure'];
+              const options = { seen: false, beat: 0, endLabel: '다음', onPosition() {}, onFinish() {} };
+              const setPronunciation = enabled => {
+                localStorage.setItem(SettingsRuntime.KEY, JSON.stringify({ showPronunciation: enabled }));
+                StoryRuntime.play(story, options);
+              };
+              const rounded = value => Math.round(value * 1000) / 1000;
+              const characterRects = container => {
+                const result = [];
+                for (const node of container.childNodes) {
+                  if (node.nodeType === Node.ELEMENT_NODE && node.matches('ruby')) {
+                    const base = node.querySelector('rb');
+                    const baseRange = document.createRange();
+                    baseRange.selectNodeContents(base);
+                    const baseRect = baseRange.getBoundingClientRect();
+                    const baseCellRect = base.getBoundingClientRect();
+                    const rubyRect = node.getBoundingClientRect();
+                    const rtRect = node.querySelector('.storyPronunciation').getBoundingClientRect();
+                    result.push({
+                      character: base.textContent, left: rounded(baseRect.left), top: rounded(baseRect.top),
+                      width: rounded(baseRect.width), rubyWidth: rounded(rubyRect.width),
+                      rtHeight: rounded(rtRect.height), annotationGap: rounded(baseCellRect.top - rtRect.bottom)
+                    });
+                    continue;
+                  }
+                  if (node.nodeType !== Node.TEXT_NODE) continue;
+                  let offset = 0;
+                  for (const character of node.data) {
+                    const range = document.createRange();
+                    range.setStart(node, offset);
+                    offset += character.length;
+                    range.setEnd(node, offset);
+                    const rect = range.getBoundingClientRect();
+                    result.push({
+                      character, left: rounded(rect.left), top: rounded(rect.top), width: rounded(rect.width)
+                    });
+                  }
+                }
+                return result;
+              };
+              const lineSignature = rects => {
+                const lines = [{ text: '' }];
+                let previous = null;
+                for (const rect of rects) {
+                  if (previous && rect.left < previous.left - .5) lines.push({ text: '' });
+                  lines.at(-1).text += rect.character;
+                  previous = rect;
+                }
+                return lines.map(line => line.text);
+              };
+              const stableUi = () => {
+                const reading = document.querySelector('#storyReading').getBoundingClientRect();
+                const next = document.querySelector('#storyNext').getBoundingClientRect();
+                return { readingHeight: rounded(reading.height), nextTop: rounded(next.top) };
+              };
+
+              setPronunciation(true);
+              const on = characterRects(document.querySelector('#storyZh'));
+              const expectedReadings = ['ㄊㄧㄢ', 'ㄌㄧㄤˋ', 'ㄌㄜ˙', 'ㄕㄠˋ', 'ㄋㄧㄢˊ', 'ㄓㄢˋ', 'ㄗㄞˋ', 'ㄘㄨㄣ', 'ㄎㄡˇ', 'ㄅㄟˋ', 'ㄕㄤˋ', 'ㄕˋ', 'ㄒㄧㄠˇ', 'ㄒㄧㄠˇ', 'ㄉㄜ˙', 'ㄒㄧㄥˊ', 'ㄌㄧˇ'];
+              const actualReadings = [...document.querySelectorAll('#storyZh rt')].map(node => node.textContent);
+              const onUi = stableUi();
+              setPronunciation(false);
+              const off = characterRects(document.querySelector('#storyZh'));
+              const offUi = stableUi();
+
+              const fixturePairs = [['一', 'ㄧ'], ['的', 'ㄉㄜ˙'], ['天', 'ㄊㄧㄢ'], ['亮', 'ㄌㄧㄤˋ'], ['小', 'ㄒㄧㄠˇ'], ['站', 'ㄓㄢˋ'], ['村', 'ㄘㄨㄣ']];
+              const fixtureOn = document.createElement('p');
+              fixtureOn.className = 'storyZh';
+              fixtureOn.dataset.pronunciation = 'true';
+              fixtureOn.style.cssText = 'position:fixed;left:16px;top:0;width:66px;visibility:hidden;z-index:-1';
+              for (const [baseText, readingText] of fixturePairs) {
+                const ruby = document.createElement('ruby');
+                const base = document.createElement('rb');
+                const reading = document.createElement('rt');
+                const readingTextNode = document.createElement('span');
+                base.textContent = baseText;
+                readingTextNode.className = 'storyPronunciation';
+                readingTextNode.textContent = readingText;
+                reading.append(readingTextNode);
+                ruby.append(base, reading);
+                fixtureOn.append(ruby);
+              }
+              const fixtureOff = document.createElement('p');
+              fixtureOff.className = 'storyZh';
+              fixtureOff.style.cssText = fixtureOn.style.cssText;
+              fixtureOff.textContent = fixturePairs.map(pair => pair[0]).join('');
+              document.body.append(fixtureOn, fixtureOff);
+              const fixtureOnRects = characterRects(fixtureOn);
+              const fixtureOffRects = characterRects(fixtureOff);
+              fixtureOn.remove();
+              fixtureOff.remove();
+
+              const failures = [];
+              if (on.map(item => item.character).join('') !== text) failures.push('ON character mapping changed');
+              if (off.map(item => item.character).join('') !== text) failures.push('OFF character mapping changed');
+              if (on.length !== off.length) failures.push(`character count ${on.length}/${off.length}`);
+              const coordinateDeltas = on.map((item, index) => ({
+                character: item.character, index,
+                x: rounded(Math.abs(item.left - off[index].left)),
+                y: rounded(Math.abs(item.top - off[index].top))
+              }));
+              const maxXDelta = Math.max(...coordinateDeltas.map(item => item.x));
+              const expanded = on.filter(item => item.rubyWidth != null && item.rubyWidth - item.width > .5);
+              const onLines = lineSignature(on);
+              const offLines = lineSignature(off);
+              const rtHeights = on.filter(item => item.rtHeight != null).map(item => item.rtHeight);
+              const annotationGaps = on.filter(item => item.annotationGap != null).map(item => item.annotationGap);
+              const baseWidths = on.filter(item => item.rubyWidth != null).map(item => item.width);
+              const rubyRowTops = [];
+              for (const item of fixtureOnRects) {
+                if (!rubyRowTops.some(top => Math.abs(top - item.top) <= .5)) rubyRowTops.push(item.top);
+              }
+              const rowGaps = rubyRowTops.slice(1).map((top, index) => rounded(top - rubyRowTops[index]));
+              const fixtureMaxXDelta = Math.max(...fixtureOnRects.map((item, index) => Math.abs(item.left - fixtureOffRects[index].left)));
+              const fixtureExpanded = fixtureOnRects.filter(item => item.rubyWidth - item.width > .5);
+              const spread = values => rounded(Math.max(...values) - Math.min(...values));
+              const rtHeightSpread = spread(rtHeights);
+              const annotationGapSpread = spread(annotationGaps);
+              const baseWidthSpread = spread(baseWidths);
+              const rowGapSpread = spread(rowGaps);
+              if (JSON.stringify(actualReadings) !== JSON.stringify(expectedReadings)) failures.push('representative readings changed');
+              if (maxXDelta > .5) failures.push(`max ON/OFF x delta ${maxXDelta}px`);
+              if (expanded.length) failures.push(`ruby cells wider than bases: ${expanded.map(item => item.character).join('')}`);
+              if (fixtureMaxXDelta > .5) failures.push(`short/long fixture x delta ${rounded(fixtureMaxXDelta)}px`);
+              if (fixtureExpanded.length) failures.push(`fixture ruby cells wider than bases: ${fixtureExpanded.map(item => item.character).join('')}`);
+              if (JSON.stringify(onLines) !== JSON.stringify(offLines)) failures.push(`line breaks ${JSON.stringify(onLines)} / ${JSON.stringify(offLines)}`);
+              if (baseWidthSpread > .5) failures.push(`base width spread ${baseWidthSpread}px`);
+              if (rtHeightSpread > .5) failures.push(`rt height spread ${rtHeightSpread}px`);
+              if (annotationGapSpread > .5) failures.push(`annotation gap spread ${annotationGapSpread}px`);
+              if (annotationGaps.some(gap => gap < -.5)) failures.push('rt overlaps the base row');
+              if (rowGaps.length < 2) failures.push('fixture did not wrap to at least three rows');
+              if (rowGapSpread > .5) failures.push(`ruby row gap spread ${rowGapSpread}px`);
+              if (Math.abs(onUi.readingHeight - offUi.readingHeight) > .5) failures.push('reading card height changed');
+              if (Math.abs(onUi.nextTop - offUi.nextTop) > .5) failures.push('action row moved');
+              setPronunciation(true);
+              return { failures, maxXDelta, fixtureMaxXDelta: rounded(fixtureMaxXDelta), expanded: expanded.map(item => ({
+                character: item.character, base: item.width, ruby: item.rubyWidth
+              })), onLines, offLines, onUi, offUi, baseWidthSpread, rtHeightSpread,
+                annotationGapSpread, rowGaps, rowGapSpread };
+            }''')
+            page.screenshot(path=str(OUT / f'story-zhuyin-representative-{width}x{height}.png'))
+            assert not geometry['failures'], geometry
+            geometry_results.append({'viewport': f'{width}x{height}', **geometry})
             result = page.evaluate('''() => {
               const failures = [];
               const options = { seen: false, beat: 0, endLabel: '다음', onPosition() {}, onFinish() {} };
@@ -128,6 +275,7 @@ try:
         assert page.locator('#storyZh ruby').count() == 0
         assert not errors, errors
         assert not missing, missing
+        print('STORY_PRONUNCIATION_GEOMETRY_OK', geometry_results, flush=True)
         print('STORY_PRONUNCIATION_SMOKE_OK', flush=True)
         browser.close()
 finally:

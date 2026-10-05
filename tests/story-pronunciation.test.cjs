@@ -31,6 +31,7 @@ test('story renderer creates safe per-character ruby and keeps assistive text cl
   const runtime = read('src/story-runtime.js');
   assert.match(runtime, /document\.createElement\('ruby'\)/);
   assert.match(runtime, /document\.createElement\('rt'\)/);
+  assert.match(runtime, /readingText\.className = 'storyPronunciation'/);
   assert.match(runtime, /reading\.setAttribute\('aria-hidden', 'true'\)/);
   assert.match(runtime, /element\.setAttribute\('aria-label', ariaLabel\)/);
   assert.doesNotMatch(runtime, /innerHTML\s*=/);

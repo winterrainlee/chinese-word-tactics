@@ -36,9 +36,12 @@
       const ruby = document.createElement('ruby');
       const base = document.createElement('rb');
       const reading = document.createElement('rt');
+      const readingText = document.createElement('span');
       base.textContent = character;
-      reading.textContent = syllables[readingIndex++] || '';
+      readingText.className = 'storyPronunciation';
+      readingText.textContent = syllables[readingIndex++] || '';
       reading.setAttribute('aria-hidden', 'true');
+      reading.append(readingText);
       ruby.append(base, reading);
       fragment.append(ruby);
     }
