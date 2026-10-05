@@ -130,6 +130,12 @@
       if (!matchesFilter(node)) continue;
       const content = node.type === 'story' ? JourneyContent.STORIES[node.id] : STAGES.find(s => s.id === node.id);
       if (!content) continue;
+      if (node.timelineHeading) {
+        const heading = make('li', 'journeyResearchHeading');
+        heading.append(make('strong', '', node.timelineHeading));
+        if (node.timelineNote) heading.append(make('p', '', node.timelineNote));
+        list.append(heading);
+      }
       const entry = makeTimelineItem(node, content, progress, recommendedId, questCurrentId);
       if (!entry.open && firstLockedSeen) {
         if (!lockedDetails) {
@@ -151,6 +157,7 @@
   }
 
   function appendRegion(chapterBody, chapter, section, progress, recommendedId, forceOpen) {
+    if (section.sequence?.length && !visibleSequence(section.sequence, progress).some(matchesFilter)) return;
     const region = WORLD.regions.find(r => r.id === section.regionId);
     if (!region) return;
 
@@ -168,13 +175,13 @@
 
     const summary = make('summary', 'journeyRegionSummary');
     const names = make('span', 'journeyRegionHead');
-    names.append(make('strong', 'journeyRegionKo', region.nameKo));
-    if (region.name) names.append(make('span', 'journeyRegionZh', region.name));
+    names.append(make('strong', 'journeyRegionKo', section.nameKo || region.nameKo));
+    if (!section.nameKo && region.name) names.append(make('span', 'journeyRegionZh', region.name));
     summary.append(names);
 
     const progressText = !section.sequence.length
       ? `준비 중 · 스테이지 ${section.plannedStageCount}개`
-      : `스테이지 ${doneStages}/${section.plannedStageCount} · 이야기 ${doneStories}/${storyNodes.length}`;
+      : `${section.stageLabel || '스테이지'} ${doneStages}/${section.plannedStageCount} · 이야기 ${doneStories}/${storyNodes.length}`;
     summary.append(make('span', 'journeyRegionProgress', progressText));
     regionDetails.append(summary);
 
@@ -286,7 +293,7 @@
     const current = currentLocation(focusNodeId);
     const forceCurrentOpen = Boolean(options.focusCurrent && focusNodeId);
     const focusRegionId = typeof options.focusRegionId === 'string' ? options.focusRegionId : null;
-    if (focusRegionId) filter = 'stage';
+    if (focusRegionId) filter = focusRegionId === 'academic-tower' ? 'all' : 'stage';
     $('journeyContinue').textContent = recommended ? '이어서 여행하기' : '월드맵으로';
     $('journeyContinue').onclick = () => GameFlow.continueCampaign();
     $('journeySummary').textContent = `스테이지 ${implementedStages.filter(n => JourneyProgress.isComplete(n, progress)).length}/${implementedStages.length} · 이야기 ${implementedStories.filter(n => JourneyProgress.isComplete(n, progress)).length}/${implementedStories.length}`;

@@ -30,16 +30,25 @@
     const completeCount = mainRooms.filter(room => progress.completedStages.includes(room.id)).length;
     const optionalRooms = bundle.rooms.filter(room => room.optional);
     const optionalCount = optionalRooms.filter(room => progress.completedStages.includes(room.id)).length;
-    summary.textContent = `연구한 방 ${completeCount} / ${mainRooms.length} · 선택 연구 ${optionalCount} / ${optionalRooms.length} · 탑 전체 완료 조건 없음`;
+    const foundation = progress.completedMilestones.includes('academic-tower-turn-foundation');
+    summary.textContent = foundation
+      ? '연구 완료 · 첫 관찰 메모를 보관했어.'
+      : `연구 ${completeCount}/${mainRooms.length} · ${completeCount === mainRooms.length ? '마지막 이야기를 확인해 보자.' : '기록을 살펴보고 연구를 이어가자.'}`;
     list.replaceChildren();
-    const note = document.createElement('p');
-    note.className = 'academicHubNote';
-    note.textContent = progress.completedMilestones.includes('academic-tower-turn-foundation')
-      ? '네 기록 칸 · 첫 관찰 메모를 보관했다. 전달용 사본은 장인골로 보낼 묶음에 넣었다. 다음 비교 자료를 모으는 중이다.'
-      : '수로 기록 연구실 · 표식이 남은 기록을 살펴보는 중이다. 01 뒤에는 02와 03 중 어느 쪽부터 연구해도 된다.';
-    list.append(note);
+    let group;
 
     for (const room of bundle.rooms) {
+      const groupTitle = room.optional ? '곁가지 연구' : ({'01':'첫 기록','02':'두 갈래 연구','04':'기록 종합'})[room.number];
+      if (groupTitle) {
+        group = document.createElement('section'); group.className = 'academicHubGroup';
+        const heading = document.createElement('h3'); heading.textContent = groupTitle; group.append(heading);
+        if (room.number === '02' || room.optional) {
+          const note = document.createElement('p'); note.className = 'academicHubNote';
+          note.textContent = room.optional ? `선택 연구 ${optionalCount}/${optionalRooms.length} · 02와 03을 마치면 살펴볼 수 있어.` : '어느 쪽부터 살펴봐도 좋아.';
+          group.append(note);
+        }
+        list.append(group);
+      }
       const state = roomState(room, progress);
       const button = document.createElement('button');
       button.type = 'button'; button.className = 'academicTowerRoom';
@@ -47,16 +56,15 @@
       button.disabled = state === 'locked' || state === 'planned';
 
       const number = document.createElement('span');
-      number.className = 'academicTowerRoomNumber'; number.textContent = room.number;
+      number.className = 'academicTowerRoomNumber'; number.textContent = room.optional ? '＋' : room.number;
       const names = document.createElement('span');
       names.className = 'academicTowerRoomNames';
       const ko = document.createElement('strong'); ko.textContent = room.titleKo;
-      if (room.optional && state === 'complete') ko.textContent = '같은 然';
-      const zh = document.createElement('small'); zh.lang = 'zh-Hant'; zh.textContent = room.titleZh;
+      if (room.optional && state === 'complete') ko.textContent = '색인 옆의 메모 · 같은 然';
       const terms = document.createElement('span');
       terms.className = 'academicTowerRoomTerms'; terms.lang = 'zh-Hant';
       terms.textContent = room.expressions.join(' · ') || (room.optional ? '선택 연구' : '종합');
-      names.append(ko, zh, terms);
+      names.append(ko, terms);
       if (state === 'locked') {
         const prerequisite = document.createElement('small');
         const missing = (room.requires || []).filter(id => !progress.completedStages.includes(id));
@@ -67,7 +75,8 @@
       }
       const stateLabel = document.createElement('span');
       stateLabel.className = 'academicTowerRoomState';
-      stateLabel.textContent = state === 'complete' ? '다시 연구' : state === 'available' ? '열림' : state === 'planned' ? '준비 중' : '잠김';
+      stateLabel.textContent = state === 'complete' ? '✓ 연구 완료' : state === 'available' ? '연구하기' : state === 'planned' ? '준비 중' : '잠김';
+      if (state === 'complete') button.setAttribute('aria-label', `${ko.textContent} · 연구 완료 · 다시 연구`);
       button.append(number, names, stateLabel);
       if (!button.disabled) {
         button.onclick = () => room.optional && !progress.seenStories?.includes('academic-tower-ran-intro')
@@ -77,8 +86,9 @@
           returnTo: REGION_ID
         });
       }
-      list.append(button);
+      group.append(button);
     }
+    list.scrollTop = 0;
     return true;
   }
 

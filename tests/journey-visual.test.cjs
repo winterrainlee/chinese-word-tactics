@@ -81,7 +81,7 @@ test('optional requests render as collection, place, request, and event levels',
 test('completed world regions can open their own replay list', () => {
   const flow = read('src/flow-runtime.js');
   assert.match(runtime, /regionDetails\.dataset\.journeyRegionId = section\.regionId/);
-  assert.match(runtime, /if \(focusRegionId\) filter = 'stage'/);
+  assert.match(runtime, /if \(focusRegionId\) filter = focusRegionId === 'academic-tower' \? 'all' : 'stage'/);
   assert.match(runtime, /focusRegionId === section\.regionId/);
   assert.match(runtime, /focusRegion\(focusRegionId\)/);
   assert.match(flow, /function showRegionPractice\(regionId\)/);
@@ -97,8 +97,8 @@ test('journey reset is separated from the primary continue action', () => {
 });
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
-  assert.match(html, /journey\.css\?v=20260915-quests1/);
-  assert.match(html, /journey-runtime\.js\?v=20260915-quests1/);
+  assert.match(html, /journey\.css\?v=20261005-towerjourney1/);
+  assert.match(html, /journey-runtime\.js\?v=20261005-towerjourney1/);
   assert.match(html, /journey-progress\.js\?v=20260925-regionhub1/);
   assert.match(html, /flow-runtime\.js\?v=20260927-towerfoundation1/);
 });

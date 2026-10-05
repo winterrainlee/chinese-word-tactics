@@ -122,7 +122,7 @@ try:
         assert "메모에 남길 것" in page.locator("#storyTitle").inner_text()
         finish_story(page)
         page.locator("#academicTowerView").wait_for(state="visible")
-        assert "연구한 방 1 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert "연구 1/5" in page.locator("#academicTowerSummary").inner_text()
         assert page.locator('[data-room-id="academic-tower-turn-01-que"]').get_attribute("data-state") == "complete"
         assert page.locator('[data-room-id="academic-tower-turn-02-raner"]').get_attribute("data-state") == "available"
         assert page.locator('[data-room-id="academic-tower-turn-03-expectation"]').get_attribute("data-state") == "available"
@@ -162,7 +162,7 @@ try:
         page.screenshot(path=str(OUT / "academic-tower-03-complete-375x812.png"), full_page=True)
         page.locator("#flowNext").click()
         page.locator("#academicTowerView").wait_for(state="visible")
-        assert "연구한 방 2 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert "연구 2/5" in page.locator("#academicTowerSummary").inner_text()
         assert page.locator('[data-room-id="academic-tower-turn-02-raner"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-02-raner"]').click()
@@ -187,7 +187,7 @@ try:
         assert "다르다는 것과 대신 생긴 것" in page.locator("#storyTitle").inner_text()
         finish_story(page)
         page.locator("#academicTowerView").wait_for(state="visible")
-        assert "연구한 방 3 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert "연구 3/5" in page.locator("#academicTowerSummary").inner_text()
         assert page.locator('[data-room-id="academic-tower-turn-04-faner"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-04-faner"]').click()
@@ -219,7 +219,7 @@ try:
         assert "흩어진 세 장" in page.locator("#storyTitle").inner_text()
         finish_story(page)
         page.locator("#academicTowerView").wait_for(state="visible")
-        assert "연구한 방 4 / 5" in page.locator("#academicTowerSummary").inner_text()
+        assert "연구 4/5" in page.locator("#academicTowerSummary").inner_text()
         assert page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').click()
@@ -263,8 +263,20 @@ try:
         assert "첫 번째 가설" in page.locator("#storyTitle").inner_text()
         finish_story(page)
         page.locator("#academicTowerView").wait_for(state="visible")
-        assert "연구한 방 5 / 5" in page.locator("#academicTowerSummary").inner_text()
-        assert "네 기록 칸" in page.locator(".academicHubNote").inner_text()
+        assert "연구 완료" in page.locator("#academicTowerSummary").inner_text()
+        assert "첫 관찰 메모를 보관했어" in page.locator("#academicTowerSummary").inner_text()
+        assert page.locator('.academicHubGroup h3').all_text_contents() == ['첫 기록', '두 갈래 연구', '기록 종합', '곁가지 연구']
+        page.locator('#academicTowerRooms').evaluate('el => el.scrollTop = el.scrollHeight')
+        page.locator('#academicTowerJourneyFooter').click()
+        assert page.locator('[data-journey-filter="all"]').get_attribute('aria-pressed') == 'true'
+        tower = page.locator('[data-chapter-id="academic-tower-research"]')
+        assert tower.locator('.journeyRegionKo').all_text_contents() == ['방향이 바뀌는 문장', '색인 옆의 메모 · 선택 연구']
+        assert tower.locator('[data-node-id="story:academic-tower-turn-result"]').is_visible()
+        assert '두 갈래 연구' in tower.inner_text()
+        page.screenshot(path=str(OUT / 'academic-tower-journey-375x812.png'), full_page=True)
+        page.evaluate('AcademicTowerRuntime.showHub()')
+        assert page.locator('#academicTowerRooms').evaluate('el => el.scrollTop') == 0
+        page.screenshot(path=str(OUT / 'academic-tower-hub-complete-375x812.png'), full_page=True)
         assert page.evaluate("GameFlow.progress().completedMilestones.includes('academic-tower-turn-foundation')")
         assert not page.evaluate("GameFlow.progress().completedMilestones.some(id => /academic-tower.*complete/.test(id))")
 
@@ -290,7 +302,7 @@ try:
         page.wait_for_function("!!window.GameFlow && !!window.AcademicTowerRuntime")
         assert page.evaluate("GameFlow.resume()")
         page.locator("#academicTowerView").wait_for(state="visible")
-        assert "탑 전체 완료 조건 없음" in page.locator("#academicTowerSummary").inner_text()
+        assert "연구 완료" in page.locator("#academicTowerSummary").inner_text()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         assert not errors, errors
         assert not missing, missing

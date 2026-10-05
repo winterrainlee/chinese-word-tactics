@@ -80,3 +80,5 @@
 .storyShell button:focus-visible,.journeyShell button:focus-visible,.flowNav button:focus-visible,.flowQuestChoice:focus-visible,.journeyChapterSummary:focus-visible,.journeyRegionSummary:focus-visible,.journeyQuestSummary:focus-visible,.journeyLockedSummary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
 @media(max-width:390px){.journeyShell{gap:11px}.journeyFilters{gap:18px}.journeyChapterBody{margin-left:21px}.journeyNode{padding-right:2px}}
+.journeyResearchHeading{list-style:none;margin:16px 0 8px;font-size:15px;color:var(--muted)}
+.journeyResearchHeading p{margin:4px 0;font-size:13px;line-height:1.5}

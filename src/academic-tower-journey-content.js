@@ -122,6 +122,7 @@
     sections: [{
       id: 'academic-tower',
       regionId: 'academic-tower',
+      nameKo: '방향이 바뀌는 문장', stageLabel: '연구',
       plannedStageCount: 5,
       revealRequires: ['story:academic-tower-arrival'],
       sequence: [
@@ -137,6 +138,7 @@
         },
         {
           type: 'stage', id: 'academic-tower-turn-02-raner',
+          timelineHeading: '두 갈래 연구', timelineNote: '02와 03은 어느 쪽부터 살펴봐도 좋아.',
           requires: ['story:academic-tower-turn-after-que'], returnToRegionHubAfter: 'academic-tower'
         },
         {
@@ -145,6 +147,7 @@
         },
         {
           type: 'story', id: 'academic-tower-turn-before-faner',
+          timelineHeading: '기록 종합',
           requires: ['stage:academic-tower-turn-02-raner', 'stage:academic-tower-turn-03-expectation'],
           returnToRegionHubAfter: 'academic-tower'
         },
@@ -168,6 +171,7 @@
       ]
     }, {
       id: 'academic-tower-optional', regionId: 'academic-tower', plannedStageCount: 1,
+      nameKo: '색인 옆의 메모 · 선택 연구', stageLabel: '연구',
       revealRequires: ['stage:academic-tower-turn-02-raner', 'stage:academic-tower-turn-03-expectation'],
       sequence: [
         { type: 'story', id: 'academic-tower-ran-intro', requires: ['stage:academic-tower-turn-02-raner', 'stage:academic-tower-turn-03-expectation'] },
