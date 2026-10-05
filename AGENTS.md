@@ -35,6 +35,7 @@
 ## 변경 방식
 
 - 신규 지역·스테이지·자유 의뢰는 `docs/REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md`의 게이트, 사양 템플릿, Definition of Ready/Done을 따른다.
+- 학술탑 신규 스테이지·연구는 `docs/ACADEMIC-TOWER-UI-GUIDE-v0.1.md`의 원본/작업 영역 위계와 연구실 공간 디자인을 기본 계약으로 재사용한다.
 - 기능을 장기 작업 브랜치에 묵히기보다 `main`에 작게 완결된 단위로 빠르게 반영한다.
 - `main` 반영 → GitHub Pages 배포 → iPhone 13 mini Safari 실기기 확인 → 즉시 수정의 짧은 주기를 우선한다.
 - 요청 범위를 넘어선 리팩터링을 피한다.
