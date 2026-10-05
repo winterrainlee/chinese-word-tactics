@@ -41,6 +41,7 @@
       const groupTitle = room.optional ? '곁가지 연구' : ({'01':'첫 기록','02':'두 갈래 연구','04':'기록 종합'})[room.number];
       if (groupTitle) {
         group = document.createElement('section'); group.className = 'academicHubGroup';
+        group.dataset.group = room.optional ? 'optional' : room.number === '01' ? 'first' : room.number === '02' ? 'branch' : 'synthesis';
         const heading = document.createElement('h3'); heading.textContent = groupTitle; group.append(heading);
         if (room.number === '02' || room.optional) {
           const note = document.createElement('p'); note.className = 'academicHubNote';
