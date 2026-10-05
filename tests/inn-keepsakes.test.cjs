@@ -103,8 +103,8 @@ test('all earned keepsakes can share the inn room without inventing a new save k
   assert.match(css, /\.innDeskKeepsake\.guide-plaque/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque/);
   assert.match(css, /\.innDeskKeepsake\.observation-card/);
-  assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes4/);
-  assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes5/);
+  assert.match(html, /inn-keepsakes\.css\?v=20261005-observationcard1/);
+  assert.match(html, /inn-keepsakes-runtime\.js\?v=20261005-observationcard1/);
 });
 
 test('travel passes live on the clothes chest, guide plaque on the wall, and paper keepsakes on the desk', () => {
