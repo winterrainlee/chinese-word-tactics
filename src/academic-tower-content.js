@@ -465,7 +465,7 @@
     '既然': { p: 'ㄐㄧˋ ㄖㄢˊ', k: '이미 그러한 이상; 확인된 상황을 뒤 판단의 전제로 삼다', ex: '既然已經確認齒輪損壞，就先修復它。', rule: '아직 모르는 조건이 아니라 이미 성립한 사실에서 다음 판단을 시작해.' },
     '不然': { p: 'ㄅㄨˋ ㄖㄢˊ', k: '그렇지 않으면; 앞 행동을 하지 않을 경우의 귀결을 잇다', ex: '先把記錄綁好，不然紙張會散開。', rule: '앞 행동 다음에 일어난다는 순서가 아니라, 그렇게 하지 않을 경우를 읽어.' }
   });
-  bundle.rooms.push({ id: 'academic-tower-turn-03a-ran-family', number: '03A', titleKo: '색인 옆의 메모', titleZh: '索引旁的筆記', expressions: [], implemented: true, optional: true, requires: ['academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation'] });
+  bundle.rooms.push({ id: 'academic-tower-turn-03a-ran-family', number: '03A', titleKo: '색인 옆의 메모', titleZh: '索引旁的筆記', expressions: [], implemented: true, optional: true, sideGroup: 'branch', requires: ['academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation'] });
   STAGES.push({
     id: 'academic-tower-turn-03a-ran-family', title: '색인 옆의 메모', subtitle: '색인 옆의 메모', kicker: '학술탑 · 선택 연구 03A',
     grid: ['S'], goal: '比較字形和句子的關係。', rule: '같은 글자가 보여도 문장 속 역할은 따로 읽어.', words: ['既然', '不然'], win: [],
