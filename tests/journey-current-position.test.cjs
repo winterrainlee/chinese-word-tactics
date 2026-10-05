@@ -22,7 +22,7 @@ test('journey foregrounds only the recommended unfinished node and focuses it on
   assert.match(runtime, /scrollIntoView\(\{ block: 'center'/);
   assert.match(runtime, /if \(forceCurrentOpen\) focusCurrentNode\(\)/);
 
-  assert.match(flow, /JourneyRuntime\.render\(focusRegionId \? \{ focusRegionId \} : \{ focusCurrent: true \}\)/);
+  assert.match(flow, /JourneyRuntime\.render\(options\.restoreContext \? \{\} : focusRegionId \? \{ focusRegionId \} : \{ focusCurrent: true \}\)/);
   assert.match(flow, /function continueCampaign\(\)/);
   assert.match(flow, /node = P\.resumeNode\(progress\)/);
 

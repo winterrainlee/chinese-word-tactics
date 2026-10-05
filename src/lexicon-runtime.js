@@ -50,8 +50,39 @@
   let visitedStages = new Set(store.visitedStages);
   let state = { view: 'home', chapterId: null, regionId: null, groupId: null, word: null, query: '' };
   let history = [];
-  let returnView = 'journeyView';
+  let returnContext = null;
   let mounted = false;
+
+  function focusToken(element = document.activeElement) {
+    if (!element || !$('wordsView')?.contains(element)) return null;
+    if (element.id) return { kind: 'id', value: element.id };
+    for (const key of ['lexiconWord', 'lexiconRegion', 'lexiconGroup', 'lexiconAll']) {
+      const owner = element.closest?.(`[data-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}]`);
+      if (!owner) continue;
+      const peers = [...document.querySelectorAll(`[data-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}]`)]
+        .filter(item => item.dataset[key] === owner.dataset[key]);
+      return { kind: 'data', key, value: owner.dataset[key], index: Math.max(0, peers.indexOf(owner)) };
+    }
+    return null;
+  }
+
+  function capturePosition() {
+    return { state: { ...state }, scrollY: window.scrollY, focus: focusToken() };
+  }
+
+  function restorePosition(context) {
+    requestAnimationFrame(() => {
+      let target = null;
+      if (context?.focus?.kind === 'id') target = document.getElementById(context.focus.value);
+      if (context?.focus?.kind === 'data') {
+        const matches = [...document.querySelectorAll(`[data-${context.focus.key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}]`)]
+          .filter(item => item.dataset[context.focus.key] === context.focus.value);
+        target = matches[context.focus.index || 0] || matches[0] || null;
+      }
+      target?.focus?.({ preventScroll: true });
+      window.scrollTo({ top: Number.isFinite(context?.scrollY) ? context.scrollY : 0, left: 0, behavior: 'auto' });
+    });
+  }
 
   function storageWarning() {
     const notice = $('flowNotice');
@@ -255,41 +286,46 @@
     target.innerHTML = state.query.trim() ? (results.length ? results.map(word => wordButton(word, true)).join('') : '<p class="lexiconEmpty">발견한 단어 중에는 검색 결과가 없어.</p>') : '<p class="lexiconEmpty">번체 중국어, 한국어 뜻, 주음으로 찾을 수 있어.</p>';
   }
 
-  function renderSearch() {
+  function renderSearch(options = {}) {
     setHeader('단어 검색', '발견한 단어에서 찾기');
     $('wordsContent').innerHTML = `<section class="lexiconSearch"><label for="lexiconSearchInput">단어 검색</label><input id="lexiconSearchInput" type="search" inputmode="search" autocomplete="off" placeholder="例) 通過 · 통과 · ㄊㄨㄥ" value="${esc(state.query)}"></section><div id="lexiconSearchResults" class="lexiconWordRows"></div>`;
     const input = $('lexiconSearchInput');
     input.addEventListener('input', () => { state.query = input.value; renderSearchResults(); });
     renderSearchResults();
-    requestAnimationFrame(() => input.focus());
+    if (!options.restoring) requestAnimationFrame(() => input.focus());
   }
 
-  function render() {
+  function render(options = {}) {
     if (!$('wordsView')) return;
     if (state.view === 'home') renderHome();
     else if (state.view === 'region') renderRegion();
     else if (state.view === 'group') renderGroup();
     else if (state.view === 'word') renderWord();
     else if (state.view === 'all') renderAll();
-    else if (state.view === 'search') renderSearch();
-    window.scrollTo(0, 0);
+    else if (state.view === 'search') renderSearch({ restoring: Boolean(options.restore) });
+    if (options.restore) restorePosition(options.restore);
+    else window.scrollTo(0, 0);
   }
 
   function navigate(next) {
-    history.push({ ...state });
+    history.push(capturePosition());
     state = { ...state, ...next };
     render();
   }
 
   function exit() {
     if (!globalThis.GameFlow) return;
-    if (returnView === 'worldView') GameFlow.showWorld();
-    else if (returnView === 'journeyView') GameFlow.showJourney();
-    else GameFlow.resume();
+    if (returnContext && GameFlow.restoreViewContext?.(returnContext)) return;
+    GameFlow.resume();
   }
 
   function back() {
-    if (history.length) { state = history.pop(); render(); return; }
+    if (history.length) {
+      const previous = history.pop();
+      state = previous.state;
+      render({ restore: previous });
+      return;
+    }
     exit();
   }
 
@@ -331,12 +367,12 @@
   function open(options = {}) {
     mount();
     const visible = [...document.querySelectorAll('.appView')].find(view => !view.hidden && view.id !== 'wordsView');
-    if (visible) returnView = visible.id;
+    if (visible) returnContext = options.returnContext || globalThis.GameFlow?.captureViewContext?.() || { viewId: visible.id, scrollY: window.scrollY };
     syncProgress(options.progress);
     history = [];
     state = { view: 'home', chapterId: initialChapter(), regionId: null, groupId: null, word: null, query: '' };
     if (options.word && isDiscovered(options.word)) {
-      history.push({ ...state });
+      history.push({ state: { ...state }, scrollY: 0, focus: null });
       state = { ...state, view: 'word', word: options.word };
     }
     TacticalGame.closeSheet();

@@ -4,6 +4,7 @@
   const chapterOpenStates = new Map();
   const regionOpenStates = new Map();
   const questOpenStates = new Map();
+  const lockedOpenStates = new Map();
 
   const make = (tag, className, text) => {
     const el = document.createElement(tag); el.className = className;
@@ -127,7 +128,7 @@
     return { item, open };
   }
 
-  function appendTimeline(container, sequence, progress, recommendedId, questCurrentId = null) {
+  function appendTimeline(container, sequence, progress, recommendedId, questCurrentId = null, timelineKey = '') {
     const list = make('ol', 'journeyTimeline');
     let firstLockedSeen = false;
     let lockedDetails = null;
@@ -150,6 +151,9 @@
         if (!lockedDetails) {
           const groupItem = make('li', 'journeyLockedGroupItem');
           lockedDetails = make('details', 'journeyLockedGroup');
+          lockedDetails.dataset.journeyDisclosure = 'locked';
+          lockedDetails.dataset.journeyStateKey = timelineKey;
+          rememberDisclosure(lockedDetails, timelineKey, lockedOpenStates);
           lockedSummary = make('summary', 'journeyLockedSummary');
           lockedList = make('ol', 'journeyTimeline journeyLockedTimeline');
           lockedDetails.append(lockedSummary, lockedList);
@@ -179,6 +183,8 @@
     const regionDetails = make('details', 'journeyRegion');
     regionDetails.dataset.journeyRegionId = section.regionId;
     const regionKey = `${chapter.id}:${section.id}`;
+    regionDetails.dataset.journeyDisclosure = 'region';
+    regionDetails.dataset.journeyStateKey = regionKey;
     const defaultOpen = sectionNodes.some(node => JourneyProgress.nodeId(node) === recommendedId);
     rememberDisclosure(regionDetails, regionKey, regionOpenStates, defaultOpen, forceOpen);
 
@@ -198,7 +204,7 @@
     if (!section.sequence.length) {
       regionBody.append(make('p', 'journeyRegionEmpty', '의뢰 준비 중'));
     } else {
-      appendTimeline(regionBody, section.sequence, progress, recommendedId);
+      appendTimeline(regionBody, section.sequence, progress, recommendedId, null, regionKey);
     }
     regionDetails.append(regionBody);
     chapterBody.append(regionDetails);
@@ -219,6 +225,8 @@
     const locationDetails = make('details', 'journeyRegion journeyQuestLocation');
     locationDetails.dataset.journeyRegionId = section.regionId || section.id;
     const regionKey = `${chapter.id}:${section.id}`;
+    locationDetails.dataset.journeyDisclosure = 'region';
+    locationDetails.dataset.journeyStateKey = regionKey;
     const defaultOpen = entries.some(entry => entry.current);
     rememberDisclosure(locationDetails, regionKey, regionOpenStates, defaultOpen, forceOpen);
 
@@ -234,6 +242,8 @@
       const questDetails = make('details', 'journeyQuest');
       questDetails.dataset.journeyQuestId = entry.quest.id;
       const questKey = `${chapter.id}:${section.id}:${entry.quest.id}`;
+      questDetails.dataset.journeyDisclosure = 'quest';
+      questDetails.dataset.journeyStateKey = questKey;
       const questForceOpen = forceOpen && Boolean(entry.current);
       rememberDisclosure(questDetails, questKey, questOpenStates, Boolean(entry.current), questForceOpen);
 
@@ -246,7 +256,7 @@
 
       const questBody = make('div', 'journeyQuestBody');
       appendTimeline(questBody, entry.quest.sequence, progress, recommendedId,
-        entry.current ? JourneyProgress.nodeId(entry.current) : null);
+        entry.current ? JourneyProgress.nodeId(entry.current) : null, questKey);
       questDetails.append(questBody);
       locationBody.append(questDetails);
     }
@@ -323,6 +333,25 @@
     requestAnimationFrame(() => region.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' }));
   }
 
+  function captureContext() {
+    const disclosures = [...document.querySelectorAll('#journeyList details[data-journey-state-key]')].map(details => ({
+      kind: details.dataset.journeyDisclosure,
+      key: details.dataset.journeyStateKey,
+      open: details.open
+    }));
+    return { filter, disclosures };
+  }
+
+  function restoreContext(context) {
+    if (!context || typeof context !== 'object') return;
+    if (['all', 'story', 'stage'].includes(context.filter)) filter = context.filter;
+    chapterOpenStates.clear(); regionOpenStates.clear(); questOpenStates.clear(); lockedOpenStates.clear();
+    const stores = { chapter: chapterOpenStates, region: regionOpenStates, quest: questOpenStates, locked: lockedOpenStates };
+    for (const item of Array.isArray(context.disclosures) ? context.disclosures : []) {
+      if (stores[item?.kind] && typeof item.key === 'string') stores[item.kind].set(item.key, item.open === true);
+    }
+  }
+
   function render(options = {}) {
     ensureActions();
     const progress = GameFlow.progress(), root = $('journeyList'); root.replaceChildren();
@@ -353,6 +382,8 @@
       if (!chapterHasVisibleContent(chapter, progress)) continue;
       const chapterDetails = make('details', 'journeyChapter');
       chapterDetails.dataset.chapterId = chapter.id;
+      chapterDetails.dataset.journeyDisclosure = 'chapter';
+      chapterDetails.dataset.journeyStateKey = chapter.id;
       const containsFocusedRegion = chapter.sections.some(section => section.regionId === focusRegionId);
       const forceChapterOpen = (forceCurrentOpen && current.chapterId === chapter.id) || containsFocusedRegion;
       rememberDisclosure(chapterDetails, chapter.id, chapterOpenStates,
@@ -379,7 +410,7 @@
           continue;
         }
         const directSection = make('div', 'journeySection journeySectionDirect');
-        appendTimeline(directSection, section.sequence, progress, recommendedId);
+        appendTimeline(directSection, section.sequence, progress, recommendedId, null, `${chapter.id}:${section.id}`);
         if (directSection.children.length) chapterBody.append(directSection);
       }
       chapterDetails.append(chapterBody);
@@ -392,5 +423,5 @@
   document.querySelectorAll('[data-journey-filter]').forEach(button => {
     button.onclick = () => { filter = button.dataset.journeyFilter; render(); };
   });
-  globalThis.JourneyRuntime = Object.freeze({ render });
+  globalThis.JourneyRuntime = Object.freeze({ render, captureContext, restoreContext });
 })();

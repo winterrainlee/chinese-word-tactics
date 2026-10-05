@@ -33,5 +33,5 @@ test('changed action-contract assets use the same deployment cache key', () => {
   ]) {
     assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261005-actioncontract1`));
   }
-  assert.match(html, /flow-runtime\.js\?v=20261006-a10a061/);
+  assert.match(html, /flow-runtime\.js\?v=20261006-a051/);
 });

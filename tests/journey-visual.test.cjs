@@ -106,7 +106,7 @@ test('completed world regions can open their own replay list', () => {
   assert.match(runtime, /focusRegionId === section\.regionId/);
   assert.match(runtime, /focusRegion\(focusRegionId\)/);
   assert.match(flow, /function showRegionPractice\(regionId\)/);
-  assert.match(flow, /JourneyRuntime\.render\(focusRegionId \? \{ focusRegionId \} : \{ focusCurrent: true \}\)/);
+  assert.match(flow, /JourneyRuntime\.render\(options\.restoreContext \? \{\} : focusRegionId \? \{ focusRegionId \} : \{ focusCurrent: true \}\)/);
 });
 
 test('journey reset is separated from the primary continue action', () => {
@@ -120,7 +120,7 @@ test('journey reset is separated from the primary continue action', () => {
 test('browser loads the journey redesign assets with a fresh cache key', () => {
   assert.match(html, /stage-reference\.js\?v=20261006-a10a061/);
   assert.match(html, /journey\.css\?v=20261006-a10a061/);
-  assert.match(html, /journey-runtime\.js\?v=20261006-a10a061/);
+  assert.match(html, /journey-runtime\.js\?v=20261006-a051/);
   assert.match(html, /journey-progress\.js\?v=20261006-a10a061/);
-  assert.match(html, /flow-runtime\.js\?v=20261006-a10a061/);
+  assert.match(html, /flow-runtime\.js\?v=20261006-a051/);
 });

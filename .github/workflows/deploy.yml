@@ -126,6 +126,7 @@ jobs:
         env:
           TEST_OUTPUT: ${{ runner.temp }}/journey-screenshots
         run: |
+          python tests/smoke_return_context.py
           python tests/smoke_journey_numbering.py
           python tests/smoke_journey.py
 

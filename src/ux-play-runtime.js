@@ -240,9 +240,7 @@
       next.onclick = () => {
         let advanced;
         if (context.mode === 'replay') {
-          advanced = context.returnTo === 'world' ? baseFlow.showWorld()
-            : context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID
-              ? baseFlow.showRegionHub(context.returnTo) : baseFlow.showJourney();
+          advanced = baseFlow.returnFromReplay(context);
         } else {
           advanced = baseFlow.continueFromNode(`stage:${id}`);
         }
