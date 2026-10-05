@@ -112,7 +112,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
-  assert.match(html, /world-runtime\.js\?v=20260925-academictower1/);
+  assert.match(html, /world-runtime\.js\?v=20261005-towerreturn1/);
   assert.match(html, /journey\.css\?v=20261005-towerjourney1/);
   assert.match(html, /journey-runtime\.js\?v=20261005-towerjourney1/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);
@@ -128,6 +128,8 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(runtime, /showRegionInfo/);
   assert.match(runtime, /region\.summary \|\| region\.note/);
   assert.match(runtime, /worldPlaceSummary/);
+  assert.match(runtime, /academic-tower-turn-foundation/);
+  assert.match(runtime, /'탑으로 돌아가기' : '탑으로 들어가기'/);
   assert.match(runtime, /complete \? '다시 연습하기' : '이곳으로 가기'/);
   assert.match(runtime, /showRegionPractice\?\.\(region\.id\)/);
   assert.doesNotMatch(runtime, /핵심 의뢰를 완료했어/);
