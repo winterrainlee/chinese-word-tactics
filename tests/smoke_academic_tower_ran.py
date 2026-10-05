@@ -68,6 +68,8 @@ try:
             assert '같은 然' in page.locator('#stageTitle').inner_text()
             assert '怎麼又有' in page.locator('#grid').inner_text()
             action('start-compare')
+            assert page.locator('.academicVerdictTitle').count() == 0
+            assert '기록과 맞아' not in page.locator('#grid').inner_text()
             cards = page.evaluate('(id)=>STAGES.find(s=>s.id===id).academicTower.cards', STAGE)
             for i, card in enumerate(cards):
                 if i == 1:
@@ -85,9 +87,15 @@ try:
                 assert page.locator('[data-academic-action="select-position"].selected').get_attribute('data-verdict') == 'correct'
                 assert page.locator('[data-academic-action="select-ran-relation"].selected').get_attribute('data-verdict') == 'incorrect'
                 action('select-ran-relation', card['relation'])
+                assert page.locator('.academicMvpPreview').count() == 0
                 layout()
                 if i == 6: page.screenshot(path=f'/tmp/academic-tower-ran-compare-{width}.png', full_page=True)
-                action('submit-comparison'); action('next-comparison')
+                action('submit-comparison')
+                assert page.locator('.academicRanAnswer').count() == 1
+                assert page.locator('.academicRanExplanation').inner_text() == card['explanation']
+                assert page.locator('#grid').inner_text().count(card['explanation']) == 1
+                assert page.locator('.academicVerdictTitle').count() == 0
+                action('next-comparison')
             for wrong, correct in [('如果', '既然'), ('然後', '不然')]:
                 action('select-ran-word', wrong); action('submit-ran-word')
                 assert page.evaluate('document.activeElement.dataset.value') == wrong
@@ -102,7 +110,7 @@ try:
                 if correct == '既然':
                     assert page.locator('#grid').evaluate('e=>e.scrollTop') == 0
                     assert page.evaluate('document.activeElement.dataset.academicZone') == 'original'
-                    assert '앞 문장을 완성했어' in page.locator('.academicVerdictTitle').inner_text()
+                    assert page.locator('.academicVerdictTitle').count() == 0
             assert not page.locator('#flowNext').is_visible()
             action('finish-mvp'); page.locator('#flowNext').click(); story()
             page.locator('#academicTowerView').wait_for(state='visible')
