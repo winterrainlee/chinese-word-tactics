@@ -904,8 +904,11 @@
     } else if (['compare', 'compare-review'].includes(workbench.phase)) {
       const card = config.cards[workbench.caseIndex], done = workbench.phase === 'compare-review';
       const positionLabel = card.position === 'first' ? '然이 앞' : '然이 뒤';
+      const comparison = card.compareKo
+        ? `<p class="academicRanCompare"><strong>${escapeHtml(card.compareWord)}와 비교</strong><span>${escapeHtml(card.compareKo)}</span></p>`
+        : '';
       const work = done
-        ? `<p class="academicRanAnswer">✓ ${escapeHtml(positionLabel)} · ${escapeHtml(card.relation)}</p><p class="academicRanExplanation">${escapeHtml(card.explanation)}</p>`
+        ? `<p class="academicRanAnswer">✓ ${escapeHtml(positionLabel)} · ${escapeHtml(card.relation)}</p><p class="academicRanExplanation">${escapeHtml(card.explanation)}</p>${comparison}`
         : `<div class="academicMvpLinks">${mvpButton('select-position', 'first', '然이 앞', workbench.selectedPosition === 'first')}${mvpButton('select-position', 'last', '然이 뒤', workbench.selectedPosition === 'last')}</div><h3>이 문장에서 하는 일</h3>${workbench.optionOrders[card.word].map(option => mvpButton('select-ran-relation', option, escapeHtml(option), workbench.selectedRelation === option)).join('')}`;
       body = `<div class="academicCaseProgress">문장 비교 ${workbench.caseIndex + 1} / ${config.cards.length}</div><p lang="zh-Hant">${mvpMarked(card.sentence, card.word)}</p>${mvpDetails('character-sense', '글자 감각 살펴보기', `<p>${escapeHtml(card.sense)}. 기억 보조일 뿐 현대어의 모든 뜻을 계산하는 공식은 아니야.</p>`)}<section class="academicMvpMemo"><h2>글자 위치와 문장 관계</h2>${work}</section>`;
     } else if (workbench.phase === 'complete') {
