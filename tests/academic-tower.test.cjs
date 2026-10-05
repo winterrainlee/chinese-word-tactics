@@ -39,6 +39,7 @@ test('03A requires discovery, all comparisons and two independent applications',
   for (const word of config.noticeWords) act('select-character', `${word}:然`);
   act('submit-notice'); assert.equal(state.phase, 'discovery'); act('start-compare');
   for (const card of config.cards) {
+    assert.ok(card.compareWord && card.compareKo, `03A comparison note missing for ${card.word}`);
     act('select-position', card.position === 'first' ? 'last' : 'first');
     act('select-ran-relation', card.relation);
     assert.equal(act('submit-comparison').correct, false);
