@@ -426,7 +426,7 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(css, /\.academicTowerShell \.academicHubGroup h3\{/);
   assert.match(css, /background-color:var\(--tower-wall\)/);
   assert.match(css, /background-size:22px 22px/);
-  assert.match(css, /Tower crown: the first and last merlons are flush with the outer walls/);
+  assert.match(css, /Tower crown: five merlons/);
   assert.match(css, /clip-path:polygon\(/);
   assert.match(css, /0 0,[\s\S]*13% 0,13% 12px/);
   assert.match(css, /87% 12px,87% 0,[\s\S]*100% 0/);
