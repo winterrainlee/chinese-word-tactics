@@ -265,7 +265,15 @@ try:
         page.locator("#academicTowerView").wait_for(state="visible")
         assert "연구 완료" in page.locator("#academicTowerSummary").inner_text()
         assert "첫 관찰 메모를 보관했어" in page.locator("#academicTowerSummary").inner_text()
-        assert page.locator('.academicHubGroup h3').all_text_contents() == ['첫 기록', '두 갈래 연구', '기록 종합', '곁가지 연구']
+        assert page.locator('.academicHubGroup h3').all_text_contents() == ['첫 기록', '두 갈래 연구', '기록 종합']
+        side_room = page.locator('.academicHubGroup[data-group="branch"] .academicHubSideRoom')
+        assert side_room.count() == 1
+        assert side_room.locator('h4').inner_text() == '곁가지 연구'
+        assert side_room.locator('[data-room-id="academic-tower-turn-03a-ran-family"]').count() == 1
+        branch_box = page.locator('.academicHubGroup[data-group="branch"]').bounding_box()
+        side_box = side_room.bounding_box()
+        assert branch_box and side_box and side_box['width'] < branch_box['width']
+        assert abs((side_box['x'] + side_box['width']) - (branch_box['x'] + branch_box['width'])) < 12
         page.locator('#academicTowerRooms').evaluate('el => el.scrollTop = el.scrollHeight')
         page.locator('#academicTowerJourneyFooter').click()
         assert page.locator('[data-journey-filter="all"]').get_attribute('aria-pressed') == 'true'
