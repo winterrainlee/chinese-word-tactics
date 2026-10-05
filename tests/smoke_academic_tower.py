@@ -269,7 +269,13 @@ try:
         side_room = page.locator('.academicHubGroup[data-group="branch"] .academicHubSideRoom')
         assert side_room.count() == 1
         assert side_room.locator('h4').inner_text() == '곁가지 연구'
-        assert side_room.locator('[data-room-id="academic-tower-turn-03a-ran-family"]').count() == 1
+        side_button = side_room.locator('[data-room-id="academic-tower-turn-03a-ran-family"]')
+        assert side_button.count() == 1
+        assert side_button.inner_text() == '색인 옆의 메모'
+        assert '＋' not in side_button.inner_text()
+        assert '연구 완료' not in side_button.inner_text()
+        assert '선택 연구' not in side_button.inner_text()
+        assert side_button.evaluate('(el) => getComputedStyle(el).whiteSpace') == 'nowrap'
         assert page.locator('.academicHubGroup[data-group="branch"] .academicHubSideRoom').count() == 1
         assert page.evaluate("""() => {
             const side = document.querySelector('.academicHubGroup[data-group="branch"] .academicHubSideRoom');
