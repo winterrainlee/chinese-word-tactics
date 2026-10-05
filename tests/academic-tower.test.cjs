@@ -453,7 +453,9 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(hub, /check\.className = 'academicTowerSideRoomCheck'/);
   assert.match(hub, /check\.textContent = '✓'/);
   const sideButtonSource = hub.slice(hub.indexOf('function makeSideRoomButton'), hub.indexOf('function appendSideRoom'));
-  assert.doesNotMatch(sideButtonSource, /＋|academicTowerRoomNumber|academicTowerRoomTerms|academicTowerRoomState|연구 완료[^·]/);
+  assert.doesNotMatch(sideButtonSource, /＋|academicTowerRoomNumber|academicTowerRoomTerms|academicTowerRoomState/);
+  assert.match(sideButtonSource, /check\.setAttribute\('aria-hidden', 'true'\)/);
+  assert.match(sideButtonSource, /button\.setAttribute\('aria-label'/);
   assert.match(css, /\.academicTowerShell \.academicTowerSideRoomButton\{/);
   assert.match(css, /\.academicTowerShell \.academicTowerSideRoomCheck\{/);
   assert.match(css, /white-space:nowrap/);
