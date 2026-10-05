@@ -45,7 +45,7 @@
 .academicMvpSource,.academicMvpMemo{margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid #cfc6b8}
 .academicMvpSource h2,.academicMvpMemo h2{margin:6px 0;font-size:13px;color:#625c53;font-weight:600}
 .academicMvpSource p,.academicMvpPreview{margin:8px 0;font-size:19px;line-height:1.8;overflow-wrap:anywhere}
-.academicMvpMemo{border-left:3px solid #927254;padding-left:12px}
+.academicMvpMemo{padding-left:0}
 .academicMvpChoice{min-height:44px;padding:8px;border:1px solid #c9bcaa;border-radius:8px;background:#fffdf7;text-align:left;line-height:1.6;cursor:pointer}
 .academicMvpMemo>.academicMvpChoice,.academicMvpMemo details>.academicMvpChoice{display:block;width:100%;margin:6px 0}
 .academicMvpChoice.selected{background:#e7eff6;border-color:#52769a;box-shadow:inset 0 0 0 1px #52769a}
@@ -68,7 +68,7 @@
 .academicMvpSlots span{display:block;font-size:18px;line-height:1.5}
 .academicMvpSlots button.selected{border:2px solid #52769a}
 [data-mvp-links] h3{font-size:15px;font-weight:600;color:#31516e}
-.academicTowerMvp .academicExpectationReview{display:block;padding:0 0 14px 12px;background:transparent;border:0;border-left:3px solid #927254;border-radius:0}
+.academicTowerMvp .academicExpectationReview{display:block;padding:0 0 14px;background:transparent;border:0;border-radius:0}
 .academicTowerMvp .academicExpectationReview .academicMvpPreview{margin:8px 0;font-size:19px;font-weight:400;line-height:1.8}
 .academicTowerMvp .academicMvpFeedback{font-size:15px;font-weight:400;line-height:1.6}
 .academicTowerMvp .academicExpectationCard,.academicTowerMvp .academicSourceCard{display:block;background:transparent;border:0;border-bottom:1px solid #cfc6b8;border-radius:0;padding:0 0 14px}
@@ -88,12 +88,12 @@
 .academicTowerMvp [data-verdict-label]::after{content:attr(data-verdict-label);display:block;margin-top:5px;font:600 13px/1.4 sans-serif}
 .academicTowerMvp .academicMvpChoice[data-verdict]{box-shadow:none}
 .academicTowerMvp .academicRanCharacters [data-verdict-label]::after{font-size:11px}
-.academicRegionLabel{font-size:12px;font-weight:600;line-height:1.5;color:#726a5e;margin-bottom:8px;letter-spacing:.03em}
+.academicRegionLabel{font-size:22px;font-weight:700;line-height:1.5;color:#332f29;margin-bottom:16px;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
 .academicOriginal{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #cfc6b8}
 .academicOriginal .academicMvpSource:last-child,.academicOriginal .academicExpectationCard:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
 .academicOriginal p,.academicRanWorkbench>p{font-size:19px;line-height:1.8;overflow-wrap:anywhere}
-.academicTowerMvp .academicTaskTitle{font-size:16px;font-weight:650;line-height:1.6;color:#332f29;margin:0 0 12px;word-break:keep-all;overflow-wrap:anywhere}
+.academicTowerMvp .academicTaskTitle{font-size:18px;font-weight:650;line-height:1.6;color:#332f29;margin:0 0 12px;word-break:keep-all;overflow-wrap:anywhere}
 .academicTowerMvp .academicClozeRecord{padding:0;border:0;border-radius:0;background:transparent}
 .academicTowerMvp .academicOriginal .academicClozeContext{margin:0;padding:0;border:0;font-size:19px;color:inherit;line-height:1.8}
 .academicTowerMvp .academicRanWorkbench{border:0;margin:0;padding:0}
-.academicTowerMvp .academicRanWorkbench[data-academic-zone="work"]{border-left:3px solid #927254;padding-left:12px}
+.academicTowerMvp [data-mvp-detail="edit-memo"]>summary{font-size:17px;font-weight:650;color:#332f29;margin:8px 0}
