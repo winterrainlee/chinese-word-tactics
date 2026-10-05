@@ -254,7 +254,7 @@
   }
   function showSettings() { return globalThis.SettingsRuntime?.open?.() || false; }
   function showMenu() {
-    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">타이틀 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
+    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu flowTravelMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">타이틀 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
     $('flowResume').onclick = () => resume();
     $('flowWorld').disabled = !canVisitWorld();
     if (!canVisitWorld()) $('flowWorld').textContent = '월드맵 · 숲을 빠져나오면 열려';

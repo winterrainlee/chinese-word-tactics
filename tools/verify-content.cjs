@@ -70,6 +70,7 @@ if (args.has('--browser')) {
   const python = process.env.PYTHON || 'python3';
   const browserTests = [
     'tests/smoke_design_actions.py',
+    'tests/smoke_design_boundaries.py',
     'tests/smoke_ux.py',
     'tests/smoke_settings.py',
     'tests/smoke_gate_tactical.py',

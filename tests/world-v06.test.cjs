@@ -113,7 +113,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
   assert.match(html, /world-runtime\.js\?v=20261005-actioncontract1/);
-  assert.match(html, /journey\.css\?v=20261005-towerjourney1/);
+  assert.match(html, /journey\.css\?v=20261005-a09a1/);
   assert.match(html, /journey-runtime\.js\?v=20261005-towerjourney1/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);
 
