@@ -448,10 +448,14 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(hub, /side\.className = 'academicHubSideRoom'/);
   assert.match(hub, /function makeSideRoomButton\(room, progress\)/);
   assert.match(hub, /button\.className = 'academicTowerRoom academicTowerSideRoomButton'/);
-  assert.match(hub, /button\.textContent = room\.titleKo/);
+  assert.match(hub, /title\.textContent = room\.titleKo/);
+  assert.match(hub, /if \(state === 'complete'\)/);
+  assert.match(hub, /check\.className = 'academicTowerSideRoomCheck'/);
+  assert.match(hub, /check\.textContent = '✓'/);
   const sideButtonSource = hub.slice(hub.indexOf('function makeSideRoomButton'), hub.indexOf('function appendSideRoom'));
-  assert.doesNotMatch(sideButtonSource, /＋|academicTowerRoomNumber|academicTowerRoomTerms|academicTowerRoomState/);
+  assert.doesNotMatch(sideButtonSource, /＋|academicTowerRoomNumber|academicTowerRoomTerms|academicTowerRoomState|연구 완료[^·]/);
   assert.match(css, /\.academicTowerShell \.academicTowerSideRoomButton\{/);
+  assert.match(css, /\.academicTowerShell \.academicTowerSideRoomCheck\{/);
   assert.match(css, /white-space:nowrap/);
   assert.match(hub, /title: '두 갈래 연구'/);
   assert.match(hub, /room\.number === '02' \|\| room\.number === '03'/);
@@ -484,9 +488,9 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-sidecompact1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-sidecheck1/);
   assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
-  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-sidecompact1/);
+  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-sidecheck1/);
   assert.match(html, /academic-tower-content\.js\?v=20261005-towersidegroup1/);
   assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerbooth4/);
   assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
