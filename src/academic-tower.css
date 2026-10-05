@@ -319,3 +319,22 @@
   font-size:15px;
   line-height:1.6;
 }
+
+
+/* 03A answer comparison to earlier tower vocabulary. */
+.academicTowerMvp .academicRanCompare{
+  margin:10px 0 0;
+  padding-top:9px;
+  border-top:1px solid rgba(90,111,99,.20);
+  color:#514b43;
+  font-size:14px;
+  line-height:1.55;
+}
+.academicTowerMvp .academicRanCompare strong{
+  display:block;
+  margin-bottom:2px;
+  color:#31516e;
+  font-size:12px;
+  font-weight:800;
+}
+.academicTowerMvp .academicRanCompare span{display:block}
