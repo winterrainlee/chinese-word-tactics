@@ -70,6 +70,18 @@ test('workshop repair plaque appears after the workshop finale story', () => {
   assert.equal(items[0].zh, '修繕牌');
 });
 
+test('Academic Tower observation card appears only after the first research result story', () => {
+  const before = { seenStories: ['academic-tower-turn-before-synthesis'] };
+  assert.deepEqual(Array.from(loadKeepsakes(before).keepsakes(before), item => item.id), []);
+
+  const after = { seenStories: ['academic-tower-turn-result'] };
+  const items = loadKeepsakes(after).keepsakes(after);
+  assert.deepEqual(Array.from(items, item => item.id), ['observation-card']);
+  assert.equal(items[0].zh, '觀察卡');
+  assert.equal(items[0].ko, '관찰 카드');
+  assert.equal(items[0].pronunciation, 'ㄍㄨㄢ ㄔㄚˊ ㄎㄚˇ');
+});
+
 test('all earned keepsakes can share the inn room without inventing a new save key', () => {
   const progress = {
     seenStories: ['gate-after-route', 'gate-after-convoy', 'workshop-finale'],
@@ -85,15 +97,17 @@ test('all earned keepsakes can share the inn room without inventing a new save k
   assert.match(runtime, /seenStories/);
   assert.match(runtime, /stageOutcomes/);
   assert.match(runtime, /GUIDE_STORY_ID = 'gate-after-convoy'/);
+  assert.match(runtime, /ACADEMIC_OBSERVATION_STORY_ID = 'academic-tower-turn-result'/);
   assert.doesNotMatch(runtime, /소년이 여행 중 실제로 받아 방에 남겨 둔 물건/);
   assert.match(css, /\.innDeskKeepsakes\{position:absolute;inset:0/);
   assert.match(css, /\.innDeskKeepsake\.guide-plaque/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque/);
+  assert.match(css, /\.innDeskKeepsake\.observation-card/);
   assert.match(html, /inn-keepsakes\.css\?v=20260913-keepsakes4/);
   assert.match(html, /inn-keepsakes-runtime\.js\?v=20260913-keepsakes5/);
 });
 
-test('travel passes live on the clothes chest, guide plaque on the wall, repair plaque on the desk', () => {
+test('travel passes live on the clothes chest, guide plaque on the wall, and paper keepsakes on the desk', () => {
   const css = read('src/inn-keepsakes.css');
   const runtime = read('src/inn-keepsakes-runtime.js');
   assert.match(css, /\.innDeskKeepsake\.west-pass\{left:16\.5%;top:49\.2%/);
@@ -101,6 +115,7 @@ test('travel passes live on the clothes chest, guide plaque on the wall, repair 
   assert.match(css, /\.innDeskKeepsake\.pass-single\{left:18\.7%;top:49\.6%/);
   assert.match(css, /\.innDeskKeepsake\.guide-plaque\{left:43%;top:23\.5%/);
   assert.match(css, /\.innDeskKeepsake\.repair-plaque\{left:84%;top:34\.5%/);
+  assert.match(css, /\.innDeskKeepsake\.observation-card\{left:72\.5%;top:35\.5%/);
   assert.match(runtime, /const passCount = items\.filter\(isPass\)\.length/);
   assert.match(runtime, /passCount === 1/);
   assert.match(runtime, /방 안 여행의 흔적/);
