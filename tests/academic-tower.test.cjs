@@ -431,13 +431,22 @@ test('Academic Tower hub reuses the perforated header as horizontal floor beams'
   assert.match(css, /0 0,[\s\S]*13% 0,13% 12px/);
   assert.match(css, /87% 12px,87% 0,[\s\S]*100% 0/);
   assert.match(css, /\.academicTowerShell \.academicTowerHeader\{[\s\S]*padding-top:18px/);
-  assert.match(css, /\.academicTowerShell \.academicHubGroup\[data-group="optional"\] h3/);
+  assert.match(css, /Optional research belongs to the floor that produced it/);
+  assert.match(css, /\.academicTowerShell \.academicHubSideRoom\{/);
+  assert.match(css, /width:76%/);
+  assert.match(css, /\.academicTowerShell \.academicHubSideRoom h4\{/);
   assert.match(css, /\.academicTowerHeader \.academicTowerBack\{/);
   assert.match(css, /color:#2f3436/);
   assert.match(css, /background:#f7f3eb/);
   assert.doesNotMatch(css, /content:"01F"/);
   assert.doesNotMatch(css, /\.academicTowerShell \.academicTowerRoom::after/);
-  assert.match(hub, /group\.dataset\.group = room\.optional \? 'optional' : room\.number === '01' \? 'first' : room\.number === '02' \? 'branch' : 'synthesis'/);
+  assert.match(hub, /function sideRoomsFor\(groupRooms, optionalRooms\)/);
+  assert.match(hub, /requires\.every\(id => ids\.has\(id\)\)/);
+  assert.match(hub, /side\.className = 'academicHubSideRoom'/);
+  assert.match(hub, /title: '두 갈래 연구'/);
+  assert.match(hub, /room\.number === '02' \|\| room\.number === '03'/);
+  assert.match(hub, /title: '기록 종합'/);
+  assert.doesNotMatch(hub, /group\.dataset\.group = room\.optional/);
 });
 
 test('Academic Tower sky stays outside the warm tower shell and outside other views', () => {
@@ -465,9 +474,9 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towercrown1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towersideroom1/);
   assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
-  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-towerfloors1/);
+  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-towersideroom1/);
   assert.match(html, /academic-tower-content\.js\?v=20261005-towercompare1/);
   assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerbooth4/);
   assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
