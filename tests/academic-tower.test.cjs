@@ -422,12 +422,12 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towerbooth2/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towerbooth3/);
   for (const asset of ['academic-tower-journey-content', 'academic-tower-hub-runtime']) {
     assert.match(html, new RegExp(`${asset}\\.js\\?v=20261005-towerjourney1`));
   }
   assert.match(html, /academic-tower-content\.js\?v=20261005-towerfeedback1/);
-  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerbooth1/);
+  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerbooth3/);
   assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
   assert.match(html, /story-pronunciation-content\.js\?v=20261005-towerexpand1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
