@@ -165,7 +165,7 @@
           id: 'positive-matched', mode: 'guided', valence: 'positive', relation: 'matched', markerZh: '果然',
           expectationZh: '水量增加了。預計：水車會轉得更快。',
           expectationKo: '수량이 늘었다. 예상: 수차가 더 빨리 돌 것이다.',
-          resultZh: '水車果然轉得更快了。', resultKo: '수차가 과연 더 빨리 돌았다.',
+          resultZh: '水車轉得更快了。', resultKo: '수차가 더 빨리 돌았다.',
           reviewZh: '水車果然轉得更快了。',
           successFeedbackKo: '좋은 결과라서가 아니라, 더 빨라질 것이라는 예상과 실제가 맞았어.',
           wrongFeedbackKo: '예상에도 더 빨라진다고 적혀 있어. 실제 결과와 같은지 다시 비교해 봐.'
@@ -174,7 +174,7 @@
           id: 'negative-surprising', mode: 'guided', valence: 'negative', relation: 'surprising', markerZh: '竟然',
           expectationZh: '齒輪修復了。預計：水車會重新轉動。',
           expectationKo: '톱니를 수리했다. 예상: 수차가 다시 움직일 것이다.',
-          resultZh: '水車竟然還是沒有轉動。', resultKo: '수차가 뜻밖에도 여전히 움직이지 않았다.',
+          resultZh: '水車還是沒有轉動。', resultKo: '수차가 여전히 움직이지 않았다.',
           reviewZh: '水車竟然還是沒有轉動。',
           successFeedbackKo: '나쁜 결과라서가 아니라, 다시 움직일 것이라는 예상에서 벗어났어.',
           wrongFeedbackKo: '예상은 다시 움직이는 것이었지만 실제로는 움직이지 않았어. 두 기록의 차이를 봐.'
@@ -232,6 +232,10 @@
           id: 'practice', mode: 'guided', scope: 'records', connectorZh: '然而',
           questionKo: '두 기록을 함께 읽으면, 복구 보고의 어느 주장을 고쳐야 할까?',
           draftKo: '복구 초안 · 수량이 늘었으니 장치 전체도 정상으로 돌아왔다.',
+          draftParts: [
+            { claimId: 'fact-increased', text: '수로를 수리한 뒤 수량이 늘었다.' },
+            { claimId: 'overreach-restored', text: '그러므로 장치 전체도 정상으로 돌아왔다.' }
+          ],
           sources: [
             { id: 'water-increased', text: '修復舊水道後，水量增加了。', labelKo: '수로 수리 뒤 수량이 늘었다' },
             { id: 'device-not-restored', text: '然而，這個裝置還沒有恢復正常。', labelKo: '장치는 아직 정상으로 돌아오지 않았다', connectorZh: '然而' }

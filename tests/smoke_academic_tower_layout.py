@@ -150,7 +150,7 @@ try:
                 selector = f'[data-academic-action="{action}"]'
                 if value:
                     selector += f'[data-value="{value}"]'
-                if action == 'select-revision':
+                if action == 'select-revision' and page.locator('[data-mvp-detail="edit-memo"]').get_attribute('open') is None:
                     page.locator('[data-mvp-detail="edit-memo"] > summary').click()
                 page.locator(selector).click()
             page.locator('[data-mvp-detail="source-meaning-0"] > summary').click()

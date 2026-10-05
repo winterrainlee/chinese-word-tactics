@@ -72,6 +72,8 @@ try:
             action('select-slot', 'actual'); action('select-result', actual)
             action('submit-results')
             assert page.evaluate('document.activeElement.dataset.value') == expected
+            for slot, right in [('absent', absent == 'faster'), ('actual', actual == 'stopped')]:
+                assert page.locator(f'[data-academic-action="select-slot"][data-value="{slot}"]').get_attribute('data-verdict') == ('correct' if right else 'incorrect')
             wrong_slot = page.locator(f'[data-academic-action="select-slot"][data-value="{expected}"]')
             assert wrong_slot.get_attribute('aria-pressed') == 'true'
             assert wrong_slot.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
@@ -109,6 +111,51 @@ try:
         assert not page.locator('#words').is_visible()
         assert page.locator('.academicMvpSource').count() == 2
         assert page.locator('#academicMvpConfirm').count() == 1
+        assert '복구 보고 초안' in page.locator('.academicReportDraft').inner_text()
+        assert page.locator('[data-academic-action="select-claim"]').count() == 2
+        assert '그러므로 장치 전체도 정상' in page.locator('.academicReportDraft').inner_text()
+        action('select-claim', 'fact-increased')
+        assert page.locator('[data-verdict="incorrect"]').count() == 0
+        action('submit-claim')
+        assert '! 다시 살펴봐' in page.locator('.academicVerdictTitle').inner_text()
+        assert page.locator('[data-academic-action="select-claim"].selected').get_attribute('aria-invalid') == 'true'
+        action('select-claim', 'overreach-restored')
+        assert page.locator('[data-verdict="incorrect"]').count() == 0
+        action('submit-claim')
+        assert '고칠 부분을 찾았어' in page.locator('.academicVerdictTitle').inner_text()
+        assert page.locator('[data-mvp-detail="edit-memo"]').get_attribute('open') is not None
+        action('select-revision', 'restore-all'); action('submit-revision')
+        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
+        page.screenshot(path='/tmp/academic-tower-feedback-02-wrong.png', full_page=True)
+        action('select-revision', 'keep-both')
+        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
+        page.locator('#undoBtn').click()
+        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
+        action('select-revision', 'keep-both'); action('submit-revision')
+        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'
+        assert page.evaluate('document.activeElement.id') == 'academicVerdict'
+        page.screenshot(path='/tmp/academic-tower-feedback-02-correct.png', full_page=True)
+        # The new wording/layout must also work with the existing saved schema.
+        page.evaluate('TacticalGame.playStage("academic-tower-turn-03-expectation",{mode:"first-play"})')
+        for i, correct in enumerate(['matched', 'surprising', 'matched', 'surprising']):
+            source = page.locator('.academicExpectationPair').inner_text()
+            assert '果然' not in source and '竟然' not in source
+            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
+            action('select-relation', 'surprising' if correct == 'matched' else 'matched')
+            action('submit-relation')
+            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
+            if i == 0:
+                page.reload(); page.wait_for_function('!!window.AcademicTowerRuntime')
+                assert page.evaluate('TacticalGame.resumeStage("academic-tower-turn-03-expectation")')
+                assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
+                page.screenshot(path='/tmp/academic-tower-feedback-03-wrong.png', full_page=True)
+            action('select-relation', correct)
+            assert page.locator('[data-verdict="incorrect"]').count() == 0
+            action('submit-relation')
+            assert '✓ 기록과 맞아' in page.locator('.academicVerdictTitle').inner_text()
+            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'
+            assert page.locator('.academicExpectationPair').inner_text() == source
+            if i < 3: action('next-case')
         assert not errors, errors
         browser.close()
 finally:

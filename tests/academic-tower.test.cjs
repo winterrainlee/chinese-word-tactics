@@ -168,8 +168,7 @@ test('03 crosses result valence with expectation relation and requires all four 
     ['positive', 'matched'], ['negative', 'surprising'],
     ['negative', 'matched'], ['positive', 'surprising']
   ]);
-  assert.ok(config.cases.slice(0, 2).every(item => item.resultZh.includes(item.markerZh)));
-  assert.ok(config.cases.slice(2).every(item => !item.resultZh.includes(item.markerZh) && item.reviewZh.includes(item.markerZh)));
+  assert.ok(config.cases.every(item => !/[果竟]然/.test(item.expectationZh + item.resultZh) && item.reviewZh.includes(item.markerZh)));
 
   let state = M.createState(config);
   assert.equal(state.phase, 'sort');
@@ -423,12 +422,12 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towerexpand1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towerfeedback1/);
   for (const asset of ['academic-tower-journey-content', 'academic-tower-hub-runtime']) {
     assert.match(html, new RegExp(`${asset}\\.js\\?v=20261005-towerexpand1`));
   }
-  assert.match(html, /academic-tower-content\.js\?v=20261005-towerexpand1/);
-  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerexpand1/);
+  assert.match(html, /academic-tower-content\.js\?v=20261005-towerfeedback1/);
+  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerfeedback1/);
   assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
   assert.match(html, /story-pronunciation-content\.js\?v=20261005-towerexpand1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);

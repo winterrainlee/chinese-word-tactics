@@ -60,6 +60,7 @@ try:
             for value in ['然而:而', '果然:然', '竟然:然']: action('select-character', value)
             action('submit-notice')
             assert page.evaluate('document.activeElement.dataset.value').startswith('然而:')
+            assert page.locator('[data-academic-action="select-character"][data-verdict="incorrect"]').count() == 1
             action('select-character', '然而:然')
             layout()
             page.screenshot(path=f'/tmp/academic-tower-ran-notice-{width}.png', full_page=True)
@@ -78,8 +79,11 @@ try:
                 wrong = next(o for o in card['options'] if o != card['relation'])
                 action('select-ran-relation', wrong); action('submit-comparison')
                 assert page.evaluate('document.activeElement.dataset.academicAction') == 'select-position'
+                assert page.locator('[data-academic-action][data-verdict="incorrect"]').count() == 2
                 action('select-position', card['position']); action('submit-comparison')
                 assert page.evaluate('document.activeElement.dataset.academicAction') == 'select-ran-relation'
+                assert page.locator('[data-academic-action="select-position"].selected').get_attribute('data-verdict') == 'correct'
+                assert page.locator('[data-academic-action="select-ran-relation"].selected').get_attribute('data-verdict') == 'incorrect'
                 action('select-ran-relation', card['relation'])
                 layout()
                 if i == 6: page.screenshot(path=f'/tmp/academic-tower-ran-compare-{width}.png', full_page=True)

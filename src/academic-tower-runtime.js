@@ -673,16 +673,18 @@
       body = `<article class="academicMvpSource"><h2>원본 기록</h2><p lang="zh-Hant">${mvpMarked(original, item.connectorZh)}</p>${mvpDetails('source-meaning', '뜻 보기', `<p>${escapeHtml(translation)}</p>`)}</article>`;
       if (item.scope === 'records') body = item.sources.map((source, index) => `<article class="academicMvpSource academicSourceCard"><h2>원본 기록 ${index + 1}</h2><p lang="zh-Hant">${mvpMarked(source.text, item.connectorZh)}</p>${mvpDetails(`source-meaning-${index}`, '뜻 보기', `<p>${escapeHtml(source.labelKo)}</p>`)}</article>`).join('');
       if (workbench.phase === 'claim') {
-        const claims = orderedItems(workbench, item, 'claim').map(option => mvpButton('select-claim', option.id, escapeHtml(option.labelKo), workbench.claimId === option.id)).join('');
-        body += `<section class="academicMvpMemo"><h2>검토 메모 · 고칠 주장을 눌러</h2>${claims}</section>`;
+        const claims = item.draftParts
+          ? item.draftParts.map(part => mvpButton('select-claim', part.claimId, escapeHtml(part.text), workbench.claimId === part.claimId)).join('')
+          : orderedItems(workbench, item, 'claim').map(option => mvpButton('select-claim', option.id, escapeHtml(option.labelKo), workbench.claimId === option.id)).join('');
+        body += `<section class="academicMvpMemo${item.draftParts ? ' academicReportDraft' : ''}"><h2>${item.draftParts ? '복구 보고 초안' : '검토 메모 · 고칠 주장을 눌러'}</h2>${item.draftParts ? '<p class="academicMvpHint">위 두 기록과 맞지 않는 부분을 눌러 고쳐보자.</p>' : ''}${claims}</section>`;
       } else {
         const chosen = item.revisions.find(option => option.id === (done ? item.correctRevisionId : workbench.revisionId));
-        const preview = chosen ? chosen.labelZh || chosen.labelKo : item.draftKo;
+        const preview = chosen ? chosen.labelZh || chosen.labelKo : item.draftParts ? '수정안을 골라 보고를 완성해.' : item.draftKo;
         const choices = orderedItems(workbench, item, 'revision').map(option => {
           const meaning = option.labelZh ? mvpDetails(`meaning-${option.id}`, '뜻 보기', `<p>${escapeHtml(option.labelKo)}</p>`) : '';
           return mvpButton('select-revision', option.id, `<span lang="${option.labelZh ? 'zh-Hant' : 'ko'}">${escapeHtml(option.labelZh || option.labelKo)}</span>`, workbench.revisionId === option.id) + meaning;
         }).join('');
-        body += `<section class="academicMvpMemo"><h2>${done ? '확정한 메모' : '수정 중인 메모'}</h2><p class="academicMvpPreview" lang="${chosen?.labelZh ? 'zh-Hant' : 'ko'}">${escapeHtml(preview)}</p>${done ? `<p>${escapeHtml(item.connectionKo)}</p>` : mvpDetails('edit-memo', '메모를 눌러 수정안 고르기', choices)}</section>`;
+        body += `<section class="academicMvpMemo"><h2>${done ? '확정한 메모' : '수정 중인 메모'}</h2>${item.draftParts ? `<p class="academicDraftBefore">고치기 전: ${escapeHtml(item.draftParts.map(part => part.text).join(' '))}</p>` : ''}<p class="academicMvpPreview" lang="${chosen?.labelZh ? 'zh-Hant' : 'ko'}">${escapeHtml(preview)}</p>${done ? `<p>${escapeHtml(item.connectionKo)}</p>` : mvpDetails('edit-memo', '수정안 고르기', choices)}</section>`;
       }
     } else {
       // Source spans are explicit: a normalized result such as 恢復正常 may contain 了 in the original.
@@ -727,7 +729,7 @@
       feedback = check.step === 'pair' ? check.feedbackKo : check.step === 'absent' ? option?.absentFeedbackKo : check.step === 'actual' ? option?.actualFeedbackKo : option?.feedbackKo;
     }
     const feedbackHtml = `<p class="academicMvpFeedback" role="status" aria-live="polite">${escapeHtml(feedback || '')}</p>`;
-    body = body.replace(/(<section class="academicMvpMemo"><h2>[\s\S]*?<\/h2>)/, `$1${feedbackHtml}`);
+    body = body.replace(/(<section class="academicMvpMemo(?: [^"]*)?"><h2>[\s\S]*?<\/h2>)/, `$1${feedbackHtml}`);
     return `<div class="academicCaseProgress">${item.mode === 'guided' ? '연습' : '적용'} · ${workbench.caseIndex + 1} / ${config.cases.length}</div>${body}`;
   }
 
@@ -735,12 +737,67 @@
     return `<p class="academicMvpFeedback" role="status" aria-live="polite">${escapeHtml(text || '')}</p>`;
   }
 
+  // Selection is only a preview. Verdicts are derived from the saved check,
+  // so undo/reload never leave a stale red or green mark on a new answer.
+  function renderVerdict(config, workbench, message) {
+    const feedback = gridEl.querySelector('.academicMvpFeedback');
+    if (!feedback) return;
+    const check = workbench.lastCheck;
+    const finished = ['review', 'compare-review', 'complete'].includes(workbench.phase);
+    const pairAccepted = config.kind === 'replacement-link' && workbench.phase === 'choose-link';
+    const correct = typeof check?.correct === 'boolean' ? check.correct
+      : finished || (pairAccepted && !workbench.linkId) ? true : null;
+    const text = message ?? feedback.querySelector('.academicVerdictReason')?.textContent ?? feedback.textContent;
+    feedback.id = 'academicVerdict';
+    const label = correct === true ? check?.step === 'claim' ? '✓ 고칠 부분을 찾았어' : '✓ 기록과 맞아'
+      : correct === false ? '! 다시 살펴봐' : '';
+    feedback.dataset.verdict = correct === null ? 'neutral' : correct ? 'correct' : 'incorrect';
+    feedback.innerHTML = `${label ? `<strong class="academicVerdictTitle">${label}</strong>` : ''}${text ? `<span class="academicVerdictReason">${escapeHtml(text)}</span>` : ''}`;
+    const mark = (element, matched) => {
+      if (!element) return;
+      element.dataset.verdict = matched ? 'correct' : 'incorrect';
+      element.dataset.verdictLabel = matched ? '✓ 맞아' : '! 다시 살펴봐';
+      element.setAttribute('aria-describedby', 'academicVerdict');
+      if (element.tagName === 'BUTTON') element.setAttribute('aria-invalid', String(!matched));
+    };
+    const selected = action => gridEl.querySelector(`[data-academic-action="${action}"].selected`);
+    if (config.kind === 'replacement-link') {
+      if (check?.step === 'pair' || pairAccepted || finished) {
+        const item = caseFor(config, workbench);
+        const slots = gridEl.querySelectorAll('.academicMvpSlots > *');
+        mark(slots[0], workbench.absentResultId === item.absentResultId);
+        mark(slots[1], workbench.actualResultId === item.actualResultId);
+      }
+      if (check?.step === 'link' || finished) {
+        mark(selected('select-link'), correct); mark(gridEl.querySelector('.academicMvpPreview'), correct);
+      }
+    } else if (config.kind === 'ran-observation') {
+      if (correct === null) return;
+      if (workbench.phase === 'notice') {
+        gridEl.querySelectorAll('[data-academic-action="select-character"].selected').forEach(el => mark(el, el.dataset.value.endsWith(':然')));
+      } else if (workbench.phase === 'compare') {
+        const card = config.cards[workbench.caseIndex];
+        mark(selected('select-position'), workbench.selectedPosition === card.position);
+        mark(selected('select-ran-relation'), workbench.selectedRelation === card.relation);
+      } else if (workbench.phase === 'compare-review' || workbench.selectedWord) {
+        mark(gridEl.querySelector('.academicMvpPreview'), correct); mark(selected('select-ran-word'), correct);
+      }
+    } else if (correct !== null) {
+      if (config.kind === 'claim-revision' && check?.step === 'claim') {
+        mark(selected('select-claim'), correct);
+      } else {
+        mark(gridEl.querySelector('.academicMvpPreview'), correct);
+        gridEl.querySelectorAll('button.selected[data-academic-action]').forEach(el => mark(el, correct));
+      }
+    }
+  }
+
   function renderExpectationMvp(config, workbench) {
     const item = caseFor(config, workbench), done = workbench.phase !== 'sort';
     const relation = config.relations.find(option => option.id === workbench.relationId);
     const preview = item.reviewZh.replace(item.markerZh, relation?.labelZh || '＿＿');
     const feedback = done ? item.successFeedbackKo : workbench.lastCheck?.correct === false ? item.wrongFeedbackKo : '';
-    return `<div class="academicCaseProgress">${item.mode === 'guided' ? '연습' : '적용'} · ${workbench.caseIndex + 1} / ${config.cases.length}</div><div class="academicExpectationPair"><article class="academicMvpSource academicExpectationCard"><h2>예상 기록</h2><p lang="zh-Hant">${escapeHtml(item.expectationZh)}</p></article><article class="academicMvpSource academicExpectationCard result"><h2>실제 기록</h2><p lang="zh-Hant">${mvpMarked(item.resultZh, item.mode === 'guided' ? item.markerZh : '')}</p></article></div><section class="academicMvpMemo academicExpectationReview"><h2>예상과 실제를 잇는 말</h2>${mvpFeedback(feedback)}<p class="academicMvpPreview" lang="zh-Hant">${mvpMarked(preview, relation?.labelZh || '')}</p>${done ? '' : `<div class="academicMvpLinks">${config.relations.map(option => mvpButton('select-relation', option.id, `<span lang="zh-Hant">${escapeHtml(option.labelZh)}</span><small>${escapeHtml(option.labelKo)}</small>`, workbench.relationId === option.id)).join('')}</div>`}</section>`;
+    return `<div class="academicCaseProgress">${item.mode === 'guided' ? '연습' : '적용'} · ${workbench.caseIndex + 1} / ${config.cases.length}</div><div class="academicExpectationPair"><article class="academicMvpSource academicExpectationCard"><h2>예상 기록</h2><p lang="zh-Hant">${escapeHtml(item.expectationZh)}</p></article><article class="academicMvpSource academicExpectationCard result"><h2>실제 기록</h2><p lang="zh-Hant">${escapeHtml(item.resultZh)}</p></article></div><section class="academicMvpMemo academicExpectationReview"><h2>예상과 실제를 잇는 말</h2>${mvpFeedback(feedback)}<p class="academicMvpPreview" lang="zh-Hant">${mvpMarked(preview, relation?.labelZh || '')}</p>${done ? '' : mvpDetails('word-help', '표현 뜻 살펴보기', config.relations.map(option => mvpWord(option.labelZh)).join(' · '))}${done ? '' : `<div class="academicMvpLinks">${config.relations.map(option => mvpButton('select-relation', option.id, `<span lang="zh-Hant">${escapeHtml(option.labelZh)}</span><small>${escapeHtml(option.labelKo)}</small>`, workbench.relationId === option.id)).join('')}</div>`}</section>`;
   }
 
   function renderClozeMvp(config, workbench) {
@@ -866,7 +923,7 @@
     if (isMvp(stage)) {
       const feedback = gridEl.querySelector('.academicMvpFeedback');
       if (feedback && result.feedback) {
-        feedback.textContent = result.feedback;
+        renderVerdict(config, state.academicTower, result.feedback);
         if (result.correct === false) {
           const wrongSlot = type === 'submit-results'
             ? gridEl.querySelector(`[data-academic-action="select-slot"][data-value="${state.academicTower.resultSlot}"]`)
@@ -884,6 +941,11 @@
           if (target) { target.focus({ preventScroll: true }); target.scrollIntoView({ block: 'nearest' }); }
           else feedback.scrollIntoView({ block: 'nearest' });
         }
+      }
+      if (result.correct === true && feedback && state.academicTower.phase !== 'choose-link') {
+        feedback.setAttribute('tabindex', '-1');
+        feedback.focus({ preventScroll: true });
+        feedback.scrollIntoView({ block: 'nearest' });
       }
     } else if (result.feedback) setStatus(result.feedback, result.correct === false ? 'info' : 'good');
     if (!solved) return;
@@ -934,16 +996,20 @@
     const sameRecord = gridEl.dataset.mvpRecord === recordKey;
     const enteringLink = workbench.phase === 'choose-link' &&
       (!sameRecord || gridEl.dataset.mvpPhase !== 'choose-link');
+    const enteringReportRevision = config.kind === 'claim-revision' && caseFor(config, workbench)?.draftParts && workbench.phase === 'revision' &&
+      (!sameRecord || gridEl.dataset.mvpPhase === 'claim');
     const scroll = sameRecord ? gridEl.scrollTop : 0;
     const opened = sameRecord ? [...gridEl.querySelectorAll('details[open][data-mvp-detail]')].map(el => el.dataset.mvpDetail) : [];
     const focused = priorFocus;
     const focusAction = focused?.dataset?.academicAction;
     const focusValue = focused?.dataset?.value;
     gridEl.innerHTML = renderWorkbench(config, workbench);
+    renderVerdict(config, workbench);
     gridEl.dataset.mvpRecord = recordKey;
     gridEl.dataset.mvpPhase = workbench.phase;
     if (isMvp(stage)) {
       gridEl.querySelectorAll('details[data-mvp-detail]').forEach(el => { el.open = opened.includes(el.dataset.mvpDetail); });
+      if (enteringReportRevision) gridEl.querySelector('[data-mvp-detail="edit-memo"]').open = true;
       gridEl.querySelectorAll('[data-academic-word]').forEach(button => {
         button.onclick = () => {
           if (!WORDS[button.dataset.academicWord]) return;

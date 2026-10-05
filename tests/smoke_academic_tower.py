@@ -132,6 +132,7 @@ try:
         assert "水量增加了" in initial_pair
         assert "수량이 늘었다" not in initial_pair
         assert "수차가 과연" not in initial_pair
+        page.locator('[data-mvp-detail="word-help"] > summary').click()
         page.locator('[data-academic-word="果然"]').first.click()
         assert "과연" in page.locator("#sheet").inner_text()
         page.locator("#sheet .sheetactions button").click()
@@ -226,6 +227,7 @@ try:
         assert "더 빨라질" not in page.locator(".academicClozeRecord").inner_text()
         choose(page, "select-connector", "所以")
         choose(page, "submit-connector")
+        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
         assert "결과로 잇는 말" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
         for connector in ["果然", "卻", "竟然", "然而", "反而", "然而", "反而", "不能只憑這些記錄決定水量，還要確認裝置的情況。"]:
             if connector == "反而" and "記錄 3" in page.locator(".academicCaseProgress").inner_text():
@@ -244,7 +246,9 @@ try:
                 assert not page.locator("#flowNext").is_visible()
                 page.locator("#undoBtn").click()
             choose(page, "select-connector", connector)
+            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
             choose(page, "submit-connector")
+            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'
             if page.locator('[data-academic-action="next-blank"]').count():
                 choose(page, "next-blank")
         choose(page, "finish-mvp")
