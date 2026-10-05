@@ -33,9 +33,10 @@ test('A09a preserves meaningful state and work-surface boundaries', () => {
   assert.match(settings, /\.settingsAction:focus-visible[^}]*outline:3px solid var\(--blue\)/s);
 });
 
-test('A09a assets share a deployment cache key and build label', () => {
-  assert.match(html, /name="cwt-build" content="2026-10-05-a09a1"/);
-  for (const asset of ['settings.css', 'journey.css', 'flow-runtime.js']) {
-    assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261005-a09a1`));
+test('A09a settings stay cached while later journey work refreshes its changed assets', () => {
+  assert.match(html, /name="cwt-build" content="2026-10-06-a10a061"/);
+  assert.match(html, /settings\.css\?v=20261005-a09a1/);
+  for (const asset of ['journey.css', 'flow-runtime.js']) {
+    assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261006-a10a061`));
   }
 });

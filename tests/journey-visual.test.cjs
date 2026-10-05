@@ -25,7 +25,8 @@ test('journey regions and events are flat timeline records, not rounded cards', 
 });
 
 test('journey rows keep full type labels while compacting status actions by state', () => {
-  assert.match(runtime, /typeLabel = node\.type === 'story' \? '이야기' : '스테이지'/);
+  assert.match(runtime, /typeLabel = node\.type === 'story' \? '이야기' : reference\?\.optional \? '선택 연구'/);
+  assert.match(runtime, /\? '연구' : '스테이지'/);
   assert.match(runtime, /`준비 중 · 스테이지 \$\{section\.plannedStageCount\}개`/);
   assert.match(runtime, /make\('span', 'journeyNodeMeta'\)/);
   assert.match(runtime, /const actionLabel = current \? '계속' : done \? '다시'/);
@@ -33,7 +34,7 @@ test('journey rows keep full type labels while compacting status actions by stat
   assert.match(runtime, /action\.setAttribute\('aria-hidden', 'true'\)/);
   assert.doesNotMatch(runtime, /journeyNodeNow|'지금'/);
   assert.match(runtime, /button\.setAttribute\('aria-label'/);
-  assert.match(css, /\.journeyNode\{[^}]*grid-template-areas:'title state' 'meta state'[^}]*min-height:58px/s);
+  assert.match(css, /\.journeyNode\{[^}]*grid-template-areas:'number title state' 'number meta state'[^}]*min-height:58px/s);
   assert.match(css, /\.journeyNodeState\{[^}]*width:48px[^}]*min-height:44px/s);
   assert.match(css, /\.journeyNodeAction\[data-icon\]\{[^}]*width:19px[^}]*height:19px[^}]*background-color:currentColor/s);
   assert.match(css, /data-icon="replay"[^}]*ui-restart\.svg/s);
@@ -62,6 +63,26 @@ test('journey highlights the recommended current point without changing replay l
   assert.match(css, /\.journeyNode\[data-quest-current="true"\]/);
 });
 
+test('journey stage references are a quiet fixed text column with accessible context', () => {
+  assert.match(runtime, /const reference = node\.stageReference/);
+  assert.match(runtime, /button\.dataset\.stageNumber = reference\.number/);
+  assert.match(runtime, /`\$\{reference\.groupLabel\} \$\{reference\.number\}`/);
+  assert.match(runtime, /make\('span', 'journeyNodeNumber', reference\.number\)/);
+  assert.match(css, /\.journeyNodeNumber\{[^}]*font-variant-numeric:tabular-nums[^}]*background:transparent[^}]*border:0[^}]*border-radius:0/s);
+});
+
+test('journey guidance follows the actual continue destination and scopes replay help', () => {
+  const progress = read('src/journey-progress.js');
+  const flow = read('src/flow-runtime.js');
+  assert.match(progress, /function continueAction\(progress\)/);
+  assert.match(flow, /const action = P\.continueAction\(store\.get\(\)\)/);
+  assert.match(runtime, /const continueAction = JourneyProgress\.continueAction\(progress\)/);
+  assert.match(runtime, /journeyGuidance/);
+  assert.match(runtime, /filter !== 'stage'/);
+  assert.match(runtime, /entry\.started \? '진행 중' : '열림'/);
+  assert.match(html, /id="journeyReplayGuidance"[^>]*hidden/);
+});
+
 test('optional requests render as collection, place, request, and event levels', () => {
   assert.match(runtime, /chapter\.kind !== 'quest-collection'/);
   assert.match(runtime, /function appendQuestLocation\(/);
@@ -69,7 +90,7 @@ test('optional requests render as collection, place, request, and event levels',
   assert.match(runtime, /journeyQuestLocation/);
   assert.match(runtime, /journeyQuestSummary/);
   assert.match(runtime, /journeyQuestBody/);
-  assert.match(runtime, /entry\.done \? '완료' : '진행 중'/);
+  assert.match(runtime, /entry\.done \? '완료' : entry\.started \? '진행 중' : '열림'/);
   assert.match(css, /\.journeyQuestSummary\{[^}]*min-height:48px/s);
   assert.match(css, /\.journeyQuestBody\{/);
   assert.match(css, /\.journeyQuestSummary:focus-visible[^\{]*\{outline:3px solid var\(--blue\)/);
@@ -97,8 +118,9 @@ test('journey reset is separated from the primary continue action', () => {
 });
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
-  assert.match(html, /journey\.css\?v=20261005-a09a1/);
-  assert.match(html, /journey-runtime\.js\?v=20261005-towerjourney1/);
-  assert.match(html, /journey-progress\.js\?v=20260925-regionhub1/);
-  assert.match(html, /flow-runtime\.js\?v=20261005-a09a1/);
+  assert.match(html, /stage-reference\.js\?v=20261006-a10a061/);
+  assert.match(html, /journey\.css\?v=20261006-a10a061/);
+  assert.match(html, /journey-runtime\.js\?v=20261006-a10a061/);
+  assert.match(html, /journey-progress\.js\?v=20261006-a10a061/);
+  assert.match(html, /flow-runtime\.js\?v=20261006-a10a061/);
 });

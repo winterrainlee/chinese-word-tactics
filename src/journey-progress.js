@@ -28,22 +28,26 @@
     }
     return [{ chapter, section, quest: null, sequence: section.sequence || [] }];
   }));
-  const allNodes = () => containers().flatMap(({ chapter, section, quest, sequence }) => sequence.map(node => ({
-    ...node,
-    nodeId: nodeId(node),
-    chapterId: chapter.id,
-    chapterKind: chapter.kind || 'campaign',
-    sectionId: section.id,
-    questId: quest?.id || null,
-    entryRegionId: node.entryRegionId || quest?.entryRegionId || section.entryRegionId || section.regionId || null,
-    journeyRevealRequires: strings([
-      ...strings(section.revealRequires),
-      ...strings(quest?.revealRequires),
-      ...strings(node.journeyRevealRequires)
-    ]),
-    hiddenFromJourney: Boolean(chapter.hiddenFromJourney || section.hiddenFromJourney ||
-      quest?.hiddenFromJourney || node.hiddenFromJourney)
-  })));
+  const allNodes = () => containers().flatMap(({ chapter, section, quest, sequence }) => sequence.map(node => {
+    const stageReference = node.type === 'stage' ? globalThis.JourneyStageReference?.get(node.id) || null : null;
+    return {
+      ...node,
+      nodeId: nodeId(node),
+      chapterId: chapter.id,
+      chapterKind: chapter.kind || 'campaign',
+      sectionId: section.id,
+      questId: quest?.id || null,
+      stageReference,
+      entryRegionId: node.entryRegionId || quest?.entryRegionId || section.entryRegionId || section.regionId || null,
+      journeyRevealRequires: strings([
+        ...strings(section.revealRequires),
+        ...strings(quest?.revealRequires),
+        ...strings(node.journeyRevealRequires)
+      ]),
+      hiddenFromJourney: Boolean(chapter.hiddenFromJourney || section.hiddenFromJourney ||
+        quest?.hiddenFromJourney || node.hiddenFromJourney)
+    };
+  }));
   const journeyRequirementMet = (id, progress) => {
     const required = getNode(id);
     return Boolean(required && (isComplete(required, progress) || progress.acknowledgedNodes.includes(id)));
@@ -110,6 +114,15 @@
     // Internal place stories such as the inn finale are entered from their world place, not generic resume.
     return campaignNodes(progress).find(node => isAvailable(node, progress) && !isComplete(node, progress)) || null;
   }
+  function continueAction(progress) {
+    const node = recommendedNode(progress);
+    if (!node) return Object.freeze({ kind: 'world', label: '월드맵으로', node });
+    if (progress.lastLocation?.nodeId === node.nodeId) {
+      return Object.freeze({ kind: 'resume', label: '이어서 여행하기', node });
+    }
+    if (node.entryRegionId) return Object.freeze({ kind: 'world', label: '월드맵으로', node });
+    return Object.freeze({ kind: 'node', label: '이어서 여행하기', node });
+  }
   function resumeNode(progress) {
     const saved = getNode(progress.lastLocation?.nodeId);
     return saved && isAvailable(saved, progress) && !isComplete(saved, progress) ? saved : recommendedNode(progress);
@@ -166,5 +179,5 @@
     });
   }
   globalThis.JourneyProgress = Object.freeze({ KEY, nodeId, allNodes, nodes, campaignNodes, getNode, normalize,
-    isComplete, isAvailable, isJourneyVisible, nextNode, recommendedNode, resumeNode, getHeroRole, createStore });
+    isComplete, isAvailable, isJourneyVisible, nextNode, recommendedNode, continueAction, resumeNode, getHeroRole, createStore });
 })();

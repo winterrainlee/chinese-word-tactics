@@ -82,8 +82,10 @@
     const id = JourneyProgress.nodeId(node), campaignCurrent = id === recommendedId;
     const questCurrent = id === questCurrentId;
     const current = campaignCurrent || questCurrent;
+    const reference = node.stageReference;
     const title = node.type === 'story' ? content.titleKo : content.subtitle;
-    const typeLabel = node.type === 'story' ? '이야기' : '스테이지';
+    const typeLabel = node.type === 'story' ? '이야기' : reference?.optional ? '선택 연구' :
+      reference?.groupId === 'academic-tower-turning-directions' ? '연구' : '스테이지';
     const terms = open && node.type === 'stage' ? content.title.replaceAll('・', ' · ') : '';
     const stateLabel = current
       ? `${questCurrent ? '의뢰 ' : ''}진행 중 · ${node.type === 'stage' ? '이어서 플레이' : '이어서 보기'}`
@@ -95,8 +97,10 @@
     button.dataset.state = done ? 'complete' : open ? 'available' : 'locked';
     button.dataset.current = String(campaignCurrent);
     button.dataset.questCurrent = String(questCurrent);
+    if (reference) button.dataset.stageNumber = reference.number;
     if (campaignCurrent) button.setAttribute('aria-current', 'step');
-    button.setAttribute('aria-label', [stateLabel, typeLabel, open ? title : '제목 비공개', terms].filter(Boolean).join(' · '));
+    const referenceLabel = reference ? `${reference.groupLabel} ${reference.number}` : '';
+    button.setAttribute('aria-label', [stateLabel, referenceLabel, typeLabel, open ? title : '제목 비공개', terms].filter(Boolean).join(' · '));
 
     const meta = make('span', 'journeyNodeMeta');
     meta.append(make('span', 'journeyType', typeLabel));
@@ -108,6 +112,11 @@
       action.setAttribute('aria-hidden', 'true');
     }
     state.append(action);
+    if (reference) {
+      const number = make('span', 'journeyNodeNumber', reference.number);
+      number.setAttribute('aria-hidden', 'true');
+      button.append(number);
+    }
     button.append(make('strong', 'journeyNodeTitle', open ? title : '???'), meta, state);
     button.onclick = () => {
       const mode = done ? 'replay' : (questCurrent || node.type === 'story') ? 'first-play' : 'replay';
@@ -198,7 +207,8 @@
   function questEntry(quest, progress) {
     const nodes = visibleSequence(quest.sequence, progress);
     const current = nodes.find(node => JourneyProgress.isAvailable(node, progress) && !JourneyProgress.isComplete(node, progress)) || null;
-    return { quest, nodes, current, done: nodes.length > 0 && nodes.every(node => JourneyProgress.isComplete(node, progress)) };
+    const started = nodes.some(node => JourneyProgress.isComplete(node, progress) || progress.lastLocation?.nodeId === node.nodeId);
+    return { quest, nodes, current, started, done: nodes.length > 0 && nodes.every(node => JourneyProgress.isComplete(node, progress)) };
   }
 
   function appendQuestLocation(chapterBody, chapter, section, progress, recommendedId, forceOpen) {
@@ -231,7 +241,7 @@
       const questNames = make('span', 'journeyQuestHead');
       questNames.append(make('strong', 'journeyQuestKo', entry.quest.titleKo));
       if (entry.quest.titleZh) questNames.append(make('span', 'journeyQuestZh', entry.quest.titleZh));
-      questSummary.append(questNames, make('span', 'journeyQuestState', entry.done ? '완료' : '진행 중'));
+      questSummary.append(questNames, make('span', 'journeyQuestState', entry.done ? '완료' : entry.started ? '진행 중' : '열림'));
       questDetails.append(questSummary);
 
       const questBody = make('div', 'journeyQuestBody');
@@ -258,11 +268,44 @@
     if (chapter.kind !== 'quest-collection') return null;
     for (const section of chapter.sections) {
       for (const quest of section.quests || []) {
-        const current = questEntry(quest, progress).current;
-        if (current) return current;
+        const entry = questEntry(quest, progress);
+        if (entry.started && entry.current) return entry.current;
       }
     }
     return null;
+  }
+
+  function guidanceFor(progress, action, activeQuest) {
+    const milestones = progress.completedMilestones || [];
+    const towerReferences = globalThis.JourneyStageReference?.all().filter(reference =>
+      reference.groupId === 'academic-tower-turning-directions' && !reference.optional) || [];
+    const towerDone = towerReferences.filter(reference => progress.completedStages.includes(reference.stageId)).length;
+    const towerStarted = milestones.includes('academic-tower-entered') || towerDone > 0 ||
+      progress.seenStories.some(id => id.startsWith('academic-tower-'));
+    const chapterComplete = milestones.includes('chapter1-complete');
+    const chapterStarted = progress.seenStories.includes('chapter1-roadside-merchant') ||
+      progress.completedStages.some(id => /^(gate|workshop|market)-stage-/.test(id));
+    const mainAction = action.kind === 'world' ? '위 버튼은 월드맵으로 이동해.' : '본편은 위 버튼으로 이어갈 수 있어.';
+
+    if (activeQuest && towerStarted) {
+      return `${mainAction} 진행 중인 자유 의뢰와 학술탑 연구는 아래 각 기록의 ‘계속’에서 이어갈 수 있어.`;
+    }
+    if (activeQuest) {
+      return `${mainAction} 진행 중인 자유 의뢰는 아래 의뢰의 ‘계속’에서 이어갈 수 있어.`;
+    }
+    if (towerStarted) {
+      const towerState = milestones.includes('academic-tower-turn-foundation')
+        ? '학술탑의 첫 연구 묶음을 마쳤어.'
+        : towerDone > 0 ? `학술탑 본선 연구 ${towerDone}/5를 마쳤어.` : '학술탑 연구가 시작됐어.';
+      return `${mainAction} ${towerState} 아래 현재 연구의 ‘계속’에서 이어갈 수 있어.`;
+    }
+    if (chapterComplete) {
+      return '1장의 여행을 마쳤어. 새 의뢰와 연구는 월드맵에서 장소를 골라 시작할 수 있어.';
+    }
+    if (chapterStarted) {
+      return action.kind === 'world' ? '다음 본편은 월드맵에서 장소를 골라 이어가.' : '진행 중인 1장 본편을 위 버튼으로 이어갈 수 있어.';
+    }
+    return '위 버튼으로 고향을 떠나는 여정을 이어갈 수 있어.';
   }
 
   function focusCurrentNode() {
@@ -294,8 +337,13 @@
     const forceCurrentOpen = Boolean(options.focusCurrent && focusNodeId);
     const focusRegionId = typeof options.focusRegionId === 'string' ? options.focusRegionId : null;
     if (focusRegionId) filter = focusRegionId === 'academic-tower' ? 'all' : 'stage';
-    $('journeyContinue').textContent = recommended ? '이어서 여행하기' : '월드맵으로';
+    const continueAction = JourneyProgress.continueAction(progress);
+    $('journeyContinue').textContent = continueAction.label;
+    $('journeyContinue').dataset.destination = continueAction.kind;
     $('journeyContinue').onclick = () => GameFlow.continueCampaign();
+    $('journeyGuidance').textContent = guidanceFor(progress, continueAction, activeQuest);
+    const replayGuidance = $('journeyReplayGuidance');
+    replayGuidance.hidden = filter !== 'stage' || !progress.completedStages.length;
     $('journeySummary').textContent = `스테이지 ${implementedStages.filter(n => JourneyProgress.isComplete(n, progress)).length}/${implementedStages.length} · 이야기 ${implementedStories.filter(n => JourneyProgress.isComplete(n, progress)).length}/${implementedStories.length}`;
     document.querySelectorAll('[data-journey-filter]').forEach(button => {
       button.setAttribute('aria-pressed', String(button.dataset.journeyFilter === filter));

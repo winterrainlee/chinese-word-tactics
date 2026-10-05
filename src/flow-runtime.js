@@ -156,11 +156,10 @@
     return playNode(node);
   }
   function continueCampaign() {
-    const progress = store.get(), node = P.recommendedNode(progress);
-    if (!node) return showWorld();
-    if (progress.lastLocation?.nodeId === node.nodeId) return resume();
-    if (nodeRegionId(node)) return showWorld();
-    return playNode(node);
+    const action = P.continueAction(store.get());
+    if (action.kind === 'world') return showWorld();
+    if (action.kind === 'resume') return resume();
+    return playNode(action.node);
   }
   function resume() {
     const progress = store.get(), location = progress.lastLocation, node = P.resumeNode(progress);

@@ -87,6 +87,7 @@ if (args.has('--browser')) {
     'tests/smoke_academic_tower_layout.py',
     'tests/smoke_story_pronunciation.py',
     'tests/smoke_lexicon.py',
+    'tests/smoke_journey_numbering.py',
     'tests/smoke_journey.py'
   ];
   for (const script of browserTests) run(`Browser regression: ${script}`, python, [script]);

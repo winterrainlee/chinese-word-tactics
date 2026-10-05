@@ -84,6 +84,25 @@ test('checkpoint takes precedence and view/type mismatch is rejected', () => {
   assert.equal(P.recommendedNode(p).id, 'prologue-departure');
   assert.equal(P.normalize({ lastLocation: { view: 'story', nodeId: 'stage:stage-0' } }).lastLocation, null);
 });
+test('continue action describes the same destination used by the coordinator', () => {
+  const early = P.normalize(null);
+  assert.deepEqual({ kind: P.continueAction(early).kind, label: P.continueAction(early).label },
+    { kind: 'node', label: '이어서 여행하기' });
+
+  const region = P.normalize({
+    seenStories: ['prologue-departure', 'prologue-forest-edge', 'chapter1-roadside-merchant'],
+    completedStages: Array.from({ length: 6 }, (_, index) => `stage-${index}`),
+    lastLocation: { view: 'world' }
+  });
+  const worldAction = P.continueAction(region);
+  assert.equal(worldAction.node.id, 'gate-arrival');
+  assert.deepEqual({ kind: worldAction.kind, label: worldAction.label }, { kind: 'world', label: '월드맵으로' });
+
+  region.lastLocation = { view: 'story', nodeId: 'story:gate-arrival', beat: 0 };
+  const resumeAction = P.continueAction(region);
+  assert.deepEqual({ kind: resumeAction.kind, label: resumeAction.label },
+    { kind: 'resume', label: '이어서 여행하기' });
+});
 test('all node IDs and story/stage references are unique and prerequisites resolve', () => {
   const nodes = P.nodes(); assert.equal(new Set(nodes.map(n => n.nodeId)).size, nodes.length);
   for (const node of nodes) {
