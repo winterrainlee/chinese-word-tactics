@@ -20,141 +20,140 @@
     return Array.isArray(progress?.completedMilestones) && progress.completedMilestones.includes(ENTERED_MILESTONE);
   }
 
+  function makeRoomButton(room, progress) {
+    const state = roomState(room, progress);
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'academicTowerRoom';
+    button.dataset.roomId = room.id; button.dataset.state = state;
+    button.disabled = state === 'locked' || state === 'planned';
+
+    const number = document.createElement('span');
+    number.className = 'academicTowerRoomNumber'; number.textContent = room.optional ? '＋' : room.number;
+    const names = document.createElement('span');
+    names.className = 'academicTowerRoomNames';
+    const ko = document.createElement('strong'); ko.textContent = room.titleKo;
+    if (room.optional && state === 'complete') ko.textContent = '색인 옆의 메모 · 같은 然';
+    const terms = document.createElement('span');
+    terms.className = 'academicTowerRoomTerms'; terms.lang = 'zh-Hant';
+    terms.textContent = room.expressions.join(' · ') || (room.optional ? '선택 연구' : '종합');
+    names.append(ko, terms);
+    if (state === 'locked') {
+      const prerequisite = document.createElement('small');
+      const missing = (room.requires || []).filter(id => !progress.completedStages.includes(id));
+      prerequisite.textContent = missing.length
+        ? `먼저 연구: ${missing.map(id => bundle.rooms.find(candidate => candidate.id === id)?.titleKo || id).join(' · ')}`
+        : '여정에서 앞선 이야기를 먼저 확인해.';
+      names.append(prerequisite);
+    }
+    const stateLabel = document.createElement('span');
+    stateLabel.className = 'academicTowerRoomState';
+    stateLabel.textContent = state === 'complete' ? '✓ 연구 완료' : state === 'available' ? '연구하기' : state === 'planned' ? '준비 중' : '잠김';
+    if (state === 'complete') button.setAttribute('aria-label', `${ko.textContent} · 연구 완료 · 다시 연구`);
+    button.append(number, names, stateLabel);
+    if (!button.disabled) {
+      button.onclick = () => room.optional && !progress.seenStories?.includes('academic-tower-ran-intro')
+        ? globalThis.GameFlow?.playStory?.('academic-tower-ran-intro', { returnTo: REGION_ID })
+        : globalThis.GameFlow?.playStage?.(room.id, {
+        mode: state === 'complete' ? 'replay' : 'first-play',
+        returnTo: REGION_ID
+      });
+    }
+    return button;
+  }
+
+  function makeGroup(title, key, noteText = '') {
+    const group = document.createElement('section');
+    group.className = 'academicHubGroup';
+    group.dataset.group = key;
+    const heading = document.createElement('h3');
+    heading.textContent = title;
+    group.append(heading);
+    if (noteText) {
+      const note = document.createElement('p');
+      note.className = 'academicHubNote';
+      note.textContent = noteText;
+      group.append(note);
+    }
+    return group;
+  }
+
+  function sideRoomsFor(groupRooms, optionalRooms) {
+    const ids = new Set(groupRooms.map(room => room.id));
+    return optionalRooms.filter(room => {
+      const requires = room.requires || [];
+      return requires.length && requires.every(id => ids.has(id));
+    });
+  }
+
+  function appendSideRoom(group, rooms, progress) {
+    if (!rooms.length) return;
+    const side = document.createElement('aside');
+    side.className = 'academicHubSideRoom';
+    side.dataset.sideRoom = 'optional';
+    const heading = document.createElement('h4');
+    heading.textContent = '곁가지 연구';
+    const note = document.createElement('p');
+    note.className = 'academicHubNote';
+    note.textContent = '이 층의 연구에서 갈라진 선택 연구야. 기본 연구 완료에는 필요하지 않아.';
+    side.append(heading, note);
+    rooms.forEach(room => side.append(makeRoomButton(room, progress)));
+    group.append(side);
+  }
+
   function render() {
     if (!bundle) return false;
     const progress = globalThis.GameFlow?.progress?.() || { completedStages: [], completedMilestones: [] };
     const list = document.getElementById('academicTowerRooms');
     const summary = document.getElementById('academicTowerSummary');
     if (!list || !summary) return false;
-
     const mainRooms = bundle.rooms.filter(room => !room.optional);
-    const optionalRooms = bundle.rooms.filter(room => room.optional);
     const completeCount = mainRooms.filter(room => progress.completedStages.includes(room.id)).length;
-    const optionalCount = optionalRooms.filter(room => progress.completedStages.includes(room.id)).length;
+    const optionalRooms = bundle.rooms.filter(room => room.optional);
     const foundation = progress.completedMilestones.includes('academic-tower-turn-foundation');
     summary.textContent = foundation
       ? '연구 완료 · 첫 관찰 메모를 보관했어.'
       : `연구 ${completeCount}/${mainRooms.length} · ${completeCount === mainRooms.length ? '마지막 이야기를 확인해 보자.' : '기록을 살펴보고 연구를 이어가자.'}`;
-
-    const roomButton = room => {
-      const state = roomState(room, progress);
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'academicTowerRoom';
-      button.dataset.roomId = room.id;
-      button.dataset.state = state;
-      button.disabled = state === 'locked' || state === 'planned';
-
-      const number = document.createElement('span');
-      number.className = 'academicTowerRoomNumber';
-      number.textContent = room.optional ? '＋' : room.number;
-
-      const names = document.createElement('span');
-      names.className = 'academicTowerRoomNames';
-      const ko = document.createElement('strong');
-      ko.textContent = room.titleKo;
-      if (room.optional && state === 'complete') ko.textContent = '색인 옆의 메모 · 같은 然';
-
-      const terms = document.createElement('span');
-      terms.className = 'academicTowerRoomTerms';
-      terms.lang = 'zh-Hant';
-      terms.textContent = room.expressions.join(' · ') || (room.optional ? '선택 연구' : '종합');
-      names.append(ko, terms);
-
-      if (state === 'locked') {
-        const prerequisite = document.createElement('small');
-        const missing = (room.requires || []).filter(id => !progress.completedStages.includes(id));
-        prerequisite.textContent = missing.length
-          ? `먼저 연구: ${missing.map(id => bundle.rooms.find(candidate => candidate.id === id)?.titleKo || id).join(' · ')}`
-          : '여정에서 앞선 이야기를 먼저 확인해.';
-        names.append(prerequisite);
-      }
-
-      const stateLabel = document.createElement('span');
-      stateLabel.className = 'academicTowerRoomState';
-      stateLabel.textContent = state === 'complete' ? '✓ 연구 완료' : state === 'available' ? '연구하기' : state === 'planned' ? '준비 중' : '잠김';
-      if (state === 'complete') button.setAttribute('aria-label', `${ko.textContent} · 연구 완료 · 다시 연구`);
-
-      button.append(number, names, stateLabel);
-      if (!button.disabled) {
-        button.onclick = () => room.optional && !progress.seenStories?.includes('academic-tower-ran-intro')
-          ? globalThis.GameFlow?.playStory?.('academic-tower-ran-intro', { returnTo: REGION_ID })
-          : globalThis.GameFlow?.playStage?.(room.id, {
-          mode: state === 'complete' ? 'replay' : 'first-play',
-          returnTo: REGION_ID
-        });
-      }
-      return button;
-    };
-
-    const sideRoom = room => {
-      const aside = document.createElement('aside');
-      aside.className = 'academicHubSideResearch';
-      aside.dataset.sideGroup = room.sideGroup || '';
-
-      const heading = document.createElement('h4');
-      heading.textContent = '곁가지 연구';
-
-      const note = document.createElement('p');
-      note.className = 'academicHubNote';
-      const requiredNumbers = (room.requires || [])
-        .map(id => bundle.rooms.find(candidate => candidate.id === id)?.number)
-        .filter(Boolean)
-        .join('·');
-      note.textContent = `선택 연구 ${optionalCount}/${optionalRooms.length} · ${requiredNumbers || '관련 연구'}을 마치면 살펴볼 수 있어.`;
-
-      aside.append(heading, note, roomButton(room));
-      return aside;
-    };
+    list.replaceChildren();
 
     const groups = [
-      { id: 'first', title: '첫 기록', numbers: ['01'] },
-      { id: 'branch', title: '두 갈래 연구', numbers: ['02', '03'], note: '어느 쪽부터 살펴봐도 좋아.' },
-      { id: 'synthesis', title: '기록 종합', numbers: ['04', '05'] }
+      {
+        key: 'first',
+        title: '첫 기록',
+        rooms: mainRooms.filter(room => room.number === '01')
+      },
+      {
+        key: 'branch',
+        title: '두 갈래 연구',
+        note: '어느 쪽부터 살펴봐도 좋아.',
+        rooms: mainRooms.filter(room => room.number === '02' || room.number === '03')
+      },
+      {
+        key: 'synthesis',
+        title: '기록 종합',
+        rooms: mainRooms.filter(room => room.number === '04' || room.number === '05')
+      }
     ];
 
-    list.replaceChildren();
     const placedOptionalIds = new Set();
-
-    for (const definition of groups) {
-      const group = document.createElement('section');
-      group.className = 'academicHubGroup';
-      group.dataset.group = definition.id;
-
-      const heading = document.createElement('h3');
-      heading.textContent = definition.title;
-      group.append(heading);
-
-      if (definition.note) {
-        const note = document.createElement('p');
-        note.className = 'academicHubNote';
-        note.textContent = definition.note;
-        group.append(note);
-      }
-
-      for (const number of definition.numbers) {
-        const room = mainRooms.find(candidate => candidate.number === number);
-        if (room) group.append(roomButton(room));
-      }
-
-      for (const room of optionalRooms.filter(candidate => candidate.sideGroup === definition.id)) {
-        group.append(sideRoom(room));
-        placedOptionalIds.add(room.id);
-      }
-
+    for (const config of groups) {
+      const group = makeGroup(config.title, config.key, config.note || '');
+      config.rooms.forEach(room => group.append(makeRoomButton(room, progress)));
+      const sideRooms = sideRoomsFor(config.rooms, optionalRooms)
+        .filter(room => !placedOptionalIds.has(room.id));
+      sideRooms.forEach(room => placedOptionalIds.add(room.id));
+      appendSideRoom(group, sideRooms, progress);
       list.append(group);
     }
 
-    const unplacedOptionalRooms = optionalRooms.filter(room => !placedOptionalIds.has(room.id));
-    if (unplacedOptionalRooms.length) {
-      const group = document.createElement('section');
-      group.className = 'academicHubGroup';
-      group.dataset.group = 'optional';
-      const heading = document.createElement('h3');
-      heading.textContent = '곁가지 연구';
-      group.append(heading);
-      for (const room of unplacedOptionalRooms) group.append(roomButton(room));
-      list.append(group);
+    const unplaced = optionalRooms.filter(room => !placedOptionalIds.has(room.id));
+    if (unplaced.length) {
+      const fallback = makeGroup('곁가지 연구', 'optional-fallback');
+      const note = document.createElement('p');
+      note.className = 'academicHubNote';
+      note.textContent = '여러 연구에서 이어진 선택 연구야.';
+      fallback.append(note);
+      unplaced.forEach(room => fallback.append(makeRoomButton(room, progress)));
+      list.append(fallback);
     }
 
     list.scrollTop = 0;
