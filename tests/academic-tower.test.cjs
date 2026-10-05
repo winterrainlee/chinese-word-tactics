@@ -30,19 +30,60 @@ function mechanics() {
   return context.AcademicTowerMechanic;
 }
 
+test('03A requires discovery, all comparisons and two independent applications', () => {
+  const config = vm.runInContext("STAGES.find(s => s.id === 'academic-tower-turn-03a-ran-family').academicTower", contentContext());
+  const M = mechanics(); let state = M.createState(config, () => .3);
+  const act = (type, value) => { const result = M.applyAction(config, state, {type, value}); state = result.state; return result; };
+  for (const word of config.noticeWords) act('select-character', `${word}:${word[0]}`);
+  assert.equal(act('submit-notice').correct, false);
+  for (const word of config.noticeWords) act('select-character', `${word}:然`);
+  act('submit-notice'); assert.equal(state.phase, 'discovery'); act('start-compare');
+  for (const card of config.cards) {
+    act('select-position', card.position === 'first' ? 'last' : 'first');
+    act('select-ran-relation', card.relation);
+    assert.equal(act('submit-comparison').correct, false);
+    act('select-position', card.position); assert.equal(act('submit-comparison').correct, true);
+    state = plain(state); assert.equal(M.isValidState(config, state), true);
+    act('next-comparison');
+  }
+  assert.equal(state.phase, 'apply-premise');
+  act('select-ran-word', '如果'); assert.equal(act('submit-ran-word').correct, false);
+  assert.equal(state.selectedWord, '如果');
+  act('select-ran-word', '既然'); act('submit-ran-word');
+  assert.equal(M.isSolved(config, state), false);
+  act('select-ran-word', '然後'); assert.equal(act('submit-ran-word').correct, false);
+  act('select-ran-word', '不然'); act('submit-ran-word');
+  assert.equal(M.isSolved(config, state), true);
+});
+
+test('03A is optional, unlocks after both branches and remains available after foundation', () => {
+  const c = contentContext();
+  const result = vm.runInContext(`(() => {
+    const P = JourneyProgress, intro = P.getNode('story:academic-tower-ran-intro');
+    const base = {completedStages:['academic-tower-turn-02-raner','academic-tower-turn-03-expectation']};
+    return {before:P.isAvailable(intro,P.normalize({completedStages:base.completedStages.slice(0,1)})),
+      early:P.isAvailable(intro,P.normalize(base)), late:P.isAvailable(intro,P.normalize({...base,completedMilestones:['academic-tower-turn-foundation']})),
+      requires:P.getNode('story:academic-tower-turn-result').requires,
+      sideMilestone:P.getNode('story:academic-tower-ran-result').milestone};
+  })()`, c);
+  assert.equal(result.before, false); assert.equal(result.early, true); assert.equal(result.late, true);
+  assert.deepEqual(plain(result.requires), ['stage:academic-tower-turn-05-synthesis']);
+  assert.equal(result.sideMilestone, undefined);
+});
+
 test('Academic Tower appends rooms 01 through 05 without changing earlier stage order', () => {
   const context = contentContext();
   const result = vm.runInContext(`(() => ({
-    lastStages: STAGES.slice(-6).map(stage => stage.id),
+    lastStages: STAGES.slice(-7).map(stage => stage.id),
     rooms: AcademicTowerContent.bundle.rooms,
     words: [WORDS['卻'], WORDS['然而'], WORDS['果然'], WORDS['竟然'], WORDS['反而']]
   }))()`, context);
   assert.deepEqual(plain(result.lastStages), [
     'north-forest-stage-8', 'academic-tower-turn-01-que',
     'academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation',
-    'academic-tower-turn-04-faner', 'academic-tower-turn-05-synthesis'
+    'academic-tower-turn-04-faner', 'academic-tower-turn-05-synthesis', 'academic-tower-turn-03a-ran-family'
   ]);
-  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), [true, true, true, true, true]);
+  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), [true, true, true, true, true, true]);
   assert.deepEqual(plain(result.words.map(word => word.p)), ['ㄑㄩㄝˋ', 'ㄖㄢˊ ㄦˊ', 'ㄍㄨㄛˇ ㄖㄢˊ', 'ㄐㄧㄥˋ ㄖㄢˊ', 'ㄈㄢˇ ㄦˊ']);
   assert.deepEqual(plain(vm.runInContext(`['academic-tower-turn-01-que', 'academic-tower-turn-02-raner'].map(id => STAGES.find(stage => stage.id === id)).map(stage => ({
     kind: stage.academicTower.kind,
@@ -382,14 +423,14 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-towerpair1/);
+  assert.match(html, /academic-tower\.css\?v=20261005-towerexpand1/);
   for (const asset of ['academic-tower-journey-content', 'academic-tower-hub-runtime']) {
-    assert.match(html, new RegExp(`${asset}\\.js\\?v=20261004-towerreview1`));
+    assert.match(html, new RegExp(`${asset}\\.js\\?v=20261005-towerexpand1`));
   }
-  assert.match(html, /academic-tower-content\.js\?v=20261005-towerpair1/);
-  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerpair2/);
-  assert.match(html, /lexicon-content\.js\?v=20260927-towerfoundation1/);
-  assert.match(html, /story-pronunciation-content\.js\?v=20261004-towerreview1/);
+  assert.match(html, /academic-tower-content\.js\?v=20261005-towerexpand1/);
+  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerexpand1/);
+  assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
+  assert.match(html, /story-pronunciation-content\.js\?v=20261005-towerexpand1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
 });

@@ -68,3 +68,14 @@
 .academicMvpSlots span{display:block;font-size:18px;line-height:1.5}
 .academicMvpSlots button.selected{border:2px solid #52769a}
 [data-mvp-links] h3{font-size:15px;font-weight:600;color:#31516e}
+.academicTowerMvp .academicExpectationReview{display:block;padding:0 0 14px 12px;background:transparent;border:0;border-left:3px solid #927254;border-radius:0}
+.academicTowerMvp .academicExpectationReview .academicMvpPreview{margin:8px 0;font-size:19px;font-weight:400;line-height:1.8}
+.academicTowerMvp .academicMvpFeedback{font-size:15px;font-weight:400;line-height:1.6}
+.academicTowerMvp .academicExpectationCard,.academicTowerMvp .academicSourceCard{display:block;background:transparent;border:0;border-bottom:1px solid #cfc6b8;border-radius:0;padding:0 0 14px}
+.academicTowerMvp .academicExpectationCard p,.academicTowerMvp .academicSourceCard p{font-size:19px;line-height:1.8;font-weight:400}
+.academicTowerMvp .academicMvpLinks small{display:block;font-size:13px}
+.academicMvpDecisions{display:grid;gap:8px}.academicMvpDecisions button{font-size:17px}
+.academicRanCharacters{display:flex;gap:8px;margin:12px 0}.academicRanCharacters button{min-width:56px;font-size:23px;text-align:center}
+.academicRanWorkbench h2,.academicRanWorkbench h3,.academicClozeRecord h3{font-size:16px;line-height:1.5}
+.academicRanWorkbench .academicMvpMemo>button{display:block;width:100%;margin:7px 0}
+.academicTowerMvp .academicArchive{padding:8px}.academicTowerMvp .academicArchive h3{font-size:14px}

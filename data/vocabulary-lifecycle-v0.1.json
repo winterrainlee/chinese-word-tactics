@@ -96,6 +96,8 @@
     "然而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-02-raner", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
     "果然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03-expectation", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
     "竟然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03-expectation", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
-    "反而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-04-faner", "academic-tower-turn-05-synthesis"], "reuseScope": "region" }
+    "反而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-04-faner", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
+    "既然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03a-ran-family"], "reuseScope": "region", "note": "선택 연구에서 확인된 전제를 비교·적용한다. 후속 원인·귀결 연구의 능동 재사용 후보로 남긴다." },
+    "不然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03a-ran-family"], "reuseScope": "region", "note": "선택 연구에서 미실행 시 귀결을 비교·적용하며 이번 지역의 제한적 도입을 마친다." }
   }
 }

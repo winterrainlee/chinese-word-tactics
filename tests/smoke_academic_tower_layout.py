@@ -140,7 +140,7 @@ try:
             page.locator('[data-academic-action="submit-connector"]').click()
             page.locator('[data-academic-action="next-blank"]').click()
             assert_view(page, "#tutorialView", width, height, f"05-dispatch-{width}x{height}")
-            page.locator(".academicArchive summary").last.click()
+            page.locator('[data-mvp-detail="archive"] > summary').click()
             assert_view(page, "#tutorialView", width, height, f"05-archive-{width}x{height}")
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-dispatch-{width}x{height}.png"), full_page=True)
@@ -150,9 +150,12 @@ try:
                 selector = f'[data-academic-action="{action}"]'
                 if value:
                     selector += f'[data-value="{value}"]'
+                if action == 'select-revision':
+                    page.locator('[data-mvp-detail="edit-memo"] > summary').click()
                 page.locator(selector).click()
-            page.locator(".academicTranslation summary").first.click()
-            page.locator(".academicMemoChoices summary").last.click()
+            page.locator('[data-mvp-detail="source-meaning-0"] > summary').click()
+            page.locator('[data-mvp-detail="edit-memo"] > summary').click()
+            page.locator('[data-mvp-detail^="meaning-"] > summary').last.click()
             assert_view(page, "#tutorialView", width, height, f"02-translation-{width}x{height}")
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-translation-{width}x{height}.png"), full_page=True)

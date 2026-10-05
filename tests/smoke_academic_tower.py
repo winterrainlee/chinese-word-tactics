@@ -132,7 +132,7 @@ try:
         assert "水量增加了" in initial_pair
         assert "수량이 늘었다" not in initial_pair
         assert "수차가 과연" not in initial_pair
-        page.locator("#words .wordbtn", has_text="果然").click()
+        page.locator('[data-academic-word="果然"]').first.click()
         assert "과연" in page.locator("#sheet").inner_text()
         page.locator("#sheet .sheetactions button").click()
         choose(page, "select-relation", "surprising")
@@ -155,6 +155,7 @@ try:
         choose(page, "select-relation", "surprising")
         choose(page, "submit-relation")
         assert "竟然" in page.locator(".academicExpectationReview").inner_text()
+        choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         assert "예상과 실제의 관계를 분류함" in page.locator("#completionBar").inner_text()
         page.screenshot(path=str(OUT / "academic-tower-03-complete-375x812.png"), full_page=True)
@@ -235,7 +236,7 @@ try:
                 assert "剛修復的裝置也可能損壞" in page.locator(".academicClozeRecord").inner_text()
             if connector.startswith("不能"):
                 assert page.locator(".academicArchive").count() == 7
-                page.locator(".academicArchive summary").first.click()
+                page.locator('[data-mvp-detail="archive"] > summary').click()
                 assert "第一次增加水量後" in page.locator(".academicArchive").first.inner_text()
                 choose(page, "select-connector", "已經知道確切的安全水量，不用再檢查。")
                 choose(page, "submit-connector")
@@ -246,6 +247,7 @@ try:
             choose(page, "submit-connector")
             if page.locator('[data-academic-action="next-blank"]').count():
                 choose(page, "next-blank")
+        choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         assert "기록과 전달할 판단을 정리함" in page.locator("#completionBar").inner_text()
         page.screenshot(path=str(OUT / "academic-tower-05-complete-375x812.png"), full_page=True)
@@ -267,6 +269,7 @@ try:
             choose(page, "submit-relation")
             if page.locator('[data-academic-action="next-case"]').count():
                 choose(page, "next-case")
+        choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         assert page.locator("#flowNext").inner_text() == "연구실로"
         page.locator("#flowNext").click()

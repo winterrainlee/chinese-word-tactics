@@ -9,7 +9,10 @@
     if (completed.has(room.id)) return 'complete';
     if (!(room.requires || []).every(id => completed.has(id))) return 'locked';
     const journeyNode = globalThis.JourneyProgress?.getNode?.(`stage:${room.id}`);
-    if (journeyNode && !globalThis.JourneyProgress.isAvailable(journeyNode, progress)) return 'locked';
+    if (journeyNode && !globalThis.JourneyProgress.isAvailable(journeyNode, progress)) {
+      const intro = room.optional && globalThis.JourneyProgress.getNode('story:academic-tower-ran-intro');
+      if (!intro || !globalThis.JourneyProgress.isAvailable(intro, progress)) return 'locked';
+    }
     return room.implemented ? 'available' : 'planned';
   }
 
@@ -23,8 +26,11 @@
     const list = document.getElementById('academicTowerRooms');
     const summary = document.getElementById('academicTowerSummary');
     if (!list || !summary) return false;
-    const completeCount = bundle.rooms.filter(room => progress.completedStages.includes(room.id)).length;
-    summary.textContent = `연구한 방 ${completeCount} / ${bundle.rooms.length} · 탑 전체 완료 조건 없음`;
+    const mainRooms = bundle.rooms.filter(room => !room.optional);
+    const completeCount = mainRooms.filter(room => progress.completedStages.includes(room.id)).length;
+    const optionalRooms = bundle.rooms.filter(room => room.optional);
+    const optionalCount = optionalRooms.filter(room => progress.completedStages.includes(room.id)).length;
+    summary.textContent = `연구한 방 ${completeCount} / ${mainRooms.length} · 선택 연구 ${optionalCount} / ${optionalRooms.length} · 탑 전체 완료 조건 없음`;
     list.replaceChildren();
     const note = document.createElement('p');
     note.className = 'academicHubNote';
@@ -45,10 +51,11 @@
       const names = document.createElement('span');
       names.className = 'academicTowerRoomNames';
       const ko = document.createElement('strong'); ko.textContent = room.titleKo;
+      if (room.optional && state === 'complete') ko.textContent = '같은 然';
       const zh = document.createElement('small'); zh.lang = 'zh-Hant'; zh.textContent = room.titleZh;
       const terms = document.createElement('span');
       terms.className = 'academicTowerRoomTerms'; terms.lang = 'zh-Hant';
-      terms.textContent = room.expressions.join(' · ') || '종합';
+      terms.textContent = room.expressions.join(' · ') || (room.optional ? '선택 연구' : '종합');
       names.append(ko, zh, terms);
       if (state === 'locked') {
         const prerequisite = document.createElement('small');
@@ -63,7 +70,9 @@
       stateLabel.textContent = state === 'complete' ? '다시 연구' : state === 'available' ? '열림' : state === 'planned' ? '준비 중' : '잠김';
       button.append(number, names, stateLabel);
       if (!button.disabled) {
-        button.onclick = () => globalThis.GameFlow?.playStage?.(room.id, {
+        button.onclick = () => room.optional && !progress.seenStories?.includes('academic-tower-ran-intro')
+          ? globalThis.GameFlow?.playStory?.('academic-tower-ran-intro', { returnTo: REGION_ID })
+          : globalThis.GameFlow?.playStage?.(room.id, {
           mode: state === 'complete' ? 'replay' : 'first-play',
           returnTo: REGION_ID
         });

@@ -106,9 +106,9 @@ try:
         assert not page.locator('#flowNext').is_visible()
         action('finish-mvp'); page.locator('#flowNext').click()
         start('02-raner')
-        assert page.locator('#words').is_visible()
-        assert page.locator('.academicSources').is_visible()
-        assert not page.locator('#academicMvpConfirm').count()
+        assert not page.locator('#words').is_visible()
+        assert page.locator('.academicMvpSource').count() == 2
+        assert page.locator('#academicMvpConfirm').count() == 1
         assert not errors, errors
         browser.close()
 finally:

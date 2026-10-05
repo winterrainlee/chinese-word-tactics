@@ -95,6 +95,10 @@ jobs:
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_academic_tower.py
+      - name: Academic Tower workbench and optional research
+        run: |
+          python tests/smoke_academic_tower_mvp.py
+          python tests/smoke_academic_tower_ran.py
 
       - name: Run tactical layout viewport matrix
         env:

@@ -29,7 +29,7 @@ const storySources = [
 function parseStageWords(rel) {
   const fullPath = path.join(root, rel);
   const text = fs.readFileSync(fullPath, 'utf8');
-  const stageId = /\bid\s*:\s*['"]((?:stage|gate-stage|workshop-stage|market-stage|north-forest-stage)-\d+|academic-tower-turn-\d{2}-[a-z0-9-]+)['"]/g;
+  const stageId = /\bid\s*:\s*['"]((?:stage|gate-stage|workshop-stage|market-stage|north-forest-stage)-\d+|academic-tower-turn-\d{2}[a-z]?-[a-z0-9-]+)['"]/g;
   const matches = [...text.matchAll(stageId)];
   const found = [];
 

@@ -273,7 +273,11 @@
     }
   ];
 
+  GROUPS.push({ id: 'academic-tower-ran-family', chapterId: 'academic-tower-research', regionId: 'academic-tower', titleKo: '같은 글자, 다른 관계', type: 'contrast', displayZh: '既然 ↔ 不然', words: ['既然', '不然'], related: ['然而', '果然', '竟然'], noteKo: '既然은 이미 확인한 전제를, 不然은 그렇지 않을 경우의 귀결을 잇는다.', gameNoteKo: '공통 글자와 문장 기능을 따로 비교한 뒤 확인된 손상과 흩어질 기록의 경고에 적용했다.' });
+
   const WORD_META = {
+    '既然': { exampleKo: '톱니 손상이 이미 확인되었으니 먼저 수리한다.', sourceRefs: ['w4s-jiran'] },
+    '不然': { exampleKo: '기록을 먼저 묶어 둬. 그렇지 않으면 종이가 흩어질 거야.', sourceRefs: ['w5-buran'] },
     '接近': { exampleKo: '나는 천천히 비석에 가까이 갔다.' },
     '遠離': { exampleKo: '위험한 곳에서 멀리 떨어져 줘.' },
     '通過': { exampleKo: '우리는 이 유적을 지나가야 한다.', usageKo: '공간이나 구간을 지나가는 데 초점이 있다.' },

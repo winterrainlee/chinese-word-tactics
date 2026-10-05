@@ -100,6 +100,20 @@
     }
   });
 
+  Object.assign(stories, {
+    'academic-tower-ran-intro': {
+      id: 'academic-tower-ran-intro', chapterId: 'academic-tower-research', titleKo: '색인 옆의 메모', background: 'academic-tower', placeZh: '學術塔研究室', placeKo: '학술탑 연구실',
+      beats: [{ speaker: 'narrator', zh: '少年又看了看先前的記錄。', ko: '소년은 이전 기록을 다시 살펴봤다. 세 표현에 공통으로 들어 있는 글자가 있을까?' }]
+    },
+    'academic-tower-ran-result': {
+      id: 'academic-tower-ran-result', chapterId: 'academic-tower-research', titleKo: '같은 흔적, 다른 방향', background: 'academic-tower', placeZh: '學術塔研究室', placeKo: '학술탑 연구실',
+      beats: [
+        { speaker: 'boy', zh: '所以不能看到同一個字，就把它們當成同一種用法。', ko: '그러니까 같은 글자가 보인다고 같은 쓰임으로 묶으면 안 되고요.' },
+        { speaker: 'towerResearcher', zh: '對。字可以給你線索，但不能替你把句子讀完。', ko: '맞아. 글자는 단서를 줄 수 있지만 네 대신 문장 전체를 읽어 주지는 않아.' }
+      ]
+    }
+  });
+
   if (journey.some(chapter => chapter.id === 'academic-tower-research')) return;
   journey.push({
     id: 'academic-tower-research',
@@ -151,6 +165,14 @@
           requires: ['stage:academic-tower-turn-05-synthesis'], milestone: 'academic-tower-turn-foundation',
           returnToRegionHubAfter: 'academic-tower'
         }
+      ]
+    }, {
+      id: 'academic-tower-optional', regionId: 'academic-tower', plannedStageCount: 1,
+      revealRequires: ['stage:academic-tower-turn-02-raner', 'stage:academic-tower-turn-03-expectation'],
+      sequence: [
+        { type: 'story', id: 'academic-tower-ran-intro', requires: ['stage:academic-tower-turn-02-raner', 'stage:academic-tower-turn-03-expectation'] },
+        { type: 'stage', id: 'academic-tower-turn-03a-ran-family', requires: ['story:academic-tower-ran-intro'] },
+        { type: 'story', id: 'academic-tower-ran-result', requires: ['stage:academic-tower-turn-03a-ran-family'], returnToRegionHubAfter: 'academic-tower' }
       ]
     }]
   });

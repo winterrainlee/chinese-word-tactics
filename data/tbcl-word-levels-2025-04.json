@@ -83,6 +83,8 @@
     "然而": { "level": "5", "status": "listed" },
     "果然": { "level": "4*", "status": "listed" },
     "竟然": { "level": "4*", "status": "listed" },
-    "反而": { "level": "5", "status": "listed" }
+    "反而": { "level": "5", "status": "listed" },
+    "既然": { "level": "4*", "status": "listed", "sourceRef": "w4s-jiran", "note": "tbcl-discourse-candidates-2025-04.json의 공식 추출 스냅샷과 대조했다." },
+    "不然": { "level": "5", "status": "listed", "sourceRef": "w5-buran", "note": "tbcl-discourse-candidates-2025-04.json의 공식 추출 스냅샷과 대조했다." }
   }
 }

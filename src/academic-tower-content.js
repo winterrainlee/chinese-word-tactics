@@ -457,6 +457,33 @@
   STAGES.push(replacementStage);
   STAGES.push(synthesisStage);
 
+  Object.assign(WORDS, {
+    '既然': { p: 'ㄐㄧˋ ㄖㄢˊ', k: '이미 그러한 이상; 확인된 상황을 뒤 판단의 전제로 삼다', ex: '既然已經確認齒輪損壞，就先修復它。', rule: '아직 모르는 조건이 아니라 이미 성립한 사실에서 다음 판단을 시작해.' },
+    '不然': { p: 'ㄅㄨˋ ㄖㄢˊ', k: '그렇지 않으면; 앞 행동을 하지 않을 경우의 귀결을 잇다', ex: '先把記錄綁好，不然紙張會散開。', rule: '앞 행동 다음에 일어난다는 순서가 아니라, 그렇게 하지 않을 경우를 읽어.' }
+  });
+  bundle.rooms.push({ id: 'academic-tower-turn-03a-ran-family', number: '03A', titleKo: '색인 옆의 메모', titleZh: '索引旁的筆記', expressions: [], implemented: true, optional: true, requires: ['academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation'] });
+  STAGES.push({
+    id: 'academic-tower-turn-03a-ran-family', title: '색인 옆의 메모', subtitle: '색인 옆의 메모', kicker: '학술탑 · 선택 연구 03A',
+    grid: ['S'], goal: '比較字形和句子的關係。', rule: '같은 글자가 보여도 문장 속 역할은 따로 읽어.', words: ['既然', '不然'], win: [],
+    story: '일곱 표현의 문장 관계를 비교하고, 확인된 손상과 흩어질 기록에 맞는 두 문장을 완성했다.', completionTitle: '✓ 같은 흔적, 다른 쓰임', completionAction: '관찰 메모 남기기',
+    academicTower: {
+      kind: 'ran-observation', schemaVersion: 1, noticeWords: ['然而', '果然', '竟然'],
+      cards: [
+        { word: '然而', sentence: '水量增加了。然而，裝置還沒有恢復正常。', position: 'first', relation: '앞 성과와 뒤 상태의 대조', options: ['앞 성과와 뒤 상태의 대조', '두 행동의 순서', '확인된 사실을 전제로 판단'], sense: '然의 그러함 + 而의 이어 전환하는 감각', explanation: '수량 증가를 취소하지 않고 장치 상태를 함께 읽는다.' },
+        { word: '果然', sentence: '原先預計水車會停。水車果然停了。', position: 'last', relation: '예상과 실제의 일치', options: ['예상과 실제의 일치', '예상과 실제의 불일치', '하지 않았을 경우의 귀결'], sense: '果의 과연·실제로라는 감각 + 然의 그러함', explanation: '멈춘 것이 좋은지 나쁜지가 아니라 예상과 맞는지를 본다.' },
+        { word: '竟然', sentence: '原先預計水車會停。水車竟然恢復正常了。', position: 'last', relation: '예상과 실제의 불일치', options: ['예상과 실제의 일치', '예상과 실제의 불일치', '두 행동의 순서'], sense: '竟의 뜻밖의 귀결 감각 + 然의 그러함', explanation: '회복은 좋은 결과지만 멈추리라는 예상과는 다르다.' },
+        { word: '然後', sentence: '先檢查裝置，然後調整水量。', position: 'first', relation: '두 행동의 순서', options: ['두 행동의 순서', '하지 않았을 경우의 귀결', '앞 사실을 인정하는 양보'], sense: '然의 그렇게 + 後의 뒤라는 감각', explanation: '점검한 다음 수량을 조절한다.' },
+        { word: '雖然', sentence: '雖然水道比較短，雨天卻更危險。', position: 'last', relation: '앞 사실을 인정하는 양보', options: ['앞 사실을 인정하는 양보', '두 행동의 순서', '예상과 실제의 일치'], sense: '雖의 비록 + 然의 그러함', explanation: '짧다는 사실을 인정하면서 비 오는 날의 위험을 남긴다.' },
+        { word: '既然', sentence: '既然已經確認齒輪損壞，就先修復它。', position: 'last', relation: '확인된 사실을 전제로 판단', options: ['확인된 사실을 전제로 판단', '아직 모르는 조건의 가정', '두 행동의 순서'], sense: '既의 이미 + 然의 그러함', explanation: '손상이 확인되었으므로 수리를 먼저 한다.' },
+        { word: '不然', sentence: '先把鬆開的記錄綁好，不然紙張會散開。', position: 'last', relation: '하지 않았을 경우의 귀결', options: ['하지 않았을 경우의 귀결', '두 행동의 순서', '예상과 실제의 일치'], sense: '不의 아니다 + 然의 그러함', explanation: '묶은 뒤 흩어진다는 말이 아니라, 묶지 않으면 흩어진다는 경고다.' }
+      ],
+      applications: [
+        { id: 'premise', context: '損壞已經確認，不是假設。', before: '', after: '齒輪損壞，就先修復。', options: ['既然', '如果'], correct: '既然', feedback: '如果도 문법적으로 가능하지만, 이미 확인한 사실을 아직 모르는 조건으로 바꾸게 돼.' },
+        { id: 'alternative', context: '沒有綁好的紙張可能散開。', before: '先綁好，', after: '紙張會散開。', options: ['不然', '然後'], correct: '不然', feedback: '然後를 넣으면 묶은 다음 종이가 흩어진다는 순서가 돼. 원문은 묶지 않을 경우를 경고해.' }
+      ]
+    }
+  });
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

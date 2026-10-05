@@ -148,7 +148,7 @@ try:
 
         # Only control rules that cannot be inferred from the board occupy the entry status slot.
         stage_ids = page.evaluate('STAGES.map(stage => stage.id)')
-        assert len(stage_ids) == 41, stage_ids
+        assert len(stage_ids) == 42, stage_ids
         instructional_entry_ids = {'stage-0', 'stage-2', 'stage-5'}
         for stage_id in stage_ids:
             page.evaluate('id => TacticalGame.playStage(id,{mode:"replay",returnTo:"journey"})', stage_id)
@@ -254,6 +254,8 @@ try:
                     'academic-tower-turn-result'
                 }
                 assert {story_id for story_id,_,hub in stories if hub} == expected_hub_stories,(region,stories)
+            elif region == 'academic-tower-optional':
+                assert stories == [['academic-tower-ran-intro', False, False], ['academic-tower-ran-result', False, True]], stories
             else:
                 assert all(not world and not hub for _,world,hub in stories[:-1]),(region,stories)
                 assert stories[-1][1] is True and stories[-1][2] is False,(region,stories)
