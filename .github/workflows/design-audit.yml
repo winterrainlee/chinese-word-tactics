@@ -1,0 +1,34 @@
+name: Design audit snapshots
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/capture_design_audit.py'
+      - '.github/workflows/design-audit.yml'
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser
+        run: |
+          python -m pip install --disable-pip-version-check playwright
+          python -m playwright install --with-deps chromium
+      - name: Capture non-learning views and states
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/design-audit
+        run: python tools/capture_design_audit.py
+      - name: Upload evidence, including partial failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-audit-snapshots
+          path: ${{ runner.temp }}/design-audit
+          retention-days: 30
