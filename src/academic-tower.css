@@ -289,3 +289,17 @@
   .academicTowerMvp .academicOriginal{margin-bottom:18px}
   .academicTowerMvp .academicRegionLabel{margin-bottom:12px;font-size:20px}
 }
+
+
+/* Keep the established tall workbench viewport contract after adding the booth shell. */
+.shell.academicTowerStage{
+  padding:0;
+  border:0;
+}
+.shell.academicTowerStage>.topbar{
+  margin:0 0 4px;
+  padding:4px 8px 8px;
+}
+@media(max-height:650px){
+  .shell.academicTowerStage>.topbar{padding-top:4px;padding-bottom:7px}
+}
