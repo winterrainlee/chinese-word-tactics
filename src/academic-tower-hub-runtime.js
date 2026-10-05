@@ -89,7 +89,19 @@
     button.dataset.roomId = room.id;
     button.dataset.state = state;
     button.disabled = state === 'locked' || state === 'planned';
-    button.textContent = room.titleKo;
+
+    const title = document.createElement('span');
+    title.className = 'academicTowerSideRoomTitle';
+    title.textContent = room.titleKo;
+    button.append(title);
+
+    if (state === 'complete') {
+      const check = document.createElement('span');
+      check.className = 'academicTowerSideRoomCheck';
+      check.textContent = '✓';
+      check.setAttribute('aria-hidden', 'true');
+      button.append(check);
+    }
 
     const stateText = state === 'complete' ? '연구 완료 · 다시 연구' : state === 'available' ? '연구하기' : state === 'planned' ? '준비 중' : '잠김';
     button.setAttribute('aria-label', `${room.titleKo} · ${stateText}`);
