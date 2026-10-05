@@ -743,7 +743,12 @@
       nodes[0].before(section); section.append(label(name), ...nodes); return section;
     };
     const work = (section, title, name = '나의 해석') => {
-      section.dataset.academicZone = 'work'; section.setAttribute('aria-label', name);
+      section.dataset.academicZone = 'work';
+      section.dataset.academicWorkKind = name.includes('복원') ? 'restore'
+        : name.includes('판단') ? 'decision'
+        : (name.includes('관찰') || name.includes('단서')) ? 'observe'
+        : 'interpretation';
+      section.setAttribute('aria-label', name);
       section.classList.add('academicMvpMemo');
       let heading = section.querySelector(':scope > h2');
       if (!heading) { heading = document.createElement('h2'); section.prepend(heading); }
