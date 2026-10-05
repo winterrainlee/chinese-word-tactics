@@ -429,29 +429,57 @@
   background:#a5a097;
   pointer-events:none;
 }
-.academicTowerShell .academicHubGroup[data-group="optional"]{
-  padding-top:2px;
-}
-.academicTowerShell .academicHubGroup[data-group="optional"] h3{
-  width:70%;
-  min-height:38px;
+/* Optional research belongs to the floor that produced it.
+   It is rendered as a smaller side room instead of a separate bottom floor. */
+.academicTowerShell .academicHubSideRoom{
+  position:relative;
+  width:76%;
+  min-width:0;
   justify-self:end;
+  display:grid;
+  gap:7px;
+  margin:5px -6px 1px 0;
+  padding:10px 8px 5px 10px;
+  border-top:2px solid var(--tower-rail-mid);
+  border-left:2px solid var(--tower-rail-mid);
+  border-radius:10px 0 0 0;
+  background:rgba(255,253,247,.28);
+}
+.academicTowerShell .academicHubSideRoom h4{
+  min-height:36px;
+  display:flex;
+  align-items:center;
   justify-content:center;
-  margin-right:-6px;
-  border-radius:5px 0 0 5px;
+  margin:-10px -8px 1px -10px;
+  padding:0 10px;
+  border-bottom:1px solid #2a2d2f;
+  border-radius:8px 0 0 0;
   background-color:#464a4c;
-  color:#e9e6de;
+  background-image:
+    radial-gradient(circle at 7px 7px,var(--tower-wall-hole) 0 1.8px,rgba(255,255,255,.07) 2px 2.7px,transparent 2.9px);
+  background-size:22px 22px;
+  color:#eeeae2;
   font-size:15px;
-  box-shadow:
-    -2px 0 0 var(--tower-rail-hi),
-    0 2px 0 var(--tower-rail-mid),
-    0 3px 0 var(--tower-rail-low);
+  font-weight:850;
+  line-height:1.2;
+  text-align:center;
+  text-shadow:0 1px 1px rgba(0,0,0,.24);
+}
+.academicTowerShell .academicHubSideRoom .academicHubNote{
+  padding:3px 5px 1px;
+  font-size:11px;
+  text-align:left;
+}
+.academicTowerShell .academicHubSideRoom .academicTowerRoom{
+  width:100%;
+  margin:0;
 }
 @media(max-width:360px){
   .academicTowerShell .academicHubGroup{padding-left:4px;padding-right:4px}
   .academicTowerShell .academicHubGroup h3{margin-left:-4px;margin-right:-4px}
-  .academicTowerShell .academicHubGroup[data-group="optional"] h3{width:76%;margin-right:-4px}
+  .academicTowerShell .academicHubSideRoom{width:80%;margin-right:-4px}
   .academicTowerShell .academicTowerRoom{margin-left:2px;margin-right:2px;width:calc(100% - 4px)}
+  .academicTowerShell .academicHubSideRoom .academicTowerRoom{margin:0;width:100%}
 }
 
 /* Academic Tower exterior sky.
