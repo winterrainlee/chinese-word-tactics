@@ -71,9 +71,10 @@
 .resetWarning{font-size:15px;line-height:1.6;margin:12px 0;color:var(--ink)}
 .sheetactions button.dangerAction{background:var(--danger)}
 
-.flowNav{display:flex;gap:8px;margin-top:auto;padding-top:8px;flex:none}
-.flowNav button{flex:1;min-height:48px;padding:8px 4px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-size:14px}
-.flowNav button[aria-current="page"]{background:var(--accent-soft);border-color:var(--accent);font-weight:800}
+.flowNav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:auto;padding-top:4px;border-top:1px solid color-mix(in srgb,var(--line) 72%,transparent);flex:none}
+.flowNav button{min-width:44px;min-height:48px;padding:8px 4px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:#70695f;font-size:14px}
+.flowNav button:not([aria-current="page"]):active{background:var(--accent-soft);color:var(--ink)}
+.flowNav button[aria-current="page"]{background:transparent;border-bottom-color:var(--accent);color:var(--ink);font-weight:850}
 .flowNote{font-size:12px;color:var(--muted);line-height:1.5;margin:-2px 2px 0}.journeyReplayGuidance{margin:0 2px 2px;padding-left:10px;border-left:2px solid color-mix(in srgb,var(--accent) 55%,var(--line))}.flowNotice{padding:10px 16px;background:var(--danger-soft);color:var(--danger);font-size:14px}.flowNotice[hidden]{display:none!important}
 .flowMenu{display:grid;gap:8px}.flowMenu button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);text-align:left;padding:10px 14px}.flowMenu button:disabled{color:var(--muted)}
 .flowTravelMenu{gap:0}.flowTravelMenu button{min-height:48px;border:0;border-radius:0;background:transparent;padding:10px 2px}.flowTravelMenu button+button{border-top:1px solid color-mix(in srgb,var(--line) 64%,transparent)}.flowTravelMenu button:not(:disabled):active{background:var(--accent-soft)}.flowTravelMenu button:disabled{background:transparent;color:var(--muted);opacity:.72}.flowTravelMenu button:focus-visible,#flowMenuClose:focus-visible{outline:3px solid var(--blue);outline-offset:2px}

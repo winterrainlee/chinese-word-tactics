@@ -28,10 +28,11 @@ test('board and menu close actions declare their role without changing every she
 test('changed action-contract assets use the same deployment cache key', () => {
   const html = read('index.html');
   for (const asset of [
-    'styles.css', 'landing.css', 'first-free-quest.css', 'world-runtime.js',
+    'styles.css', 'landing.css', 'world-runtime.js',
     'north-forest-world-runtime.js', 'first-free-quest-world-runtime.js',
   ]) {
     assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261005-actioncontract1`));
   }
+  assert.match(html, /first-free-quest\.css\?v=20261006-a09b1/);
   assert.match(html, /flow-runtime\.js\?v=20261006-a051/);
 });

@@ -113,6 +113,50 @@ def background(page, selector):
     return page.locator(selector).evaluate('(node) => getComputedStyle(node).backgroundColor')
 
 
+def assert_flow_navigation(page, view_id, current):
+    nav = page.locator(f'#{view_id} .flowNav')
+    nav.scroll_into_view_if_needed()
+    snapshot = nav.evaluate("""node => {
+      const rgb = value => (value.match(/[\d.]+/g) || []).slice(0,3).map(Number);
+      const luminance = value => {
+        const channels=rgb(value).map(item => item/255).map(item => item <= .04045 ? item/12.92 : ((item+.055)/1.055)**2.4);
+        return .2126*channels[0]+.7152*channels[1]+.0722*channels[2];
+      };
+      const background=getComputedStyle(document.body).backgroundColor, backgroundLuminance=luminance(background);
+      const style = getComputedStyle(node);
+      return {
+        display:style.display,gap:style.gap,position:style.position,borderTopWidth:style.borderTopWidth,
+        buttons:[...node.querySelectorAll('button')].map(button => {
+          const item = getComputedStyle(button), box = button.getBoundingClientRect();
+          const textLuminance=luminance(item.color);
+          return {flow:button.dataset.flow,current:button.getAttribute('aria-current'),width:box.width,height:box.height,
+            background:item.backgroundColor,radius:item.borderRadius,borderTop:item.borderTopWidth,
+            borderRight:item.borderRightWidth,borderBottom:item.borderBottomWidth,borderBottomColor:item.borderBottomColor,
+            borderLeft:item.borderLeftWidth,fontWeight:Number(item.fontWeight),
+            contrast:(Math.max(textLuminance,backgroundLuminance)+.05)/(Math.min(textLuminance,backgroundLuminance)+.05)};
+        })
+      };
+    }""")
+    assert snapshot['display'] == 'grid', snapshot
+    assert snapshot['gap'] == '0px', snapshot
+    assert snapshot['position'] == 'static', snapshot
+    assert snapshot['borderTopWidth'] == '1px', snapshot
+    assert [button['flow'] for button in snapshot['buttons']] == ['world', 'journey', 'words'], snapshot
+    assert all(button['width'] >= 44 and button['height'] >= 44 for button in snapshot['buttons']), snapshot
+    assert all(button['radius'] == '0px' and button['background'] == 'rgba(0, 0, 0, 0)'
+               for button in snapshot['buttons']), snapshot
+    assert all(button['contrast'] >= 4.5 for button in snapshot['buttons']), snapshot
+    assert all(button['borderTop'] == '0px' and button['borderRight'] == '0px' and
+               button['borderBottom'] == '2px' and button['borderLeft'] == '0px'
+               for button in snapshot['buttons']), snapshot
+    selected = [button for button in snapshot['buttons'] if button['current'] == 'page']
+    assert len(selected) == 1 and selected[0]['flow'] == current, snapshot
+    assert selected[0]['fontWeight'] >= 800, snapshot
+    unselected = [button for button in snapshot['buttons'] if button['current'] != 'page']
+    assert all(button['borderBottomColor'] != selected[0]['borderBottomColor'] for button in unselected), snapshot
+    return snapshot
+
+
 def capture(page, name, width, height):
     page.wait_for_timeout(500)
     page.evaluate('document.fonts.ready')
@@ -182,10 +226,26 @@ try:
             assert len(board_actions) == 2, board_actions
             assert_touch_targets(page, '#questBoardClose')
             assert_no_overlap(page, '.questBoardAction, #questBoardClose')
-            action_styles = page.locator('.questBoardAction').evaluate_all(
-                "nodes => nodes.map(node => [getComputedStyle(node).backgroundColor,getComputedStyle(node).color,node.getBoundingClientRect().height])"
-            )
-            assert len({tuple(style) for style in action_styles}) == 1, action_styles
+            note_styles = page.locator('.questBoardNote').evaluate_all("""nodes => nodes.map(node => {
+              const style=getComputedStyle(node); return {background:style.backgroundColor,radius:style.borderRadius,
+                borderTop:style.borderTopWidth,borderRight:style.borderRightWidth,
+                borderBottom:style.borderBottomWidth,borderLeft:style.borderLeftWidth,shadow:style.boxShadow};
+            })""")
+            assert all(style['background'] != 'rgba(0, 0, 0, 0)' and style['radius'] == '5px' and
+                       style['borderTop'] == '1px' and style['borderRight'] == '1px' and
+                       style['borderBottom'] == '1px' and style['borderLeft'] == '1px' and
+                       style['shadow'] == 'none' for style in note_styles), note_styles
+            action_styles = page.locator('.questBoardAction').evaluate_all("""nodes => nodes.map(node => {
+              const style=getComputedStyle(node), box=node.getBoundingClientRect();
+              return {background:style.backgroundColor,color:style.color,height:box.height,width:box.width,
+                radius:style.borderRadius,borderTop:style.borderTopWidth,borderRight:style.borderRightWidth,
+                borderBottom:style.borderBottomWidth,borderLeft:style.borderLeftWidth,shadow:style.boxShadow};
+            })""")
+            assert len({tuple(style.values()) for style in action_styles}) == 1, action_styles
+            assert all(style['background'] == 'rgba(0, 0, 0, 0)' and style['radius'] == '0px' and
+                       style['borderTop'] == '1px' and style['borderRight'] == '0px' and
+                       style['borderBottom'] == '0px' and style['borderLeft'] == '0px' and
+                       style['shadow'] == 'none' and style['width'] >= 240 for style in action_styles), action_styles
             assert page.locator('#questBoardClose').get_attribute('data-action-role') == 'close'
             assert background(page, '#questBoardClose') == 'rgb(233, 227, 216)'
             assert background(page, '#questBoardClose') != 'rgb(45, 98, 72)'
@@ -196,6 +256,18 @@ try:
             page.evaluate('() => { GameFlow.showWorld(); NorthForestWorld.openBoardSheet(); }')
             page.locator('#questBoardClose').click()
             assert 'open' not in (page.locator('#scrim').get_attribute('class') or '')
+
+            # The three destinations read as one navigation area; current state uses a line, not three cards.
+            reset(page, BOARD, LEXICON)
+            page.evaluate('GameFlow.showWorld()')
+            assert_flow_navigation(page, 'worldView', 'world')
+            capture(page, 'flow-navigation-world', width, height)
+            page.evaluate('GameFlow.showJourney()')
+            assert_flow_navigation(page, 'journeyView', 'journey')
+            capture(page, 'flow-navigation-journey', width, height)
+            page.evaluate('GameFlow.showWords()')
+            assert_flow_navigation(page, 'wordsView', 'words')
+            capture(page, 'flow-navigation-words', width, height)
 
             # A locked marker is an enabled information button; only the entrance action is unavailable.
             reset(page, ARRIVAL)
