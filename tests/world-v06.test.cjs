@@ -109,15 +109,20 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.ok(html.indexOf('journey-content.js') < html.indexOf('world-v06-content.js'));
   assert.ok(html.indexOf('world-v06-content.js') < html.indexOf('app.js'));
   assert.ok(html.indexOf('view.css') < html.indexOf('world-map-reset.css'));
-  assert.match(html, /world\.css\?v=20261006-a041/);
+  assert.match(html, /world\.css\?v=20261006-a042/);
+  assert.match(html, /view\.css\?v=20261006-a042/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
-  assert.match(html, /world-runtime\.js\?v=20261005-actioncontract1/);
+  assert.match(html, /world-runtime\.js\?v=20261006-a042/);
   assert.match(html, /journey\.css\?v=20261006-a041/);
-  assert.match(html, /journey-runtime\.js\?v=20261006-a051/);
+  assert.match(html, /journey-runtime\.js\?v=20261006-a042/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);
 
   const runtime = read('src/world-runtime.js');
+  assert.doesNotMatch(html, /id="worldHint"/);
+  assert.doesNotMatch(runtime, /worldHint|enhanceWorldHint/);
+  assert.doesNotMatch(read('src/view.css'), /\.worldHint/);
+  assert.doesNotMatch(read('src/world.css'), /\.worldHint/);
   assert.match(runtime, /loadChunkedMap/);
   assert.match(runtime, /new Blob/);
   assert.match(runtime, /villageMapImage/);

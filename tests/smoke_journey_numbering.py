@@ -70,19 +70,20 @@ def seed(page, state):
 
 def assert_guidance_states(page, width, height):
     cases = [
-        ('early', '이어서 여행하기', '고향을 떠나는 여정'),
-        ('chapter-progress', '월드맵으로', '다음 본편은 월드맵'),
-        ('chapter-complete', '월드맵으로', '1장의 여행을 마쳤어'),
-        ('free-quest', '월드맵으로', '진행 중인 자유 의뢰'),
-        ('tower-started', '월드맵으로', '학술탑 연구가 시작됐어'),
-        ('tower-partial', '월드맵으로', '학술탑 본선 연구 1/5'),
+        ('early', True, '이어서 여행하기', '고향을 떠나는 여정'),
+        ('chapter-progress', False, '', '다음 본편은 월드맵'),
+        ('chapter-complete', False, '', '1장의 여행을 마쳤어'),
+        ('free-quest', False, '', '진행 중인 자유 의뢰'),
+        ('tower-started', False, '', '학술탑 연구가 시작됐어'),
+        ('tower-partial', False, '', '학술탑 본선 연구 1/5'),
     ]
-    for state, button_text, guidance_text in cases:
+    for state, button_visible, button_text, guidance_text in cases:
         seed(page, state)
-        assert page.locator('#journeyContinue').inner_text() == button_text
+        continue_button = page.locator('#journeyContinue')
+        assert continue_button.is_visible() is button_visible
+        assert continue_button.inner_text() == button_text
         assert guidance_text in page.locator('#journeyGuidance').inner_text()
-        expected_destination = 'node' if state == 'early' else 'world'
-        assert page.locator('#journeyContinue').get_attribute('data-destination') == expected_destination
+        assert continue_button.get_attribute('data-destination') == ('node' if button_visible else None)
         assert page.locator('#journeyReplayGuidance').is_hidden()
         if state == 'free-quest':
             assert '진행 중' in page.locator('.journeyQuestState').all_inner_texts()

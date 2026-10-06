@@ -83,6 +83,13 @@ test('journey guidance follows the actual continue destination and scopes replay
   assert.match(html, /id="journeyReplayGuidance"[^>]*hidden/);
 });
 
+test('journey omits a redundant direct world-map button while preserving real continue actions', () => {
+  assert.match(runtime, /const showContinue = continueAction\.kind !== 'world'/);
+  assert.match(runtime, /continueButton\.hidden = !showContinue/);
+  assert.match(runtime, /delete continueButton\.dataset\.destination/);
+  assert.match(runtime, /다음 본편은 월드맵에서 장소를 골라 이어가/);
+});
+
 test('optional requests render as collection, place, request, and event levels', () => {
   assert.match(runtime, /chapter\.kind !== 'quest-collection'/);
   assert.match(runtime, /function appendQuestLocation\(/);
@@ -120,7 +127,7 @@ test('journey reset is separated from the primary continue action', () => {
 test('browser loads the journey redesign assets with a fresh cache key', () => {
   assert.match(html, /stage-reference\.js\?v=20261006-a10a061/);
   assert.match(html, /journey\.css\?v=20261006-a041/);
-  assert.match(html, /journey-runtime\.js\?v=20261006-a051/);
+  assert.match(html, /journey-runtime\.js\?v=20261006-a042/);
   assert.match(html, /journey-progress\.js\?v=20261006-a10a061/);
   assert.match(html, /flow-runtime\.js\?v=20261006-a041/);
 });

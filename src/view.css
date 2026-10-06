@@ -168,16 +168,6 @@
 .regionCard.recommended{border-style:dashed}
 .regionCard.locked{opacity:.62}
 
-.worldHint{
-  margin-top:auto;
-  padding:10px 12px;
-  border-radius:14px;
-  background:rgba(255,253,247,.68);
-  text-align:center;
-  font-size:12px;
-  line-height:1.45;
-}
-
 /* iPhone mini-class widths: keep the three-branch map, but trim node chrome rather than text. */
 @media(max-width:390px){
   #app>.worldShell{gap:11px}
@@ -213,5 +203,4 @@
   .regionCard{min-height:94px;padding:5px 4px}
   .regionIcon{width:31px;height:31px}
   .regionCard small{min-height:0;font-size:9.5px}
-  .worldHint{padding:7px 10px}
 }

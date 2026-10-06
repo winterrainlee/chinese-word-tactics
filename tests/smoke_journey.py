@@ -233,6 +233,7 @@ try:
         passed(f'first-play: departure → six solved stages {paths} → two stories → world')
         page.screenshot(path=str(OUT/'world-375.png'))
         assert page.locator('#worldContinue').is_hidden()
+        assert page.locator('#worldHint').count() == 0
         world_layout = page.evaluate('''() => {
           const box = element => element.getBoundingClientRect().toJSON();
           const map = document.querySelector('#worldRegions');

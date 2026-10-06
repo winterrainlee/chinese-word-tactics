@@ -295,19 +295,20 @@
     const chapterComplete = milestones.includes('chapter1-complete');
     const chapterStarted = progress.seenStories.includes('chapter1-roadside-merchant') ||
       progress.completedStages.some(id => /^(gate|workshop|market)-stage-/.test(id));
-    const mainAction = action.kind === 'world' ? '위 버튼은 월드맵으로 이동해.' : '본편은 위 버튼으로 이어갈 수 있어.';
+    const mainAction = action.kind === 'world' ? '' : '본편은 위 버튼으로 이어갈 수 있어.';
+    const withMainAction = text => [mainAction, text].filter(Boolean).join(' ');
 
     if (activeQuest && towerStarted) {
-      return `${mainAction} 진행 중인 자유 의뢰와 학술탑 연구는 아래 각 기록의 ‘계속’에서 이어갈 수 있어.`;
+      return withMainAction('진행 중인 자유 의뢰와 학술탑 연구는 아래 각 기록의 ‘계속’에서 이어갈 수 있어.');
     }
     if (activeQuest) {
-      return `${mainAction} 진행 중인 자유 의뢰는 아래 의뢰의 ‘계속’에서 이어갈 수 있어.`;
+      return withMainAction('진행 중인 자유 의뢰는 아래 의뢰의 ‘계속’에서 이어갈 수 있어.');
     }
     if (towerStarted) {
       const towerState = milestones.includes('academic-tower-turn-foundation')
         ? '학술탑의 첫 연구 묶음을 마쳤어.'
         : towerDone > 0 ? `학술탑 본선 연구 ${towerDone}/5를 마쳤어.` : '학술탑 연구가 시작됐어.';
-      return `${mainAction} ${towerState} 아래 현재 연구의 ‘계속’에서 이어갈 수 있어.`;
+      return withMainAction(`${towerState} 아래 현재 연구의 ‘계속’에서 이어갈 수 있어.`);
     }
     if (chapterComplete) {
       return '1장의 여행을 마쳤어. 새 의뢰와 연구는 월드맵에서 장소를 골라 시작할 수 있어.';
@@ -367,9 +368,17 @@
     const focusRegionId = typeof options.focusRegionId === 'string' ? options.focusRegionId : null;
     if (focusRegionId) filter = focusRegionId === 'academic-tower' ? 'all' : 'stage';
     const continueAction = JourneyProgress.continueAction(progress);
-    $('journeyContinue').textContent = continueAction.label;
-    $('journeyContinue').dataset.destination = continueAction.kind;
-    $('journeyContinue').onclick = () => GameFlow.continueCampaign();
+    const continueButton = $('journeyContinue');
+    const showContinue = continueAction.kind !== 'world';
+    continueButton.hidden = !showContinue;
+    continueButton.textContent = showContinue ? continueAction.label : '';
+    if (showContinue) {
+      continueButton.dataset.destination = continueAction.kind;
+      continueButton.onclick = () => GameFlow.continueCampaign();
+    } else {
+      delete continueButton.dataset.destination;
+      continueButton.onclick = null;
+    }
     $('journeyGuidance').textContent = guidanceFor(progress, continueAction, activeQuest);
     const replayGuidance = $('journeyReplayGuidance');
     replayGuidance.hidden = filter !== 'stage' || !progress.completedStages.length;

@@ -191,16 +191,10 @@
     });
   }
 
-  function enhanceWorldHint() {
-    const hint = document.getElementById('worldHint');
-    if (hint) hint.textContent = '장소를 눌러 살펴봐. 길은 네가 고르면 돼.';
-  }
-
   function syncWorldPresentation() {
     enhanceWorldHeader();
     ensureMapBackground();
     enhanceRegionCards();
-    enhanceWorldHint();
   }
 
   const map = document.getElementById('worldRegions');
