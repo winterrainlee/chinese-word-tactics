@@ -19,6 +19,12 @@
 진행 상황은 [`docs/DEVELOPMENT-STATUS.md`](./docs/DEVELOPMENT-STATUS.md)에서 관리한다.
 1장 결말의 최신 이야기 기준은 [`docs/CHAPTER1-FINALE-DESIGN-v0.1.md`](./docs/CHAPTER1-FINALE-DESIGN-v0.1.md), 자유 의뢰와 게시판의 최신 기준은 [`docs/QUEST-BOARD-DESIGN-v0.2.md`](./docs/QUEST-BOARD-DESIGN-v0.2.md)다.
 
+## 학술탑 다음 곁가지 설계
+
+2026-10-06: 而 선택 연구 04A `여백에 남은 길`의 [스토리라인을 확정](docs/ACADEMIC-TOWER-ER-SIDE-STORY-v0.1.md)하고 [일곱 내부 단계의 기믹·중단/재개 설계안](docs/ACADEMIC-TOWER-ER-SIDE-STAGES-v0.1.md)을 작성했다. 而且·然而·反而·而是·因而·從而·進而·而已를 다루며, 본선 04 뒤에 자발적으로 들어오는 하나의 연구 안에서 조금씩 이어 읽는 구조다.
+
+현재는 문서화 단계다. 새 런타임·저장 필드·여정 노드는 아직 구현하지 않았고 기존 본선 다섯 판 집계와 03A·05의 진행 조건은 바꾸지 않았다. 기믹 문서의 G2 확인 항목과 자동·실기기 검증은 후속 작업으로 구분한다.
+
 ## 핵심 원칙
 
 - 단어의 뜻을 이용해 판을 푼다.
@@ -49,7 +55,7 @@
 
 ## 현재까지 완료된 큰 흐름
 
-1. 기존 튜토리얼 6판을 독립 저장소로 이전하고 GitHub Pages에서 iPhone Safari 직접 플레이를 확인했다.
+1. 기존 튜토리얼 v0.3의 동작을 독립 저장소로 이전하고 GitHub Pages에서 iPhone Safari 직접 플레이를 확인했다.
 2. 튜토리얼 완료 뒤 이야기·여정과 물길마을 그림지도를 연결했다.
 3. 같은 물길마을 안의 `길목 / 장인골 / 장터`를 자유롭게 고르게 했다.
 4. 길목 G1~G7에서 길·거리·경로·장애물·수레·추종 흐름을 완결하고 `gate-core`를 기록한다.
