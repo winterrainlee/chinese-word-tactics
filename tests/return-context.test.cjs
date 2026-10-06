@@ -18,7 +18,21 @@ test('A05 captures the actual source view without introducing a router or changi
   assert.match(flow, /context\.viewId === 'landingView'/);
   assert.match(flow, /context\.viewId === 'worldView'/);
   assert.match(flow, /context\.viewId === 'journeyView'/);
+  assert.match(flow, /navigationReturn:/);
+  assert.match(flow, /function returnFromTravelRoot\(view\)/);
+  assert.match(flow, /'worldBack'\)\.onclick = \(\) => returnFromTravelRoot\('world'\)/);
+  assert.match(flow, /'journeyBack'\)\.onclick = \(\) => returnFromTravelRoot\('journey'\)/);
+  assert.match(flow, /wordsView: 'words'/);
   assert.doesNotMatch(flow, /pushState|replaceState|popstate/);
+});
+
+test('world and journey preserve their menu caller without reviving completed flow screens', () => {
+  assert.match(html, /id="worldBack"[^>]*aria-label="이전 화면"/);
+  assert.match(html, /id="journeyBack"[^>]*aria-label="이전 화면"/);
+  assert.match(flow, /showWorld\(\{ returnContext: origin, preserveActive: true \}\)/);
+  assert.match(flow, /showJourney\(\{ returnContext: origin, preserveActive: true \}\)/);
+  assert.match(flow, /if \(!options\.preserveActive\) \{ active = null; StoryRuntime\.stop\(\); \}/);
+  assert.match(flow, /return showLanding\(\)/);
 });
 
 test('A05 keeps journey filter and disclosure state with scroll and focus', () => {
@@ -49,10 +63,10 @@ test('A05 replay completion uses the same context-aware return path', () => {
 });
 
 test('A05 changed browser assets share a fresh cache key', () => {
-  assert.match(html, /name="cwt-build" content="2026-10-06-a042"/);
+  assert.match(html, /name="cwt-build" content="2026-10-06-a043"/);
   assert.match(html, /journey-runtime\.js\?v=20261006-a042/);
   for (const asset of ['lexicon-runtime.js', 'ux-play-runtime.js']) {
     assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261006-a051`));
   }
-  assert.match(html, /flow-runtime\.js\?v=20261006-a041/);
+  assert.match(html, /flow-runtime\.js\?v=20261006-a043/);
 });

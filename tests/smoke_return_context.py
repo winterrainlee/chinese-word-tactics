@@ -150,6 +150,15 @@ try:
             wait_ready(page)
             seed_complete(page)
 
+            # Landing → Journey → back uses the same chronological return contract as other menu pages.
+            assert page.locator('#landingJourney').is_visible()
+            page.locator('#landingJourney').click()
+            assert_view(page, 'journey')
+            assert page.locator('#journeyBack').get_attribute('aria-label') == '이전 화면'
+            page.locator('#journeyBack').click()
+            assert_view(page, 'landing')
+            page.wait_for_function("document.activeElement?.id === 'landingJourney'")
+
             # Landing → word book → back returns to the landing, not campaign resume.
             assert page.locator('#landingWords').is_visible()
             page.locator('#landingWords').click()
@@ -171,6 +180,14 @@ try:
             assert_view(page, 'world')
             wait_for_restore(page, world_menu, world_scroll)
 
+            # World → Journey → back restores the World Map position and menu focus.
+            page.locator(world_menu).click()
+            page.locator('#flowJourney').click()
+            assert_view(page, 'journey')
+            page.locator('#journeyBack').click()
+            assert_view(page, 'world')
+            wait_for_restore(page, world_menu, world_scroll)
+
             # Journey → word book → back keeps filter, disclosure state, position, and focused node.
             page.evaluate('GameFlow.showJourney()')
             page.locator('[data-journey-filter="stage"]').click()
@@ -178,6 +195,20 @@ try:
             journey_target = '[data-node-id="stage:market-stage-8"]'
             journey_scroll = scroll_and_focus(page, journey_target)
             journey_disclosures = disclosure_state(page)
+
+            # Journey → World Map → back keeps the same filtered reading position.
+            page.locator('#journeyMenu').click()
+            page.locator('#flowWorld').click()
+            assert_view(page, 'world')
+            assert page.locator('#worldBack').get_attribute('aria-label') == '이전 화면'
+            page.locator('#worldBack').click()
+            assert_view(page, 'journey')
+            wait_for_restore(page, '#journeyMenu', journey_scroll)
+            assert page.locator('[data-journey-filter="stage"]').get_attribute('aria-pressed') == 'true'
+            assert disclosure_state(page) == journey_disclosures
+            page.screenshot(path=str(OUT / f'a05-journey-world-return-{width}x{height}.png'), full_page=True)
+
+            page.locator(journey_target).focus()
             page.evaluate('GameFlow.showWords()')
             assert_view(page, 'words')
             page.locator('#wordsBackBtn').click()
@@ -215,6 +246,15 @@ try:
             page.wait_for_function("document.activeElement?.dataset.lexiconWord === '價格'")
             assert page.locator('#lexiconSearchInput').input_value() == '가격'
 
+            # Word book → World Map → back keeps the live search state rather than reopening its home.
+            page.locator('#wordsMenu').click()
+            page.locator('#flowWorld').click()
+            assert_view(page, 'world')
+            page.locator('#worldBack').click()
+            assert_view(page, 'words')
+            page.wait_for_function("document.activeElement?.id === 'wordsMenu'")
+            assert page.locator('#lexiconSearchInput').input_value() == '가격'
+
             # A lower journey stage replay restores the same journey context on completion.
             page.evaluate('GameFlow.showJourney()')
             page.locator('[data-journey-filter="stage"]').click()
@@ -242,6 +282,7 @@ finally:
 
 (OUT / 'return-context-results.json').write_text(json.dumps({
     'viewports': [f'{width}x{height}' for width, height in VIEWPORTS],
-    'flows': ['landing-words', 'world-words', 'journey-words', 'lexicon-detail', 'search-detail', 'journey-replay']
+    'flows': ['landing-journey', 'landing-words', 'world-words', 'world-journey', 'journey-world',
+              'journey-words', 'lexicon-detail', 'search-detail', 'words-world', 'journey-replay']
 }, ensure_ascii=False, indent=2))
 print('PASS: actual-source return and reading-context restoration across four viewports.')

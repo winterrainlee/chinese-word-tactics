@@ -240,8 +240,10 @@ try:
             # Every root screen exposes the same top menu, even at the end of a long document.
             reset(page, BOARD, LEXICON)
             page.evaluate('GameFlow.showWorld()')
+            assert_touch_targets(page, '#worldBack, #worldMenu')
             assert_global_menu(page, 'worldView', 'flowWorld', 'global-navigation-world', width, height)
             page.evaluate('GameFlow.showJourney()')
+            assert_touch_targets(page, '#journeyBack, #journeyMenu')
             assert_global_menu(page, 'journeyView', 'flowJourney', 'global-navigation-journey', width, height)
             page.evaluate('GameFlow.showWords()')
             assert_global_menu(page, 'wordsView', 'flowWords', 'global-navigation-words', width, height)
@@ -292,6 +294,12 @@ try:
             capture(page, 'menu-from-story', width, height)
             page.locator('#flowJourney').click()
             assert page.locator('#journeyView').is_visible()
+            assert_touch_targets(page, '#journeyBack, #journeyMenu')
+            page.locator('#journeyBack').click()
+            assert page.locator('#storyView').is_visible()
+            assert page.locator('#storyCount').inner_text().startswith('1 / ')
+            page.locator('#storyNext').click()
+            assert page.locator('#storyCount').inner_text().startswith('2 / ')
 
             # Unrelated single-action word sheets keep their established primary close treatment.
             reset(page, progress(stages=('stage-0',), location={'view': 'world'}))

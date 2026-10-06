@@ -36,12 +36,12 @@ test('A09a preserves meaningful state and work-surface boundaries', () => {
 });
 
 test('A09a settings stay cached while later boundary work refreshes only changed assets', () => {
-  assert.match(html, /name="cwt-build" content="2026-10-06-a042"/);
+  assert.match(html, /name="cwt-build" content="2026-10-06-a043"/);
   assert.match(html, /settings\.css\?v=20261005-a09a1/);
   assert.match(html, /journey\.css\?v=20261006-a041/);
   assert.match(html, /first-free-quest\.css\?v=20261006-a09b1/);
-  assert.match(html, /flow-runtime\.js\?v=20261006-a041/);
-  assert.match(html, /navigation\.css\?v=20261006-a041/);
+  assert.match(html, /flow-runtime\.js\?v=20261006-a043/);
+  assert.match(html, /navigation\.css\?v=20261006-a043/);
 });
 
 test('A09b keeps each quest as a paper surface and opens its nested action', () => {
@@ -57,9 +57,12 @@ test('A04 replaces the document-end navigation with one global travel menu entry
   assert.equal((html.match(/data-flow-menu/g) || []).length, 8);
   assert.match(read('src/world-inn-runtime.js'), /id="innRoomMenu"[^>]*data-flow-menu[^>]*aria-label="여행 메뉴"/);
   assert.match(navigation, /\[data-flow-menu\]:focus-visible\{outline:3px solid var\(--blue\)/);
+  assert.match(navigation, /\.travelBack:focus-visible\{outline:3px solid var\(--blue\)/);
   assert.match(navigation, /\.globalNavHeader\{position:sticky;[^}]*top:max\(0px,env\(safe-area-inset-top\)\)/s);
   assert.match(flow, /document\.querySelectorAll\('\[data-flow-menu\]'\)/);
   assert.match(flow, /id="flowSettings">설정 · 저장과 복원/);
   assert.match(flow, /id="flowTitle">첫 화면/);
   assert.match(flow, /setAttribute\('aria-current', 'page'\)/);
+  assert.match(html, /id="worldBack" class="iconbtn travelBack"/);
+  assert.match(html, /id="journeyBack" class="iconbtn travelBack"/);
 });

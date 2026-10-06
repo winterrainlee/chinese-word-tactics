@@ -9,6 +9,8 @@
     $('flowNotice').textContent = '진행 기록을 읽거나 저장하지 못했어. 이 탭에서는 계속할 수 있지만, 새로고침하면 기록을 잃을 수 있어.';
   });
   let active = null;
+  let worldReturnContext = null;
+  let journeyReturnContext = null;
   const dataAttribute = key => `data-${key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)}`;
   const currentView = () => [...document.querySelectorAll('.appView')].find(view => !view.hidden) || null;
   function focusToken(element = document.activeElement) {
@@ -31,7 +33,9 @@
       viewId: view.id,
       scrollY: window.scrollY,
       focus: focusToken(),
-      journey: view.id === 'journeyView' ? globalThis.JourneyRuntime?.captureContext?.() || null : null
+      journey: view.id === 'journeyView' ? globalThis.JourneyRuntime?.captureContext?.() || null : null,
+      navigationReturn: view.id === 'worldView' ? worldReturnContext :
+        view.id === 'journeyView' ? journeyReturnContext : null
     };
   }
   function restoreDomContext(context) {
@@ -91,7 +95,7 @@
     secondary.hidden = !started;
     $('landingJourney').hidden = !started;
     $('landingWords').hidden = !hasWords;
-    $('landingJourney').onclick = showJourney;
+    $('landingJourney').onclick = () => showJourney({ returnContext: captureViewContext(), preserveActive: true });
     $('landingWords').onclick = showWords;
     if (options.restoreContext) restoreDomContext(options.restoreContext);
     else window.scrollTo(0, 0);
@@ -99,7 +103,10 @@
   }
   function showJourney(options = {}) {
     const focusRegionId = typeof options?.focusRegionId === 'string' ? options.focusRegionId : null;
-    active = null; StoryRuntime.stop(); TacticalGame.showView('journey');
+    journeyReturnContext = options.restoreContext ? options.restoreContext.navigationReturn || null :
+      options.returnContext?.viewId && options.returnContext.viewId !== 'journeyView' ? options.returnContext : null;
+    if (!options.preserveActive) { active = null; StoryRuntime.stop(); }
+    TacticalGame.showView('journey');
     if (options.restoreContext?.journey) JourneyRuntime.restoreContext(options.restoreContext.journey);
     JourneyRuntime.render(options.restoreContext ? {} : focusRegionId ? { focusRegionId } : { focusCurrent: true });
     if (options.restoreContext) restoreDomContext(options.restoreContext);
@@ -109,7 +116,10 @@
   function showRegionPractice(regionId) { return showJourney({ focusRegionId: regionId }); }
   function showWorld(options = {}) {
     if (!canVisitWorld()) { showJourney(); return false; }
-    active = null; StoryRuntime.stop(); TacticalGame.showWorld();
+    worldReturnContext = options.restoreContext ? options.restoreContext.navigationReturn || null :
+      options.returnContext?.viewId && options.returnContext.viewId !== 'worldView' ? options.returnContext : null;
+    if (!options.preserveActive) { active = null; StoryRuntime.stop(); }
+    TacticalGame.showWorld();
     const next = P.recommendedNode(store.get());
     $('worldContinue').hidden = !next || !!nodeRegionId(next);
     if (options.restoreContext) restoreDomContext(options.restoreContext);
@@ -294,12 +304,19 @@
     TacticalGame.closeSheet();
     return LexiconRuntime.open({ progress, returnContext: options.returnContext });
   }
+  function returnFromTravelRoot(view) {
+    const context = view === 'world' ? worldReturnContext : journeyReturnContext;
+    if (view === 'world') worldReturnContext = null;
+    else journeyReturnContext = null;
+    if (context && restoreViewContext(context)) return true;
+    return showLanding();
+  }
   function restoreViewContext(context) {
     if (!context?.viewId) return false;
     if (context.viewId === 'landingView') return showLanding({ restoreContext: context });
-    if (context.viewId === 'worldView') return showWorld({ restoreContext: context });
-    if (context.viewId === 'journeyView') return showJourney({ restoreContext: context });
-    const viewName = ({ tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings', innRoomView: 'innRoom' })[context.viewId];
+    if (context.viewId === 'worldView') return showWorld({ restoreContext: context, preserveActive: true });
+    if (context.viewId === 'journeyView') return showJourney({ restoreContext: context, preserveActive: true });
+    const viewName = ({ tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings', innRoomView: 'innRoom', wordsView: 'words' })[context.viewId];
     if (!viewName) return false;
     TacticalGame.showView(viewName);
     restoreDomContext(context);
@@ -332,7 +349,10 @@
     if (!started) $('flowJourney').textContent = '여정 · 여행을 시작하면 열려';
     $('flowWords').disabled = !hasWords;
     if (!hasWords) $('flowWords').textContent = '단어장 · 단어를 만나면 열려';
-    $('flowWorld').onclick = showWorld; $('flowJourney').onclick = showJourney;
+    $('flowWorld').onclick = () => origin?.viewId === 'worldView'
+      ? restoreViewContext(origin) : showWorld({ returnContext: origin, preserveActive: true });
+    $('flowJourney').onclick = () => origin?.viewId === 'journeyView'
+      ? restoreViewContext(origin) : showJourney({ returnContext: origin, preserveActive: true });
     $('flowWords').onclick = () => showWords({ returnContext: origin });
     $('flowSettings').onclick = () => showSettings({ returnContext: origin });
     $('flowTitle').onclick = showLanding;
@@ -345,6 +365,8 @@
     continueCampaign, resume, returnFromReplay, showMenu, showWords, showSettings, resetJourney, recordStageComplete, showStageComplete,
     captureViewContext, restoreViewContext, progress: () => store.get() });
   document.querySelectorAll('[data-flow-menu]').forEach(button => { button.onclick = showMenu; });
+  $('worldBack').onclick = () => returnFromTravelRoot('world');
+  $('journeyBack').onclick = () => returnFromTravelRoot('journey');
   $('journeyReset')?.addEventListener('click', resetJourney);
   $('worldContinue').onclick = resume;
   showLanding();

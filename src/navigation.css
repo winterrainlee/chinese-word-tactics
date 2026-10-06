@@ -2,6 +2,7 @@
 [data-flow-menu]{flex:0 0 44px;font-size:0}
 [data-flow-menu]::before{content:"";display:inline-block;width:20px;height:20px;background-color:currentColor;-webkit-mask:url("../icons/ui/ui-menu.svg") center/contain no-repeat;mask:url("../icons/ui/ui-menu.svg") center/contain no-repeat}
 [data-flow-menu]:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.travelBack:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .globalHeaderSpacer{display:block;width:44px;height:44px}
 .globalNavHeader{position:sticky;top:max(0px,env(safe-area-inset-top));z-index:12;background:var(--bg);box-shadow:0 1px 0 color-mix(in srgb,var(--line) 62%,transparent)}
 .journeyTopbar{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;min-height:52px}
