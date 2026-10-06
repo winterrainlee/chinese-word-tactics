@@ -19,7 +19,7 @@ test('title view is the initial visible app surface', () => {
   assert.match(html, /name="apple-mobile-web-app-title" content="따라온 단어들"/);
   assert.match(html, /property="og:title" content="따라온 단어들"/);
   assert.match(html, /id="tutorialView" class="shell appView" hidden/);
-  assert.match(html, /landing\.css\?v=20261005-actioncontract1/);
+  assert.match(html, /landing\.css\?v=20261006-a041/);
   assert.match(html, /title-departure\.svg\?v=20260913-landing1/);
 });
 
@@ -43,8 +43,9 @@ test('secondary record links unlock only after they have something to show', () 
 });
 
 test('settings is available from the title even before a journey starts', () => {
-  assert.match(html, /id="landingSettings"[^>]*aria-label="설정"/);
-  assert.doesNotMatch(html, /id="landingSettings"[^>]*hidden/);
+  assert.match(html, /id="landingMenu"[^>]*data-flow-menu[^>]*aria-label="여행 메뉴"/);
+  assert.doesNotMatch(html, /id="landingMenu"[^>]*hidden/);
   assert.match(html, /id="settingsView" class="settingsShell appView" hidden/);
-  assert.match(settings, /landingSettings.*addEventListener\('click', open\)/);
+  assert.match(flow, /id="flowSettings">설정 · 저장과 복원/);
+  assert.match(flow, /\$\('flowSettings'\)\.onclick = \(\) => showSettings/);
 });

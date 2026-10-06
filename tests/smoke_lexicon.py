@@ -48,6 +48,10 @@ try:
         page.goto(url)
         page.wait_for_function('!!window.GameFlow && !!window.LexiconRuntime && !!window.TacticalGame')
 
+        # Keep the menu contract realistic: the journey destination unlocks only after
+        # the player has actually started, even though the stage below is a direct fixture.
+        assert page.evaluate("GameFlow.playStory('prologue-departure')")
+
         # The compact in-stage sheet remains useful, but can jump into the full word entry.
         page.evaluate('TacticalGame.playStage("market-stage-4",{mode:"replay",returnTo:"journey"})')
         page.locator('.wordbtn', has_text='買').click()
@@ -82,7 +86,7 @@ try:
         assert chapter_width < content_width * .8, (chapter_width, content_width)
         region_styles = flat_surface_styles(page, '.lexiconRegionCard')
         assert all(item['radius'] == '0px' and item['bg'] == 'rgba(0, 0, 0, 0)' and item['height'] <= 70 for item in region_styles), region_styles
-        assert_touch_targets(page, '.lexiconRegionCard:visible, #wordsChapterSelect:visible, .flowNav button:visible, .iconbtn:visible')
+        assert_touch_targets(page, '.lexiconRegionCard:visible, #wordsChapterSelect:visible, .iconbtn:visible')
         page.screenshot(path=str(OUT/'lexicon-01-home-375x812.png'),full_page=True)
 
         page.locator('[data-lexicon-region="market-town"]').click()
@@ -130,7 +134,8 @@ try:
         assert_touch_targets(page, '.lexiconWordRow:visible, .iconbtn:visible')
         page.screenshot(path=str(OUT/'lexicon-05-search-375x812.png'),full_page=True)
 
-        page.locator('#wordsView [data-flow="journey"]').click()
+        page.locator('#wordsMenu').click()
+        page.locator('#flowJourney').click()
         assert page.locator('#journeyView').is_visible()
         assert not page.locator('#wordsView').is_visible()
 

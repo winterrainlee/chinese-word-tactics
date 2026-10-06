@@ -11,12 +11,12 @@ const save = read('src/save-data.js');
 const flow = read('src/flow-runtime.js');
 
 test('settings is reachable before a journey exists and from the in-game menu', () => {
-  assert.match(html, /id="landingSettings"[^>]*aria-label="설정"/);
-  assert.doesNotMatch(html, /id="landingSettings"[^>]*hidden/);
+  assert.match(html, /id="landingMenu"[^>]*data-flow-menu[^>]*aria-label="여행 메뉴"/);
+  assert.doesNotMatch(html, /id="landingMenu"[^>]*hidden/);
   assert.match(html, /id="settingsView" class="settingsShell appView" hidden/);
-  assert.match(runtime, /landingSettings.*addEventListener\('click', open\)/);
   assert.match(flow, /id=\"flowSettings\"/);
   assert.match(flow, /설정 · 저장과 복원/);
+  assert.match(runtime, /GameFlow\?\.restoreViewContext\?\.\(returnContext\)/);
 });
 
 test('settings exposes export, validated restore preview, reset, and build information', () => {

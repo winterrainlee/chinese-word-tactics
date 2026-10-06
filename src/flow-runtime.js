@@ -102,7 +102,6 @@
     active = null; StoryRuntime.stop(); TacticalGame.showView('journey');
     if (options.restoreContext?.journey) JourneyRuntime.restoreContext(options.restoreContext.journey);
     JourneyRuntime.render(options.restoreContext ? {} : focusRegionId ? { focusRegionId } : { focusCurrent: true });
-    document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
     if (options.restoreContext) restoreDomContext(options.restoreContext);
     else window.scrollTo(0, 0);
     return true;
@@ -281,7 +280,7 @@
     $('flowNext').onclick = () => { TacticalGame.closeSheet(); replay ? returnFromReplay(context) : continueFromNode(`stage:${id}`); };
     $('flowRetry').onclick = () => playStage(id, context);
   }
-  function showWords() {
+  function showWords(options = {}) {
     if (!globalThis.LexiconRuntime) {
       TacticalGame.openSheet('<h2>단어장</h2><p class="flowNote">단어장을 불러오지 못했어. 지금은 빠른 단어 목록으로 열게.</p><div id="flowWordList" class="flowMenu"></div><div class="sheetactions"><button id="flowWordsClose">닫기</button></div>');
       for (const [word, detail] of Object.entries(WORDS)) {
@@ -293,15 +292,14 @@
     }
     const progress = store.get();
     TacticalGame.closeSheet();
-    document.querySelectorAll('[data-flow="world"]').forEach(button => { button.disabled = !canVisitWorld(); });
-    return LexiconRuntime.open({ progress });
+    return LexiconRuntime.open({ progress, returnContext: options.returnContext });
   }
   function restoreViewContext(context) {
     if (!context?.viewId) return false;
     if (context.viewId === 'landingView') return showLanding({ restoreContext: context });
     if (context.viewId === 'worldView') return showWorld({ restoreContext: context });
     if (context.viewId === 'journeyView') return showJourney({ restoreContext: context });
-    const viewName = ({ tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings' })[context.viewId];
+    const viewName = ({ tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings', innRoomView: 'innRoom' })[context.viewId];
     if (!viewName) return false;
     TacticalGame.showView(viewName);
     restoreDomContext(context);
@@ -321,22 +319,33 @@
       }
     };
   }
-  function showSettings() { return globalThis.SettingsRuntime?.open?.() || false; }
+  function showSettings(options = {}) { return globalThis.SettingsRuntime?.open?.(options) || false; }
   function showMenu() {
-    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu flowTravelMenu"><button id="flowResume">본편 이어가기</button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">타이틀 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
-    $('flowResume').onclick = () => resume();
+    const origin = captureViewContext(), progress = store.get(), started = hasJourneyProgress(progress);
+    const hasWords = Boolean(globalThis.LexiconRuntime?.snapshot?.()?.discovered?.length);
+    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu flowTravelMenu"><button id="flowResume"></button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">첫 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
+    $('flowResume').textContent = started ? '본편 이어가기' : '여행 시작';
+    $('flowResume').onclick = () => started ? resume() : playStory('prologue-departure');
     $('flowWorld').disabled = !canVisitWorld();
     if (!canVisitWorld()) $('flowWorld').textContent = '월드맵 · 숲을 빠져나오면 열려';
+    $('flowJourney').disabled = !started;
+    if (!started) $('flowJourney').textContent = '여정 · 여행을 시작하면 열려';
+    $('flowWords').disabled = !hasWords;
+    if (!hasWords) $('flowWords').textContent = '단어장 · 단어를 만나면 열려';
     $('flowWorld').onclick = showWorld; $('flowJourney').onclick = showJourney;
-    $('flowWords').onclick = showWords; $('flowSettings').onclick = showSettings;
-    $('flowTitle').onclick = showLanding; $('flowMenuClose').onclick = () => TacticalGame.closeSheet();
+    $('flowWords').onclick = () => showWords({ returnContext: origin });
+    $('flowSettings').onclick = () => showSettings({ returnContext: origin });
+    $('flowTitle').onclick = showLanding;
+    const currentId = ({ landingView: 'flowTitle', worldView: 'flowWorld', journeyView: 'flowJourney', wordsView: 'flowWords', settingsView: 'flowSettings' })[origin?.viewId];
+    if (currentId) $(currentId)?.setAttribute('aria-current', 'page');
+    $('flowMenuClose').onclick = () => { TacticalGame.closeSheet(); if (origin) restoreDomContext(origin); };
+    requestAnimationFrame(() => $('flowResume')?.focus());
   }
   globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, showRegionHub, playStory, playStage, continueFromNode, enterRegion,
     continueCampaign, resume, returnFromReplay, showMenu, showWords, showSettings, resetJourney, recordStageComplete, showStageComplete,
     captureViewContext, restoreViewContext, progress: () => store.get() });
-  document.querySelectorAll('[data-flow]').forEach(button => { button.onclick = () => ({ world: showWorld, journey: showJourney, words: showWords })[button.dataset.flow](); });
+  document.querySelectorAll('[data-flow-menu]').forEach(button => { button.onclick = showMenu; });
   $('journeyReset')?.addEventListener('click', resetJourney);
   $('worldContinue').onclick = resume;
-  $('worldBackBtn').onclick = showJourney; $('worldBackBtn').setAttribute('aria-label', '여정으로');
   showLanding();
 })();

@@ -113,48 +113,28 @@ def background(page, selector):
     return page.locator(selector).evaluate('(node) => getComputedStyle(node).backgroundColor')
 
 
-def assert_flow_navigation(page, view_id, current):
-    nav = page.locator(f'#{view_id} .flowNav')
-    nav.scroll_into_view_if_needed()
-    snapshot = nav.evaluate("""node => {
-      const rgb = value => (value.match(/[\d.]+/g) || []).slice(0,3).map(Number);
-      const luminance = value => {
-        const channels=rgb(value).map(item => item/255).map(item => item <= .04045 ? item/12.92 : ((item+.055)/1.055)**2.4);
-        return .2126*channels[0]+.7152*channels[1]+.0722*channels[2];
-      };
-      const background=getComputedStyle(document.body).backgroundColor, backgroundLuminance=luminance(background);
-      const style = getComputedStyle(node);
-      return {
-        display:style.display,gap:style.gap,position:style.position,borderTopWidth:style.borderTopWidth,
-        buttons:[...node.querySelectorAll('button')].map(button => {
-          const item = getComputedStyle(button), box = button.getBoundingClientRect();
-          const textLuminance=luminance(item.color);
-          return {flow:button.dataset.flow,current:button.getAttribute('aria-current'),width:box.width,height:box.height,
-            background:item.backgroundColor,radius:item.borderRadius,borderTop:item.borderTopWidth,
-            borderRight:item.borderRightWidth,borderBottom:item.borderBottomWidth,borderBottomColor:item.borderBottomColor,
-            borderLeft:item.borderLeftWidth,fontWeight:Number(item.fontWeight),
-            contrast:(Math.max(textLuminance,backgroundLuminance)+.05)/(Math.min(textLuminance,backgroundLuminance)+.05)};
-        })
-      };
-    }""")
-    assert snapshot['display'] == 'grid', snapshot
-    assert snapshot['gap'] == '0px', snapshot
-    assert snapshot['position'] == 'static', snapshot
-    assert snapshot['borderTopWidth'] == '1px', snapshot
-    assert [button['flow'] for button in snapshot['buttons']] == ['world', 'journey', 'words'], snapshot
-    assert all(button['width'] >= 44 and button['height'] >= 44 for button in snapshot['buttons']), snapshot
-    assert all(button['radius'] == '0px' and button['background'] == 'rgba(0, 0, 0, 0)'
-               for button in snapshot['buttons']), snapshot
-    assert all(button['contrast'] >= 4.5 for button in snapshot['buttons']), snapshot
-    assert all(button['borderTop'] == '0px' and button['borderRight'] == '0px' and
-               button['borderBottom'] == '2px' and button['borderLeft'] == '0px'
-               for button in snapshot['buttons']), snapshot
-    selected = [button for button in snapshot['buttons'] if button['current'] == 'page']
-    assert len(selected) == 1 and selected[0]['flow'] == current, snapshot
-    assert selected[0]['fontWeight'] >= 800, snapshot
-    unselected = [button for button in snapshot['buttons'] if button['current'] != 'page']
-    assert all(button['borderBottomColor'] != selected[0]['borderBottomColor'] for button in unselected), snapshot
-    return snapshot
+def assert_global_menu(page, view_id, current_id, screenshot_name, width, height):
+    menu = page.locator(f'#{view_id} [data-flow-menu]')
+    assert menu.count() == 1, view_id
+    page.evaluate('scrollTo(0, document.documentElement.scrollHeight)')
+    page.wait_for_timeout(50)
+    before = page.evaluate('scrollY')
+    menu_box = assert_touch_targets(page, f'#{view_id} [data-flow-menu]')[0]
+    assert 0 <= menu_box['y'] and menu_box['bottom'] <= height, menu_box
+    menu.focus()
+    menu.click()
+    ids = ['flowResume', 'flowWorld', 'flowJourney', 'flowWords', 'flowSettings', 'flowTitle']
+    assert [button.get_attribute('id') for button in page.locator('.flowTravelMenu button').all()] == ids
+    assert_touch_targets(page, '.flowTravelMenu button, #flowMenuClose')
+    current = page.locator('.flowTravelMenu [aria-current="page"]')
+    assert current.count() == 1 and current.get_attribute('id') == current_id
+    capture(page, f'{screenshot_name}-menu', width, height)
+    page.locator('#flowMenuClose').click()
+    page.wait_for_function(
+        "([selector,top]) => document.activeElement === document.querySelector(selector) && Math.abs(scrollY-top) <= 2",
+        arg=[f'#{view_id} [data-flow-menu]', before],
+    )
+    capture(page, screenshot_name, width, height)
 
 
 def capture(page, name, width, height):
@@ -257,17 +237,25 @@ try:
             page.locator('#questBoardClose').click()
             assert 'open' not in (page.locator('#scrim').get_attribute('class') or '')
 
-            # The three destinations read as one navigation area; current state uses a line, not three cards.
+            # Every root screen exposes the same top menu, even at the end of a long document.
             reset(page, BOARD, LEXICON)
             page.evaluate('GameFlow.showWorld()')
-            assert_flow_navigation(page, 'worldView', 'world')
-            capture(page, 'flow-navigation-world', width, height)
+            assert_global_menu(page, 'worldView', 'flowWorld', 'global-navigation-world', width, height)
             page.evaluate('GameFlow.showJourney()')
-            assert_flow_navigation(page, 'journeyView', 'journey')
-            capture(page, 'flow-navigation-journey', width, height)
+            assert_global_menu(page, 'journeyView', 'flowJourney', 'global-navigation-journey', width, height)
             page.evaluate('GameFlow.showWords()')
-            assert_flow_navigation(page, 'wordsView', 'words')
-            capture(page, 'flow-navigation-words', width, height)
+            assert_global_menu(page, 'wordsView', 'flowWords', 'global-navigation-words', width, height)
+
+            # Settings and the first screen use those same destinations from a record screen.
+            page.locator('#wordsMenu').click()
+            page.locator('#flowSettings').click()
+            assert page.locator('#settingsView').is_visible()
+            assert_touch_targets(page, '#settingsBack, #settingsMenu')
+            page.locator('#settingsMenu').click()
+            assert page.locator('#flowSettings').get_attribute('aria-current') == 'page'
+            page.locator('#flowTitle').click()
+            assert page.locator('#landingView').is_visible()
+            assert_touch_targets(page, '#landingMenu')
 
             # A locked marker is an enabled information button; only the entrance action is unavailable.
             reset(page, ARRIVAL)

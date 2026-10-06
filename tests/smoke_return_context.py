@@ -160,13 +160,16 @@ try:
 
             # World → word book → back restores the same world scroll and navigation focus.
             page.evaluate('GameFlow.showWorld()')
-            world_words = '#worldView [data-flow="words"]'
-            world_scroll = scroll_and_focus(page, world_words)
-            page.locator(world_words).click()
+            world_menu = '#worldMenu'
+            page.evaluate('scrollTo(0, document.documentElement.scrollHeight)')
+            page.locator(world_menu).focus()
+            world_scroll = page.evaluate('scrollY')
+            page.locator(world_menu).click()
+            page.locator('#flowWords').click()
             assert_view(page, 'words')
             page.locator('#wordsBackBtn').click()
             assert_view(page, 'world')
-            wait_for_restore(page, world_words, world_scroll)
+            wait_for_restore(page, world_menu, world_scroll)
 
             # Journey → word book → back keeps filter, disclosure state, position, and focused node.
             page.evaluate('GameFlow.showJourney()')

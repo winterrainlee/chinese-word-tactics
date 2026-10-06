@@ -104,7 +104,7 @@ try:
                     snap = lambda name: capture(page,name,size)
                     if fixture=='new':
                         snap('landing-new')
-                        page.locator('#landingSettings').click(); snap('settings-new')
+                        page.locator('#landingMenu').click(); page.locator('#flowSettings').click(); snap('settings-new')
                         page.evaluate("SettingsRuntime.inspectFile(new File(['not json'],'bad.json',{type:'application/json'}))"); snap('settings-invalid-file')
                         page.evaluate("SettingsRuntime.inspectFile(new File([JSON.stringify(SaveData.createBackup(localStorage))],'backup.json',{type:'application/json'}))"); snap('settings-restore-preview')
                         page.locator('#settingsReset').click(); snap('settings-reset-confirm'); page.locator('#flowResetCancel').click()

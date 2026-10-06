@@ -3,6 +3,7 @@
   const $ = id => document.getElementById(id);
   const PREFERENCES_KEY = 'chinese-word-tactics-preferences-v1';
   let returnView = 'landingView';
+  let returnContext = { viewId: 'landingView', scrollY: 0, focus: null, journey: null };
   let restoreCandidate = null;
 
   const viewName = id => ({
@@ -64,9 +65,12 @@
     $('settingsRestorePreview').hidden = false;
   }
 
-  function open() {
+  function open(options = {}) {
     const visible = currentViewId();
-    if (visible !== 'settingsView') returnView = visible;
+    if (visible !== 'settingsView') {
+      returnView = visible;
+      returnContext = options.returnContext || globalThis.GameFlow?.captureViewContext?.() || { viewId: visible, scrollY: window.scrollY };
+    }
     TacticalGame.closeSheet();
     TacticalGame.showView('settings');
     $('settingsBuild').textContent = buildId();
@@ -80,6 +84,7 @@
   function back() {
     clearRestore();
     setMessage('');
+    if (globalThis.GameFlow?.restoreViewContext?.(returnContext)) return true;
     if (returnView === 'landingView' && globalThis.GameFlow?.showLanding) return GameFlow.showLanding();
     TacticalGame.showView(viewName(returnView));
     window.scrollTo(0, 0);
@@ -143,7 +148,6 @@
     if (globalThis.GameFlow?.resetJourney) GameFlow.resetJourney();
   }
 
-  $('landingSettings')?.addEventListener('click', open);
   $('settingsBack')?.addEventListener('click', back);
   $('settingsPronunciation')?.addEventListener('change', savePronunciationPreference);
   $('settingsExport')?.addEventListener('click', exportProgress);

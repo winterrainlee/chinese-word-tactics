@@ -6,12 +6,12 @@
 .landingActions{display:grid;justify-items:center;gap:13px;padding-bottom:max(4px,env(safe-area-inset-bottom))}
 .landingPrimary{width:min(100%,286px);min-height:52px;border:0;border-radius:14px;background:var(--accent);color:#fff;font-weight:800;font-size:17px;box-shadow:0 4px 14px rgba(45,98,72,.13)}
 .landingPrimary:active{transform:translateY(1px)}
-.landingPrimary:focus-visible,.landingSecondary button:focus-visible,.landingSettings:focus-visible{outline:3px solid #2c65a2;outline-offset:2px}
+.landingPrimary:focus-visible,.landingSecondary button:focus-visible,.landingMenu:focus-visible{outline:3px solid #2c65a2;outline-offset:2px}
 .landingSecondary{min-height:44px;display:flex;align-items:center;justify-content:center;gap:13px;color:var(--muted)}
 .landingSecondary button{min-width:44px;min-height:44px;padding:0 4px;border:0;background:transparent;color:#5f584e;font-weight:720}
 .landingSecondaryMark{display:none}
 #landingWords:not([hidden])::before{content:"·";margin-right:13px;color:#aaa296;font-weight:400}
-.landingSettings{position:absolute;top:4px;right:0}
-.landingSecondary[hidden],.landingSecondary button[hidden],.landingSettings[hidden]{display:none!important}
+.landingMenu{position:absolute;top:4px;right:0}
+.landingSecondary[hidden],.landingSecondary button[hidden],.landingMenu[hidden]{display:none!important}
 @media(max-height:650px){.landingShell{padding-top:10px;padding-bottom:8px}.landingTitle{font-size:31px}.landingScene{max-height:43svh}.landingSceneWrap{padding:2px 0 7px}.landingActions{gap:7px}.landingPrimary{min-height:48px}}
 @media(prefers-reduced-motion:no-preference){.landingScene{animation:landing-arrive .45s ease-out both}.landingActions{animation:landing-arrive .35s .08s ease-out both}@keyframes landing-arrive{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}}

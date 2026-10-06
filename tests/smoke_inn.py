@@ -60,6 +60,19 @@ try:
         assert page.locator('#innRoomHotspots [data-action="leave-room"]').count() == 1
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
 
+        room_menu = page.locator('#innRoomMenu')
+        room_menu_box = room_menu.bounding_box()
+        assert room_menu_box['width'] >= 44 and room_menu_box['height'] >= 44, room_menu_box
+        room_menu.focus()
+        room_menu.click()
+        assert page.locator('#sheet h2').inner_text() == '여행 메뉴'
+        assert page.locator('.flowTravelMenu button').all_inner_texts()[:6] == [
+            '여행 시작', '월드맵 · 숲을 빠져나오면 열려', '여정 · 여행을 시작하면 열려',
+            '단어장 · 단어를 만나면 열려', '설정 · 저장과 복원', '첫 화면'
+        ]
+        page.locator('#flowMenuClose').click()
+        page.wait_for_function("document.activeElement?.id === 'innRoomMenu'")
+
         scene = page.locator('#innRoomScene').evaluate('(el)=>el.getBoundingClientRect().toJSON()')
         assert scene['width'] <= 375 and scene['height'] > 400, scene
 

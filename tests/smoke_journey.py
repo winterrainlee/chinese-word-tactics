@@ -169,7 +169,7 @@ try:
         page.set_default_timeout(5000)
         (page.set_content(memory_document({})) if MEMORY else page.goto(URL)); page.wait_for_function('!!window.GameFlow')
         assert_view(page,'landing'); assert page.locator('#landingTitle').inner_text()=='따라온 단어들'
-        assert page.locator('#landingPrimary').inner_text()=='여행 시작'; assert page.locator('#landingSettings').is_visible()
+        assert page.locator('#landingPrimary').inner_text()=='여행 시작'; assert page.locator('#landingMenu').is_visible()
         enter_from_title(page)
         assert_view(page,'story'); assert page.locator('#storyKo').is_hidden(); assert page.locator('#storySkip').is_hidden()
         assert page.locator('#storyPortrait').is_hidden()
@@ -236,7 +236,8 @@ try:
         world_layout = page.evaluate('''() => {
           const box = element => element.getBoundingClientRect().toJSON();
           const map = document.querySelector('#worldRegions');
-          const nav = document.querySelector('#worldView .flowNav');
+          const header = document.querySelector('#worldView .globalNavHeader');
+          const menu = document.querySelector('#worldMenu');
           const markers = [...map.querySelectorAll('.regionCard')].map(card => ({
             id: card.dataset.regionId,
             box: box(card),
@@ -244,12 +245,13 @@ try:
           return {
             viewport: {width: innerWidth, height: innerHeight},
             document: {width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight},
-            map: box(map), nav: box(nav), markers,
+            map: box(map), header: box(header), menu: box(menu), markers,
           };
         }''')
         assert world_layout['document']['width'] <= world_layout['viewport']['width']
         assert world_layout['document']['height'] - world_layout['viewport']['height'] <= 96, world_layout
-        assert world_layout['nav']['height'] >= 44
+        assert world_layout['header']['height'] >= 44
+        assert world_layout['menu']['width'] >= 44 and world_layout['menu']['height'] >= 44
         assert len(world_layout['markers']) == len(page.evaluate('WORLD.regions'))
         for marker in world_layout['markers']:
             box = marker['box']; map_box = world_layout['map']
@@ -257,7 +259,7 @@ try:
             assert box['x'] >= map_box['x'] and box['x'] + box['width'] <= map_box['x'] + map_box['width'], marker
             assert box['y'] >= map_box['y'] and box['y'] + box['height'] <= map_box['y'] + map_box['height'], marker
         print('WORLD_LAYOUT:', json.dumps(world_layout, ensure_ascii=False), flush=True)
-        passed('375x812 world map keeps every 44px+ place marker in-map and bottom navigation within 96px scroll')
+        passed('375x812 world map keeps every 44px+ place marker in-map and exposes the global menu at the top')
 
         locked_tower = page.locator('[data-region-id="academic-tower"]')
         assert locked_tower.is_enabled()

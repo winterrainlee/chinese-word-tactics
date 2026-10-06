@@ -171,7 +171,8 @@ try:
 
             # Settings sections and ordinary rows are open; switch, state, and danger retain meaning.
             reset(page)
-            page.locator('#landingSettings').click()
+            page.locator('#landingMenu').click()
+            page.locator('#flowSettings').click()
             sections = style_rows(page, '.settingsSection')
             assert len(sections) == 4, sections
             for index, section in enumerate(sections):

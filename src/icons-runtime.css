@@ -2,14 +2,12 @@
 
 /* Shared icon primitives */
 #menuBtn,
-#resetBtn,
-#worldBackBtn {
+#resetBtn {
   font-size: 0;
 }
 
 #menuBtn::before,
 #resetBtn::before,
-#worldBackBtn::before,
 #waitBtn::before,
 #undoBtn::before,
 #inspectBtn[data-icon="inspect"]::before,
@@ -36,11 +34,6 @@
 #resetBtn::before {
   -webkit-mask-image: url("../icons/ui/ui-restart.svg");
   mask-image: url("../icons/ui/ui-restart.svg");
-}
-
-#worldBackBtn::before {
-  -webkit-mask-image: url("../icons/ui/ui-back.svg");
-  mask-image: url("../icons/ui/ui-back.svg");
 }
 
 #waitBtn::before {

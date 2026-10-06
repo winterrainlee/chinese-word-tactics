@@ -6,6 +6,7 @@ const path = require('node:path');
 const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
 const html = read('index.html');
 const journey = read('src/journey.css');
+const navigation = read('src/navigation.css');
 const settings = read('src/settings.css');
 const quest = read('src/first-free-quest.css');
 const flow = read('src/flow-runtime.js');
@@ -35,11 +36,12 @@ test('A09a preserves meaningful state and work-surface boundaries', () => {
 });
 
 test('A09a settings stay cached while later boundary work refreshes only changed assets', () => {
-  assert.match(html, /name="cwt-build" content="2026-10-06-a09b1"/);
+  assert.match(html, /name="cwt-build" content="2026-10-06-a041"/);
   assert.match(html, /settings\.css\?v=20261005-a09a1/);
-  assert.match(html, /journey\.css\?v=20261006-a09b1/);
+  assert.match(html, /journey\.css\?v=20261006-a041/);
   assert.match(html, /first-free-quest\.css\?v=20261006-a09b1/);
-  assert.match(html, /flow-runtime\.js\?v=20261006-a051/);
+  assert.match(html, /flow-runtime\.js\?v=20261006-a041/);
+  assert.match(html, /navigation\.css\?v=20261006-a041/);
 });
 
 test('A09b keeps each quest as a paper surface and opens its nested action', () => {
@@ -49,11 +51,15 @@ test('A09b keeps each quest as a paper surface and opens its nested action', () 
   assert.match(read('src/north-forest-world-runtime.js'), /questBoardAction" data-action-role="secondary"/);
 });
 
-test('A09b presents bottom navigation as one area with a quiet current-page line', () => {
-  assert.match(journey, /\.flowNav\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)[^}]*gap:0[^}]*border-top:1px solid/s);
-  assert.match(journey, /\.flowNav button\{[^}]*min-width:44px;min-height:48px[^}]*border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent/s);
-  assert.match(journey, /\.flowNav button\[aria-current="page"\]\{background:transparent;border-bottom-color:var\(--accent\)[^}]*font-weight:850/s);
-  assert.doesNotMatch(journey.match(/\.flowNav\{[^}]*\}/)?.[0] || '', /position:(?:fixed|sticky)/);
-  assert.equal((html.match(/<nav class="flowNav" aria-label="주요 메뉴">/g) || []).length, 3);
-  assert.equal((html.match(/aria-current="page"/g) || []).length, 3);
+test('A04 replaces the document-end navigation with one global travel menu entry point', () => {
+  assert.doesNotMatch(html, /class="flowNav"/);
+  assert.doesNotMatch(journey, /\.flowNav/);
+  assert.equal((html.match(/data-flow-menu/g) || []).length, 8);
+  assert.match(read('src/world-inn-runtime.js'), /id="innRoomMenu"[^>]*data-flow-menu[^>]*aria-label="여행 메뉴"/);
+  assert.match(navigation, /\[data-flow-menu\]:focus-visible\{outline:3px solid var\(--blue\)/);
+  assert.match(navigation, /\.globalNavHeader\{position:sticky;[^}]*top:max\(0px,env\(safe-area-inset-top\)\)/s);
+  assert.match(flow, /document\.querySelectorAll\('\[data-flow-menu\]'\)/);
+  assert.match(flow, /id="flowSettings">설정 · 저장과 복원/);
+  assert.match(flow, /id="flowTitle">첫 화면/);
+  assert.match(flow, /setAttribute\('aria-current', 'page'\)/);
 });

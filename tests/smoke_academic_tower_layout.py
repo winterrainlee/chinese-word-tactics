@@ -76,6 +76,15 @@ try:
             page.evaluate("AcademicTowerRuntime.showHub()")
             assert_view(page, "#academicTowerView", width, height, f"hub-{width}x{height}")
             assert page.locator("#academicTowerRooms").evaluate("el => el.scrollHeight >= el.clientHeight")
+            tower_menu = page.locator('#academicTowerMenu')
+            tower_menu_box = tower_menu.bounding_box()
+            assert tower_menu_box['width'] >= 44 and tower_menu_box['height'] >= 44, tower_menu_box
+            tower_menu.focus()
+            tower_menu.click()
+            assert page.locator('#sheet h2').inner_text() == '여행 메뉴'
+            assert page.locator('.flowTravelMenu button').count() == 6
+            page.locator('#flowMenuClose').click()
+            page.wait_for_function("document.activeElement?.id === 'academicTowerMenu'")
             sky = page.evaluate("""() => {
               const body = document.body, shell = document.querySelector('#academicTowerView');
               const app = document.querySelector('#app'), appStyle = getComputedStyle(app);
