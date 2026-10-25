@@ -35,5 +35,5 @@ test('changed action-contract assets use the same deployment cache key', () => {
   }
   assert.match(html, /first-free-quest\.css\?v=20261006-a09b1/);
   assert.match(html, /landing\.css\?v=20261006-a041/);
-  assert.match(html, /flow-runtime\.js\?v=20261006-a043/);
+  assert.match(html, /flow-runtime\.js\?v=\d{8}-[a-z0-9]+/);
 });

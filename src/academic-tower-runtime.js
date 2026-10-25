@@ -383,7 +383,7 @@
 
 
   function createMeaningState(config) {
-    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.introduction ? 'discovery' : config.noticeWords ? 'notice' : 'work', introRead:false, selectedCharacter:{},
+    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.introStory ? 'work' : config.introduction ? 'discovery' : config.noticeWords ? 'notice' : 'work', introRead:!!config.introStory, selectedCharacter:{},
       slot:null, placements:{}, relation:null, answers:{}, lastCheck:null};
   }
   function validMeaningState(config, value) {
@@ -412,7 +412,10 @@
       return fresh;
     }
     const next = copy(value), task = config.tasks[next.taskIndex];
-    if (config.introduction) {
+    if (config.introStory) {
+      next.introRead=true;
+      if (['notice','discovery'].includes(next.phase)) {next.phase='work';next.lastCheck=null;}
+    } else if (config.introduction) {
       if (next.phase==='notice') {next.phase='discovery';next.lastCheck=null;}
       if (next.introRead===undefined) next.introRead=!['notice','discovery'].includes(next.phase);
       if (!next.introRead && next.phase!=='discovery') next.phase='discovery';

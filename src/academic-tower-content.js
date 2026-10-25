@@ -660,6 +660,7 @@
     }
   }
 
+  ran.introStory = 'academic-tower-ran-intro';
   ran.introduction = [
     {speaker:'소년',zh:'這幾個詞裡都有「然」。它是什麼意思？',ko:'이 표현들에는 모두 然이 있네요. 무슨 뜻이에요?'},
     {speaker:'연구원',zh:'「然」有「如此、這樣」的意思。我們先從這裡看起。',ko:'然에는 “그러하다·그렇게”라는 뜻이 있어. 이번에는 여기서부터 살펴보자.'},

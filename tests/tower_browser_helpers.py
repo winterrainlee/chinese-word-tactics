@@ -10,6 +10,7 @@ def action(page, name, value=None):
 
 def solve(page, check=None):
     for _ in range(80):
+        if page.locator('#storyView').is_visible(): finish_story(page); continue
         config=page.evaluate('current().academicTower')
         state=page.evaluate('state.academicTower')
         if state['phase']=='complete': return

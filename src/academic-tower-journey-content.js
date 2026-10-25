@@ -104,8 +104,12 @@
 
   Object.assign(stories, {
     'academic-tower-ran-intro': {
+      lateIntroMilestone:'academic-tower-turn-foundation', lateIntroKo:'소년은 자신에게 남겨 둔 칸에서 이전 기록을 꺼냈다.',
       id: 'academic-tower-ran-intro', chapterId: 'academic-tower-research', titleKo: '색인 옆의 메모', background: 'academic-tower', placeZh: '學術塔研究室', placeKo: '학술탑 연구실',
-      beats: [{ speaker: 'narrator', zh: '少年又看了看先前的記錄。', ko: '소년은 이전 기록을 다시 살펴봤다. 같은 글자가 여러 표현에서 눈에 띄었다.' }]
+      beats: [
+        { speaker:'narrator', zh:'少年又看了看先前的記錄。', ko:'소년은 이전 기록을 다시 살펴봤다. 같은 글자가 여러 표현에서 눈에 띄었다.' },
+        ...STAGES.find(stage=>stage.id==='academic-tower-turn-03a-ran-family').academicTower.introduction.map(beat=>({...beat,speaker:beat.speaker==='소년' ? 'boy' : 'towerResearcher'}))
+      ]
     },
     'academic-tower-ran-result': {
       id: 'academic-tower-ran-result', chapterId: 'academic-tower-research', titleKo: '같은 흔적, 다른 방향', background: 'academic-tower', placeZh: '學術塔研究室', placeKo: '학술탑 연구실',

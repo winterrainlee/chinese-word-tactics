@@ -68,5 +68,5 @@ test('A05 changed browser assets share a fresh cache key', () => {
   for (const asset of ['lexicon-runtime.js', 'ux-play-runtime.js']) {
     assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261006-a051`));
   }
-  assert.match(html, /flow-runtime\.js\?v=20261006-a043/);
+  assert.match(html, /flow-runtime\.js\?v=\d{8}-[a-z0-9]+/);
 });

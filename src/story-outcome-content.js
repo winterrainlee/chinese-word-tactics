@@ -60,6 +60,9 @@
   const strings = value => Array.isArray(value) ? [...new Set(value.filter(item => typeof item === 'string'))] : [];
   const outcomeKey = outcome => strings(outcome?.viaIds).sort().join('+');
   function resolve(story, progress) {
+    if (story?.lateIntroMilestone && progress?.completedMilestones?.includes(story.lateIntroMilestone)) {
+      story={...story,beats:story.beats.map((beat,index)=>index===0 ? {...beat,ko:story.lateIntroKo} : beat)};
+    }
     const cfg = VARIANTS[story?.id];
     if (!cfg) return story;
     const beats = cfg.variants[outcomeKey(progress?.stageOutcomes?.[cfg.stageId])];

@@ -157,7 +157,8 @@
     const context = { ...normalized, ...(returnContext ? { returnContext } : {}), nodeId: node.nodeId, type: 'story' };
     active = context; TacticalGame.showView('story');
     const next = P.nextNode(node.nodeId, { ...progress, seenStories: [...progress.seenStories, id] });
-    const endLabel = context.mode === 'replay'
+    const stageAfterStory = STAGES.find(stage=>stage.id===options.stageAfterStory && stage.academicTower?.introStory===id);
+    const endLabel = stageAfterStory ? '연구 시작' : context.mode === 'replay'
       ? (context.returnTo === 'world' ? '월드맵으로' : context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID ? '연구실로' : '여정으로')
       : node.returnToRegionHubAfter ? '연구실로' : node.returnToWorldAfter ? '월드맵으로'
         : next?.type === 'stage' ? '스테이지 시작' : next?.type === 'story' ? '이야기 계속' : '월드맵으로';
@@ -166,7 +167,9 @@
       onFinish() {
         if (active !== context) return;
         store.complete(node, context.mode);
+        if (stageAfterStory) return playStage(stageAfterStory.id,{...context,skipStageIntro:true});
         if (context.mode === 'replay') returnFromReplay(context);
+        else if (next?.type==='stage' && STAGES.find(stage=>stage.id===next.id)?.academicTower?.introStory===id) playStage(next.id,{...context,skipStageIntro:true});
         else continueFromNode(node.nodeId);
       }
     });
@@ -177,6 +180,8 @@
     if (!node || !P.isAvailable(node, store.get())) return false;
     const normalized = validOptions(options), returnContext = returnContextFor(options, normalized);
     const context = { ...normalized, ...(returnContext ? { returnContext } : {}), nodeId: node.nodeId, type: 'stage' };
+    const introStory=STAGES.find(stage=>stage.id===id)?.academicTower?.introStory;
+    if (introStory && !options.skipStageIntro) return playStory(introStory,{...context,stageAfterStory:id});
     if (!TacticalGame.playStage(id, context)) return false;
     recordWordEncounter(id);
     active = context; StoryRuntime.stop();
