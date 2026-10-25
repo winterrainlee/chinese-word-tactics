@@ -383,13 +383,13 @@
 
 
   function createMeaningState(config) {
-    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:'work',
+    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.noticeWords ? 'notice' : 'work', selectedCharacter:{},
       slot:null, placements:{}, relation:null, answers:{}, lastCheck:null};
   }
   function validMeaningState(config, value) {
     return !!value && value.kind === 'meaning-links' && value.schemaVersion === 1 &&
       Number.isInteger(value.taskIndex) && value.taskIndex >= 0 && value.taskIndex < config.tasks.length &&
-      ['work','review','complete'].includes(value.phase) && value.placements && typeof value.placements === 'object' &&
+      ['notice','discovery','work','review','complete'].includes(value.phase) && value.placements && typeof value.placements === 'object' &&
       value.answers && typeof value.answers === 'object';
   }
   function meaningAnswerCorrect(task, answer) {
@@ -412,6 +412,12 @@
       return fresh;
     }
     const next = copy(value), task = config.tasks[next.taskIndex];
+    if (config.noticeWords) {
+      next.selectedCharacter ||= {};
+      for (const word of config.noticeWords) if (![...word].includes(next.selectedCharacter[word])) delete next.selectedCharacter[word];
+      if (next.phase !== 'notice' && !config.noticeWords.every(word=>next.selectedCharacter[word]==='然')) {next.phase='notice';next.taskIndex=0;next.answers={};next.placements={};next.relation=null;next.lastCheck=null;}
+      if (['notice','discovery'].includes(next.phase)) return next;
+    }
     next.answers = Object.fromEntries(config.tasks.filter(t => meaningAnswerCorrect(t, next.answers[t.id])).map(t => [t.id,next.answers[t.id]]));
     const missing = config.tasks.slice(0,next.taskIndex).findIndex(t => !next.answers[t.id]);
     if (missing >= 0) {next.taskIndex=missing; next.phase='work'; next.placements={}; next.relation=null; next.lastCheck=null;}
@@ -426,7 +432,17 @@
   function applyMeaningAction(config, currentState, action) {
     const next = normalizeMeaning(config,currentState), task=config.tasks[next.taskIndex];
     let changed=false, correct=null, feedback='';
-    if (next.phase === 'work') {
+    if (next.phase === 'notice') {
+      if (action.type==='select-character') {
+        const [word,character]=String(action.value).split(':');
+        if (config.noticeWords.includes(word) && [...word].includes(character)) {next.selectedCharacter[word]=character;next.lastCheck=null;changed=true;}
+      } else if (action.type==='submit-notice' && config.noticeWords.every(word=>next.selectedCharacter[word])) {
+        correct=config.noticeWords.every(word=>next.selectedCharacter[word]==='然');
+        feedback=correct ? '' : '세 표현에 똑같이 들어 있는 글자를 각각 찾아보자.';
+        next.lastCheck=correct ? null : {correct,feedbackKo:feedback};if(correct)next.phase='discovery';changed=true;
+      }
+    } else if (next.phase==='discovery' && action.type==='start-compare') {next.phase='work';next.lastCheck=null;changed=true;}
+    else if (next.phase === 'work') {
       if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
         changed=next.slot !== action.value; next.slot=action.value;
       } else if (action.type === 'meaning-source' && next.slot && [...task.sources,...(task.targets || [])].some(source => source.id === action.value)) {
@@ -451,7 +467,7 @@
     return {state:next,changed,correct,feedback};
   }
   function meaningSolved(config,value) {
-    return validMeaningState(config,value) && value.phase === 'complete' && config.tasks.every(task => meaningAnswerCorrect(task,value.answers[task.id]));
+    return validMeaningState(config,value) && value.phase === 'complete' && (!config.noticeWords || config.noticeWords.every(word=>value.selectedCharacter?.[word]==='然')) && config.tasks.every(task => meaningAnswerCorrect(task,value.answers[task.id]));
   }
 
   function createState(config, rng) {
@@ -733,6 +749,7 @@
   }
 
   function renderMeaning(config, workbench) {
+    if (['notice','discovery'].includes(workbench.phase)) return renderRanWorkbench(config,workbench);
     const task=config.tasks[workbench.taskIndex], done=workbench.phase !== 'work';
     const source=id => [...task.sources,...(task.targets || [])].find(item => item.id === id)?.text || '구절을 골라 줘';
     const sourceButtons=task.sources.map(item => done ? `<span class="academicMvpPhrase" lang="zh-Hant">${escapeHtml(item.text)}</span>` : mvpButton('meaning-source',item.id,`<span lang="zh-Hant">${escapeHtml(item.text)}</span>`,!!workbench.slot && workbench.placements[workbench.slot]===item.id)).join(' ');
@@ -743,7 +760,7 @@
     }).join('<span class="academicMeaningJoin" aria-hidden="true">↕</span>');
     const relation=task.relations?.find(item => item.id===workbench.relation);
     const relationships=task.relations ? done ? `<p class="academicMeaningRelation">${escapeHtml(relation.text)}${relation.label ? ' · '+escapeHtml(relation.label) : ''}</p>` : `<div class="academicMvpLinks">${task.relations.map(item => mvpButton('meaning-relation',item.id,`${escapeHtml(item.text)}${item.label ? `<small>${escapeHtml(item.label)}</small>` : ''}`,workbench.relation===item.id)).join('')}</div>` : '';
-    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${sourceButtons}${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">나의 해석</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(' '))}${task.targets ? `<h3>내 보고 초안</h3>${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[workbench.slot]===item.id)).join('')}` : ''}${done ? '' : '<p class="academicMvpHint">아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.</p>'}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>${relationships}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${done && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}</section>`;
+    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${task.context ? `<p lang="zh-Hant">${escapeHtml(task.context)}</p>` : ''}${sourceButtons}${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">나의 해석</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(' '))}${task.targets ? `<h3>내 보고 초안</h3>${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[workbench.slot]===item.id)).join('')}` : ''}${done ? '' : '<p class="academicMvpHint">아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.</p>'}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>${task.linkText && Object.keys(workbench.placements).length===task.slots.length ? `<p class="academicMeaningRelation">${escapeHtml(task.linkText)}</p>` : ''}${relationships}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${done && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}${config.noticeWords && workbench.phase==='complete' ? mvpDetails('observations','내 관찰 메모 다시 읽기',config.tasks.map(t=>`<p><strong>${escapeHtml(t.word)}</strong> · ${escapeHtml(t.sources.map(s=>s.text).join(''))}<br>${escapeHtml(t.success)}</p>`).join('')) : ''}</section>`;
   }
 
   function renderMvp(config, workbench) {
@@ -827,7 +844,7 @@
   // Region labels describe ownership; the persistent title describes the task.
   // Arrange the existing controls without duplicating source sentences or listeners.
   function renderWorkbenchHierarchy(config, workbench) {
-    if (config.tasks) return;
+    if (config.tasks && !['notice','discovery'].includes(workbench.phase)) return;
     const label = text => {
       const el = document.createElement('div');
       el.className = 'academicRegionLabel'; el.textContent = text; return el;
@@ -940,7 +957,7 @@
       if (element.tagName === 'BUTTON') element.setAttribute('aria-invalid', String(!matched));
     };
     const selected = action => gridEl.querySelector(`[data-academic-action="${action}"].selected`);
-    if (config.tasks) return;
+    if (config.tasks && !['notice','discovery'].includes(workbench.phase)) return;
     if (config.kind === 'replacement-link') {
       if (check?.step === 'pair' || pairAccepted || finished) {
         const item = caseFor(config, workbench);
@@ -1017,7 +1034,7 @@
 
   function mvpFooter(workbench) {
     const configNow=current().academicTower;
-    if (configNow.tasks) {
+    if (configNow.tasks && !['notice','discovery'].includes(workbench.phase)) {
       const task=configNow.tasks[workbench.taskIndex];
       const action=workbench.phase==='complete' ? 'finish-mvp' : workbench.phase==='review' ? 'meaning-next' : 'meaning-confirm';
       const enabled=workbench.phase!=='work' || task.slots.every(slot => workbench.placements[slot.id]) && (!task.relations || workbench.relation);
@@ -1191,7 +1208,7 @@
     gridEl.setAttribute('role', 'group');
     gridEl.setAttribute('aria-label', '학술탑 기록 검토 작업대');
     const observationRecord = ['compare', 'compare-review'].includes(workbench.phase) ? 'compare' : workbench.phase;
-    const recordKey = `${stage.id}:${workbench.taskIndex ?? workbench.blankIndex ?? workbench.caseIndex}:${config.kind === 'ran-observation' ? observationRecord : ''}`;
+    const recordKey = `${stage.id}:${workbench.taskIndex ?? workbench.blankIndex ?? workbench.caseIndex}:${config.kind === 'ran-observation' && (!config.tasks || ['notice','discovery'].includes(workbench.phase)) ? observationRecord : ''}`;
     const sameRecord = gridEl.dataset.mvpRecord === recordKey;
     const enteringLink = workbench.phase === 'choose-link' &&
       (!sameRecord || gridEl.dataset.mvpPhase !== 'choose-link');

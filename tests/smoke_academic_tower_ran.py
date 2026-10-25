@@ -1,4 +1,5 @@
 """Optional 03A: discovery, comparison, application, persistence and late visits."""
+from tower_browser_helpers import solve
 import http.server
 import json
 import threading
@@ -70,50 +71,30 @@ try:
             action('start-compare')
             assert page.locator('.academicVerdictTitle').count() == 0
             assert '기록과 맞아' not in page.locator('#grid').inner_text()
-            cards = page.evaluate('(id)=>STAGES.find(s=>s.id===id).academicTower.cards', STAGE)
-            for i, card in enumerate(cards):
-                if i == 1:
-                    page.reload(); page.wait_for_function('!!window.AcademicTowerRuntime')
-                    assert page.evaluate('GameFlow.resume()')
-                    assert page.evaluate('state.academicTower.caseIndex') == 1
-                    assert page.evaluate('state.academicTower.introVariant') == ('late' if late else 'early')
-                action('select-position', 'last' if card['position'] == 'first' else 'first')
-                wrong = next(o for o in card['options'] if o != card['relation'])
-                action('select-ran-relation', wrong); action('submit-comparison')
-                assert page.evaluate('document.activeElement.dataset.academicAction') == 'select-position'
-                assert page.locator('[data-academic-action][data-verdict="incorrect"]').count() == 2
-                action('select-position', card['position']); action('submit-comparison')
-                assert page.evaluate('document.activeElement.dataset.academicAction') == 'select-ran-relation'
-                assert page.locator('[data-academic-action="select-position"].selected').get_attribute('data-verdict') == 'correct'
-                assert page.locator('[data-academic-action="select-ran-relation"].selected').get_attribute('data-verdict') == 'incorrect'
-                action('select-ran-relation', card['relation'])
-                assert page.locator('.academicMvpPreview').count() == 0
-                layout()
-                if i == 6: page.screenshot(path=f'/tmp/academic-tower-ran-compare-{width}.png', full_page=True)
-                action('submit-comparison')
-                assert page.locator('.academicRanAnswer').count() == 1
-                assert page.locator('.academicRanExplanation').inner_text() == card['explanation']
-                assert page.locator('#grid').inner_text().count(card['explanation']) == 1
-                assert page.locator('.academicRanCompare').count() == 1
-                assert card['compareWord'] in page.locator('.academicRanCompare').inner_text()
-                assert card['compareKo'] in page.locator('.academicRanCompare').inner_text()
-                assert page.locator('.academicVerdictTitle').count() == 0
-                action('next-comparison')
-            for wrong, correct in [('如果', '既然'), ('然後', '不然')]:
-                action('select-ran-word', wrong); action('submit-ran-word')
-                assert page.evaluate('document.activeElement.dataset.value') == wrong
-                action('select-ran-word', correct)
-                page.locator('#undoBtn').click()
-                assert page.locator('[data-academic-action="select-ran-word"].selected').get_attribute('data-value') == wrong
-                action('select-ran-word', correct)
-                page.locator(f'[data-academic-word="{correct}"]').click()
-                assert correct in page.locator('#sheet').inner_text()
-                page.locator('#sheet .sheetactions button').click()
-                layout(); action('submit-ran-word')
-                if correct == '既然':
-                    assert page.locator('#grid').evaluate('e=>e.scrollTop') == 0
-                    assert page.evaluate('document.activeElement.dataset.academicZone') == 'original'
-                    assert page.locator('.academicVerdictTitle').count() == 0
+            tasks=page.evaluate('current().academicTower.tasks')
+            for i,task in enumerate(tasks):
+                for slot in task['slots']:
+                    action('meaning-slot',slot['id']);action('meaning-source',task['sources'][1 if slot['id']=='from' else 0]['id'])
+                if task.get('relations'): action('meaning-relation',task['relation'])
+                action('meaning-confirm')
+                assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='incorrect'
+                if i==1:
+                    saved=page.evaluate('state.academicTower')
+                    page.reload();page.wait_for_function('!!window.AcademicTowerRuntime');assert page.evaluate('GameFlow.resume()')
+                    assert page.evaluate('state.academicTower')==saved
+                for slot in task['slots']:
+                    action('meaning-slot',slot['id']);action('meaning-source',task['answer'][slot['id']])
+                if task.get('relations'):
+                    action('meaning-relation','after-done');action('meaning-confirm')
+                    assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='incorrect'
+                    action('meaning-relation','not-done');page.locator('#undoBtn').click()
+                    assert page.evaluate('state.academicTower.relation')=='after-done'
+                    action('meaning-relation','not-done')
+                layout();action('meaning-confirm')
+                assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='correct'
+                if i<len(tasks)-1:action('meaning-next')
+            page.locator('[data-mvp-detail="observations"] summary').click()
+            assert page.locator('[data-mvp-detail="observations"] p').count()==9
             assert not page.locator('#flowNext').is_visible()
             action('finish-mvp'); page.locator('#flowNext').click(); story()
             page.locator('#academicTowerView').wait_for(state='visible')

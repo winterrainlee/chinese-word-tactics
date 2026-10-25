@@ -30,33 +30,6 @@ function mechanics() {
   return context.AcademicTowerMechanic;
 }
 
-test('03A requires discovery, all comparisons and two independent applications', () => {
-  const config = vm.runInContext("STAGES.find(s => s.id === 'academic-tower-turn-03a-ran-family').academicTower", contentContext());
-  const M = mechanics(); let state = M.createState(config, () => .3);
-  const act = (type, value) => { const result = M.applyAction(config, state, {type, value}); state = result.state; return result; };
-  for (const word of config.noticeWords) act('select-character', `${word}:${word[0]}`);
-  assert.equal(act('submit-notice').correct, false);
-  for (const word of config.noticeWords) act('select-character', `${word}:然`);
-  act('submit-notice'); assert.equal(state.phase, 'discovery'); act('start-compare');
-  for (const card of config.cards) {
-    assert.ok(card.compareWord && card.compareKo, `03A comparison note missing for ${card.word}`);
-    act('select-position', card.position === 'first' ? 'last' : 'first');
-    act('select-ran-relation', card.relation);
-    assert.equal(act('submit-comparison').correct, false);
-    act('select-position', card.position); assert.equal(act('submit-comparison').correct, true);
-    state = plain(state); assert.equal(M.isValidState(config, state), true);
-    act('next-comparison');
-  }
-  assert.equal(state.phase, 'apply-premise');
-  act('select-ran-word', '如果'); assert.equal(act('submit-ran-word').correct, false);
-  assert.equal(state.selectedWord, '如果');
-  act('select-ran-word', '既然'); act('submit-ran-word');
-  assert.equal(M.isSolved(config, state), false);
-  act('select-ran-word', '然後'); assert.equal(act('submit-ran-word').correct, false);
-  act('select-ran-word', '不然'); act('submit-ran-word');
-  assert.equal(M.isSolved(config, state), true);
-});
-
 test('Academic Tower result story explicitly awards the observation card', () => {
   const source = read('src/academic-tower-journey-content.js');
   assert.match(source, /這張觀察卡你帶著/);
@@ -381,10 +354,17 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
 });
 
-for (const suffix of ['01-que','02-raner','03-expectation']) test(`${suffix}: requires source scope as well as relation, persists every draft`, () => {
+for (const suffix of ['01-que','02-raner','03-expectation','03a-ran-family']) test(`${suffix}: requires source scope as well as relation, persists every draft`, () => {
   const M=mechanics(), config=vm.runInContext(`STAGES.find(s=>s.id==='academic-tower-turn-${suffix}').academicTower`,contentContext());
   const before=JSON.stringify(config); let state=M.createState(config);
   const act=(type,value)=>{const result=M.applyAction(config,state,{type,value});state=plain(result.state);return result;};
+  if(config.noticeWords) {
+    assert.equal(act('start-compare').changed,false);
+    for(const word of config.noticeWords)act('select-character',`${word}:${word[0]}`);
+    assert.equal(act('submit-notice').correct,false);
+    for(const word of config.noticeWords)act('select-character',`${word}:然`);
+    assert.equal(act('submit-notice').correct,true);assert.equal(state.phase,'discovery');act('start-compare');
+  }
   for(const task of config.tasks) {
     assert.equal(act('meaning-confirm').changed,false);
     if(task.relations) act('meaning-relation',task.relation);

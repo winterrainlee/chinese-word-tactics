@@ -538,6 +538,39 @@
     slotFeedback:{from:'뒤 점검 결과까지 읽어 봐. 앞 기록도 원본에 그대로 남겨 두자.',to:'기록에 직접 적힌 사실을 취소하거나 앞으로의 정비까지 확정하지 마. 뒤 기록과 맞지 않는 현재 판단을 찾아보자.'}
   }));
 
+  // R3: discover the shared character, then operate on each sentence's scope.
+  const ran=room('03a-ran-family');
+  const observed = (id,word,left,right,leftLabel,rightLabel,extra={}) => ({
+    id,word,title:'표현을 읽고, 앞뒤 구절을 이어 보자.',
+    sources:[{id:'before',text:left},{id:'after',text:right}],
+    slots:[{id:'from',label:leftLabel},{id:'to',label:rightLabel}],
+    answer:{from:'before',to:'after'}, ...extra
+  });
+  ran.tasks=[
+    observed('observe-raner','然而','水量增加了。','然而，裝置還沒有恢復正常。','앞에서 확인한 사실','함께 남길 뒤 사실'),
+    observed('observe-guoran','果然','原先預計水車會停。','水車果然停了。','어떻게 될 거라고 봤어?','실제로는 어떻게 됐어?',{slots:[{id:'from',label:'어떻게 될 거라고 봤어?',style:'expected'},{id:'to',label:'실제로는 어떻게 됐어?',style:'actual'}],linkText:'果然 · 예상과 실제를 함께 읽어 봐.'}),
+    observed('observe-jingran','竟然','原先預計水車會停。','水車竟然恢復正常了。','어떻게 될 거라고 봤어?','실제로는 어떻게 됐어?',{slots:[{id:'from',label:'어떻게 될 거라고 봤어?',style:'expected'},{id:'to',label:'실제로는 어떻게 됐어?',style:'actual'}],linkText:'竟然 · 예상과 실제를 함께 읽어 봐.'}),
+    observed('observe-ranhou','然後','先檢查裝置，','然後調整水量。','먼저 할 일','그다음에 할 일',{linkText:'然後 →'}),
+    observed('observe-suiran','雖然','雖然水道比較短，','雨天卻更危險。','그대로 인정할 앞 사실','함께 읽어야 할 뒤 사실',{linkText:'雖然 … 卻 …'}),
+    observed('observe-jiran','既然','既然已經確認齒輪損壞，','就先修復它。','받아들이고 출발할 사실','그 사실에서 이어지는 판단',{linkText:'既然 … 就 …'}),
+    observed('observe-buran','不然','先把鬆開的記錄綁好，','不然紙張會散開。','앞에서 권한 행동','이 결과는 언제 생길까?',{
+      relations:[{id:'not-done',text:'앞 행동을 하지 않으면'}, {id:'after-done',text:'앞 행동을 하고 나면'}],relation:'not-done',
+      slots:[{id:'from',label:'앞에서 권한 행동'},{id:'to',label:'이 결과는 언제 생길까?',style:'possible'}],
+      wrong:{'after-done':'묶은 다음 종이가 흩어진다는 순서가 아니야. 不然은 묶지 않았을 경우를 이어 줘.'}})
+  ];
+  ran.tasks.forEach((task,i)=>{const card=ran.cards[i]; task.success=card.explanation;task.memo=card.compareKo;task.translation=card.explanation;});
+  ran.tasks.push(
+    observed('apply-premise','既然','既然齒輪損壞，','就先修復。','판단의 출발점으로 삼은 사실','이어서 할 일',{
+      context:'損壞已經確認，不是假設。',success:'손상을 받아들이고 수리 판단을 이었어.',
+      memo:'既然은 받아들인 사실에서 판단을 시작해. 如果는 조건으로 제시하는 표현이야. 같은 사실도 조건으로 말할 수 있어.'}),
+    observed('apply-alternative','不然','先綁好，','不然紙張會散開。','앞에서 권한 행동','이어지는 결과',{
+      relations:[{id:'not-done',text:'묶지 않으면'}, {id:'after-done',text:'묶고 나면'}],relation:'not-done',
+      slots:[{id:'from',label:'앞에서 권한 행동'},{id:'to',label:'이어지는 결과',style:'possible'}],
+      success:'묶지 않았을 경우에 종이가 흩어진다는 경고를 붙였어.',wrong:{'after-done':'然後처럼 묶은 뒤의 일을 말하는 게 아니야. 묶지 않을 경우를 다시 읽어 봐.'}})
+  );
+  WORDS['既然'].rule='발화에서 받아들인 전제에서 다음 판단을 시작해. 如果는 조건으로 제시하며, 반드시 모르는 사실만 말하는 것은 아니야.';
+  ran.applications[0].feedback='如果도 문법적으로 가능해. 여기서는 손상을 받아들인 전제로 삼아 다음 판단을 잇는 既然을 연습해.';
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

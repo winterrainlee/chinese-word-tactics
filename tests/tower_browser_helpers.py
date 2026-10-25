@@ -14,6 +14,10 @@ def solve(page, check=None):
         state=page.evaluate('state.academicTower')
         if state['phase']=='complete': return
         if config.get('tasks'):
+            if state['phase']=='notice':
+                for word in config['noticeWords']:action(page,'select-character',word+':然')
+                action(page,'submit-notice');continue
+            if state['phase']=='discovery':action(page,'start-compare');continue
             task=config['tasks'][state['taskIndex']]
             if state['phase']=='review': action(page,'meaning-next'); continue
             if check: check(page,task,'initial')
