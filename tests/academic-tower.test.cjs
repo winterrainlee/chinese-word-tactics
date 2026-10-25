@@ -361,6 +361,8 @@ test('05 reconnects seven former relationships, reads complete source, and bound
   if(state.phase==='review')act('meaning-next');
  }
  assert.equal(M.isSolved(config,state),true);
+ state.answers.reread=true;assert.equal(M.isSolved(config,state),false);
+ assert.equal(M.normalizeMeaning(config,state).taskIndex,6);
  delete state.answers.reread;assert.equal(M.isSolved(config,state),false);
  const old={kind:config.kind,schemaVersion:2,blankIndex:6,phase:'review',completedBlankIds:config.blanks.map(b=>b.id)};
  assert.equal(M.normalizeMeaning(config,old).taskIndex,0,'old blank counts cannot certify new scope work');
@@ -403,4 +405,20 @@ test('only the active old case restarts when earlier accepted cases map exactly'
  const damaged=plain(migrated);damaged.placements={from:'nonexistent'};
  assert.deepEqual(plain(M.normalizeMeaning(c,damaged)).placements,{});
  assert.equal(M.normalizeMeaning(c,damaged).taskIndex,2);
+});
+
+
+test('damaged preview fields recover from the confirmed answer without resetting accepted work',()=>{
+ const M=mechanics(),config=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03-expectation').academicTower",contentContext());
+ const state=plain(M.createState(config)),task=config.tasks[0];
+ Object.assign(state,{phase:'review',placements:{from:'missing'},relation:'invalid',answers:{[task.id]:{placements:plain(task.answer),relation:task.relation}}});
+ const recovered=plain(M.normalizeMeaning(config,state));
+ assert.equal(recovered.phase,'review');assert.deepEqual(recovered.placements,plain(task.answer));assert.equal(recovered.relation,task.relation);
+ const unexpected=plain(M.createState(config));unexpected.phase='notice';
+ assert.equal(M.normalizeMeaning(config,unexpected).phase,'work');
+ const malformedOld={kind:config.kind,schemaVersion:config.schemaVersion,caseIndex:1,completedCaseIds:3};
+ assert.equal(M.normalizeMeaning(config,malformedOld).taskIndex,0);
+ const ran=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03a-ran-family').academicTower",contentContext());
+ const broken=plain(M.createState(ran));broken.selectedCharacter=42;broken.phase='work';
+ assert.equal(M.normalizeMeaning(ran,broken).phase,'notice');
 });

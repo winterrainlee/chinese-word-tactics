@@ -1,5 +1,7 @@
 # 학술탑 UI 설계 기준
 
+> 2026-10-25 현재 구현: 본선 01~05·03A에 문장 방향 조작을 반영했다. 세부 사양·저장 호환·검사 결과는 [재구축 구현 기록](ACADEMIC-TOWER-REBUILD-IMPLEMENTATION-v0.1.md)과 [첫 묶음 §11](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md)을 따른다. 아래 재설계 이전 조작 설명은 기준선으로 보존하며 iPhone 승인은 별도 대기한다.
+
 2026-10-05. 실제 플레이 피드백으로 확정한 작업대 원칙과 연구실·여정 설계를 통합한다. 앞으로의 학술탑 UI 변경은 이 문서를 기준으로 삼는다. 개별 구현 이력은 [MVP](ACADEMIC-TOWER-UI-MVP-v0.1.md), [확장 계획](ACADEMIC-TOWER-UI-EXPANSION-v0.1.md), 콘텐츠 구성은 [첫 연구 묶음](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md)을 참고한다.
 
 > 2026-10-25 갱신: 관계·예상·조건 시각화의 사용자 피드백을 반영했다. 아래 ‘문장 방향을 보여 주는 조작’은 다음 구현의 설계 기준이며 아직 게임에 적용하지 않았다. 방별 배치와 기존 조작을 대체하는 범위는 [첫 연구 묶음 §10](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md)을 따른다.

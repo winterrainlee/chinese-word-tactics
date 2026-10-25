@@ -389,11 +389,11 @@
   function validMeaningState(config, value) {
     return !!value && value.kind === 'meaning-links' && value.schemaVersion === 1 &&
       Number.isInteger(value.taskIndex) && value.taskIndex >= 0 && value.taskIndex < config.tasks.length &&
-      ['notice','discovery','work','review','complete'].includes(value.phase) && value.placements && typeof value.placements === 'object' &&
+      (config.noticeWords ? ['notice','discovery','work','review','complete'] : ['work','review','complete']).includes(value.phase) && value.placements && typeof value.placements === 'object' &&
       value.answers && typeof value.answers === 'object';
   }
   function meaningAnswerCorrect(task, answer) {
-    return !!answer && task.slots.every(slot => answer.placements?.[slot.id] === task.answer[slot.id]) &&
+    return !!answer && typeof answer === 'object' && !!answer.placements && typeof answer.placements === 'object' && task.slots.every(slot => answer.placements?.[slot.id] === task.answer[slot.id]) &&
       (!task.relations || answer.relation === task.relation);
   }
   function normalizeMeaning(config, value) {
@@ -404,7 +404,7 @@
         // Earlier accepted cases map exactly in 01–03; the active case must be linked anew.
         if (value.kind === config.kind && value.schemaVersion === config.schemaVersion && config.cases &&
             Number.isInteger(value.caseIndex) && value.caseIndex > 0 && value.caseIndex < config.tasks.length &&
-            config.tasks.slice(0,value.caseIndex).every(task => value.completedCaseIds?.includes(task.id))) {
+            Array.isArray(value.completedCaseIds) && config.tasks.slice(0,value.caseIndex).every(task => value.completedCaseIds.includes(task.id))) {
           fresh.taskIndex=value.caseIndex;
           for(const task of config.tasks.slice(0,value.caseIndex)) fresh.answers[task.id]={placements:copy(task.answer),relation:task.relation || null,migrated:true};
         }
@@ -413,7 +413,7 @@
     }
     const next = copy(value), task = config.tasks[next.taskIndex];
     if (config.noticeWords) {
-      next.selectedCharacter ||= {};
+      if (!next.selectedCharacter || typeof next.selectedCharacter !== 'object' || Array.isArray(next.selectedCharacter)) next.selectedCharacter={};
       for (const word of config.noticeWords) if (![...word].includes(next.selectedCharacter[word])) delete next.selectedCharacter[word];
       if (next.phase !== 'notice' && !config.noticeWords.every(word=>next.selectedCharacter[word]==='然')) {next.phase='notice';next.taskIndex=0;next.answers={};next.placements={};next.relation=null;next.lastCheck=null;}
       if (['notice','discovery'].includes(next.phase)) return next;
@@ -426,6 +426,10 @@
     if (!currentTask.slots.some(slot => slot.id === next.slot)) next.slot=null;
     if (!currentTask.relations?.some(r => r.id === next.relation)) next.relation=null;
     if (next.phase !== 'work' && !meaningAnswerCorrect(currentTask,next.answers[currentTask.id])) {next.phase='work'; next.lastCheck=null;}
+    if (next.phase !== 'work') {
+      next.placements=copy(next.answers[currentTask.id].placements);
+      next.relation=next.answers[currentTask.id].relation || null;
+    }
     if (next.phase === 'complete' && next.taskIndex !== config.tasks.length-1) next.phase='review';
     return next;
   }
@@ -467,7 +471,7 @@
     return {state:next,changed,correct,feedback};
   }
   function meaningSolved(config,value) {
-    return validMeaningState(config,value) && value.phase === 'complete' && (!config.noticeWords || config.noticeWords.every(word=>value.selectedCharacter?.[word]==='然')) && config.tasks.every(task => meaningAnswerCorrect(task,value.answers[task.id]));
+    return validMeaningState(config,value) && value.phase === 'complete' && value.taskIndex===config.tasks.length-1 && (!config.noticeWords || config.noticeWords.every(word=>value.selectedCharacter?.[word]==='然')) && config.tasks.every(task => meaningAnswerCorrect(task,value.answers[task.id]));
   }
 
   function createState(config, rng) {
