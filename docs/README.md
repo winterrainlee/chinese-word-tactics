@@ -4,6 +4,8 @@
 
 `chinese-word-tactics`의 기획·디자인·개발 운영 문서를 모아둔다.
 
+- [학술탑 재구축 구현 기록](ACADEMIC-TOWER-REBUILD-IMPLEMENTATION-v0.1.md) — R0~R5의 G2, 저장 호환, 자동검사와 실기기 승인 구분.
+
 ## 핵심 기획
 
 - [게임 전체 구조와 콘텐츠 설계 기준 v0.1](GAME-CONTENT-FRAMEWORK-v0.1.md) — 실제 학습 필요, 본편·상설 공간의 역할, 중복·재사용, 신규 콘텐츠 배치와 지역별 문서 연결을 정리한다.

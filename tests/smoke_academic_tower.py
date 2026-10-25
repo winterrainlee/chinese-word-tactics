@@ -163,38 +163,20 @@ try:
         assert page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-05-synthesis"]').click()
-        assert page.locator('[data-academic-zone="original"]').count() == 1
-        assert page.locator('[data-academic-zone="work"]').count() == 1
-        assert page.locator('.academicMvpPreview').count() == 1
-        assert "研究員先前預計" in page.locator(".academicClozeRecord").inner_text()
-        assert "더 빨라질" not in page.locator(".academicClozeRecord").inner_text()
-        choose(page, "select-connector", "所以")
-        choose(page, "submit-connector")
-        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
-        assert "결과로 잇는 말" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
-        for connector in ["果然", "卻", "竟然", "然而", "反而", "然而", "反而", "不能只憑這些記錄決定水量，還要確認裝置的情況。"]:
-            if connector == "反而" and "記錄 3" in page.locator(".academicCaseProgress").inner_text():
-                choose(page, "select-connector", "而且")
-                choose(page, "submit-connector")
-                assert "문장으로는 가능해" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
-            if "안전 기록 · 첫" in page.locator(".academicCaseProgress").inner_text():
-                assert "剛修復的裝置也可能損壞" in page.locator(".academicClozeRecord").inner_text()
-            if connector.startswith("不能"):
-                assert page.locator(".academicArchive").count() == 7
-                page.locator('[data-mvp-detail="archive"] > summary').click()
-                assert "第一次增加水量後" in page.locator(".academicArchive").first.inner_text()
-                choose(page, "select-connector", "已經知道確切的安全水量，不用再檢查。")
-                choose(page, "submit-connector")
-                assert "정확한 적정량" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
-                assert not page.locator("#flowNext").is_visible()
-                page.locator("#undoBtn").click()
-            choose(page, "select-connector", connector)
-            assert page.locator('[data-academic-zone="work"] .academicTaskTitle').count() == 1
-            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
-            choose(page, "submit-connector")
-            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'
-            if page.locator('[data-academic-action="next-blank"]').count():
-                choose(page, "next-blank")
+        def check_synthesis(page,task,phase):
+            if task['id']=='safety-scope':
+                original=page.locator('[data-academic-zone="original"]').inner_text()
+                assert '雖然增加水量可以讓水流更快' in original
+                assert '反而可能損壞' in original
+                assert page.locator('.academicMeaningPath.actual').count()==0
+                assert page.locator('.academicMeaningPath.possible').count()==1
+            if task['id']=='reread':
+                original=page.locator('[data-academic-zone="original"]').inner_text()
+                assert '第一次增加水量後' in original and '安全範圍' in original and '＿＿' not in original
+            if task['id']=='dispatch' and phase=='initial':
+                choose(page,'meaning-relation','decision-3');choose(page,'meaning-confirm')
+                assert '정확한 적정량' in page.locator('.academicMvpFeedback').inner_text()
+        solve(page,check_synthesis)
         choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         assert "기록과 전달할 판단을 정리함" in page.locator("#completionBar").inner_text()

@@ -18,18 +18,18 @@ threading.Thread(target=server.serve_forever, daemon=True).start()
 try:
     with sync_playwright() as p:
         browser = p.chromium.launch(args=['--no-sandbox'])
-        for width, height in [(375, 812), (390, 844), (430, 932), (360, 740)]:
+        for width, height in [(375, 812), (375, 667), (375, 640), (360, 640)]:
             page = browser.new_page(viewport={'width': width, 'height': height}, is_mobile=True, has_touch=True)
             errors = []
             page.on('pageerror', lambda e: errors.append(str(e)))
-            late = width in (430, 360)
+            late = height == 640
             seed = {
                 'seenStories': ['chapter1-room-finale', 'academic-tower-arrival', 'academic-tower-turn-intro', 'academic-tower-turn-before-faner'],
                 'completedStages': ['stage-5', 'academic-tower-turn-01-que', 'academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation'],
                 'completedMilestones': ['chapter1-complete', 'academic-tower-entered'],
                 'acknowledgedNodes': [], 'stageOutcomes': {}, 'lastLocation': {'view': 'world'}
             }
-            if width != 375:
+            if late:
                 seed['completedStages'].append('academic-tower-turn-04-faner')
             if late:
                 seed['completedStages'].append('academic-tower-turn-05-synthesis')

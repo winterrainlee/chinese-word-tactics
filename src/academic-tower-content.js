@@ -571,6 +571,49 @@
   WORDS['既然'].rule='발화에서 받아들인 전제에서 다음 판단을 시작해. 如果는 조건으로 제시하며, 반드시 모르는 사실만 말하는 것은 아니야.';
   ran.applications[0].feedback='如果도 문법적으로 가능해. 여기서는 손상을 받아들인 전제로 삼아 다음 판단을 잇는 既然을 연습해.';
 
+  // R4: preserve all seven former relations, not seven identical cloze interactions.
+  const synthesis=room('05-synthesis'), oldBlank=id=>synthesis.blanks.find(b=>b.id===id);
+  const safety='雖然增加水量可以讓水流更快，然而如果水量超過安全範圍，剛修復的裝置反而可能損壞。';
+  const archive=[
+    '研究員先前預計水量增加後，水車會轉得更快。第一次增加水量後，水車果然轉得更快了。',
+    '第二次增加水量前，研究員仍預計水車會轉得更快。第二次增加水量後，水車卻沒有轉得更快。記錄旁寫著：「沒想到會完全停下來。」水車竟然完全停了下來。',
+    '增加水量通常能讓水車轉得更快。然而，這次增加水量沒有幫助。原本希望水車轉得更快。這次增加水量沒有幫助，反而使另一個齒輪損壞。',
+    '舊圖旁另有警語：「水量超過安全範圍，裝置可能損壞。」但圖上的水量刻度已經模糊。'+safety
+  ];
+  synthesis.tasks=[
+    observed('r1-match','果然','研究員先前預計水量增加後，水車會轉得更快。','第一次增加水量後，水車果然轉得更快了。','原先預計','實際記錄',{
+      title:'예상과 실제를 짚어 같은 결과를 이어 보자.',
+      slots:[{id:'from',label:'어떻게 될 거라고 봤어?',style:'expected'},{id:'to',label:'실제로는 어떻게 됐어?',style:'actual'}],
+      success:oldBlank('r1').successFeedbackKo,archiveIndex:0}),
+    observed('r2-contrast','卻','第二次增加水量前，研究員仍預計水車會轉得更快。','第二次增加水量後，水車卻沒有轉得更快。','앞에서 예상한 내용','뒤에서 확인한 사실',{
+      success:oldBlank('r2-a').successFeedbackKo,archiveIndex:1}),
+    {id:'r2-evaluation',word:'竟然',title:'이 기록에 적힌 놀라움을 되살리려면?',
+      context:'記錄旁寫著：「沒想到會完全停下來。」',sources:[{id:'result',text:'水車＿＿完全停了下來。'}],slots:[],answer:{},
+      relations:oldBlank('r2-b').options.map(word=>({id:word,text:word})),relation:'竟然',
+      success:oldBlank('r2-b').successFeedbackKo,wrong:synthesis.connectorFeedback,
+      memo:'水車竟然完全停了下來。',archiveIndex:1},
+    observed('r3-general','然而','增加水量通常能讓水車轉得更快。','然而，這次增加水量沒有幫助。','일반적으로 기대하는 효과','이번에 확인한 결과',{
+      success:oldBlank('r3-a').successFeedbackKo,archiveIndex:2}),
+    observed('r3-replacement','反而','原本希望水車轉得更快。','這次增加水量沒有幫助，反而使另一個齒輪損壞。','기대했던 결과','그 대신 생긴 결과',{
+      slots:[{id:'from',label:'기대했던 결과',style:'expected'},{id:'to',label:'그 대신 생긴 결과',style:'actual'}],
+      success:oldBlank('r3-b').successFeedbackKo,archiveIndex:2}),
+    {id:'safety-scope',word:'反而',title:'어떤 경우에 손상될 수 있다는 말일까?',
+      context:'舊圖旁另有警語：「水量超過安全範圍，裝置可能損壞。」但圖上的水量刻度已經模糊。',
+      sources:[{id:'effect',text:'雖然增加水量可以讓水流更快，'},{id:'condition',text:'然而如果水量超過安全範圍，'},{id:'risk',text:'剛修復的裝置反而可能損壞。'}],
+      slots:[{id:'effect',label:'앞에서 인정한 효과'},{id:'from',label:'어떤 경우라면?',style:'expected'},{id:'to',label:'그때 생길 수 있는 일',style:'possible'}],
+      answer:{effect:'effect',from:'condition',to:'risk'},archiveIndex:3,
+      hint:'칸을 누르고 해당 구절을 골라. 可能이 있는 결과는 이미 일어난 일과 구별해서 남겨 줘.',
+      success:'수량을 늘리는 효과는 남겼어. 안전 범위를 넘으면 손상될 수 있지만, 이미 손상됐다고 확정하지 않았어.',
+      slotFeedback:{effect:'앞의 효과도 인정하고 있어. 위험이 있다고 그 효과를 지우지는 마.',from:'손상 가능성은 모든 수량 증가가 아니라 안전 범위를 넘는 경우에 붙어 있어.',to:'可能을 포함한 구절을 그대로 남겨. 아직 일어난 사건으로 확정하지 말자.'}},
+    {id:'reread',title:'기호를 잠시 내려놓고 기록을 이어 읽어 보자.',type:'read',sources:archive.map((text,i)=>({id:'record-'+i,text})),slots:[],answer:{},success:'기록마다 결과가 달랐고, 안전한 수량의 눈금은 아직 흐려져 있어.',confirmLabel:'전체 기록을 읽었어',archiveIndex:4},
+    {id:'dispatch',title:'공방에 어디까지 전달할 수 있을까?',type:'decision',
+      sources:[{id:'context',text:oldBlank('dispatch').contextZh}],slots:[],answer:{},
+      relations:oldBlank('dispatch').options.map((text,i)=>({id:'decision-'+i,text})),relation:'decision-0',
+      wrong:Object.fromEntries(oldBlank('dispatch').options.map((text,i)=>['decision-'+i,oldBlank('dispatch').optionFeedback?.[text]])),
+      success:oldBlank('dispatch').successFeedbackKo,confirmLabel:'이 판단 전달',archiveIndex:4}
+  ];
+  synthesis.readingArchive=archive;
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

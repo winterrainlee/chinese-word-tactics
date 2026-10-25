@@ -134,67 +134,6 @@ test('04 keeps surprise separate from replacement and uses positive and negative
   assert.equal(upgraded.completedCaseIds.length, 1, 'legacy progress is preserved');
 });
 
-test('05 requires seven restorations and an evidence-bounded dispatch decision', () => {
-  const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-05-synthesis').academicTower", context);
-  assert.equal(config.kind, 'connector-cloze');
-  assert.equal(config.blanks.length, 8);
-  assert.ok(config.blanks.every(item => item.options.length === 4));
-  assert.ok(config.blanks.slice(0, 7).every(item => item.options.some(option => ['然後', '所以', '而且'].includes(option))));
-  assert.deepEqual(plain(config.blanks.slice(0, 7).map(item => item.correctConnectorId)), ['果然', '卻', '竟然', '然而', '反而', '然而', '反而']);
-  assert.equal(config.blanks[7].kind, 'decision');
-  assert.match(config.blanks[5].tailZh, /裝置也可能損壞/);
-
-  let state = M.createState(config, () => 0);
-  const correctSlots = config.blanks.map(item => state.optionOrders[item.id].indexOf(item.correctConnectorId));
-  assert.notDeepEqual(plain(correctSlots.slice(0, 7)), [0, 1, 2, 3, 0, 1, 2]);
-  const savedOrders = plain(state.optionOrders);
-  state = M.applyAction(config, state, { type: 'select-connector', value: '所以' }).state;
-  let result = M.applyAction(config, state, { type: 'submit-connector' });
-  state = result.state;
-  assert.equal(result.correct, false);
-  assert.equal(state.selectedConnectorId, '所以');
-  assert.equal(state.phase, 'choose-connector');
-  assert.deepEqual(plain(state.optionOrders), savedOrders);
-
-  for (const item of config.blanks) {
-    if (item.kind === 'decision') {
-      assert.equal(M.isSolved(config, state), false, 'restoring connectors alone does not complete 05');
-      for (const wrong of item.options.filter(id => id !== item.correctConnectorId)) {
-        state = M.applyAction(config, state, { type: 'select-connector', value: wrong }).state;
-        const rejected = M.applyAction(config, state, { type: 'submit-connector' });
-        assert.equal(rejected.correct, false);
-        assert.ok(rejected.feedback);
-        state = rejected.state;
-      }
-    }
-    state = M.applyAction(config, state, { type: 'select-connector', value: item.correctConnectorId }).state;
-    result = M.applyAction(config, state, { type: 'submit-connector' });
-    state = result.state;
-    assert.equal(result.correct, true);
-    if (state.phase === 'review') state = M.applyAction(config, state, { type: 'next-blank' }).state;
-  }
-  assert.equal(state.completedBlankIds.length, 8);
-  assert.equal(M.isSolved(config, state), true);
-});
-
-test('cloze shuffling consumes independent randomness and old in-progress schemas restart safely', () => {
-  const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-05-synthesis').academicTower", context);
-  let calls = 0;
-  const state = M.createState(config, () => { calls += 1; return (calls * .137) % 1; });
-  assert.equal(calls, 24);
-  const restored = plain(state);
-  const action = M.applyAction(config, restored, { type: 'select-connector', value: '所以' });
-  assert.deepEqual(plain(action.state.optionOrders), plain(state.optionOrders));
-  const legacy = { ...state, schemaVersion: 1, phase: 'complete', completedBlankIds: config.blanks.slice(0, 7).map(b => b.id) };
-  assert.equal(M.isSolved(config, legacy), false);
-  const restarted = M.applyAction(config, legacy, { type: 'select-connector', value: '果然' });
-  assert.equal(restarted.state.schemaVersion, 2);
-  assert.equal(restarted.state.blankIndex, 0);
-  assert.deepEqual(plain(restarted.state.completedBlankIds), []);
-});
-
 test('entry, story handoff, first-play save, and replay remain separate', () => {
   const context = contentContext();
   const result = vm.runInContext(`(() => {
@@ -396,4 +335,72 @@ test('03 preserves four valence/relation combinations and has no answered source
  const c=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03-expectation').academicTower",contentContext());
  assert.deepEqual(plain(c.cases.map(t=>[t.valence,t.relation])),[['positive','matched'],['negative','surprising'],['negative','matched'],['positive','surprising']]);
  assert.ok(c.tasks.every(t=>t.sources.every(s=>!/[果竟]然/.test(s.text))));
+});
+
+test('05 reconnects seven former relationships, reads complete source, and bounds the final decision',()=>{
+ const M=mechanics(),config=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-05-synthesis').academicTower",contentContext());
+ let state=M.createState(config);const act=(type,value)=>{const r=M.applyAction(config,state,{type,value});state=plain(r.state);return r;};
+ assert.deepEqual(plain(config.tasks.map(t=>t.id)),['r1-match','r2-contrast','r2-evaluation','r3-general','r3-replacement','safety-scope','reread','dispatch']);
+ const safety=config.tasks.find(t=>t.id==='safety-scope');
+ assert.equal(safety.sources.map(s=>s.text).join(''),'雖然增加水量可以讓水流更快，然而如果水量超過安全範圍，剛修復的裝置反而可能損壞。');
+ assert.equal(safety.slots.find(s=>s.id==='to').style,'possible');
+ assert.equal(safety.slots.some(s=>s.style==='actual'),false);
+ for(const task of config.tasks){
+  assert.equal(config.tasks[state.taskIndex].id,task.id);
+  if(task.slots.length){
+   assert.equal(act('meaning-confirm').changed,false);
+   for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.sources.find(s=>s.id!==task.answer[slot.id]).id);}
+   assert.equal(act('meaning-confirm').correct,false);
+   for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
+  }
+  for(const relation of task.relations || []) if(relation.id!==task.relation){act('meaning-relation',relation.id);assert.equal(act('meaning-confirm').correct,false);assert.equal(state.relation,relation.id);}
+  if(task.relations)act('meaning-relation',task.relation);
+  assert.deepEqual(plain(M.normalizeMeaning(config,state)),state);
+  assert.equal(act('meaning-confirm').correct,true);
+  if(task.id==='reread')assert.equal(state.phase,'review');
+  if(state.phase==='review')act('meaning-next');
+ }
+ assert.equal(M.isSolved(config,state),true);
+ delete state.answers.reread;assert.equal(M.isSolved(config,state),false);
+ const old={kind:config.kind,schemaVersion:2,blankIndex:6,phase:'review',completedBlankIds:config.blanks.map(b=>b.id)};
+ assert.equal(M.normalizeMeaning(config,old).taskIndex,0,'old blank counts cannot certify new scope work');
+});
+
+test('meaning drafts, confirmed links and history survive backup/restore without touching other progress',()=>{
+ const ctx=contentContext();load(ctx,'src/save-data.js');const S=ctx.SaveData,M=mechanics();
+ const configs=vm.runInContext('STAGES.filter(s=>s.academicTower?.tasks).map(s=>({index:STAGES.indexOf(s),config:s.academicTower}))',ctx);
+ const progress={seenStories:['chapter1-room-finale'],completedStages:['stage-5'],completedMilestones:['chapter1-complete'],acknowledgedNodes:[],stageOutcomes:{'market-stage-1':{choice:'keep'}},lastLocation:{view:'world'}};
+ const map=new Map([[S.STORAGE_KEYS.journey,JSON.stringify(progress)]]);
+ const storage={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+ for(const {index,config} of configs){
+  let state=plain(M.createState(config));const history=[];
+  const check=()=>{
+   const tactical={stageIndex:index,state:{academicTower:state},history,completed:['stage-5'],selected:false,inspect:false};
+   storage.setItem(S.STORAGE_KEYS.tactical,JSON.stringify(tactical));
+   const before=JSON.stringify([...map]);const backup=plain(S.createBackup(storage,{createdAt:'2026-10-25T08:00:00Z',build:'test'}));
+   assert.equal(S.validateBackup(backup).ok,true);S.restoreBackup(storage,backup);
+   assert.equal(JSON.stringify([...map]),before);assert.deepEqual(JSON.parse(storage.getItem(S.STORAGE_KEYS.journey)),progress);
+   assert.deepEqual(JSON.parse(storage.getItem(S.STORAGE_KEYS.tactical)).state.academicTower,state);
+  };
+  const act=(type,value)=>{history.push({academicTower:plain(state)});state=plain(M.applyAction(config,state,{type,value}).state);check();};
+  check();
+  if(config.noticeWords){for(const word of config.noticeWords)act('select-character',word+':然');act('submit-notice');act('start-compare');}
+  for(const task of config.tasks){
+   for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
+   if(task.relations)act('meaning-relation',task.relation);
+   act('meaning-confirm');if(state.phase==='review')act('meaning-next');
+  }
+  assert.equal(M.isSolved(config,state),true);
+ }
+});
+
+test('only the active old case restarts when earlier accepted cases map exactly',()=>{
+ const M=mechanics(),c=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03-expectation').academicTower",contentContext());
+ const old={kind:c.kind,schemaVersion:c.schemaVersion,caseIndex:2,completedCaseIds:c.cases.slice(0,2).map(t=>t.id),phase:'sort',relationId:'matched'};
+ const migrated=plain(M.normalizeMeaning(c,old));
+ assert.equal(migrated.taskIndex,2);assert.equal(Object.keys(migrated.answers).length,2);
+ assert.deepEqual(migrated.placements,{});assert.equal(migrated.relation,null);
+ const damaged=plain(migrated);damaged.placements={from:'nonexistent'};
+ assert.deepEqual(plain(M.normalizeMeaning(c,damaged)).placements,{});
+ assert.equal(M.normalizeMeaning(c,damaged).taskIndex,2);
 });

@@ -109,11 +109,13 @@ try:
             assert page.evaluate("getComputedStyle(document.body, '::before').content") == "none"
             page.evaluate("AcademicTowerRuntime.showHub()")
 
-            for suffix in ['01-que','02-raner','03-expectation']:
+            for suffix in ['01-que','02-raner','03-expectation','03a-ran-family','05-synthesis']:
                 page.evaluate('(suffix)=>TacticalGame.playStage("academic-tower-turn-"+suffix,{mode:"replay",returnTo:"academic-tower"})',suffix)
                 def check(page,task,phase):
                     assert_view(page,'#tutorialView',width,height,f'{suffix}-{task["id"]}-{phase}')
                     assert page.locator('#grid').evaluate('el=>el.scrollWidth<=el.clientWidth+1')
+                    if task['id'] in ['safety-scope','reread'] and phase=='selected':
+                        page.screenshot(path=str(OUT/f'{task["id"]}-{width}x{height}.png'),full_page=True)
                 solve(page,check)
                 page.screenshot(path=str(OUT/f'{suffix}-{width}x{height}.png'),full_page=True)
             page.evaluate("TacticalGame.playStage('academic-tower-turn-04-faner', {mode:'replay', returnTo:'academic-tower'})")
@@ -134,26 +136,6 @@ try:
             assert links.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-04-{width}x{height}.png"), full_page=True)
-
-            page.evaluate("TacticalGame.playStage('academic-tower-turn-05-synthesis', {mode:'replay', returnTo:'academic-tower'})")
-            assert "더 빨라질" not in page.locator(".academicClozeRecord").inner_text()
-            assert_view(page, "#tutorialView", width, height, f"05-initial-{width}x{height}")
-            for connector in ["果然", "卻", "竟然", "然而", "反而", "然而"]:
-                page.locator(f'[data-academic-action="select-connector"][data-value="{connector}"]').click()
-                page.locator('[data-academic-action="submit-connector"]').click()
-                page.locator('[data-academic-action="next-blank"]').click()
-            assert "雖然增加水量" in page.locator(".academicClozeContext").inner_text()
-            assert_view(page, "#tutorialView", width, height, f"05-safety-{width}x{height}")
-            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
-            page.screenshot(path=str(OUT / f"academic-tower-05-{width}x{height}.png"), full_page=True)
-            page.locator('[data-academic-action="select-connector"][data-value="反而"]').click()
-            page.locator('[data-academic-action="submit-connector"]').click()
-            page.locator('[data-academic-action="next-blank"]').click()
-            assert_view(page, "#tutorialView", width, height, f"05-dispatch-{width}x{height}")
-            page.locator('[data-mvp-detail="archive"] > summary').click()
-            assert_view(page, "#tutorialView", width, height, f"05-archive-{width}x{height}")
-            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
-            page.screenshot(path=str(OUT / f"academic-tower-dispatch-{width}x{height}.png"), full_page=True)
 
             context.close()
         assert not errors, errors
