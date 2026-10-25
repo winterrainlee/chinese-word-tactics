@@ -518,6 +518,26 @@
     wrong:{matched:item.wrongFeedbackKo,surprising:item.wrongFeedbackKo}
   }));
 
+  // R2: attach a later inspection to the exact inference it changes.
+  room('02-raner').tasks = room('02-raner').cases.map(item => ({
+    id:item.id, title:'뒤 기록을 보고, 내 보고에서 고칠 판단에 붙여 보자.',
+    sources:item.sources.map(source => ({id:source.id,text:source.text})),
+    translation:item.sources.map(source => source.labelKo).join(' / '),
+    targets:item.id==='practice' ? [
+      {id:'water-fact',text:'수로를 수리한 뒤 수량이 늘었다.'},
+      {id:'whole-judgment',text:'그러므로 장치 전체도 정상으로 돌아왔다.'}
+    ] : [
+      {id:'repair-fact',text:'옛 수로는 아직 수리되지 않았다.'},
+      {id:'water-judgment',text:'그러니 지금 수량도 정상일 수 없다.'},
+      {id:'future-judgment',text:'앞으로 수로를 더 수리할 필요는 없다.'}
+    ],
+    slots:[{id:'from',label:'판단을 바꾸게 한 기록'}, {id:'to',label:'내 보고에서 고칠 부분'}],
+    answer:{from:item.sources[1].id,to:item.id==='practice' ? 'whole-judgment' : 'water-judgment'},
+    word:'然而', memo:item.revisions.find(r=>r.id===item.correctRevisionId).labelKo,
+    success:item.successFeedbackKo,
+    slotFeedback:{from:'뒤 점검 결과까지 읽어 봐. 앞 기록도 원본에 그대로 남겨 두자.',to:'기록에 직접 적힌 사실을 취소하거나 앞으로의 정비까지 확정하지 마. 뒤 기록과 맞지 않는 현재 판단을 찾아보자.'}
+  }));
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

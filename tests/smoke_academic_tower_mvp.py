@@ -30,6 +30,7 @@ try:
             if value is not None: selector += f'[data-value="{value}"]'
             page.locator(selector).click()
         start('01-que')
+        page.locator('[data-mvp-detail="task-words"] summary').click()
         page.locator('[data-academic-word="卻"]').click()
         page.locator('#sheet .sheetactions button').click()
         assert page.evaluate('document.activeElement.dataset.academicWord') == '卻'
@@ -90,35 +91,15 @@ try:
         assert not page.locator('#flowNext').is_visible()
         action('finish-mvp'); page.locator('#flowNext').click()
         start('02-raner')
-        assert not page.locator('#words').is_visible()
-        assert page.locator('.academicMvpSource').count() == 2
-        assert page.locator('#academicMvpConfirm').count() == 1
-        assert '보고에서 고칠 부분을 찾아보자.' in page.locator('.academicTaskTitle').inner_text()
-        assert page.locator('[data-academic-zone="original"]').count() == 1
-        assert page.locator('[data-academic-zone="work"]').count() == 1
-        assert page.locator('[data-academic-action="select-claim"]').count() == 2
-        assert '그러므로 장치 전체도 정상' in page.locator('.academicReportDraft').inner_text()
-        action('select-claim', 'fact-increased')
-        assert page.locator('[data-verdict="incorrect"]').count() == 0
-        action('submit-claim')
-        assert '! 다시 살펴봐' in page.locator('.academicVerdictTitle').inner_text()
-        assert page.locator('[data-academic-action="select-claim"].selected').get_attribute('aria-invalid') == 'true'
-        action('select-claim', 'overreach-restored')
-        assert page.locator('[data-verdict="incorrect"]').count() == 0
-        action('submit-claim')
-        assert '고칠 부분을 찾았어' in page.locator('.academicVerdictTitle').inner_text()
-        assert page.locator('[data-mvp-detail="edit-memo"]').get_attribute('open') is not None
-        action('select-revision', 'restore-all'); action('submit-revision')
-        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
-        page.screenshot(path='/tmp/academic-tower-feedback-02-wrong.png', full_page=True)
-        action('select-revision', 'keep-both')
-        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
+        assert '수량이 늘었다' not in page.locator('[data-academic-zone="original"]').inner_text()
+        action('meaning-slot','from');action('meaning-source','device-not-restored')
+        action('meaning-slot','to');action('meaning-source','water-fact')
+        action('meaning-confirm')
+        assert '사실을 취소' in page.locator('.academicMvpFeedback').inner_text()
+        action('meaning-source','whole-judgment')
         page.locator('#undoBtn').click()
-        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
-        action('select-revision', 'keep-both'); action('submit-revision')
-        assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'
-        assert page.evaluate('document.activeElement.id') == 'academicVerdict'
-        page.screenshot(path='/tmp/academic-tower-feedback-02-correct.png', full_page=True)
+        assert page.evaluate('state.academicTower.placements.to')=='water-fact'
+        solve(page)
         page.evaluate('TacticalGame.playStage("academic-tower-turn-03-expectation",{mode:"first-play"})')
         action('meaning-slot','from'); action('meaning-source','actual')
         page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')

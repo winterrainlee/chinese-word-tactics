@@ -109,7 +109,7 @@ try:
             assert page.evaluate("getComputedStyle(document.body, '::before').content") == "none"
             page.evaluate("AcademicTowerRuntime.showHub()")
 
-            for suffix in ['01-que','03-expectation']:
+            for suffix in ['01-que','02-raner','03-expectation']:
                 page.evaluate('(suffix)=>TacticalGame.playStage("academic-tower-turn-"+suffix,{mode:"replay",returnTo:"academic-tower"})',suffix)
                 def check(page,task,phase):
                     assert_view(page,'#tutorialView',width,height,f'{suffix}-{task["id"]}-{phase}')
@@ -155,20 +155,6 @@ try:
             assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
             page.screenshot(path=str(OUT / f"academic-tower-dispatch-{width}x{height}.png"), full_page=True)
 
-            page.evaluate("TacticalGame.playStage('academic-tower-turn-02-raner', {mode:'replay', returnTo:'academic-tower'})")
-            for action, value in [("select-claim", "overreach-restored"), ("submit-claim", None), ("select-revision", "keep-both"), ("submit-revision", None), ("next-case", None)]:
-                selector = f'[data-academic-action="{action}"]'
-                if value:
-                    selector += f'[data-value="{value}"]'
-                if action == 'select-revision' and page.locator('[data-mvp-detail="edit-memo"]').get_attribute('open') is None:
-                    page.locator('[data-mvp-detail="edit-memo"] > summary').click()
-                page.locator(selector).click()
-            page.locator('[data-mvp-detail="source-meaning-0"] > summary').click()
-            page.locator('[data-mvp-detail="edit-memo"] > summary').click()
-            page.locator('[data-mvp-detail^="meaning-"] > summary').last.click()
-            assert_view(page, "#tutorialView", width, height, f"02-translation-{width}x{height}")
-            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
-            page.screenshot(path=str(OUT / f"academic-tower-translation-{width}x{height}.png"), full_page=True)
             context.close()
         assert not errors, errors
         assert not missing, missing

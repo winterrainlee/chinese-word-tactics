@@ -399,7 +399,16 @@
   function normalizeMeaning(config, value) {
     if (!validMeaningState(config, value)) {
       const fresh = createMeaningState(config);
-      if (value) fresh.migrationNotice = '읽기 작업이 바뀌어 이 방의 첫 기록부터 다시 펼쳤어. 이전 완료와 이야기 기록은 그대로야.';
+      if (value) {
+        fresh.migrationNotice = '읽기 작업이 바뀌어 이 기록의 연결부터 다시 살펴보자. 이전 완료와 이야기 기록은 그대로야.';
+        // Earlier accepted cases map exactly in 01–03; the active case must be linked anew.
+        if (value.kind === config.kind && value.schemaVersion === config.schemaVersion && config.cases &&
+            Number.isInteger(value.caseIndex) && value.caseIndex > 0 && value.caseIndex < config.tasks.length &&
+            config.tasks.slice(0,value.caseIndex).every(task => value.completedCaseIds?.includes(task.id))) {
+          fresh.taskIndex=value.caseIndex;
+          for(const task of config.tasks.slice(0,value.caseIndex)) fresh.answers[task.id]={placements:copy(task.answer),relation:task.relation || null,migrated:true};
+        }
+      }
       return fresh;
     }
     const next = copy(value), task = config.tasks[next.taskIndex];
@@ -407,7 +416,7 @@
     const missing = config.tasks.slice(0,next.taskIndex).findIndex(t => !next.answers[t.id]);
     if (missing >= 0) {next.taskIndex=missing; next.phase='work'; next.placements={}; next.relation=null; next.lastCheck=null;}
     const currentTask = config.tasks[next.taskIndex];
-    next.placements = Object.fromEntries(currentTask.slots.filter(slot => currentTask.sources.some(source => source.id === next.placements[slot.id])).map(slot => [slot.id,next.placements[slot.id]]));
+    next.placements = Object.fromEntries(currentTask.slots.filter(slot => [...currentTask.sources,...(currentTask.targets || [])].some(source => source.id === next.placements[slot.id])).map(slot => [slot.id,next.placements[slot.id]]));
     if (!currentTask.slots.some(slot => slot.id === next.slot)) next.slot=null;
     if (!currentTask.relations?.some(r => r.id === next.relation)) next.relation=null;
     if (next.phase !== 'work' && !meaningAnswerCorrect(currentTask,next.answers[currentTask.id])) {next.phase='work'; next.lastCheck=null;}
@@ -420,7 +429,7 @@
     if (next.phase === 'work') {
       if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
         changed=next.slot !== action.value; next.slot=action.value;
-      } else if (action.type === 'meaning-source' && next.slot && task.sources.some(source => source.id === action.value)) {
+      } else if (action.type === 'meaning-source' && next.slot && [...task.sources,...(task.targets || [])].some(source => source.id === action.value)) {
         changed=next.placements[next.slot] !== action.value || !!next.lastCheck;
         next.placements[next.slot]=action.value; next.lastCheck=null;
       } else if (action.type === 'meaning-relation' && task.relations?.some(relation => relation.id === action.value)) {
@@ -725,7 +734,7 @@
 
   function renderMeaning(config, workbench) {
     const task=config.tasks[workbench.taskIndex], done=workbench.phase !== 'work';
-    const source=id => task.sources.find(item => item.id === id)?.text || '구절을 골라 줘';
+    const source=id => [...task.sources,...(task.targets || [])].find(item => item.id === id)?.text || '구절을 골라 줘';
     const sourceButtons=task.sources.map(item => done ? `<span class="academicMvpPhrase" lang="zh-Hant">${escapeHtml(item.text)}</span>` : mvpButton('meaning-source',item.id,`<span lang="zh-Hant">${escapeHtml(item.text)}</span>`,!!workbench.slot && workbench.placements[workbench.slot]===item.id)).join(' ');
     const slots=task.slots.map(slot => {
       const value=workbench.placements[slot.id];
@@ -734,7 +743,7 @@
     }).join('<span class="academicMeaningJoin" aria-hidden="true">↕</span>');
     const relation=task.relations?.find(item => item.id===workbench.relation);
     const relationships=task.relations ? done ? `<p class="academicMeaningRelation">${escapeHtml(relation.text)}${relation.label ? ' · '+escapeHtml(relation.label) : ''}</p>` : `<div class="academicMvpLinks">${task.relations.map(item => mvpButton('meaning-relation',item.id,`${escapeHtml(item.text)}${item.label ? `<small>${escapeHtml(item.label)}</small>` : ''}`,workbench.relation===item.id)).join('')}</div>` : '';
-    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${sourceButtons}${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">나의 해석</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${task.word && WORDS[task.word] ? mvpWord(task.word) : ''}${done ? '' : '<p class="academicMvpHint">아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.</p>'}<div class="academicMeaningPaths">${slots}</div>${relationships}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${done && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}</section>`;
+    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${sourceButtons}${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">나의 해석</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(' '))}${task.targets ? `<h3>내 보고 초안</h3>${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[workbench.slot]===item.id)).join('')}` : ''}${done ? '' : '<p class="academicMvpHint">아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.</p>'}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>${relationships}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${done && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}</section>`;
   }
 
   function renderMvp(config, workbench) {
@@ -784,8 +793,8 @@
       const slot = (id, title, card) => {
         const content = `<small>${title}</small><span lang="zh-Hant">${escapeHtml(card?.textZh || '—')}</span>`;
         return workbench.phase === 'place-results'
-          ? mvpButton('select-slot', id, `${content}<small>${workbench.resultSlot === id ? '지금 고르는 칸' : '눌러서 선택·수정'}</small>`, workbench.resultSlot === id)
-          : `<div>${content}</div>`;
+          ? `<div class="academicMeaningPath ${id === 'absent' ? 'expected' : 'actual'}">${mvpButton('select-slot', id, `${content}<small>${workbench.resultSlot === id ? '지금 고르는 칸' : '눌러서 선택·수정'}</small>`, workbench.resultSlot === id)}</div>`
+          : `<div class="academicMeaningPath ${id === 'absent' ? 'expected' : 'actual'}">${content}</div>`;
       };
       body += `<section class="academicMvpMemo"><h2>기록에서 찾은 관계 ${mvpWord('反而')}</h2><div class="academicMvpSlots">${slot('absent', '생기지 않은 예상', absent)}${slot('actual', '실제로 생긴 결과', actual)}</div>`;
       if (workbench.phase === 'place-results') {
@@ -936,8 +945,8 @@
       if (check?.step === 'pair' || pairAccepted || finished) {
         const item = caseFor(config, workbench);
         const slots = gridEl.querySelectorAll('.academicMvpSlots > *');
-        mark(slots[0], workbench.absentResultId === item.absentResultId);
-        mark(slots[1], workbench.actualResultId === item.actualResultId);
+        mark(slots[0]?.querySelector('button') || slots[0], workbench.absentResultId === item.absentResultId);
+        mark(slots[1]?.querySelector('button') || slots[1], workbench.actualResultId === item.actualResultId);
       }
       if (check?.step === 'link' || finished) {
         mark(selected('select-link'), correct); mark(gridEl.querySelector('.academicMvpPreview'), correct);

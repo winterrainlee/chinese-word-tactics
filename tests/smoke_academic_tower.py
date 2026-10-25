@@ -87,6 +87,7 @@ try:
 
         page.wait_for_function("TacticalGame.stageId() === 'academic-tower-turn-01-que'")
         assert page.locator("#tutorialView").is_visible()
+        page.locator('[data-mvp-detail="task-words"] summary').click()
         page.locator('[data-academic-word="卻"]').click()
         assert "그런데" in page.locator("#sheet").inner_text()
         page.locator("#sheet .sheetactions button").click()
@@ -118,20 +119,7 @@ try:
         assert page.locator('[data-room-id="academic-tower-turn-02-raner"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-02-raner"]').click()
-        choose(page, "select-claim", "fact-increased")
-        choose(page, "submit-claim")
-        assert page.locator("#flowNext").count() == 0 or not page.locator("#flowNext").is_visible()
-        choose(page, "select-claim", "overreach-restored")
-        choose(page, "submit-claim")
-        choose(page, "select-revision", "restore-all")
-        choose(page, "submit-revision")
-        choose(page, "select-revision", "keep-both")
-        choose(page, "submit-revision")
-        choose(page, "next-case")
-        choose(page, "select-revision", "deny-water")
-        choose(page, "submit-revision")
-        choose(page, "select-revision", "keep-both")
-        choose(page, "submit-revision")
+        solve(page)
         if page.locator('[data-academic-action="finish-mvp"]').count():
             choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")

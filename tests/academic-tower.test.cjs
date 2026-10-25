@@ -111,28 +111,6 @@ test('Academic Tower appends rooms 01 through 05 without changing earlier stage 
   ]);
 });
 
-test('02 keeps partial improvement separate from whole-device recovery', () => {
-  const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-02-raner').academicTower", context);
-  let state = M.createState(config, () => .9);
-  assert.equal(state.phase, 'claim', 'both records must be available immediately');
-  state = M.applyAction(config, state, { type: 'select-claim', value: 'overreach-restored' }).state;
-  state = M.applyAction(config, state, { type: 'submit-claim' }).state;
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'cancel-improvement' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(state.phase, 'revision');
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'keep-both' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  state = M.applyAction(config, state, { type: 'next-case' }).state;
-  assert.equal(state.phase, 'revision');
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'deny-water' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(M.isSolved(config, state), false);
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'keep-both' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(M.isSolved(config, state), true);
-});
-
 test('04 keeps surprise separate from replacement and uses positive and negative actual results', () => {
   const context = contentContext(), M = mechanics();
   const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-04-faner').academicTower", context);
@@ -225,23 +203,6 @@ test('05 requires seven restorations and an evidence-bounded dispatch decision',
   }
   assert.equal(state.completedBlankIds.length, 8);
   assert.equal(M.isSolved(config, state), true);
-});
-
-test('answer orders are independent permutations and remain stable in saved state', () => {
-  const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-02-raner').academicTower", context);
-  for (const random of [0, .26, .51, .76]) {
-    const state = M.createState(config, () => random);
-    const targets = [
-      ['practice:claim', 'overreach-restored'],
-      ['practice:revision', 'keep-both'],
-      ['transfer:revision', 'keep-both']
-    ];
-    const slots = targets.map(([key, id]) => state.optionOrders[key].indexOf(id));
-    for (const [key] of targets) assert.equal(new Set(state.optionOrders[key]).size, 4);
-    assert.ok(slots.every(slot => slot >= 0 && slot < 4));
-    assert.deepEqual(plain(M.applyAction(config, state, { type: 'select-claim', value: 'fact-increased' }).state.optionOrders), plain(state.optionOrders));
-  }
 });
 
 test('cloze shuffling consumes independent randomness and old in-progress schemas restart safely', () => {
@@ -420,23 +381,25 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
 });
 
-for (const suffix of ['01-que','03-expectation']) test(`${suffix}: requires source scope as well as relation, persists every draft`, () => {
+for (const suffix of ['01-que','02-raner','03-expectation']) test(`${suffix}: requires source scope as well as relation, persists every draft`, () => {
   const M=mechanics(), config=vm.runInContext(`STAGES.find(s=>s.id==='academic-tower-turn-${suffix}').academicTower`,contentContext());
   const before=JSON.stringify(config); let state=M.createState(config);
   const act=(type,value)=>{const result=M.applyAction(config,state,{type,value});state=plain(result.state);return result;};
   for(const task of config.tasks) {
     assert.equal(act('meaning-confirm').changed,false);
-    act('meaning-relation',task.relation);
+    if(task.relations) act('meaning-relation',task.relation);
     assert.equal(act('meaning-confirm').changed,false,'relation alone is insufficient');
     for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.sources.find(s=>s.id!==task.answer[slot.id]).id);}
     assert.equal(act('meaning-confirm').correct,false);
     assert.equal(state.phase,'work'); assert.equal(M.isSolved(config,state),false);
     assert.deepEqual(plain(M.normalizeMeaning(config,state)),state,'round trip retains wrong draft');
     for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
-    const wrong=task.relations.find(r=>r.id!==task.relation);
-    act('meaning-relation',wrong.id);assert.equal(act('meaning-confirm').correct,false);
-    assert.equal(state.relation,wrong.id,'wrong relationship remains editable');
-    act('meaning-relation',task.relation); assert.equal(state.lastCheck,null);
+    if(task.relations) {
+      const wrong=task.relations.find(r=>r.id!==task.relation);
+      act('meaning-relation',wrong.id);assert.equal(act('meaning-confirm').correct,false);
+      assert.equal(state.relation,wrong.id,'wrong relationship remains editable');
+      act('meaning-relation',task.relation); assert.equal(state.lastCheck,null);
+    }
     assert.equal(act('meaning-confirm').correct,true);
     if(state.phase==='review')act('meaning-next');
   }

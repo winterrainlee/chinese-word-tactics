@@ -552,3 +552,6 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
 .academicMeaningRelation { text-align:center; font-weight:600; }
 .academicOriginal .academicMvpChoice { min-width:44px; min-height:44px; text-align:left; }
 .academicMeaningPaths { overflow-wrap:anywhere; }
+
+.academicMeaningPaths[data-relation="surprising"] .actual { margin-left:18px; }
+.academicMeaningPaths[data-relation="matched"] .actual { margin-left:0; }
