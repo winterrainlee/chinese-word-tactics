@@ -660,6 +660,24 @@
     }
   }
 
+  ran.introduction = [
+    {speaker:'소년',zh:'這幾個詞裡都有「然」。它是什麼意思？',ko:'이 표현들에는 모두 然이 있네요. 무슨 뜻이에요?'},
+    {speaker:'연구원',zh:'「然」有「如此、這樣」的意思。我們先從這裡看起。',ko:'然에는 “그러하다·그렇게”라는 뜻이 있어. 이번에는 여기서부터 살펴보자.'},
+    {speaker:'연구원',zh:'它和不同的字組成詞，用法也會不同。字義是線索，還要看整個詞和句子。',ko:'다른 글자와 어울리면 쓰임도 달라져. 글자 뜻을 단서로 삼고, 단어와 문장 전체에서 확인해 보자.'}
+  ];
+  ran.characterGuides = {
+    '然而':{character:'而',clue:'而는 앞뒤를 이어 줘. 여기서는 대조하는 방향으로 이어져.',meaning:'然而는 앞말을 받아들이면서도 다른 사실을 덧붙이는 “그러나”라는 뜻이야.'},
+    '果然':{character:'果',clue:'果에는 “정말·실제로”라는 뜻이 있어.',meaning:'果然은 예상했던 일이 실제로 이루어졌다는 “과연·예상대로”라는 뜻이야.'},
+    '竟然':{character:'竟',clue:'竟에는 “뜻밖에도”라는 뜻이 있어.',meaning:'竟然은 예상이나 상식을 벗어난 일에 대한 놀라움을 나타내.'},
+    '然後':{character:'後',clue:'後는 “뒤”를 뜻해.',meaning:'然後는 그렇게 한 뒤에 다음 일이 이어진다는 “그다음에”라는 뜻이야.'},
+    '雖然':{character:'雖',clue:'雖는 “비록 ~이지만”이라는 양보를 나타내.',meaning:'雖然은 앞의 사실을 인정하면서 뒤에 다른 내용을 이어 갈 준비를 해.'},
+    '既然':{character:'既',clue:'既의 “이미”라는 뜻을 단서로 삼아 봐.',meaning:'既然은 어떤 상황을 받아들인 전제로 삼아, “그러한 이상” 다음 판단을 이어 가.'},
+    '不然':{character:'不',clue:'不는 “아니다”라는 부정이야.',meaning:'不然은 “그렇지 않다”, 연결 표현으로는 “그렇지 않으면”이라는 뜻이야.'}
+  };
+  for (const task of ran.tasks) {
+    if (task.id.startsWith('observe-')) task.characterGuide=ran.characterGuides[task.word];
+  }
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

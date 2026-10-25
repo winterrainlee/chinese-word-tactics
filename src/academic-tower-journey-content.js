@@ -105,7 +105,7 @@
   Object.assign(stories, {
     'academic-tower-ran-intro': {
       id: 'academic-tower-ran-intro', chapterId: 'academic-tower-research', titleKo: '색인 옆의 메모', background: 'academic-tower', placeZh: '學術塔研究室', placeKo: '학술탑 연구실',
-      beats: [{ speaker: 'narrator', zh: '少年又看了看先前的記錄。', ko: '소년은 이전 기록을 다시 살펴봤다. 세 표현에 공통으로 들어 있는 글자가 있을까?' }]
+      beats: [{ speaker: 'narrator', zh: '少年又看了看先前的記錄。', ko: '소년은 이전 기록을 다시 살펴봤다. 같은 글자가 여러 표현에서 눈에 띄었다.' }]
     },
     'academic-tower-ran-result': {
       id: 'academic-tower-ran-result', chapterId: 'academic-tower-research', titleKo: '같은 흔적, 다른 방향', background: 'academic-tower', placeZh: '學術塔研究室', placeKo: '학술탑 연구실',

@@ -56,23 +56,30 @@ try:
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
                 assert page.locator('#grid').evaluate('e=>e.scrollWidth <= e.clientWidth + 1')
                 assert page.locator('[data-academic-action]').evaluate_all('els=>els.every(e=>{const r=e.getBoundingClientRect();return r.width>=44 && r.height>=44})')
-            assert '같은 然' not in page.locator('#stageTitle').inner_text()
+            assert page.evaluate('state.academicTower.phase') == 'discovery'
             assert ('남겨 둔 칸' in page.locator('#grid').inner_text()) == late
-            for value in ['然而:而', '果然:然', '竟然:然']: action('select-character', value)
-            action('submit-notice')
-            assert page.evaluate('document.activeElement.dataset.value').startswith('然而:')
-            assert page.locator('[data-academic-action="select-character"][data-verdict="incorrect"]').count() == 1
-            action('select-character', '然而:然')
+            assert '연구원' in page.locator('#grid').inner_text()
+            assert '그러하다·그렇게' in page.locator('#grid').inner_text()
+            assert page.locator('[data-academic-action="select-character"]').count()==0
             layout()
-            page.screenshot(path=f'/tmp/academic-tower-ran-notice-{width}.png', full_page=True)
-            action('submit-notice')
-            assert '같은 然' in page.locator('#stageTitle').inner_text()
-            assert '怎麼又有' in page.locator('#grid').inner_text()
+            page.screenshot(path=f'/tmp/academic-tower-ran-intro-{width}x{height}.png', full_page=True)
             action('start-compare')
             assert page.locator('.academicVerdictTitle').count() == 0
             assert '기록과 맞아' not in page.locator('#grid').inner_text()
             tasks=page.evaluate('current().academicTower.tasks')
             for i,task in enumerate(tasks):
+                if task.get('characterGuide'):
+                    assert task['characterGuide']['clue'] in page.locator('#grid').inner_text()
+                    assert task['characterGuide']['meaning'] in page.locator('#grid').inner_text()
+                else:
+                    assert page.locator('.academicCharacterGuide').count()==0
+                if i==0:
+                    before_help=page.evaluate('state.academicTower')
+                    page.locator('[data-mvp-detail="ran-intro"] summary').click()
+                    assert '연구원' in page.locator('[data-mvp-detail="ran-intro"]').inner_text()
+                    page.locator('[data-mvp-detail="ran-intro"] summary').click()
+                    assert page.evaluate('state.academicTower')==before_help
+                    page.screenshot(path=f'/tmp/academic-tower-ran-guide-{width}x{height}.png',full_page=True)
                 if task.get('type')=='read':
                     assert page.locator('.academicObservation').count()==1
                     assert page.locator('[data-academic-zone="work"]').count()==0
@@ -111,17 +118,17 @@ try:
             assert ('academic-tower-turn-foundation' in progress['completedMilestones']) == late
             before = page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")')
             page.locator(f'[data-room-id="{STAGE}"]').click()
-            assert page.evaluate('state.academicTower.phase') == 'notice'
+            assert page.evaluate('state.academicTower.phase') == 'discovery'
             assert page.evaluate('state.academicTower.selectedCharacter') == {}
             assert page.evaluate('state.academicTower.answers') == {}
             assert page.locator('[data-academic-action].selected').count() == 0
-            action('select-character', '然而:然')
+            action('start-compare')
             assert page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")') == before
             page.evaluate('GameFlow.showJourney()')
             page.evaluate("document.querySelectorAll('#journeyList details').forEach(e=>e.open=true)")
             page.locator(f'.journeyNode[data-node-id="stage:{STAGE}"]').click()
             assert page.evaluate('stageSession.mode') == 'replay'
-            assert page.evaluate('state.academicTower.phase') == 'notice'
+            assert page.evaluate('state.academicTower.phase') == 'discovery'
             assert page.evaluate('state.academicTower.selectedCharacter') == {}
             assert page.locator('[data-academic-action].selected').count() == 0
             solve(page)
@@ -131,10 +138,10 @@ try:
             page.evaluate('GameFlow.showJourney()')
             page.evaluate("document.querySelectorAll('#journeyList details').forEach(e=>e.open=true)")
             page.locator(f'.journeyNode[data-node-id="stage:{STAGE}"]').click()
-            assert page.evaluate('state.academicTower.phase') == 'notice'
+            assert page.evaluate('state.academicTower.phase') == 'discovery'
             assert page.evaluate('state.academicTower.answers') == {}
             assert page.locator('[data-academic-action].selected').count() == 0
-            action('select-character', '然而:然')
+            action('start-compare')
             page.locator('#resetBtn').click()
             assert page.evaluate('state.academicTower.selectedCharacter') == {}
             assert page.locator('[data-academic-action].selected').count() == 0

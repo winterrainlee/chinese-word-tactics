@@ -383,7 +383,7 @@
 
 
   function createMeaningState(config) {
-    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.noticeWords ? 'notice' : 'work', selectedCharacter:{},
+    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.introduction ? 'discovery' : config.noticeWords ? 'notice' : 'work', introRead:false, selectedCharacter:{},
       slot:null, placements:{}, relation:null, answers:{}, lastCheck:null};
   }
   function validMeaningState(config, value) {
@@ -412,7 +412,12 @@
       return fresh;
     }
     const next = copy(value), task = config.tasks[next.taskIndex];
-    if (config.noticeWords) {
+    if (config.introduction) {
+      if (next.phase==='notice') {next.phase='discovery';next.lastCheck=null;}
+      if (next.introRead===undefined) next.introRead=!['notice','discovery'].includes(next.phase);
+      if (!next.introRead && next.phase!=='discovery') next.phase='discovery';
+      if (next.phase==='discovery') return next;
+    } else if (config.noticeWords) {
       if (!next.selectedCharacter || typeof next.selectedCharacter !== 'object' || Array.isArray(next.selectedCharacter)) next.selectedCharacter={};
       for (const word of config.noticeWords) if (![...word].includes(next.selectedCharacter[word])) delete next.selectedCharacter[word];
       if (next.phase !== 'notice' && !config.noticeWords.every(word=>next.selectedCharacter[word]==='然')) {next.phase='notice';next.taskIndex=0;next.answers={};next.placements={};next.relation=null;next.lastCheck=null;}
@@ -445,7 +450,7 @@
         feedback=correct ? '' : '세 표현에 똑같이 들어 있는 글자를 각각 찾아보자.';
         next.lastCheck=correct ? null : {correct,feedbackKo:feedback};if(correct)next.phase='discovery';changed=true;
       }
-    } else if (next.phase==='discovery' && action.type==='start-compare') {next.phase='work';next.lastCheck=null;changed=true;}
+    } else if (next.phase==='discovery' && action.type==='start-compare') {next.phase='work';next.introRead=true;next.lastCheck=null;changed=true;}
     else if (next.phase === 'work') {
       if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
         changed=next.slot !== action.value; next.slot=action.value;
@@ -473,7 +478,7 @@
     return {state:next,changed,correct,feedback};
   }
   function meaningSolved(config,value) {
-    return validMeaningState(config,value) && value.phase === 'complete' && value.taskIndex===config.tasks.length-1 && (!config.noticeWords || config.noticeWords.every(word=>value.selectedCharacter?.[word]==='然')) && config.tasks.every(task => meaningAnswerCorrect(task,value.answers[task.id]));
+    return validMeaningState(config,value) && value.phase === 'complete' && value.taskIndex===config.tasks.length-1 && (config.introduction ? value.introRead===true : !config.noticeWords || config.noticeWords.every(word=>value.selectedCharacter?.[word]==='然')) && config.tasks.every(task => meaningAnswerCorrect(task,value.answers[task.id]));
   }
 
   function createState(config, rng) {
@@ -754,6 +759,17 @@
     return `<details data-mvp-detail="${key}"><summary>${label}</summary>${body}</details>`;
   }
 
+  function ranIntroduction(config) {
+    return config.introduction.map(beat=>`<p><strong>${escapeHtml(beat.speaker)}</strong> · ${escapeHtml(beat.ko)}</p>`).join('');
+  }
+  function ranGuide(task) {
+    const guide=task.characterGuide;
+    return guide ? `<div class="academicCharacterGuide"><p>${escapeHtml(guide.clue)}</p><p>${escapeHtml(guide.meaning)}</p></div>` : '';
+  }
+  function ranReminder(config) {
+    return config.introduction ? mvpDetails('ran-intro','然 · 뜻 다시 보기',ranIntroduction(config)) : '';
+  }
+
   function renderMeaning(config, workbench) {
     if (['notice','discovery'].includes(workbench.phase)) return renderRanWorkbench(config,workbench);
     const task=config.tasks[workbench.taskIndex], done=workbench.phase !== 'work';
@@ -768,7 +784,7 @@
     // Reading is not a pre-completed answer: show one observation surface.
     if (config.noticeWords && task.type==='read') {
       const compareWord=config.cards.find(card=>card.word===task.word)?.compareWord;
-      return `<div class="academicCaseProgress">관찰 · ${workbench.taskIndex+1} / ${config.tasks.length}</div><section class="academicOriginal academicObservation" data-academic-zone="original" aria-label="표현 관찰"><div class="academicRegionLabel">표현 관찰</div><article class="academicMvpSource"><h2 class="academicTaskTitle">${mvpWord(task.word)}</h2><div class="academicMeaningPaths">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}${task.memo ? mvpDetails('observation-comparison',compareWord ? `${compareWord}와 비교` : '다른 표현과 비교',`<p>${escapeHtml(task.memo)}</p>`) : ''}</article></section>`;
+      return `<div class="academicCaseProgress">관찰 · ${workbench.taskIndex+1} / ${config.tasks.length}</div><section class="academicOriginal academicObservation" data-academic-zone="original" aria-label="표현 관찰"><div class="academicRegionLabel">표현 관찰</div><article class="academicMvpSource"><h2 class="academicTaskTitle">${mvpWord(task.word)}</h2>${ranGuide(task)}<div class="academicMeaningPaths">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}${task.memo ? mvpDetails('observation-comparison',compareWord ? `${compareWord}와 비교` : '다른 표현과 비교',`<p>${escapeHtml(task.memo)}</p>`) : ''}${ranReminder(config)}</article></section>`;
     }
     const priorInRecord=config.tasks.slice(0,workbench.taskIndex).filter(t=>t.archiveIndex===task.archiveIndex).flatMap(t=>t.sources.map(source=>source.text));
     const archive=config.readingArchive && !['reread','dispatch'].includes(task.id) ? [...config.readingArchive.slice(0,task.archiveIndex),...priorInRecord].map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('') : '';
@@ -780,7 +796,7 @@
     const relation=task.relations?.find(item => item.id===workbench.relation);
     const selectedPreview=!task.slots.length && relation && task.sources.some(item=>item.text.includes('＿＿')) ? `<p class="academicMvpPreview" lang="zh-Hant">${escapeHtml(task.sources.map(item=>item.text.replace('＿＿',relation.text)).join(''))}</p>` : '';
     const relationships=task.relations ? done ? `<p class="academicMeaningRelation">${escapeHtml(relation.text)}${relation.label ? ' · '+escapeHtml(relation.label) : ''}</p>` : `<div class="academicMvpLinks">${task.relations.map(item => mvpButton('meaning-relation',item.id,`${escapeHtml(item.text)}${item.label ? `<small>${escapeHtml(item.label)}</small>` : ''}`,workbench.relation===item.id)).join('')}</div>` : '';
-    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${archive ? `<div class="academicReadArchive"><h3>앞에서 읽은 기록</h3>${archive}</div>` : ''}${task.context ? `<p lang="zh-Hant">${escapeHtml(task.context)}</p>` : ''}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">${task.targets ? '내 보고 초안' : '나의 해석'}</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${task.targets ? `${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[task.directSlot || workbench.slot]===item.id)).join('')}` : ''}${done || !task.slots.length || task.directSlot ? '' : `<p class="academicMvpHint">${escapeHtml(task.hint || '아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.')}</p>`}${task.slots.length && !task.directSlot ? `<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>` : ''}${task.linkText && Object.keys(workbench.placements).length===task.slots.length ? `<p class="academicMeaningRelation">${escapeHtml(task.linkText)}</p>` : ''}${selectedPreview}${relationships}${mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(''))}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${task.type==='decision' ? mvpDetails('full-records','전체 기록 다시 읽기',config.readingArchive.map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('')) : ''}${(done || task.type==='read') && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}${config.noticeWords && workbench.phase==='complete' ? mvpDetails('observations','내 관찰 메모 다시 읽기',config.tasks.map(t=>`<p><strong>${escapeHtml(t.word)}</strong> · ${escapeHtml(t.sources.map(s=>s.text).join(''))}<br>${escapeHtml(t.success)}</p>`).join('')) : ''}</section>`;
+    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${archive ? `<div class="academicReadArchive"><h3>앞에서 읽은 기록</h3>${archive}</div>` : ''}${task.context ? `<p lang="zh-Hant">${escapeHtml(task.context)}</p>` : ''}${ranGuide(task)}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">${task.targets ? '내 보고 초안' : '나의 해석'}</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${task.targets ? `${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[task.directSlot || workbench.slot]===item.id)).join('')}` : ''}${done || !task.slots.length || task.directSlot ? '' : `<p class="academicMvpHint">${escapeHtml(task.hint || '아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.')}</p>`}${task.slots.length && !task.directSlot ? `<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>` : ''}${task.linkText && Object.keys(workbench.placements).length===task.slots.length ? `<p class="academicMeaningRelation">${escapeHtml(task.linkText)}</p>` : ''}${selectedPreview}${relationships}${ranReminder(config)}${mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(''))}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${task.type==='decision' ? mvpDetails('full-records','전체 기록 다시 읽기',config.readingArchive.map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('')) : ''}${(done || task.type==='read') && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}${config.noticeWords && workbench.phase==='complete' ? mvpDetails('observations','내 관찰 메모 다시 읽기',config.tasks.map(t=>`<p><strong>${escapeHtml(t.word)}</strong> · ${escapeHtml(t.sources.map(s=>s.text).join(''))}<br>${escapeHtml(t.success)}</p>`).join('')) : ''}</section>`;
   }
 
   function renderMvp(config, workbench) {
@@ -1028,7 +1044,9 @@
 
   function renderRanWorkbench(config, workbench) {
     let body = '';
-    if (workbench.phase === 'notice') {
+    if (config.introduction && workbench.phase==='discovery') {
+      body = `<p>${workbench.introVariant === 'late' ? '소년은 자신에게 남겨 둔 칸에서 이전 기록을 꺼냈다.' : '소년은 탁자에 남은 기록을 다시 살펴봤다.'}</p><h2>然 · 그러하다, 그렇게</h2>${ranIntroduction(config)}`;
+    } else if (workbench.phase === 'notice') {
       body = `<p>${workbench.introVariant === 'late' ? '소년은 자신에게 남겨 둔 칸에서 이전 기록을 꺼냈다.' : '소년은 탁자에 남은 기록을 다시 살펴봤다.'}</p><h2>세 표현에 공통으로 들어 있는 글자를 각각 눌러.</h2>${config.noticeWords.map(word => `<div class="academicRanCharacters" aria-label="${word}">${[...word].map(character => mvpButton('select-character', `${word}:${character}`, escapeHtml(character), workbench.selectedCharacter[word] === character)).join('')}</div>`).join('')}`;
     } else if (workbench.phase === 'discovery') {
       body = '<h2>같은 然</h2><p lang="zh-Hant">……怎麼又有「然」？</p><p>“왜 또 然이지?” 소년이 물었다.</p><p lang="zh-Hant">有同一個字，不代表用法都一樣。</p><p>연구원은 같은 글자가 있어도 쓰임은 다를 수 있다고 답하며 색인 옆의 문장 카드를 꺼냈다.</p><p>글자 풀이를 기억의 단서로 삼되, 뜻을 계산하는 공식으로 보지는 말자.</p>';
@@ -1075,7 +1093,7 @@
     }
     actions.sort = ['submit-relation', '관계 확정', workbench.relationId];
     actions.notice = ['submit-notice', '공통 글자 확인', config.noticeWords?.every(word => workbench.selectedCharacter?.[word])];
-    actions.discovery = ['start-compare', '문장 비교하기', true];
+    actions.discovery = ['start-compare', config.introduction ? '표현 살펴보기' : '문장 비교하기', true];
     actions.compare = ['submit-comparison', '관계 검토', workbench.selectedPosition && workbench.selectedRelation];
     actions['compare-review'] = ['next-comparison', '다음 문장', true];
     actions['apply-premise'] = actions['apply-alternative'] = ['submit-ran-word', '문장 확정', workbench.selectedWord];

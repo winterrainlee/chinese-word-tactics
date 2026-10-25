@@ -283,7 +283,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
   assert.match(html, /academic-tower\.css\?v=\d{8}-[a-z0-9]+/);
-  assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
+  assert.match(html, /academic-tower-journey-content\.js\?v=\d{8}-[a-z0-9-]+/);
   assert.match(html, /academic-tower-hub-runtime\.js\?v=\d{8}-[a-z0-9]+/);
   assert.match(html, /academic-tower-content\.js\?v=\d{8}-[a-z0-9]+/);
   assert.match(html, /academic-tower-runtime\.js\?v=\d{8}-[a-z0-9]+/);
@@ -297,12 +297,11 @@ for (const suffix of ['01-que','02-raner','03-expectation','03a-ran-family']) te
   const M=mechanics(), config=vm.runInContext(`STAGES.find(s=>s.id==='academic-tower-turn-${suffix}').academicTower`,contentContext());
   const before=JSON.stringify(config); let state=M.createState(config);
   const act=(type,value)=>{const result=M.applyAction(config,state,{type,value});state=plain(result.state);return result;};
-  if(config.noticeWords) {
-    assert.equal(act('start-compare').changed,false);
-    for(const word of config.noticeWords)act('select-character',`${word}:${word[0]}`);
-    assert.equal(act('submit-notice').correct,false);
-    for(const word of config.noticeWords)act('select-character',`${word}:然`);
-    assert.equal(act('submit-notice').correct,true);assert.equal(state.phase,'discovery');act('start-compare');
+  if(config.introduction) {
+    assert.equal(state.phase,'discovery');
+    assert.equal(act('select-character','然而:然').changed,false);
+    assert.equal(act('meaning-confirm').changed,false);
+    act('start-compare');assert.equal(state.introRead,true);
   }
   for(const task of config.tasks) {
     if(task.type!=='read') assert.equal(act('meaning-confirm').changed,false);
@@ -387,7 +386,7 @@ test('meaning drafts, confirmed links and history survive backup/restore without
   };
   const act=(type,value)=>{history.push({academicTower:plain(state)});state=plain(M.applyAction(config,state,{type,value}).state);check();};
   check();
-  if(config.noticeWords){for(const word of config.noticeWords)act('select-character',word+':然');act('submit-notice');act('start-compare');}
+  if(config.introduction)act('start-compare');
   for(const task of config.tasks){
    for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
    if(task.relations)act('meaning-relation',task.relation);
@@ -421,7 +420,7 @@ test('damaged preview fields recover from the confirmed answer without resetting
  assert.equal(M.normalizeMeaning(config,malformedOld).taskIndex,0);
  const ran=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03a-ran-family').academicTower",contentContext());
  const broken=plain(M.createState(ran));broken.selectedCharacter=42;broken.phase='work';
- assert.equal(M.normalizeMeaning(ran,broken).phase,'notice');
+ assert.equal(M.normalizeMeaning(ran,broken).phase,'discovery');
 });
 
 test('simple UI removes positional work and keeps direct semantic targets',()=>{
@@ -433,4 +432,16 @@ test('simple UI removes positional work and keeps direct semantic targets',()=>{
  assert.equal(state.placements.to,'whole-judgment');assert.equal(state.slot,null);
  assert.equal(M.applyAction(config,state,{type:'meaning-confirm'}).correct,true);
  assert.ok(c('03a-ran-family').tasks.filter(t=>t.type==='read').every(t=>t.slots.length===0 && !t.relations));
+});
+
+test('03A migrates old discovery without discarding later work and starts replay at researcher',()=>{
+ const M=mechanics(),c=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03a-ran-family').academicTower",contentContext());
+ const old=plain(M.createState(c));delete old.introRead;old.phase='notice';old.selectedCharacter={'然而':'而'};
+ assert.equal(M.normalizeMeaning(c,old).phase,'discovery');
+ old.phase='work';old.taskIndex=1;old.answers[c.tasks[0].id]={placements:{},relation:null};
+ const migrated=M.normalizeMeaning(c,old);assert.equal(migrated.taskIndex,1);assert.equal(migrated.phase,'work');assert.equal(migrated.introRead,true);
+ assert.equal(M.createState(c).phase,'discovery');assert.equal(M.createState(c).introRead,false);
+ assert.equal(Object.keys(c.characterGuides).length,7);
+ assert.ok(c.tasks.filter(t=>t.id.startsWith('observe-')).every(t=>t.characterGuide?.clue && t.characterGuide?.meaning));
+ assert.ok(c.tasks.filter(t=>t.id.startsWith('apply-')).every(t=>!t.characterGuide));
 });
