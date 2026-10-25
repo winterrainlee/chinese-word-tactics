@@ -8,7 +8,7 @@
 
 `academic-tower-content.js`가 과제와 stage ID를, `academic-tower-runtime.js`가 순수 전이와 렌더·이벤트를 담당한다. 입력은 runAction → history 추가 → state.academicTower 갱신 → save → render → isSolved → GameFlow.recordStageComplete 순이다. 전체 완료 버튼은 결과 화면 진입을 따로 담당한다. `save-data.js`는 전술 상태 전체를 백업하므로 새 작업 필드를 별도 whitelist에 추가할 필요가 없다. 여정·아이템은 기존 GameFlow/JourneyProgress 계약을 유지한다.
 
-기존 kind/revision: 01·02 claim-revision/3, 03 expectation-sort/1, 04 replacement-link/2, 05 connector-cloze/2, 03A ran-observation/1. 새 의미 조작 상태는 kind=meaning-links, schemaVersion=1로 별도 식별한다. 외부 저장 formatVersion=1과 기존 stage 순서는 유지한다. 진행 중 구형 작업은 해당 방의 새 작업 시작점으로만 복구하며 영구 완료·이야기·아이템은 건드리지 않는다. 새 입력의 구절 ID·관계·선택 칸·확정 관계들을 저장한다. 잘못된 미확정 값은 현재 작업에서만 정규화한다.
+기존 kind/revision: 01·02 claim-revision/3, 03 expectation-sort/1, 04 replacement-link/2, 05 connector-cloze/2, 03A ran-observation/1. 새 의미 조작 상태는 kind=meaning-links, schemaVersion=1로 별도 식별한다. 외부 저장 formatVersion=1과 기존 stage 순서는 유지한다. 구형 진행 중 상태는 명확히 대응하는 앞 사례 완료를 보존하고 현재 작업의 새 연결부터 복구한다. 대응이 불명확한 03A·05만 해당 방 첫 작업으로 돌아가며 영구 완료·이야기·아이템은 건드리지 않는다. 새 입력의 구절 ID·관계·선택 칸·확정 관계들을 저장한다. 잘못된 미확정 값은 현재 작업에서만 정규화한다.
 
 기준선: `node tools/verify-content.cjs` 통과. 최초 브라우저 실행은 Python playwright 미설치로 실행 전 실패했으며 의존성을 준비한 뒤 재실행한다.
 
@@ -81,3 +81,31 @@ R4 자동검사: 전체 빠른 콘텐츠 게이트, 본선 완주(03A 생략), �
 부분 상태 추가 점검: 확정 답은 유효하지만 현재 미리보기 구절/관계만 잘못된 저장은 확정 답으로 현재 화면을 복구한다. 잘못된 notice 단계와 글자 선택 자료형, 구형 완료 목록 자료형도 해당 작업 안에서 정규화한다. 이를 별도 Node 검사로 고정했다. 런타임 변경 빌드는 `2026-10-25-tower-r5`다.
 
 부분 상태 복구 수정 뒤 전체 Node 329개·콘텐츠/어휘/UX/상태 언어/이야기 감사와 MVP 브라우저(무료 조회·오답·되돌리기·재개·재플레이)가 통과했다. 최종 런타임 변경은 이 복구 보완이며 다른 지역 기능 변경은 없다.
+
+
+## 최종 확인 — 2026-10-25 (Asia/Taipei)
+
+상태는 **🧪 구현·자동검증·Pages 배포 확인 / iPhone 실기기 승인 대기**다. 학습 효과나 사용자 실기기 승인을 자동검사로 대신하지 않는다.
+
+| 단위 | 원격 반영 | 주요 변경과 증거 |
+|---|---|---|
+| R0 | 기준 12b8920 | 로컬 문서 수정 보존, 실행·저장 책임과 첫 G2 확정 |
+| R1 | ad6dbaf | content/runtime/CSS/index, 01·03 source 연결, 지역 Node·완주·MVP·네 viewport |
+| R2 | 5db4bb4 | content/runtime/CSS, 02 보고 대상 연결·04 경로 표시, 관련 Node·완주·MVP·네 viewport |
+| R3 | c900b40 | content/runtime, 03A 발견과 7+2 의미 행동, 조기/늦은 방문·중단/재개·재플레이 |
+| R4 | 8fdcd6b | content/runtime/index, 05의 8개 작업과 전체 재독, 백업 왕복·본선·네 viewport |
+| R5 | 19d3e18 → 8af1d77 | 늦은 방문 검사 fixture 보정, 손상된 미리보기 복구, 전체 회귀·배포 검증 |
+
+최종 게임 코드 SHA: `8af1d774f8ad105ecce2c051170835cce2b07c21`.
+
+[GitHub Actions 40178774579](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/40178774579)는 최종 코드의 필수 검사와 Pages 배포를 모두 성공했다. Node 329개가 통과했고, 콘텐츠·어휘 생애주기·UX·상태 언어·이야기 감사도 통과했다. 로컬 전체 브라우저 목록은 최초 03A fixture 실패 후 해당 검사를 고치고 나머지 목록까지 이어 실행해 모두 통과했다. 최종 CI에서도 수정한 검사를 포함한 필수 회귀 전체가 통과했다. 별도 로컬 이야기 주음 검사도 통과했다.
+
+[실제 Pages](https://winterrainlee.github.io/chinese-word-tactics/)의 `cwt-build`는 `2026-10-25-tower-r5`이며 최종 코드와 일치한다. 아래 세 라이브 자원을 내려받아 로컬 최종 소스와 바이트 단위로 대조했다. 모두 일치했다.
+
+- `academic-tower-content.js`: `6a150707a853ffc7e20a1d3c2074ee81753843245f008a8c523da08fbe3fca10`
+- `academic-tower-runtime.js`: `575cbb6dbf1838482c469c1aad96ae0c5bdcbe841cbdc5c1fbda4327524a6e1f`
+- `academic-tower.css`: `c7defacddc7fb2a0879a2b049ac3b026923a90d3681c234ad860578d3b184ab3`
+
+375×812, 375×667, 375×640, 360×640의 전체 학술탑에서 가로 넘침·컨트롤 잘림·44px 터치 영역을 검사했다. `/chinese-word-tactics/` 하위 경로의 자원, 무료 조회, 오답 보존, 되돌리기, 새로고침, 백업·복원, 첫 플레이·재플레이 분리, 03A 생략 본선, 03A의 본선 전후 방문, 여관 관찰 카드와 기존 복귀 문맥을 확인했다. 기존 stage/story/milestone·어휘 목록·STAGES 순서를 유지하며 04A·是·於 구현은 없다.
+
+실기기에서 남은 질문은 세 가지다. 답을 알아도 어느 구절을 연결하는지 다시 보게 되는가? 구절과 칸을 오가는 스크롤이 읽기를 방해하지 않는가? 한국어 안내를 다시 해석해야 누를 수 있는 곳이 있는가? 사용자의 iPhone 13 mini Safari 피드백 전에는 ✅로 올리지 않는다.
