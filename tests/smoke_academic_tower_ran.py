@@ -106,9 +106,8 @@ try:
             page.locator(f'[data-room-id="{STAGE}"]').click()
             action('select-character', '然而:然')
             assert page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")') == before
-            if width == 375:
-                page.evaluate("GameFlow.playStage('academic-tower-turn-04-faner')")
-                assert '이번에는 然이 없' in page.locator('#grid').inner_text()
+            page.evaluate("GameFlow.playStage('academic-tower-turn-04-faner')")
+            assert ('이번에는 然이 없' in page.locator('#grid').inner_text()) == (not late)
             assert not errors, errors
             page.close()
         browser.close()
