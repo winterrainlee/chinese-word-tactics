@@ -79,17 +79,27 @@ try:
             assert '기록과 맞아' not in page.locator('#grid').inner_text()
             tasks=page.evaluate('current().academicTower.tasks')
             for i,task in enumerate(tasks):
+                assert page.locator('[data-mvp-detail="ran-intro"]').count()==0
+                assert '然 · 뜻 다시 보기' not in page.locator('#grid').inner_text()
                 if task.get('characterGuide'):
                     assert task['characterGuide']['clue'] in page.locator('#grid').inner_text()
                     assert task['characterGuide']['meaning'] in page.locator('#grid').inner_text()
+                    assert page.locator('[data-mvp-detail="task-words"]').count()==0
                 else:
-                    assert page.locator('.academicCharacterGuide').count()==0
-                if i==0:
+                    help_box=page.locator('[data-mvp-detail="task-words"]')
+                    assert help_box.locator('summary').inner_text()==task['word']+' · 글자와 뜻'
+                    assert help_box.locator('.academicCharacterGuide').is_hidden()
                     before_help=page.evaluate('state.academicTower')
-                    page.locator('[data-mvp-detail="ran-intro"] summary').click()
-                    assert '연구원' in page.locator('[data-mvp-detail="ran-intro"]').inner_text()
-                    page.locator('[data-mvp-detail="ran-intro"] summary').click()
+                    help_box.locator('summary').click()
+                    guide=page.evaluate('(word)=>current().academicTower.characterGuides[word]',task['word'])
+                    assert guide['clue'] in help_box.inner_text()
+                    assert guide['meaning'] in help_box.inner_text()
+                    assert '연구원' not in help_box.inner_text()
+                    layout()
+                    page.screenshot(path=f'/tmp/academic-tower-ran-help-{width}x{height}.png',full_page=True)
+                    help_box.locator('summary').click()
                     assert page.evaluate('state.academicTower')==before_help
+                if i==0:
                     page.screenshot(path=f'/tmp/academic-tower-ran-guide-{width}x{height}.png',full_page=True)
                 if task.get('type')=='read':
                     assert page.locator('.academicObservation').count()==1
