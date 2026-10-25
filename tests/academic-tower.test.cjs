@@ -109,29 +109,26 @@ test('04 keeps surprise separate from replacement and uses positive and negative
   state = M.applyAction(config, state, { type: 'submit-results' }).state;
   assert.equal(state.phase, 'review', 'the guided case builds the visible 反而 frame');
   state = M.applyAction(config, state, { type: 'next-case' }).state;
-  for (const [slot, value] of [['actual', 'normal'], ['absent', 'stop']]) {
-    state = M.applyAction(config, state, { type: 'select-slot', value: slot }).state;
-    state = M.applyAction(config, state, { type: 'select-result', value }).state;
+  assert.equal(state.actualResultId,'normal','actual is supplied by the remaining record');
+  assert.equal(M.applyAction(config,state,{type:'select-slot',value:'actual'}).changed,false);
+  assert.equal(M.applyAction(config,state,{type:'submit-results'}).changed,false);
+  for(const wrong of ['normal','unknown']) {
+    state=M.applyAction(config,state,{type:'select-result',value:wrong}).state;
+    result=M.applyAction(config,state,{type:'submit-results'});state=result.state;
+    assert.equal(result.correct,false);assert.equal(state.phase,'place-results');assert.ok(result.feedback);
   }
-  assert.equal(state.phase, 'place-results', 'actual can be placed first without a check');
-  state = M.applyAction(config, state, { type: 'submit-results' }).state;
-  assert.equal(state.phase, 'choose-link');
-  state = M.applyAction(config, state, { type: 'select-link', value: 'jingran' }).state;
-  result = M.applyAction(config, state, { type: 'submit-link' });
-  state = result.state;
-  assert.equal(result.correct, false);
-  assert.match(result.feedback, /뜻밖/);
-  assert.equal(state.phase, 'choose-link', '竟然 evaluates surprise but does not complete the replacement link');
-  state = M.applyAction(config, state, { type: 'select-link', value: 'faner' }).state;
-  state = M.applyAction(config, state, { type: 'submit-link' }).state;
-  assert.equal(M.isSolved(config, state), true);
-  const old = M.createState(config);
-  Object.assign(old, {schemaVersion: 1, caseIndex: 1, resultSlot: 'actual', absentResultId: 'stop', resultId: 'normal', completedCaseIds: [config.cases[0].id]});
-  const upgraded = M.applyAction(config, old, {type: 'submit-results'}).state;
-  assert.equal(upgraded.schemaVersion, 2);
-  assert.equal(upgraded.phase, 'choose-link');
-  assert.equal(upgraded.caseIndex, 1);
-  assert.equal(upgraded.completedCaseIds.length, 1, 'legacy progress is preserved');
+  state=M.applyAction(config,state,{type:'select-result',value:'stop'}).state;
+  state=M.applyAction(config,state,{type:'submit-results'}).state;
+  assert.equal(M.isSolved(config,state),true);
+  const old=M.createState(config);
+  Object.assign(old,{schemaVersion:1,caseIndex:1,resultSlot:'actual',absentResultId:'stop',resultId:'normal',completedCaseIds:[config.cases[0].id]});
+  const upgraded=M.applyAction(config,old,{type:'submit-results'}).state;
+  assert.equal(upgraded.schemaVersion,2);assert.equal(upgraded.phase,'complete');
+  const oldLink={...old,schemaVersion:2,phase:'choose-link',actualResultId:'normal',linkId:'jingran'};
+  const resumed=M.applyAction(config,oldLink,{type:'select-link',value:'faner'}).state;
+  assert.equal(resumed.phase,'place-results');assert.equal(resumed.absentResultId,null);
+  assert.equal(resumed.completedCaseIds.length,1);
+
 });
 
 test('entry, story handoff, first-play save, and replay remain separate', () => {
@@ -423,7 +420,7 @@ test('damaged preview fields recover from the confirmed answer without resetting
 
 test('simple UI removes positional work and keeps direct semantic targets',()=>{
  const ctx=contentContext();const c=suffix=>vm.runInContext(`STAGES.find(s=>s.id==='academic-tower-turn-${suffix}').academicTower`,ctx);
- for(const suffix of ['01-que','03-expectation']) assert.ok(c(suffix).tasks.every(t=>t.slots.length===0 && t.relations.length>1));
+ for(const suffix of ['03-expectation']) assert.ok(c(suffix).tasks.every(t=>t.slots.length===0 && t.relations.length>1));
  const M=mechanics(),config=c('02-raner');let state=M.createState(config);
  assert.equal(M.applyAction(config,state,{type:'meaning-confirm'}).changed,false);
  state=M.applyAction(config,state,{type:'meaning-source',value:'whole-judgment'}).state;
@@ -442,4 +439,12 @@ test('03A migrates old discovery without discarding later work and enters observ
  assert.equal(Object.keys(c.characterGuides).length,7);
  assert.ok(c.tasks.filter(t=>t.id.startsWith('observe-')).every(t=>t.characterGuide?.clue && t.characterGuide?.meaning));
  assert.ok(c.tasks.filter(t=>t.id.startsWith('apply-')).every(t=>!t.characterGuide));
+});
+
+test('01 contrasts relations then repairs an inference; old keep-both answers are not new success',()=>{
+ const M=mechanics(),c=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-01-que').academicTower",contentContext());
+ assert.equal(c.tasks[0].relation,'contrast');assert.equal(c.tasks[0].slots.length,0);
+ assert.equal(c.tasks[1].directSlot,'to');assert.equal(c.tasks[1].relations,undefined);
+ const old={...M.createState(c),taskIndex:1,phase:'complete',answers:{practice:{placements:{},relation:'keep'},transfer:{placements:{},relation:'keep'}}};
+ const next=M.normalizeMeaning(c,old);assert.equal(next.taskIndex,0);assert.equal(next.phase,'work');assert.ok(next.migrationNotice);
 });

@@ -126,16 +126,15 @@ try:
                 page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()
             page.locator('[data-academic-action="submit-results"]').click()
             page.locator('[data-academic-action="next-case"]').click()
-            for slot, value in [("actual", "normal"), ("absent", "stop")]:
-                page.locator(f'[data-academic-action="select-slot"][data-value="{slot}"]').click()
-                page.locator(f'[data-academic-action="select-result"][data-value="{value}"]').click()
+            assert page.locator('[data-academic-action="select-slot"]').count()==0
+            assert_view(page, "#tutorialView", width, height, f"04-inference-{width}x{height}")
+            page.locator('[data-academic-action="select-result"][data-value="normal"]').click()
             page.locator('[data-academic-action="submit-results"]').click()
-            assert_view(page, "#tutorialView", width, height, f"04-links-{width}x{height}")
-            links = page.locator('[data-mvp-links]')
-            assert links.is_visible()
-            assert links.evaluate('e => { const r=e.getBoundingClientRect(), p=document.querySelector("#grid").getBoundingClientRect(); return r.top >= p.top && r.bottom <= p.bottom; }')
-            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
+            assert '예상대로' in page.locator('.academicMvpFeedback').inner_text()
             page.screenshot(path=str(OUT / f"academic-tower-04-{width}x{height}.png"), full_page=True)
+            page.locator('[data-academic-action="select-result"][data-value="stop"]').click()
+            page.locator('[data-academic-action="submit-results"]').click()
+            assert page.evaluate('state.academicTower.phase')=='complete'
 
             context.close()
         assert not errors, errors

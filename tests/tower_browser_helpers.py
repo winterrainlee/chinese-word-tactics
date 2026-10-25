@@ -37,8 +37,10 @@ def solve(page, check=None):
         elif config['kind']=='replacement-link':
             case=config['cases'][state['caseIndex']]
             if state['phase']=='place-results':
-                for slot,key in [('absent','absentResultId'),('actual','actualResultId')]:
-                    action(page,'select-slot',slot);action(page,'select-result',case[key])
+                if case['mode']=='infer-expectation': action(page,'select-result',case['absentResultId'])
+                else:
+                    for slot,key in [('absent','absentResultId'),('actual','actualResultId')]:
+                        action(page,'select-slot',slot);action(page,'select-result',case[key])
                 action(page,'submit-results')
             elif state['phase']=='choose-link':action(page,'select-link',config['correctLinkId']);action(page,'submit-link')
             else:action(page,'next-case')

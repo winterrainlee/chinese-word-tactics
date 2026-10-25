@@ -226,6 +226,13 @@
       next.lastCheck = null;
       next.schemaVersion = 2;
     }
+    const item=caseFor(config,next);
+    if (item?.mode==='infer-expectation' && !['review','complete'].includes(next.phase)) {
+      next.actualResultId=item.actualResultId;
+      next.resultSlot='absent';
+      next.linkId=config.correctLinkId;
+      if (next.phase==='choose-link') {next.phase='place-results';next.absentResultId=null;next.lastCheck=null;}
+    }
     return next;
   }
 
@@ -245,11 +252,11 @@
     let correct = null;
 
     if (action.type === 'select-slot' && next.phase === 'place-results' &&
-      ['absent', 'actual'].includes(action.value)) {
+      ['absent', 'actual'].includes(action.value) && item.mode!=='infer-expectation') {
       changed = next.resultSlot !== action.value;
       next.resultSlot = action.value;
     } else if (action.type === 'select-result' && next.phase === 'place-results' &&
-      item.cards.some(card => card.id === action.value)) {
+      (item.expectationOptions || item.cards).some(card => card.id === action.value)) {
       const field = next.resultSlot === 'actual' ? 'actualResultId' : 'absentResultId';
       changed = next[field] !== action.value || !!next.lastCheck;
       next[field] = action.value;
@@ -262,11 +269,11 @@
       const notes = [];
       if (!absentCorrect) notes.push(`예상 칸: ${item.cards.find(card => card.id === next.absentResultId)?.absentFeedbackKo || '생기지 않은 예상을 다시 찾아.'}`);
       if (!actualCorrect) notes.push(`실제 칸: ${item.cards.find(card => card.id === next.actualResultId)?.actualFeedbackKo || '실제 결과를 다시 찾아.'}`);
-      feedback = correct ? item.successFeedbackKo : notes.join(' ');
+      feedback = correct ? item.successFeedbackKo : item.mode==='infer-expectation' ? item.expectationOptions.find(option=>option.id===next.absentResultId)?.feedback : notes.join(' ');
       next.lastCheck = { step: 'pair', correct, feedbackKo: feedback };
       if (correct) {
         next.lastCheck = null;
-        if (item.mode === 'guided') {
+        if (['guided','infer-expectation'].includes(item.mode)) {
           next.linkId = config.correctLinkId;
           completeReplacementCase(config, next, item);
         } else {
@@ -294,8 +301,8 @@
         next.resultSlot = 'absent';
         next.resultId = null;
         next.absentResultId = null;
-        next.actualResultId = null;
-        next.linkId = null;
+        next.actualResultId = config.cases[nextIndex].mode==='infer-expectation' ? config.cases[nextIndex].actualResultId : null;
+        next.linkId = config.cases[nextIndex].mode==='infer-expectation' ? config.correctLinkId : null;
         next.lastCheck = null;
         changed = true;
       }
@@ -402,7 +409,7 @@
       if (value) {
         fresh.migrationNotice = '읽기 작업이 바뀌어 이 기록의 연결부터 다시 살펴보자. 이전 완료와 이야기 기록은 그대로야.';
         // Earlier accepted cases map exactly in 01–03; the active case must be linked anew.
-        if (value.kind === config.kind && value.schemaVersion === config.schemaVersion && config.cases &&
+        if (config.legacyCasesEquivalent!==false && value.kind === config.kind && value.schemaVersion === config.schemaVersion && config.cases &&
             Number.isInteger(value.caseIndex) && value.caseIndex > 0 && value.caseIndex < config.tasks.length &&
             Array.isArray(value.completedCaseIds) && config.tasks.slice(0,value.caseIndex).every(task => value.completedCaseIds.includes(task.id))) {
           fresh.taskIndex=value.caseIndex;
@@ -804,7 +811,7 @@
     const relation=task.relations?.find(item => item.id===workbench.relation);
     const selectedPreview=!task.slots.length && relation && task.sources.some(item=>item.text.includes('＿＿')) ? `<p class="academicMvpPreview" lang="zh-Hant">${escapeHtml(task.sources.map(item=>item.text.replace('＿＿',relation.text)).join(''))}</p>` : '';
     const relationships=task.relations ? done ? `<p class="academicMeaningRelation">${escapeHtml(relation.text)}${relation.label ? ' · '+escapeHtml(relation.label) : ''}</p>` : `<div class="academicMvpLinks">${task.relations.map(item => mvpButton('meaning-relation',item.id,`${escapeHtml(item.text)}${item.label ? `<small>${escapeHtml(item.label)}</small>` : ''}`,workbench.relation===item.id)).join('')}</div>` : '';
-    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${archive ? `<div class="academicReadArchive"><h3>앞에서 읽은 기록</h3>${archive}</div>` : ''}${task.context ? `<p lang="zh-Hant">${escapeHtml(task.context)}</p>` : ''}${ranGuide(task)}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">${task.targets ? '내 보고 초안' : '나의 해석'}</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${task.targets ? `${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[task.directSlot || workbench.slot]===item.id)).join('')}` : ''}${done || !task.slots.length || task.directSlot ? '' : `<p class="academicMvpHint">${escapeHtml(task.hint || '아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.')}</p>`}${task.slots.length && !task.directSlot ? `<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>` : ''}${task.linkText && Object.keys(workbench.placements).length===task.slots.length ? `<p class="academicMeaningRelation">${escapeHtml(task.linkText)}</p>` : ''}${selectedPreview}${relationships}${meaningWordHelp(config,task)}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${task.type==='decision' ? mvpDetails('full-records','전체 기록 다시 읽기',config.readingArchive.map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('')) : ''}${(done || task.type==='read') && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}${config.noticeWords && workbench.phase==='complete' ? mvpDetails('observations','내 관찰 메모 다시 읽기',config.tasks.map(t=>`<p><strong>${escapeHtml(t.word)}</strong> · ${escapeHtml(t.sources.map(s=>s.text).join(''))}<br>${escapeHtml(t.success)}</p>`).join('')) : ''}</section>`;
+    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${archive ? `<div class="academicReadArchive"><h3>앞에서 읽은 기록</h3>${archive}</div>` : ''}${task.context ? `<p lang="zh-Hant">${escapeHtml(task.context)}</p>` : ''}${ranGuide(task)}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">${task.workLabel || (task.targets ? '내 보고 초안' : '나의 해석')}</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${task.targets ? `${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[task.directSlot || workbench.slot]===item.id)).join('')}` : ''}${done || !task.slots.length || task.directSlot ? '' : `<p class="academicMvpHint">${escapeHtml(task.hint || '아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.')}</p>`}${task.slots.length && !task.directSlot ? `<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>` : ''}${task.linkText && Object.keys(workbench.placements).length===task.slots.length ? `<p class="academicMeaningRelation">${escapeHtml(task.linkText)}</p>` : ''}${done && task.correction ? `<p class="academicMvpPreview">${escapeHtml(task.correction)}</p>` : ''}${selectedPreview}${relationships}${meaningWordHelp(config,task)}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${task.type==='decision' ? mvpDetails('full-records','전체 기록 다시 읽기',config.readingArchive.map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('')) : ''}${(done || task.type==='read') && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}${config.noticeWords && workbench.phase==='complete' ? mvpDetails('observations','내 관찰 메모 다시 읽기',config.tasks.map(t=>`<p><strong>${escapeHtml(t.word)}</strong> · ${escapeHtml(t.sources.map(s=>s.text).join(''))}<br>${escapeHtml(t.success)}</p>`).join('')) : ''}</section>`;
   }
 
   function renderMvp(config, workbench) {
@@ -834,6 +841,8 @@
         }).join('');
         body += `<section class="academicMvpMemo"><h2>${done ? '확정한 메모' : '수정 중인 메모'}</h2>${item.draftParts ? `<p class="academicDraftBefore">고치기 전: ${escapeHtml(item.draftParts.map(part => part.text).join(' '))}</p>` : ''}<p class="academicMvpPreview" lang="${chosen?.labelZh ? 'zh-Hant' : 'ko'}">${escapeHtml(preview)}</p>${done ? `<p>${escapeHtml(item.connectionKo)}</p>` : mvpDetails('edit-memo', '수정안 고르기', choices)}</section>`;
       }
+    } else if (item.mode==='infer-expectation') {
+      body=`<article class="academicMvpSource"><h2>남아 있는 기록</h2><p lang="zh-Hant">${mvpMarked(item.inferenceZh,'反而')}</p>${mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(item.inferenceKo)}</p>`)}</article><section class="academicMvpMemo"><h2>원래는 어떻게 될 거라고 생각했을까? ${mvpWord('反而')}</h2>${done ? `<p class="academicMvpPreview">${escapeHtml(item.expectationOptions.find(option=>option.id===workbench.absentResultId)?.text || '')}</p><p lang="zh-Hant">${mvpMarked(item.completedZh,'反而')}</p>` : `<div class="academicMvpLinks">${item.expectationOptions.map(option=>mvpButton('select-result',option.id,escapeHtml(option.text),workbench.absentResultId===option.id)).join('')}</div>`}</section>`;
     } else {
       // Source spans are explicit: a normalized result such as 恢復正常 may contain 了 in the original.
       const sourceCards = item.cards.filter(card => card.sourceZh);
@@ -969,7 +978,7 @@
       gridEl.querySelector('.academicReportDraft > .academicMvpHint')?.remove();
     } else if (config.kind === 'expectation-sort') title = '예상과 실제를 비교해 보자.';
     else {
-      title = workbench.phase === 'place-results' || caseFor(config, workbench).mode === 'guided'
+      title = caseFor(config,workbench).mode==='infer-expectation' ? '원래는 어떻게 될 거라고 생각했을까?' : workbench.phase === 'place-results' || caseFor(config, workbench).mode === 'guided'
         ? '생기지 않은 예상과 실제 결과를 나눠 보자.' : '두 결과의 관계를 표현해 보자.';
       gridEl.querySelector('[data-mvp-links] > h3')?.remove();
     }
@@ -1089,7 +1098,7 @@
     const actions = {
       claim: ['submit-claim', '이 주장 검토', workbench.claimId],
       revision: ['submit-revision', '메모 확정', workbench.revisionId],
-      'place-results': ['submit-results', '두 결과 검토', workbench.absentResultId && workbench.actualResultId],
+      'place-results': ['submit-results', configNow.cases?.[workbench.caseIndex]?.mode==='infer-expectation' ? '예상 확인' : '두 결과 검토', workbench.absentResultId && workbench.actualResultId],
       'choose-link': ['submit-link', '기록 연결', workbench.linkId],
       review: ['next-case', '다음 기록', true],
       complete: ['finish-mvp', '완성 기록 확인 · 계속', true]
@@ -1134,6 +1143,7 @@
       return '네 기록을 <span class="done">예상대로 / 예상 밖</span>으로 나눴어.';
     }
     if (config.kind === 'replacement-link') {
+      if (workbench.phase === 'place-results' && caseFor(config,workbench).mode==='infer-expectation') return '反而 뒤의 실제 결과와 <span class="hot">어긋나는 예상</span>을 찾아.';
       if (workbench.phase === 'place-results') return '<span class="hot">생기지 않은 예상</span>과 실제 결과를 따로 찾아.';
       if (workbench.phase === 'choose-link') return '두 결과의 <span class="hot">대체 관계</span>를 남겨.';
       if (workbench.phase === 'review') return '같은 관계를 <span class="done">새 기록</span>에서도 찾아.';

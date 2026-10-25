@@ -326,7 +326,14 @@
           successFeedbackKo: '더 빨라질 것이라는 예상은 생기지 않았고, 그 대신 멈추는 결과가 나타났어.'
         },
         {
-          id: 'water-decreased', mode: 'transfer',
+          id: 'water-decreased', mode: 'infer-expectation',
+          inferenceZh:'水量減少以後，水車反而恢復了正常。',
+          inferenceKo:'물을 줄인 뒤 수차는 오히려 정상으로 돌아왔다.',
+          expectationOptions:[
+            {id:'stop',text:'물을 줄이면 수차가 멈출 것이다',feedback:''},
+            {id:'normal',text:'물을 줄이면 수차가 정상으로 돌아올 것이다',feedback:'그렇게 예상했다면 실제 결과가 예상대로 나온 셈이야. 反而가 나타내는 어긋남을 다시 읽어 봐.'},
+            {id:'unknown',text:'수차가 어떻게 될지 아무 예상도 없었다',feedback:'反而는 실제 결과가 앞서 생각한 방향과 어긋남을 나타내. 정상으로 돌아온 결과와 대비되는 예상을 찾아봐.'}
+          ],
           expectationZh: '水量減少了。預計：水車會停下來。',
           actualZh: '水車恢復了正常。',
           absentResultId: 'stop', actualResultId: 'normal',
@@ -490,22 +497,30 @@
 
   // Rebuild R1: stable source IDs are the selectable objects, never answer positions.
   const room = suffix => STAGES.find(stage => stage.id === `academic-tower-turn-${suffix}`).academicTower;
-  const preserveRelations = [
-    { id: 'keep', text: '두 사실을 함께 남긴다' },
-    { id: 'cancel', text: '앞 사실을 취소한다' },
-    { id: 'ignore', text: '뒤 사실을 제외한다' }
-  ];
-  room('01-que').tasks = room('01-que').cases.map(item => ({
-    id: item.id, title: '어느 두 사실을 함께 읽어야 할까?',
-    sources: item.sources.map(source => ({ id: source.id, text: source.text })),
-    translation: item.sources.map(source => source.labelKo).join(' / '),
-    slots: [{id:'from', label:'앞에서 읽은 사실'}, {id:'to', label:'뒤에서 더 읽은 사실'}],
-    answer: {from:item.sources[0].id, to:item.sources[1].id},
-    relations: preserveRelations, relation:'keep', word:'卻',
-    draft: item.id === 'practice' ? '짧으니 비 오는 날 이용하기 좋다.' : '오래된 장치라 지금도 작동하지 못할 것이다.',
-    memo: item.revisions.find(option => option.id === item.correctRevisionId).labelKo,
-    success: item.successFeedbackKo,
-    wrong: {cancel:'뒤 사실이 앞 사실을 지우지는 않아. 원문에는 둘 다 남아 있어.', ignore:'뒤 구절도 기록의 일부야. 앞 사실만으로 판단하지 말자.'}
+  room('01-que').legacyCasesEquivalent=false;
+  room('01-que').tasks = room('01-que').cases.map((item,index) => ({
+    id:item.id, word:'卻',
+    sources:item.sources.map(source=>({id:source.id,text:source.text})),
+    translation:item.sources.map(source=>source.labelKo).join(' / '),
+    slots:[], answer:{},
+    ...(index===0 ? {
+      title:'卻는 두 사실을 어떻게 이어 줄까?',
+      relations:[
+        {id:'cause',text:'수로가 짧아서 비 오는 날 더 위험하다'},
+        {id:'contrast',text:'수로가 짧은데도 비 오는 날 더 위험하다'},
+        {id:'sequence',text:'수로가 짧아진 다음 비 오는 날 더 위험해졌다'}
+      ], relation:'contrast',confirmLabel:'관계 확인',
+      success:'짧으면 이용하기 좋겠다고 기대할 수 있지만, 비 오는 날에는 더 위험하대. 卻는 그 기대와 어긋나는 사실을 이어 줘.',
+      wrong:{cause:'원문은 짧기 때문에 위험하다고 설명하지 않아. 짧다는 장점에서 생긴 기대와 뒤의 위험을 비교해 봐.',sequence:'원문은 수로가 짧아진 뒤 위험해졌다는 시간 순서가 아니야. 짧다는 장점과 어긋나는 위험을 이어 주고 있어.'}
+    } : {
+      title:'오래된 장치에 대한 메모에서 고칠 부분은?',
+      targets:[{id:'age',text:'장치는 오래됐다.'},{id:'assumption',text:'그러니 지금은 정상 작동하지 못할 것이다.'}],
+      slots:[{id:'to',label:'고칠 판단'}],answer:{to:'assumption'},directSlot:'to',
+      confirmLabel:'메모 고치기',workLabel:'내 점검 메모',
+      correction:'장치는 오래됐지만 지금도 정상으로 작동한다.',
+      success:'卻 뒤의 정상 작동은 “오래됐으니 작동하지 못할 것”이라는 예상과 어긋나. 장치의 나이가 아니라 그 예상을 고쳤어.',
+      slotFeedback:{to:'오래됐다는 사실은 기록에도 있어. 卻 뒤의 작동 상태와 맞지 않는 판단을 찾아봐.'}
+    })
   }));
   room('03-expectation').tasks = room('03-expectation').cases.map(item => ({
     id:item.id, title:'예상과 실제를 각각 짚고 이어 보자.',
@@ -619,9 +634,6 @@
     task.displayPaths = task.slots.map(slot => ({...slot, sourceId:task.answer[slot.id]}));
     task.slots=[]; task.answer={};
   };
-  for (const task of room('01-que').tasks) {
-    showPair(task); task.title='두 사실을 읽고 메모를 고쳐 보자.';
-  }
   for (const task of room('03-expectation').tasks) {
     showPair(task); task.title='예상과 실제가 같았을까?';
   }
