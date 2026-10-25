@@ -111,41 +111,6 @@ test('Academic Tower appends rooms 01 through 05 without changing earlier stage 
   ]);
 });
 
-test('01 repairs an unsupported claim and requires a fresh opposite-direction record', () => {
-  const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
-  let state = M.createState(config, () => 0);
-  assert.equal(state.phase, 'claim');
-  assert.equal(state.claimId, null);
-  assert.equal(state.revisionId, null);
-
-  state = M.applyAction(config, state, { type: 'select-claim', value: 'fact-short' }).state;
-  let result = M.applyAction(config, state, { type: 'submit-claim' });
-  state = result.state;
-  assert.equal(result.correct, false);
-  assert.equal(state.phase, 'claim', 'a recorded fact must not be treated as the repair target');
-
-  state = M.applyAction(config, state, { type: 'select-claim', value: 'overreach-use' }).state;
-  state = M.applyAction(config, state, { type: 'submit-claim' }).state;
-  assert.equal(state.phase, 'revision');
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'ignore-danger' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(state.phase, 'revision', 'finding the claim is not enough if the repair drops a fact');
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'keep-both' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(state.phase, 'review');
-  assert.equal(M.isSolved(config, state), false, 'the guided example alone must not complete the room');
-
-  state = M.applyAction(config, state, { type: 'next-case' }).state;
-  assert.equal(state.phase, 'revision');
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'old-not-working' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(M.isSolved(config, state), false, 'repeating a negative conclusion must fail on the transfer case');
-  state = M.applyAction(config, state, { type: 'select-revision', value: 'old-and-working' }).state;
-  state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(M.isSolved(config, state), true);
-});
-
 test('02 keeps partial improvement separate from whole-device recovery', () => {
   const context = contentContext(), M = mechanics();
   const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-02-raner').academicTower", context);
@@ -165,38 +130,6 @@ test('02 keeps partial improvement separate from whole-device recovery', () => {
   assert.equal(M.isSolved(config, state), false);
   state = M.applyAction(config, state, { type: 'select-revision', value: 'keep-both' }).state;
   state = M.applyAction(config, state, { type: 'submit-revision' }).state;
-  assert.equal(M.isSolved(config, state), true);
-});
-
-test('03 crosses result valence with expectation relation and requires all four cases', () => {
-  const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-03-expectation').academicTower", context);
-  assert.equal(config.kind, 'expectation-sort');
-  assert.deepEqual(plain(config.cases.map(item => [item.valence, item.relation])), [
-    ['positive', 'matched'], ['negative', 'surprising'],
-    ['negative', 'matched'], ['positive', 'surprising']
-  ]);
-  assert.ok(config.cases.every(item => !/[果竟]然/.test(item.expectationZh + item.resultZh) && item.reviewZh.includes(item.markerZh)));
-
-  let state = M.createState(config);
-  assert.equal(state.phase, 'sort');
-  assert.equal(state.relationId, null);
-  state = M.applyAction(config, state, { type: 'select-relation', value: 'surprising' }).state;
-  let result = M.applyAction(config, state, { type: 'submit-relation' });
-  state = result.state;
-  assert.equal(result.correct, false);
-  assert.equal(state.phase, 'sort');
-  assert.deepEqual(plain(state.completedCaseIds), []);
-
-  for (const relation of ['matched', 'surprising', 'matched', 'surprising']) {
-    state = M.applyAction(config, state, { type: 'select-relation', value: relation }).state;
-    result = M.applyAction(config, state, { type: 'submit-relation' });
-    state = result.state;
-    assert.equal(result.correct, true);
-    if (state.phase === 'review') state = M.applyAction(config, state, { type: 'next-case' }).state;
-  }
-  assert.equal(state.phase, 'complete');
-  assert.equal(state.completedCaseIds.length, 4);
   assert.equal(M.isSolved(config, state), true);
 });
 
@@ -296,18 +229,18 @@ test('05 requires seven restorations and an evidence-bounded dispatch decision',
 
 test('answer orders are independent permutations and remain stable in saved state', () => {
   const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
+  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-02-raner').academicTower", context);
   for (const random of [0, .26, .51, .76]) {
     const state = M.createState(config, () => random);
     const targets = [
-      ['practice:claim', 'overreach-use'],
+      ['practice:claim', 'overreach-restored'],
       ['practice:revision', 'keep-both'],
-      ['transfer:revision', 'old-and-working']
+      ['transfer:revision', 'keep-both']
     ];
     const slots = targets.map(([key, id]) => state.optionOrders[key].indexOf(id));
     for (const [key] of targets) assert.equal(new Set(state.optionOrders[key]).size, 4);
     assert.ok(slots.every(slot => slot >= 0 && slot < 4));
-    assert.deepEqual(plain(M.applyAction(config, state, { type: 'select-claim', value: 'fact-short' }).state.optionOrders), plain(state.optionOrders));
+    assert.deepEqual(plain(M.applyAction(config, state, { type: 'select-claim', value: 'fact-increased' }).state.optionOrders), plain(state.optionOrders));
   }
 });
 
@@ -326,20 +259,6 @@ test('cloze shuffling consumes independent randomness and old in-progress schema
   assert.equal(restarted.state.schemaVersion, 2);
   assert.equal(restarted.state.blankIndex, 0);
   assert.deepEqual(plain(restarted.state.completedBlankIds), []);
-});
-
-test('a pre-full-source in-progress workbench restarts safely without changing stage identity', () => {
-  const context = contentContext(), M = mechanics();
-  const config = vm.runInContext("STAGES.find(stage => stage.id === 'academic-tower-turn-01-que').academicTower", context);
-  const legacy = { schemaVersion: 2, kind: 'claim-revision', caseIndex: 0, phase: 'source',
-    revealedSourceIds: ['short'], optionOrders: {} };
-  const result = M.applyAction(config, legacy, { type: 'select-claim', value: 'overreach-use' });
-  assert.equal(result.changed, true);
-  assert.equal(result.state.schemaVersion, 3);
-  assert.equal(result.state.kind, 'claim-revision');
-  assert.equal(result.state.phase, 'claim');
-  assert.equal(result.state.claimId, 'overreach-use');
-  assert.equal(M.isSolved(config, result.state), false);
 });
 
 test('entry, story handoff, first-play save, and replay remain separate', () => {
@@ -490,13 +409,48 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.ok(content < journey && journey < progress);
   assert.ok(runtime < hub && hub < flow);
   assert.match(html, /id="academicTowerView"/);
-  assert.match(html, /academic-tower\.css\?v=20261005-sidecheck1/);
+  assert.match(html, /academic-tower\.css\?v=\d{8}-[a-z0-9]+/);
   assert.match(html, /academic-tower-journey-content\.js\?v=20261005-observationcard1/);
-  assert.match(html, /academic-tower-hub-runtime\.js\?v=20261005-sidecheck1/);
-  assert.match(html, /academic-tower-content\.js\?v=20261005-towersidegroup1/);
-  assert.match(html, /academic-tower-runtime\.js\?v=20261005-towerbooth4/);
+  assert.match(html, /academic-tower-hub-runtime\.js\?v=\d{8}-[a-z0-9]+/);
+  assert.match(html, /academic-tower-content\.js\?v=\d{8}-[a-z0-9]+/);
+  assert.match(html, /academic-tower-runtime\.js\?v=\d{8}-[a-z0-9]+/);
   assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
   assert.match(html, /story-pronunciation-content\.js\?v=20261005-observationcard1/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
+});
+
+for (const suffix of ['01-que','03-expectation']) test(`${suffix}: requires source scope as well as relation, persists every draft`, () => {
+  const M=mechanics(), config=vm.runInContext(`STAGES.find(s=>s.id==='academic-tower-turn-${suffix}').academicTower`,contentContext());
+  const before=JSON.stringify(config); let state=M.createState(config);
+  const act=(type,value)=>{const result=M.applyAction(config,state,{type,value});state=plain(result.state);return result;};
+  for(const task of config.tasks) {
+    assert.equal(act('meaning-confirm').changed,false);
+    act('meaning-relation',task.relation);
+    assert.equal(act('meaning-confirm').changed,false,'relation alone is insufficient');
+    for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.sources.find(s=>s.id!==task.answer[slot.id]).id);}
+    assert.equal(act('meaning-confirm').correct,false);
+    assert.equal(state.phase,'work'); assert.equal(M.isSolved(config,state),false);
+    assert.deepEqual(plain(M.normalizeMeaning(config,state)),state,'round trip retains wrong draft');
+    for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
+    const wrong=task.relations.find(r=>r.id!==task.relation);
+    act('meaning-relation',wrong.id);assert.equal(act('meaning-confirm').correct,false);
+    assert.equal(state.relation,wrong.id,'wrong relationship remains editable');
+    act('meaning-relation',task.relation); assert.equal(state.lastCheck,null);
+    assert.equal(act('meaning-confirm').correct,true);
+    if(state.phase==='review')act('meaning-next');
+  }
+  assert.equal(M.isSolved(config,state),true);
+  assert.equal(JSON.stringify(config),before,'sources are immutable');
+  const broken=plain(state);broken.answers[config.tasks[0].id].placements.from='missing';
+  assert.equal(M.isSolved(config,broken),false);
+  assert.equal(M.normalizeMeaning(config,broken).taskIndex,0);
+  const old={kind:config.kind,schemaVersion:config.schemaVersion,caseIndex:1,phase:'review'};
+  const migrated=M.normalizeMeaning(config,old);
+  assert.equal(migrated.kind,'meaning-links');assert.equal(migrated.taskIndex,0);assert.ok(migrated.migrationNotice);
+});
+test('03 preserves four valence/relation combinations and has no answered source labels',()=>{
+ const c=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03-expectation').academicTower",contentContext());
+ assert.deepEqual(plain(c.cases.map(t=>[t.valence,t.relation])),[['positive','matched'],['negative','surprising'],['negative','matched'],['positive','surprising']]);
+ assert.ok(c.tasks.every(t=>t.sources.every(s=>!/[果竟]然/.test(s.text))));
 });

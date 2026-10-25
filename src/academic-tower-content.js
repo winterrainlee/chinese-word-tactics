@@ -488,6 +488,36 @@
     }
   });
 
+  // Rebuild R1: stable source IDs are the selectable objects, never answer positions.
+  const room = suffix => STAGES.find(stage => stage.id === `academic-tower-turn-${suffix}`).academicTower;
+  const preserveRelations = [
+    { id: 'keep', text: '두 사실을 함께 남긴다' },
+    { id: 'cancel', text: '앞 사실을 취소한다' },
+    { id: 'ignore', text: '뒤 사실을 제외한다' }
+  ];
+  room('01-que').tasks = room('01-que').cases.map(item => ({
+    id: item.id, title: '어느 두 사실을 함께 읽어야 할까?',
+    sources: item.sources.map(source => ({ id: source.id, text: source.text })),
+    translation: item.sources.map(source => source.labelKo).join(' / '),
+    slots: [{id:'from', label:'앞에서 읽은 사실'}, {id:'to', label:'뒤에서 더 읽은 사실'}],
+    answer: {from:item.sources[0].id, to:item.sources[1].id},
+    relations: preserveRelations, relation:'keep', word:'卻',
+    draft: item.id === 'practice' ? '짧으니 비 오는 날 이용하기 좋다.' : '오래된 장치라 지금도 작동하지 못할 것이다.',
+    memo: item.revisions.find(option => option.id === item.correctRevisionId).labelKo,
+    success: item.successFeedbackKo,
+    wrong: {cancel:'뒤 사실이 앞 사실을 지우지는 않아. 원문에는 둘 다 남아 있어.', ignore:'뒤 구절도 기록의 일부야. 앞 사실만으로 판단하지 말자.'}
+  }));
+  room('03-expectation').tasks = room('03-expectation').cases.map(item => ({
+    id:item.id, title:'예상과 실제를 각각 짚고 이어 보자.',
+    sources:[{id:'expectation',text:item.expectationZh},{id:'actual',text:item.resultZh}],
+    translation: `${item.expectationKo} ${item.resultKo}`,
+    slots:[{id:'from',label:'어떻게 될 거라고 봤어?',style:'expected'}, {id:'to',label:'실제로는 어떻게 됐어?',style:'actual'}],
+    answer:{from:'expectation',to:'actual'},
+    relations:[{id:'matched',text:'果然',label:'예상과 같아'}, {id:'surprising',text:'竟然',label:'예상과 달라'}],
+    relation:item.relation, success:item.successFeedbackKo, memo:item.reviewZh,
+    wrong:{matched:item.wrongFeedbackKo,surprising:item.wrongFeedbackKo}
+  }));
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

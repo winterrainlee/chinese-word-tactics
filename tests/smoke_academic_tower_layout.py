@@ -1,4 +1,5 @@
 """Four-viewport layout matrix for the Academic Tower hub and workbench."""
+from tower_browser_helpers import solve
 import http.server
 import os
 from pathlib import Path
@@ -108,34 +109,13 @@ try:
             assert page.evaluate("getComputedStyle(document.body, '::before').content") == "none"
             page.evaluate("AcademicTowerRuntime.showHub()")
 
-            page.evaluate("TacticalGame.playStage('academic-tower-turn-01-que', {mode:'replay', returnTo:'academic-tower'})")
-            assert_view(page, "#tutorialView", width, height, f"01-initial-{width}x{height}")
-            page.locator('[data-academic-action="select-claim"][data-value="overreach-use"]').click()
-            page.locator('[data-academic-action="submit-claim"]').click()
-            assert_view(page, "#tutorialView", width, height, f"01-long-{width}x{height}")
-            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
-
-            page.evaluate("TacticalGame.playStage('academic-tower-turn-02-raner', {mode:'replay', returnTo:'academic-tower'})")
-            assert_view(page, "#tutorialView", width, height, f"02-long-{width}x{height}")
-            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
-            page.screenshot(path=str(OUT / f"academic-tower-02-{width}x{height}.png"), full_page=True)
-
-            page.evaluate("TacticalGame.playStage('academic-tower-turn-03-expectation', {mode:'replay', returnTo:'academic-tower'})")
-            assert "수량이 늘었다" not in page.locator(".academicExpectationPair").inner_text()
-            assert_view(page, "#tutorialView", width, height, f"03-initial-{width}x{height}")
-            assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1")
-            page.locator('[data-academic-action="select-relation"][data-value="matched"]').click()
-            page.locator('[data-academic-action="submit-relation"]').click()
-            assert_view(page, "#tutorialView", width, height, f"03-review-{width}x{height}")
-            page.locator('[data-academic-action="next-case"]').click()
-            page.locator('[data-academic-action="select-relation"][data-value="surprising"]').click()
-            page.locator('[data-academic-action="submit-relation"]').click()
-            page.locator('[data-academic-action="next-case"]').click()
-            assert "果然" not in page.locator(".academicExpectationCard.result").inner_text()
-            assert "톱니의 균열" not in page.locator(".academicExpectationPair").inner_text()
-            assert_view(page, "#tutorialView", width, height, f"03-transfer-{width}x{height}")
-            page.screenshot(path=str(OUT / f"academic-tower-03-{width}x{height}.png"), full_page=True)
-
+            for suffix in ['01-que','03-expectation']:
+                page.evaluate('(suffix)=>TacticalGame.playStage("academic-tower-turn-"+suffix,{mode:"replay",returnTo:"academic-tower"})',suffix)
+                def check(page,task,phase):
+                    assert_view(page,'#tutorialView',width,height,f'{suffix}-{task["id"]}-{phase}')
+                    assert page.locator('#grid').evaluate('el=>el.scrollWidth<=el.clientWidth+1')
+                solve(page,check)
+                page.screenshot(path=str(OUT/f'{suffix}-{width}x{height}.png'),full_page=True)
             page.evaluate("TacticalGame.playStage('academic-tower-turn-04-faner', {mode:'replay', returnTo:'academic-tower'})")
             assert "수량이 늘었다" not in " ".join(page.locator(".academicMvpSource").all_inner_texts())
             assert_view(page, "#tutorialView", width, height, f"04-initial-{width}x{height}")

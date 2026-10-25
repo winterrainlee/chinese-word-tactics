@@ -541,3 +541,14 @@ body:has(> #app > #academicTowerView:not([hidden])) #app{
 body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
   box-shadow:0 1px 0 rgba(255,255,255,.46),0 10px 24px rgba(55,64,69,.12);
 }
+
+/* A path belongs to the interpretation, never to the immutable source. */
+.academicMeaningPath { padding: 8px 0; border-bottom: 2px solid #657567; }
+.academicMeaningPath.expected { border-bottom-style: dashed; }
+.academicMeaningPath.possible { border: 2px dashed #7b725a; padding: 8px; }
+.academicMeaningPath .academicMvpChoice { width: 100%; }
+.academicMeaningPath small, .academicMeaningPath span { display: block; }
+.academicMeaningJoin { display:block; text-align:center; color:#586458; }
+.academicMeaningRelation { text-align:center; font-weight:600; }
+.academicOriginal .academicMvpChoice { min-width:44px; min-height:44px; text-align:left; }
+.academicMeaningPaths { overflow-wrap:anywhere; }

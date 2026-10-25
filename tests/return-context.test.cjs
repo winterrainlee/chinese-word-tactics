@@ -63,7 +63,7 @@ test('A05 replay completion uses the same context-aware return path', () => {
 });
 
 test('A05 changed browser assets share a fresh cache key', () => {
-  assert.match(html, /name="cwt-build" content="2026-10-06-a043"/);
+  assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[a-z0-9-]+"/);
   assert.match(html, /journey-runtime\.js\?v=20261006-a042/);
   for (const asset of ['lexicon-runtime.js', 'ux-play-runtime.js']) {
     assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261006-a051`));

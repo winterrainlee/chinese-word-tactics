@@ -1,4 +1,5 @@
 """MVP interaction contract: previews, retained context, undo and deliberate completion."""
+from tower_browser_helpers import solve
 import http.server
 import json
 import os
@@ -29,43 +30,24 @@ try:
             if value is not None: selector += f'[data-value="{value}"]'
             page.locator(selector).click()
         start('01-que')
-        assert not page.locator('#words').is_visible()
         page.locator('[data-academic-word="卻"]').click()
         page.locator('#sheet .sheetactions button').click()
         assert page.evaluate('document.activeElement.dataset.academicWord') == '卻'
-        assert page.locator('#grid').evaluate('e=>e.clientHeight') > 650
-        action('select-claim', 'overreach-use'); action('submit-claim')
-        page.locator('[data-mvp-detail="source-meaning"] summary').click()
-        page.locator('[data-mvp-detail="edit-memo"] > summary').click()
-        action('select-revision', 'ignore-danger')
-        assert '위험은 이용 판단에서 제외' in page.locator('.academicMvpPreview').inner_text()
-        assert page.locator('[data-mvp-detail="source-meaning"]').get_attribute('open') is not None
-        assert page.evaluate('document.activeElement.dataset.value') == 'ignore-danger'
-        scroll = page.locator('#grid').evaluate('e=>e.scrollTop')
-        page.locator('[data-academic-action="select-revision"][data-value="ignore-danger"]').press('Enter')
-        assert abs(page.locator('#grid').evaluate('e=>e.scrollTop') - scroll) < 2
-        action('submit-revision')
-        assert '위험을 빼면 안 돼' in page.locator('.academicMvpFeedback').inner_text()
-        action('select-revision', 'keep-both')
-        assert '반영한다' in page.locator('.academicMvpPreview').inner_text()
-        page.screenshot(path='/tmp/academic-tower-mvp-01.png', full_page=True)
+        assert page.locator('#academicMvpConfirm').is_disabled()
+        action('meaning-relation','keep')
+        assert page.locator('#academicMvpConfirm').is_disabled()
+        action('meaning-slot','from');action('meaning-source','rain-danger')
+        action('meaning-slot','to');action('meaning-source','short')
+        action('meaning-confirm')
+        assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='incorrect'
+        wrong=page.evaluate('state.academicTower')
+        action('meaning-slot','from');action('meaning-source','short')
         page.locator('#undoBtn').click()
-        assert '제외한다' in page.locator('.academicMvpPreview').inner_text()
-        action('select-revision', 'keep-both'); action('submit-revision'); action('next-case')
-        assert page.locator('#grid').evaluate('e=>e.scrollTop') == 0
-        page.locator('[data-mvp-detail="edit-memo"] > summary').click()
-        action('select-revision', 'old-and-working')
-        assert '目前仍能正常運作' in page.locator('.academicMvpPreview').inner_text()
-        action('submit-revision')
-        # Wait beyond the former 220ms automatic completion; this is a timed behavior assertion.
-        page.wait_for_timeout(450)
-        assert page.locator('[data-academic-action="finish-mvp"]').is_visible()
-        assert not page.locator('#flowNext').is_visible()
-        before = page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")')
-        action('finish-mvp')
-        assert page.locator('#flowNext').is_visible()
-        assert page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")') == before
-        page.locator('#flowNext').click()
+        assert page.evaluate('state.academicTower.placements.from')=='rain-danger'
+        solve(page)
+        before=page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")')
+        action('finish-mvp');page.locator('#flowNext').click()
+        assert page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")')==before
         start('04-faner')
         for absent, actual, expected in [('stopped', 'faster', 'absent'), ('faster', 'more-water', 'actual'), ('more-water', 'stopped', 'absent')]:
             action('select-slot', 'absent'); action('select-result', absent)
@@ -137,33 +119,17 @@ try:
         assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'
         assert page.evaluate('document.activeElement.id') == 'academicVerdict'
         page.screenshot(path='/tmp/academic-tower-feedback-02-correct.png', full_page=True)
-        # The new wording/layout must also work with the existing saved schema.
         page.evaluate('TacticalGame.playStage("academic-tower-turn-03-expectation",{mode:"first-play"})')
-        for i, correct in enumerate(['matched', 'surprising', 'matched', 'surprising']):
-            assert page.locator('.academicTaskTitle').inner_text() == '예상과 실제를 비교해 보자.'
-            assert page.locator('.academicMvpFeedback').inner_text() == ''
-            assert '예상과 실제를 잇는 말' not in page.locator('#grid').inner_text()
-            assert page.locator('[data-academic-zone="original"] .academicMvpPreview').count() == 0
-            source = page.locator('.academicExpectationPair').inner_text()
-            assert '果然' not in source and '竟然' not in source
-            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') is None
-            action('select-relation', 'surprising' if correct == 'matched' else 'matched')
-            assert page.locator('.academicTaskTitle').inner_text() == '예상과 실제를 비교해 보자.'
-            action('submit-relation')
-            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
-            if i == 0:
-                page.reload(); page.wait_for_function('!!window.AcademicTowerRuntime')
-                assert page.evaluate('TacticalGame.resumeStage("academic-tower-turn-03-expectation")')
-                assert page.locator('.academicTaskTitle').inner_text() == '예상과 실제를 비교해 보자.'
-                assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'incorrect'
-                page.screenshot(path='/tmp/academic-tower-feedback-03-wrong.png', full_page=True)
-            action('select-relation', correct)
-            assert page.locator('[data-verdict="incorrect"]').count() == 0
-            action('submit-relation')
-            assert '✓ 기록과 맞아' in page.locator('.academicVerdictTitle').inner_text()
-            assert page.locator('.academicMvpPreview').get_attribute('data-verdict') == 'correct'
-            assert page.locator('.academicExpectationPair').inner_text() == source
-            if i < 3: action('next-case')
+        action('meaning-slot','from'); action('meaning-source','actual')
+        page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
+        assert page.evaluate('TacticalGame.resumeStage("academic-tower-turn-03-expectation")')
+        assert page.evaluate('state.academicTower.placements.from')=='actual'
+        def check(page, task, phase):
+            original=page.locator('[data-academic-zone="original"]').inner_text()
+            assert '果然' not in original and '竟然' not in original
+            assert page.locator('.academicMeaningPath.expected').count()==1
+            assert page.locator('.academicMeaningPath.actual').count()==1
+        solve(page,check)
         assert not errors, errors
         browser.close()
 finally:

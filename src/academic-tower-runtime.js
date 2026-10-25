@@ -381,7 +381,72 @@
       config.blanks.every(item => workbench.completedBlankIds.includes(item.id));
   }
 
+
+  function createMeaningState(config) {
+    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:'work',
+      slot:null, placements:{}, relation:null, answers:{}, lastCheck:null};
+  }
+  function validMeaningState(config, value) {
+    return !!value && value.kind === 'meaning-links' && value.schemaVersion === 1 &&
+      Number.isInteger(value.taskIndex) && value.taskIndex >= 0 && value.taskIndex < config.tasks.length &&
+      ['work','review','complete'].includes(value.phase) && value.placements && typeof value.placements === 'object' &&
+      value.answers && typeof value.answers === 'object';
+  }
+  function meaningAnswerCorrect(task, answer) {
+    return !!answer && task.slots.every(slot => answer.placements?.[slot.id] === task.answer[slot.id]) &&
+      (!task.relations || answer.relation === task.relation);
+  }
+  function normalizeMeaning(config, value) {
+    if (!validMeaningState(config, value)) {
+      const fresh = createMeaningState(config);
+      if (value) fresh.migrationNotice = '읽기 작업이 바뀌어 이 방의 첫 기록부터 다시 펼쳤어. 이전 완료와 이야기 기록은 그대로야.';
+      return fresh;
+    }
+    const next = copy(value), task = config.tasks[next.taskIndex];
+    next.answers = Object.fromEntries(config.tasks.filter(t => meaningAnswerCorrect(t, next.answers[t.id])).map(t => [t.id,next.answers[t.id]]));
+    const missing = config.tasks.slice(0,next.taskIndex).findIndex(t => !next.answers[t.id]);
+    if (missing >= 0) {next.taskIndex=missing; next.phase='work'; next.placements={}; next.relation=null; next.lastCheck=null;}
+    const currentTask = config.tasks[next.taskIndex];
+    next.placements = Object.fromEntries(currentTask.slots.filter(slot => currentTask.sources.some(source => source.id === next.placements[slot.id])).map(slot => [slot.id,next.placements[slot.id]]));
+    if (!currentTask.slots.some(slot => slot.id === next.slot)) next.slot=null;
+    if (!currentTask.relations?.some(r => r.id === next.relation)) next.relation=null;
+    if (next.phase !== 'work' && !meaningAnswerCorrect(currentTask,next.answers[currentTask.id])) {next.phase='work'; next.lastCheck=null;}
+    if (next.phase === 'complete' && next.taskIndex !== config.tasks.length-1) next.phase='review';
+    return next;
+  }
+  function applyMeaningAction(config, currentState, action) {
+    const next = normalizeMeaning(config,currentState), task=config.tasks[next.taskIndex];
+    let changed=false, correct=null, feedback='';
+    if (next.phase === 'work') {
+      if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
+        changed=next.slot !== action.value; next.slot=action.value;
+      } else if (action.type === 'meaning-source' && next.slot && task.sources.some(source => source.id === action.value)) {
+        changed=next.placements[next.slot] !== action.value || !!next.lastCheck;
+        next.placements[next.slot]=action.value; next.lastCheck=null;
+      } else if (action.type === 'meaning-relation' && task.relations?.some(relation => relation.id === action.value)) {
+        changed=next.relation !== action.value || !!next.lastCheck; next.relation=action.value; next.lastCheck=null;
+      } else if (action.type === 'meaning-confirm' && task.slots.every(slot => next.placements[slot.id]) && (!task.relations || next.relation)) {
+        correct=meaningAnswerCorrect(task,next);
+        const wrongSlot=task.slots.find(slot => next.placements[slot.id] !== task.answer[slot.id]);
+        feedback=correct ? task.success : wrongSlot ? (task.slotFeedback?.[wrongSlot.id] || `“${wrongSlot.label}”에 놓은 구절을 다시 읽어 봐. 원문의 앞뒤와 시점을 살펴보자.`) : (task.wrong?.[next.relation] || '두 구절을 어떻게 잇는지 다시 살펴보자.');
+        next.lastCheck={correct,feedbackKo:feedback};
+        if (correct) {
+          next.answers[task.id]={placements:copy(next.placements),relation:next.relation};
+          next.phase=next.taskIndex === config.tasks.length-1 ? 'complete' : 'review';
+        }
+        changed=true;
+      }
+    } else if (next.phase === 'review' && action.type === 'meaning-next') {
+      next.taskIndex++; next.phase='work'; next.slot=null; next.placements={}; next.relation=null; next.lastCheck=null; changed=true;
+    }
+    return {state:next,changed,correct,feedback};
+  }
+  function meaningSolved(config,value) {
+    return validMeaningState(config,value) && value.phase === 'complete' && config.tasks.every(task => meaningAnswerCorrect(task,value.answers[task.id]));
+  }
+
   function createState(config, rng) {
+    if (config?.tasks) return createMeaningState(config);
     if (config?.kind === 'ran-observation') return createRanState(config, rng);
     if (config?.kind === 'claim-revision') return createClaimRevisionState(config, rng);
     if (config?.kind === 'expectation-sort') return createExpectationState(config);
@@ -391,6 +456,7 @@
   }
 
   function isValidState(config, workbench) {
+    if (config?.tasks) return validMeaningState(config, workbench);
     if (config?.kind === 'ran-observation') return !!workbench && workbench.kind === config.kind && workbench.schemaVersion === 1 && Number.isInteger(workbench.caseIndex) && Array.isArray(workbench.relationPlacements) && workbench.optionOrders && ['notice', 'discovery', 'compare', 'compare-review', 'apply-premise', 'apply-alternative', 'complete'].includes(workbench.phase);
     if (config?.kind === 'claim-revision') return isValidClaimRevisionState(config, workbench);
     if (config?.kind === 'expectation-sort') return isValidExpectationState(config, workbench);
@@ -400,6 +466,7 @@
   }
 
   function applyAction(config, currentState, action) {
+    if (config?.tasks) return applyMeaningAction(config, currentState, action);
     if (config?.kind === 'ran-observation') return applyRanAction(config, currentState, action);
     if (config?.kind === 'claim-revision') return applyClaimRevisionAction(config, currentState, action);
     if (config?.kind === 'expectation-sort') return applyExpectationAction(config, currentState, action);
@@ -409,6 +476,7 @@
   }
 
   function isSolved(config, workbench) {
+    if (config?.tasks) return meaningSolved(config, workbench);
     if (config?.kind === 'ran-observation') return isValidState(config, workbench) && workbench.phase === 'complete' && workbench.relationPlacements.length === config.cards.length && workbench.applicationsCompleted === 2 && config.noticeWords.every(word => workbench.selectedCharacter[word] === '然');
     if (config?.kind === 'claim-revision') return isClaimRevisionSolved(config, workbench);
     if (config?.kind === 'expectation-sort') return isExpectationSolved(config, workbench);
@@ -470,7 +538,7 @@
   }
 
   const Mechanic = Object.freeze({
-    createState, applyAction, isSolved, isValidState, optionOrders,
+    createState, applyAction, isSolved, isValidState, optionOrders, normalizeMeaning,
     __test: Object.freeze({ openingPhase, shuffledIds })
   });
   globalThis.AcademicTowerMechanic = Mechanic;
@@ -655,7 +723,22 @@
     return `<details data-mvp-detail="${key}"><summary>${label}</summary>${body}</details>`;
   }
 
+  function renderMeaning(config, workbench) {
+    const task=config.tasks[workbench.taskIndex], done=workbench.phase !== 'work';
+    const source=id => task.sources.find(item => item.id === id)?.text || '구절을 골라 줘';
+    const sourceButtons=task.sources.map(item => done ? `<span class="academicMvpPhrase" lang="zh-Hant">${escapeHtml(item.text)}</span>` : mvpButton('meaning-source',item.id,`<span lang="zh-Hant">${escapeHtml(item.text)}</span>`,!!workbench.slot && workbench.placements[workbench.slot]===item.id)).join(' ');
+    const slots=task.slots.map(slot => {
+      const value=workbench.placements[slot.id];
+      const html=`<small>${escapeHtml(slot.label)}</small><span lang="zh-Hant">${escapeHtml(source(value))}</span>`;
+      return `<div class="academicMeaningPath ${escapeHtml(slot.style || '')}">${done ? html : mvpButton('meaning-slot',slot.id,html,workbench.slot===slot.id)}</div>`;
+    }).join('<span class="academicMeaningJoin" aria-hidden="true">↕</span>');
+    const relation=task.relations?.find(item => item.id===workbench.relation);
+    const relationships=task.relations ? done ? `<p class="academicMeaningRelation">${escapeHtml(relation.text)}${relation.label ? ' · '+escapeHtml(relation.label) : ''}</p>` : `<div class="academicMvpLinks">${task.relations.map(item => mvpButton('meaning-relation',item.id,`${escapeHtml(item.text)}${item.label ? `<small>${escapeHtml(item.label)}</small>` : ''}`,workbench.relation===item.id)).join('')}</div>` : '';
+    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${sourceButtons}${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">나의 해석</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${task.word && WORDS[task.word] ? mvpWord(task.word) : ''}${done ? '' : '<p class="academicMvpHint">아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.</p>'}<div class="academicMeaningPaths">${slots}</div>${relationships}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${done && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}</section>`;
+  }
+
   function renderMvp(config, workbench) {
+    if (config.tasks) return renderMeaning(config,workbench);
     if (config.kind === 'ran-observation') return renderRanWorkbench(config, workbench);
     if (config.kind === 'expectation-sort') return renderExpectationMvp(config, workbench);
     if (config.kind === 'connector-cloze') return renderClozeMvp(config, workbench);
@@ -735,6 +818,7 @@
   // Region labels describe ownership; the persistent title describes the task.
   // Arrange the existing controls without duplicating source sentences or listeners.
   function renderWorkbenchHierarchy(config, workbench) {
+    if (config.tasks) return;
     const label = text => {
       const el = document.createElement('div');
       el.className = 'academicRegionLabel'; el.textContent = text; return el;
@@ -847,6 +931,7 @@
       if (element.tagName === 'BUTTON') element.setAttribute('aria-invalid', String(!matched));
     };
     const selected = action => gridEl.querySelector(`[data-academic-action="${action}"].selected`);
+    if (config.tasks) return;
     if (config.kind === 'replacement-link') {
       if (check?.step === 'pair' || pairAccepted || finished) {
         const item = caseFor(config, workbench);
@@ -922,6 +1007,13 @@
   }
 
   function mvpFooter(workbench) {
+    const configNow=current().academicTower;
+    if (configNow.tasks) {
+      const task=configNow.tasks[workbench.taskIndex];
+      const action=workbench.phase==='complete' ? 'finish-mvp' : workbench.phase==='review' ? 'meaning-next' : 'meaning-confirm';
+      const enabled=workbench.phase!=='work' || task.slots.every(slot => workbench.placements[slot.id]) && (!task.relations || workbench.relation);
+      return `<button type="button" id="academicMvpConfirm" class="control academicConfirm" data-academic-action="${action}" ${enabled ? '' : 'disabled'}>${action==='finish-mvp' ? '완성 기록 확인 · 계속' : action==='meaning-next' ? '다음 기록' : '연결 확인'}</button>`;
+    }
     const actions = {
       claim: ['submit-claim', '이 주장 검토', workbench.claimId],
       revision: ['submit-revision', '메모 확정', workbench.revisionId],
@@ -962,6 +1054,7 @@
   }
 
   function goalHtml(config, workbench) {
+    if (config.tasks) return config.tasks[workbench.taskIndex].title;
     if (config.kind === 'claim-revision') return claimGoalHtml(workbench);
     if (config.kind === 'expectation-sort') {
       if (workbench.phase === 'sort') return '결과의 좋고 나쁨보다 <span class="hot">예상과 실제</span>를 비교해.';
@@ -1067,8 +1160,9 @@
       gridEl.classList.remove('academicTowerWorkbench');
       return baseRender();
     }
-    if (!isValidState(config, state.academicTower)) state.academicTower = createState(config);
-    if (config.kind === 'replacement-link') state.academicTower = upgradeReplacementState(config, state.academicTower);
+    if (config.tasks) state.academicTower = normalizeMeaning(config,state.academicTower);
+    else if (!isValidState(config, state.academicTower)) state.academicTower = createState(config);
+    if (!config.tasks && config.kind === 'replacement-link') state.academicTower = upgradeReplacementState(config, state.academicTower);
     const workbench = state.academicTower;
     if (config.kind === 'replacement-link' && workbench.ranPrelude === undefined) {
       const progress = window.GameFlow?.progress?.();
@@ -1088,11 +1182,11 @@
     gridEl.setAttribute('role', 'group');
     gridEl.setAttribute('aria-label', '학술탑 기록 검토 작업대');
     const observationRecord = ['compare', 'compare-review'].includes(workbench.phase) ? 'compare' : workbench.phase;
-    const recordKey = `${stage.id}:${workbench.blankIndex ?? workbench.caseIndex}:${config.kind === 'ran-observation' ? observationRecord : ''}`;
+    const recordKey = `${stage.id}:${workbench.taskIndex ?? workbench.blankIndex ?? workbench.caseIndex}:${config.kind === 'ran-observation' ? observationRecord : ''}`;
     const sameRecord = gridEl.dataset.mvpRecord === recordKey;
     const enteringLink = workbench.phase === 'choose-link' &&
       (!sameRecord || gridEl.dataset.mvpPhase !== 'choose-link');
-    const enteringReportRevision = config.kind === 'claim-revision' && caseFor(config, workbench)?.draftParts && workbench.phase === 'revision' &&
+    const enteringReportRevision = !config.tasks && config.kind === 'claim-revision' && caseFor(config, workbench)?.draftParts && workbench.phase === 'revision' &&
       (!sameRecord || gridEl.dataset.mvpPhase === 'claim');
     const scroll = sameRecord ? gridEl.scrollTop : 0;
     const opened = sameRecord ? [...gridEl.querySelectorAll('details[open][data-mvp-detail]')].map(el => el.dataset.mvpDetail) : [];

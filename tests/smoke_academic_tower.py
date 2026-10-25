@@ -1,4 +1,5 @@
 """End-to-end mobile smoke for Academic Tower rooms 01 through 05."""
+from tower_browser_helpers import solve
 import http.server
 import json
 import os
@@ -89,29 +90,7 @@ try:
         page.locator('[data-academic-word="卻"]').click()
         assert "그런데" in page.locator("#sheet").inner_text()
         page.locator("#sheet .sheetactions button").click()
-        choose(page, "select-claim", "fact-short")
-        choose(page, "submit-claim")
-        assert page.locator("#flowNext").count() == 0 or not page.locator("#flowNext").is_visible()
-        assert "수로의 길이" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
-        page.locator("#undoBtn").click()
-        choose(page, "select-claim", "overreach-use")
-        choose(page, "submit-claim")
-        choose(page, "select-revision", "ignore-danger")
-        choose(page, "submit-revision")
-        assert "위험을 빼면 안 돼" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
-        choose(page, "select-revision", "keep-both")
-        choose(page, "submit-revision")
-        assert "卻" in page.locator(".academicMvpMemo").inner_text()
-        choose(page, "next-case")
-        assert not page.locator('[data-mvp-detail="source-meaning"] p').is_visible()
-        assert page.locator('[data-academic-action="select-revision"] [lang="zh-Hant"]').count() == 4
-        page.locator('[data-mvp-detail="source-meaning"] summary').click()
-        assert page.locator('[data-mvp-detail="source-meaning"] p').is_visible()
-        choose(page, "select-revision", "old-not-working")
-        choose(page, "submit-revision")
-        assert page.locator("#flowNext").count() == 0 or not page.locator("#flowNext").is_visible()
-        choose(page, "select-revision", "old-and-working")
-        choose(page, "submit-revision")
+        solve(page)
         if page.locator('[data-academic-action="finish-mvp"]').count():
             choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
@@ -128,34 +107,7 @@ try:
         assert page.locator('[data-room-id="academic-tower-turn-03-expectation"]').get_attribute("data-state") == "available"
 
         page.locator('[data-room-id="academic-tower-turn-03-expectation"]').click()
-        initial_pair = page.locator(".academicExpectationPair").inner_text()
-        assert "水量增加了" in initial_pair
-        assert "수량이 늘었다" not in initial_pair
-        assert "수차가 과연" not in initial_pair
-        page.locator('[data-mvp-detail="word-help"] > summary').click()
-        page.locator('[data-academic-word="果然"]').first.click()
-        assert "과연" in page.locator("#sheet").inner_text()
-        page.locator("#sheet .sheetactions button").click()
-        choose(page, "select-relation", "surprising")
-        choose(page, "submit-relation")
-        assert "다시 비교" in page.locator(".academicMvpFeedback" if page.locator(".academicTowerMvp").count() else "#status").inner_text()
-        choose(page, "select-relation", "matched")
-        choose(page, "submit-relation")
-        choose(page, "next-case")
-        choose(page, "select-relation", "surprising")
-        choose(page, "submit-relation")
-        choose(page, "next-case")
-        assert "果然" not in page.locator(".academicExpectationCard.result").inner_text()
-        transfer_pair = page.locator(".academicExpectationPair").inner_text()
-        assert "톱니의 균열" not in transfer_pair
-        assert "수차가 멈췄다" not in transfer_pair
-        choose(page, "select-relation", "matched")
-        choose(page, "submit-relation")
-        assert "果然" in page.locator(".academicExpectationReview").inner_text()
-        choose(page, "next-case")
-        choose(page, "select-relation", "surprising")
-        choose(page, "submit-relation")
-        assert "竟然" in page.locator(".academicExpectationReview").inner_text()
+        solve(page)
         choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         assert "예상과 실제의 관계를 분류함" in page.locator("#completionBar").inner_text()
@@ -311,11 +263,7 @@ try:
             "localStorage.getItem('chinese-word-tactics-journey-v1')"
         ))
         page.locator('[data-room-id="academic-tower-turn-03-expectation"]').click()
-        for relation in ["matched", "surprising", "matched", "surprising"]:
-            choose(page, "select-relation", relation)
-            choose(page, "submit-relation")
-            if page.locator('[data-academic-action="next-case"]').count():
-                choose(page, "next-case")
+        solve(page)
         choose(page, "finish-mvp")
         page.locator("#flowNext").wait_for(state="visible")
         assert page.locator("#flowNext").inner_text() == "연구실로"
