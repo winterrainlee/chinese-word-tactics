@@ -73,6 +73,14 @@ try:
             assert '기록과 맞아' not in page.locator('#grid').inner_text()
             tasks=page.evaluate('current().academicTower.tasks')
             for i,task in enumerate(tasks):
+                if task.get('type')=='read':
+                    assert page.locator('.academicObservation').count()==1
+                    assert page.locator('[data-academic-zone="work"]').count()==0
+                    assert '나의 해석' not in page.locator('#grid').inner_text()
+                    assert page.locator('.academicVerdictTitle').count()==0
+                    assert page.locator('[data-academic-action].selected').count()==0
+                else:
+                    assert page.locator('[data-academic-zone="work"]').count()==1
                 assert page.locator('[data-academic-action="meaning-slot"]').count()==0
                 assert page.locator('[data-academic-action="meaning-source"]').count()==0
                 if i==1:
@@ -103,8 +111,34 @@ try:
             assert ('academic-tower-turn-foundation' in progress['completedMilestones']) == late
             before = page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")')
             page.locator(f'[data-room-id="{STAGE}"]').click()
+            assert page.evaluate('state.academicTower.phase') == 'notice'
+            assert page.evaluate('state.academicTower.selectedCharacter') == {}
+            assert page.evaluate('state.academicTower.answers') == {}
+            assert page.locator('[data-academic-action].selected').count() == 0
             action('select-character', '然而:然')
             assert page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")') == before
+            page.evaluate('GameFlow.showJourney()')
+            page.evaluate("document.querySelectorAll('#journeyList details').forEach(e=>e.open=true)")
+            page.locator(f'.journeyNode[data-node-id="stage:{STAGE}"]').click()
+            assert page.evaluate('stageSession.mode') == 'replay'
+            assert page.evaluate('state.academicTower.phase') == 'notice'
+            assert page.evaluate('state.academicTower.selectedCharacter') == {}
+            assert page.locator('[data-academic-action].selected').count() == 0
+            solve(page)
+            assert page.evaluate('state.academicTower.phase') == 'complete'
+            page.evaluate('GameFlow.showJourney()')
+            page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
+            page.evaluate('GameFlow.showJourney()')
+            page.evaluate("document.querySelectorAll('#journeyList details').forEach(e=>e.open=true)")
+            page.locator(f'.journeyNode[data-node-id="stage:{STAGE}"]').click()
+            assert page.evaluate('state.academicTower.phase') == 'notice'
+            assert page.evaluate('state.academicTower.answers') == {}
+            assert page.locator('[data-academic-action].selected').count() == 0
+            action('select-character', '然而:然')
+            page.locator('#resetBtn').click()
+            assert page.evaluate('state.academicTower.selectedCharacter') == {}
+            assert page.locator('[data-academic-action].selected').count() == 0
+
             page.evaluate("GameFlow.playStage('academic-tower-turn-04-faner')")
             assert ('이번에는 然이 없' in page.locator('#grid').inner_text()) == (not late)
             assert not errors, errors

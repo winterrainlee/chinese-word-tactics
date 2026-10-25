@@ -765,6 +765,11 @@
       const interactive=!done && task.slots.length && !task.targets;
       return `<div class="academicMeaningPath ${escapeHtml(path?.style || (path ? '' : 'plain'))}">${interactive ? mvpButton('meaning-source',item.id,html,workbench.placements[task.directSlot || workbench.slot]===item.id) : html}</div>`;
     }).join('');
+    // Reading is not a pre-completed answer: show one observation surface.
+    if (config.noticeWords && task.type==='read') {
+      const compareWord=config.cards.find(card=>card.word===task.word)?.compareWord;
+      return `<div class="academicCaseProgress">관찰 · ${workbench.taskIndex+1} / ${config.tasks.length}</div><section class="academicOriginal academicObservation" data-academic-zone="original" aria-label="표현 관찰"><div class="academicRegionLabel">표현 관찰</div><article class="academicMvpSource"><h2 class="academicTaskTitle">${mvpWord(task.word)}</h2><div class="academicMeaningPaths">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}${task.memo ? mvpDetails('observation-comparison',compareWord ? `${compareWord}와 비교` : '다른 표현과 비교',`<p>${escapeHtml(task.memo)}</p>`) : ''}</article></section>`;
+    }
     const priorInRecord=config.tasks.slice(0,workbench.taskIndex).filter(t=>t.archiveIndex===task.archiveIndex).flatMap(t=>t.sources.map(source=>source.text));
     const archive=config.readingArchive && !['reread','dispatch'].includes(task.id) ? [...config.readingArchive.slice(0,task.archiveIndex),...priorInRecord].map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('') : '';
     const slots=task.slots.map((slot,index) => {
