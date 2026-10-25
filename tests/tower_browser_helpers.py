@@ -22,11 +22,12 @@ def solve(page, check=None):
             if state['phase']=='review': action(page,'meaning-next'); continue
             if check: check(page,task,'initial')
             for slot in task['slots']:
-                action(page,'meaning-slot',slot['id']); action(page,'meaning-source',task['answer'][slot['id']])
+                if not task.get('directSlot'): action(page,'meaning-slot',slot['id'])
+                action(page,'meaning-source',task['answer'][slot['id']])
             if task.get('relations'): action(page,'meaning-relation',task['relation'])
             if check: check(page,task,'selected')
             action(page,'meaning-confirm')
-            if check: check(page,task,'confirmed')
+            if check and task.get('type')!='read': check(page,task,'confirmed')
         elif config['kind']=='claim-revision':
             case=config['cases'][state['caseIndex']]
             if state['phase']=='claim': action(page,'select-claim',case['repairTargetId']);action(page,'submit-claim')

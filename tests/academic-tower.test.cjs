@@ -293,7 +293,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
 });
 
-for (const suffix of ['01-que','02-raner','03-expectation','03a-ran-family']) test(`${suffix}: requires source scope as well as relation, persists every draft`, () => {
+for (const suffix of ['01-que','02-raner','03-expectation','03a-ran-family']) test(`${suffix}: retains semantic decisions and persists every draft`, () => {
   const M=mechanics(), config=vm.runInContext(`STAGES.find(s=>s.id==='academic-tower-turn-${suffix}').academicTower`,contentContext());
   const before=JSON.stringify(config); let state=M.createState(config);
   const act=(type,value)=>{const result=M.applyAction(config,state,{type,value});state=plain(result.state);return result;};
@@ -305,14 +305,15 @@ for (const suffix of ['01-que','02-raner','03-expectation','03a-ran-family']) te
     assert.equal(act('submit-notice').correct,true);assert.equal(state.phase,'discovery');act('start-compare');
   }
   for(const task of config.tasks) {
-    assert.equal(act('meaning-confirm').changed,false);
+    if(task.type!=='read') assert.equal(act('meaning-confirm').changed,false);
     if(task.relations) act('meaning-relation',task.relation);
-    assert.equal(act('meaning-confirm').changed,false,'relation alone is insufficient');
+    if(task.slots.length) {
     for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.sources.find(s=>s.id!==task.answer[slot.id]).id);}
     assert.equal(act('meaning-confirm').correct,false);
     assert.equal(state.phase,'work'); assert.equal(M.isSolved(config,state),false);
     assert.deepEqual(plain(M.normalizeMeaning(config,state)),state,'round trip retains wrong draft');
     for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
+    }
     if(task.relations) {
       const wrong=task.relations.find(r=>r.id!==task.relation);
       act('meaning-relation',wrong.id);assert.equal(act('meaning-confirm').correct,false);
@@ -324,7 +325,7 @@ for (const suffix of ['01-que','02-raner','03-expectation','03a-ran-family']) te
   }
   assert.equal(M.isSolved(config,state),true);
   assert.equal(JSON.stringify(config),before,'sources are immutable');
-  const broken=plain(state);broken.answers[config.tasks[0].id].placements.from='missing';
+  const broken=plain(state);broken.answers[config.tasks[0].id]=null;
   assert.equal(M.isSolved(config,broken),false);
   assert.equal(M.normalizeMeaning(config,broken).taskIndex,0);
   const old={kind:config.kind,schemaVersion:config.schemaVersion,caseIndex:1,phase:'review'};
@@ -343,7 +344,7 @@ test('05 reconnects seven former relationships, reads complete source, and bound
  assert.deepEqual(plain(config.tasks.map(t=>t.id)),['r1-match','r2-contrast','r2-evaluation','r3-general','r3-replacement','safety-scope','reread','dispatch']);
  const safety=config.tasks.find(t=>t.id==='safety-scope');
  assert.equal(safety.sources.map(s=>s.text).join(''),'雖然增加水量可以讓水流更快，然而如果水量超過安全範圍，剛修復的裝置反而可能損壞。');
- assert.equal(safety.slots.find(s=>s.id==='to').style,'possible');
+ assert.equal(safety.displayPaths.find(s=>s.id==='risk').style,'possible');
  assert.equal(safety.slots.some(s=>s.style==='actual'),false);
  for(const task of config.tasks){
   assert.equal(config.tasks[state.taskIndex].id,task.id);
@@ -357,7 +358,7 @@ test('05 reconnects seven former relationships, reads complete source, and bound
   if(task.relations)act('meaning-relation',task.relation);
   assert.deepEqual(plain(M.normalizeMeaning(config,state)),state);
   assert.equal(act('meaning-confirm').correct,true);
-  if(task.id==='reread')assert.equal(state.phase,'review');
+  if(task.id==='reread')assert.equal(state.phase,'work');
   if(state.phase==='review')act('meaning-next');
  }
  assert.equal(M.isSolved(config,state),true);
@@ -421,4 +422,15 @@ test('damaged preview fields recover from the confirmed answer without resetting
  const ran=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03a-ran-family').academicTower",contentContext());
  const broken=plain(M.createState(ran));broken.selectedCharacter=42;broken.phase='work';
  assert.equal(M.normalizeMeaning(ran,broken).phase,'notice');
+});
+
+test('simple UI removes positional work and keeps direct semantic targets',()=>{
+ const ctx=contentContext();const c=suffix=>vm.runInContext(`STAGES.find(s=>s.id==='academic-tower-turn-${suffix}').academicTower`,ctx);
+ for(const suffix of ['01-que','03-expectation']) assert.ok(c(suffix).tasks.every(t=>t.slots.length===0 && t.relations.length>1));
+ const M=mechanics(),config=c('02-raner');let state=M.createState(config);
+ assert.equal(M.applyAction(config,state,{type:'meaning-confirm'}).changed,false);
+ state=M.applyAction(config,state,{type:'meaning-source',value:'whole-judgment'}).state;
+ assert.equal(state.placements.to,'whole-judgment');assert.equal(state.slot,null);
+ assert.equal(M.applyAction(config,state,{type:'meaning-confirm'}).correct,true);
+ assert.ok(c('03a-ran-family').tasks.filter(t=>t.type==='read').every(t=>t.slots.length===0 && !t.relations));
 });

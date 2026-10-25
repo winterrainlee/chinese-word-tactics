@@ -542,8 +542,9 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
   box-shadow:0 1px 0 rgba(255,255,255,.46),0 10px 24px rgba(55,64,69,.12);
 }
 
-/* A path belongs to the interpretation, never to the immutable source. */
+/* Fixed reading roles use layout; only semantic choices are controls. */
 .academicMeaningPath { padding: 8px 0; border-bottom: 2px solid #657567; }
+.academicMeaningPath.plain { border:0; padding:4px 0; }
 .academicMeaningPath.expected { border-bottom-style: dashed; }
 .academicMeaningPath.possible { border: 2px dashed #7b725a; padding: 8px; }
 .academicMeaningPath .academicMvpChoice { width: 100%; }

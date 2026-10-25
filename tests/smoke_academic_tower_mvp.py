@@ -35,16 +35,13 @@ try:
         page.locator('#sheet .sheetactions button').click()
         assert page.evaluate('document.activeElement.dataset.academicWord') == '卻'
         assert page.locator('#academicMvpConfirm').is_disabled()
-        action('meaning-relation','keep')
-        assert page.locator('#academicMvpConfirm').is_disabled()
-        action('meaning-slot','from');action('meaning-source','rain-danger')
-        action('meaning-slot','to');action('meaning-source','short')
-        action('meaning-confirm')
+        assert page.locator('[data-academic-action="meaning-slot"]').count()==0
+        assert page.locator('[data-academic-action="meaning-source"]').count()==0
+        action('meaning-relation','cancel');action('meaning-confirm')
         assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='incorrect'
-        wrong=page.evaluate('state.academicTower')
-        action('meaning-slot','from');action('meaning-source','short')
+        action('meaning-relation','keep')
         page.locator('#undoBtn').click()
-        assert page.evaluate('state.academicTower.placements.from')=='rain-danger'
+        assert page.evaluate('state.academicTower.relation')=='cancel'
         solve(page)
         before=page.evaluate('localStorage.getItem("chinese-word-tactics-journey-v1")')
         action('finish-mvp');page.locator('#flowNext').click()
@@ -92,8 +89,9 @@ try:
         action('finish-mvp'); page.locator('#flowNext').click()
         start('02-raner')
         assert '수량이 늘었다' not in page.locator('[data-academic-zone="original"]').inner_text()
-        action('meaning-slot','from');action('meaning-source','device-not-restored')
-        action('meaning-slot','to');action('meaning-source','water-fact')
+        assert page.locator('[data-academic-action="meaning-slot"]').count()==0
+        assert page.locator('[data-academic-zone="original"] button[data-academic-action]').count()==0
+        action('meaning-source','water-fact')
         action('meaning-confirm')
         assert '사실을 취소' in page.locator('.academicMvpFeedback').inner_text()
         action('meaning-source','whole-judgment')
@@ -101,10 +99,10 @@ try:
         assert page.evaluate('state.academicTower.placements.to')=='water-fact'
         solve(page)
         page.evaluate('TacticalGame.playStage("academic-tower-turn-03-expectation",{mode:"first-play"})')
-        action('meaning-slot','from'); action('meaning-source','actual')
+        action('meaning-relation','surprising')
         page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
         assert page.evaluate('TacticalGame.resumeStage("academic-tower-turn-03-expectation")')
-        assert page.evaluate('state.academicTower.placements.from')=='actual'
+        assert page.evaluate('state.academicTower.relation')=='surprising'
         def check(page, task, phase):
             original=page.locator('[data-academic-zone="original"]').inner_text()
             assert '果然' not in original and '竟然' not in original

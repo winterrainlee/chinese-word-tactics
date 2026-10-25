@@ -614,6 +614,52 @@
   ];
   synthesis.readingArchive=archive;
 
+  // Only decisions are interactive; source order is already visible on the page.
+  const showPair = task => {
+    task.displayPaths = task.slots.map(slot => ({...slot, sourceId:task.answer[slot.id]}));
+    task.slots=[]; task.answer={};
+  };
+  for (const task of room('01-que').tasks) {
+    showPair(task); task.title='두 사실을 읽고 메모를 고쳐 보자.';
+  }
+  for (const task of room('03-expectation').tasks) {
+    showPair(task); task.title='예상과 실제가 같았을까?';
+  }
+  for (const task of room('02-raner').tasks) {
+    task.slots=task.slots.filter(slot=>slot.id==='to');
+    task.answer={to:task.answer.to}; task.directSlot='to';
+    task.title='보고에서 고쳐야 할 부분은?'; task.confirmLabel='보고 고치기';
+  }
+  for (const task of ran.tasks) {
+    showPair(task);
+    if (!task.relations) {task.type='read';task.title=task.word;task.confirmLabel='다음 기록';}
+    else task.title='종이가 흩어지는 건 어느 경우일까?';
+  }
+  const premise=ran.tasks.find(task=>task.id==='apply-premise');
+  premise.type='judgment';premise.title='확인한 손상을 어떤 출발점으로 삼았을까?';
+  premise.relations=[{id:'accepted',text:'손상을 받아들이고 수리를 결정한다'},{id:'conditional',text:'손상됐을 경우에만 수리하기로 한다'}];
+  premise.relation='accepted';premise.confirmLabel='판단 확인';
+  premise.wrong={conditional:'여기서는 손상을 이미 확인했어. 既然은 그 사실을 받아들이고 다음 판단을 이어 줘.'};
+  const interpretations={
+    'r1-match':['예상했던 결과가 나왔다','예상과 다른 결과가 나왔다'],
+    'r2-contrast':['예상했던 속도 증가가 나타나지 않았다','물을 더 넣지 않았다는 기록이다'],
+    'r3-general':['보통의 효과와 이번 결과가 달랐다','물이 늘면 언제나 효과가 없다는 뜻이다'],
+    'r3-replacement':['빨라지기를 바랐지만 다른 톱니가 손상됐다','빨라졌고 톱니도 함께 손상됐다']
+  };
+  for (const task of synthesis.tasks) {
+    if (interpretations[task.id]) {
+      showPair(task);task.title='이 기록은 어떤 뜻일까?';
+      task.relations=interpretations[task.id].map((text,i)=>({id:'reading-'+i,text}));task.relation='reading-0';
+      task.confirmLabel='해석 확인';
+    }
+    if (task.id==='safety-scope') {
+      task.displayPaths=[{id:'risk',label:'생길 수 있는 일',style:'possible',sourceId:'risk'}];
+      task.slots=task.slots.filter(slot=>slot.id==='from');task.answer={from:'condition'};
+      task.directSlot='from';task.title='어떤 경우에 장치가 손상될 수 있을까?';task.confirmLabel='조건 확인';
+      task.hint='';
+    }
+  }
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

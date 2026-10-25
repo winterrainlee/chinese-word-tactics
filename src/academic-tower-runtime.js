@@ -420,7 +420,7 @@
     }
     next.answers = Object.fromEntries(config.tasks.filter(t => meaningAnswerCorrect(t, next.answers[t.id])).map(t => [t.id,next.answers[t.id]]));
     const missing = config.tasks.slice(0,next.taskIndex).findIndex(t => !next.answers[t.id]);
-    if (missing >= 0) {next.taskIndex=missing; next.phase='work'; next.placements={}; next.relation=null; next.lastCheck=null;}
+    if (missing >= 0) {next.migrationNotice='판단할 내용이 바뀐 기록부터 다시 살펴보자. 이전 완료와 이야기 기록은 그대로야.';next.taskIndex=missing; next.phase='work'; next.placements={}; next.relation=null; next.lastCheck=null;}
     const currentTask = config.tasks[next.taskIndex];
     next.placements = Object.fromEntries(currentTask.slots.filter(slot => [...currentTask.sources,...(currentTask.targets || [])].some(source => source.id === next.placements[slot.id])).map(slot => [slot.id,next.placements[slot.id]]));
     if (!currentTask.slots.some(slot => slot.id === next.slot)) next.slot=null;
@@ -449,9 +449,10 @@
     else if (next.phase === 'work') {
       if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
         changed=next.slot !== action.value; next.slot=action.value;
-      } else if (action.type === 'meaning-source' && next.slot && [...task.sources,...(task.targets || [])].some(source => source.id === action.value)) {
-        changed=next.placements[next.slot] !== action.value || !!next.lastCheck;
-        next.placements[next.slot]=action.value; next.lastCheck=null;
+      } else if (action.type === 'meaning-source' && (next.slot || task.directSlot) && [...task.sources,...(task.targets || [])].some(source => source.id === action.value)) {
+        const slot=task.directSlot || next.slot;
+        changed=next.placements[slot] !== action.value || !!next.lastCheck;
+        next.placements[slot]=action.value; next.lastCheck=null;
       } else if (action.type === 'meaning-relation' && task.relations?.some(relation => relation.id === action.value)) {
         changed=next.relation !== action.value || !!next.lastCheck; next.relation=action.value; next.lastCheck=null;
       } else if (action.type === 'meaning-confirm' && task.slots.every(slot => next.placements[slot.id]) && (!task.relations || next.relation)) {
@@ -462,6 +463,7 @@
         if (correct) {
           next.answers[task.id]={placements:copy(next.placements),relation:next.relation};
           next.phase=next.taskIndex === config.tasks.length-1 ? 'complete' : 'review';
+          if (task.type==='read' && next.phase==='review') {next.taskIndex++;next.phase='work';next.slot=null;next.placements={};next.relation=null;next.lastCheck=null;}
         }
         changed=true;
       }
@@ -756,7 +758,13 @@
     if (['notice','discovery'].includes(workbench.phase)) return renderRanWorkbench(config,workbench);
     const task=config.tasks[workbench.taskIndex], done=workbench.phase !== 'work';
     const source=id => [...task.sources,...(task.targets || [])].find(item => item.id === id)?.text || '구절을 골라 줘';
-    const sourceButtons=task.sources.map(item => done || !task.slots.length ? `<span class="academicMvpPhrase" lang="zh-Hant">${escapeHtml(item.text)}</span>` : mvpButton('meaning-source',item.id,`<span lang="zh-Hant">${escapeHtml(item.text)}</span>`,!!workbench.slot && workbench.placements[workbench.slot]===item.id)).join(' ');
+    const paths=task.displayPaths || [];
+    const sourceButtons=task.sources.map(item => {
+      const path=paths.find(path=>path.sourceId===item.id);
+      const html=`${path ? `<small>${escapeHtml(path.label)}</small>` : ''}<span lang="zh-Hant">${escapeHtml(item.text)}</span>`;
+      const interactive=!done && task.slots.length && !task.targets;
+      return `<div class="academicMeaningPath ${escapeHtml(path?.style || (path ? '' : 'plain'))}">${interactive ? mvpButton('meaning-source',item.id,html,workbench.placements[task.directSlot || workbench.slot]===item.id) : html}</div>`;
+    }).join('');
     const priorInRecord=config.tasks.slice(0,workbench.taskIndex).filter(t=>t.archiveIndex===task.archiveIndex).flatMap(t=>t.sources.map(source=>source.text));
     const archive=config.readingArchive && !['reread','dispatch'].includes(task.id) ? [...config.readingArchive.slice(0,task.archiveIndex),...priorInRecord].map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('') : '';
     const slots=task.slots.map((slot,index) => {
@@ -767,7 +775,7 @@
     const relation=task.relations?.find(item => item.id===workbench.relation);
     const selectedPreview=!task.slots.length && relation && task.sources.some(item=>item.text.includes('＿＿')) ? `<p class="academicMvpPreview" lang="zh-Hant">${escapeHtml(task.sources.map(item=>item.text.replace('＿＿',relation.text)).join(''))}</p>` : '';
     const relationships=task.relations ? done ? `<p class="academicMeaningRelation">${escapeHtml(relation.text)}${relation.label ? ' · '+escapeHtml(relation.label) : ''}</p>` : `<div class="academicMvpLinks">${task.relations.map(item => mvpButton('meaning-relation',item.id,`${escapeHtml(item.text)}${item.label ? `<small>${escapeHtml(item.label)}</small>` : ''}`,workbench.relation===item.id)).join('')}</div>` : '';
-    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${archive ? `<div class="academicReadArchive"><h3>앞에서 읽은 기록</h3>${archive}</div>` : ''}${task.context ? `<p lang="zh-Hant">${escapeHtml(task.context)}</p>` : ''}${sourceButtons}${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">나의 해석</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(' '))}${task.targets ? `<h3>내 보고 초안</h3>${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[workbench.slot]===item.id)).join('')}` : ''}${done || !task.slots.length ? '' : `<p class="academicMvpHint">${escapeHtml(task.hint || '아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.')}</p>`}${task.slots.length ? `<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>` : ''}${task.linkText && Object.keys(workbench.placements).length===task.slots.length ? `<p class="academicMeaningRelation">${escapeHtml(task.linkText)}</p>` : ''}${selectedPreview}${relationships}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${task.type==='decision' ? mvpDetails('full-records','전체 기록 다시 읽기',config.readingArchive.map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('')) : ''}${done && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}${config.noticeWords && workbench.phase==='complete' ? mvpDetails('observations','내 관찰 메모 다시 읽기',config.tasks.map(t=>`<p><strong>${escapeHtml(t.word)}</strong> · ${escapeHtml(t.sources.map(s=>s.text).join(''))}<br>${escapeHtml(t.success)}</p>`).join('')) : ''}</section>`;
+    return `<div class="academicCaseProgress">${workbench.taskIndex+1} / ${config.tasks.length}</div>${workbench.migrationNotice ? `<p class="academicMvpHint">${escapeHtml(workbench.migrationNotice)}</p>` : ''}<section class="academicOriginal" data-academic-zone="original" aria-label="원본 기록"><div class="academicRegionLabel">원본 기록</div><article class="academicMvpSource">${archive ? `<div class="academicReadArchive"><h3>앞에서 읽은 기록</h3>${archive}</div>` : ''}${task.context ? `<p lang="zh-Hant">${escapeHtml(task.context)}</p>` : ''}<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${sourceButtons}</div>${task.translation ? mvpDetails('source-meaning','뜻 보기',`<p>${escapeHtml(task.translation)}</p>`) : ''}</article></section><section class="academicMvpMemo" data-academic-zone="work" data-academic-work-kind="interpretation"><div class="academicRegionLabel">${task.targets ? '내 보고 초안' : '나의 해석'}</div><h2 class="academicTaskTitle">${escapeHtml(task.title)}</h2>${mvpFeedback(workbench.lastCheck?.feedbackKo)}${task.targets ? `${task.targets.map(item => done ? `<p>${item.id === task.answer.to ? '<del>' : ''}${escapeHtml(item.text)}${item.id === task.answer.to ? '</del>' : ''}</p>` : mvpButton('meaning-source',item.id,escapeHtml(item.text),workbench.placements[task.directSlot || workbench.slot]===item.id)).join('')}` : ''}${done || !task.slots.length || task.directSlot ? '' : `<p class="academicMvpHint">${escapeHtml(task.hint || '아래 칸을 누르고 원문에서 구절을 골라. 선택한 뒤에도 바꿀 수 있어.')}</p>`}${task.slots.length && !task.directSlot ? `<div class="academicMeaningPaths" data-relation="${escapeHtml(workbench.relation || '')}">${slots}</div>` : ''}${task.linkText && Object.keys(workbench.placements).length===task.slots.length ? `<p class="academicMeaningRelation">${escapeHtml(task.linkText)}</p>` : ''}${selectedPreview}${relationships}${mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(''))}${task.draft ? `<p class="academicDraftBefore">내 메모: ${done ? '<del>' : ''}${escapeHtml(task.draft)}${done ? '</del>' : ''}</p>` : ''}${task.type==='decision' ? mvpDetails('full-records','전체 기록 다시 읽기',config.readingArchive.map(text=>`<p lang="zh-Hant">${escapeHtml(text)}</p>`).join('')) : ''}${(done || task.type==='read') && task.memo ? `<p class="academicMvpPreview">${escapeHtml(task.memo)}</p>` : ''}${config.noticeWords && workbench.phase==='complete' ? mvpDetails('observations','내 관찰 메모 다시 읽기',config.tasks.map(t=>`<p><strong>${escapeHtml(t.word)}</strong> · ${escapeHtml(t.sources.map(s=>s.text).join(''))}<br>${escapeHtml(t.success)}</p>`).join('')) : ''}</section>`;
   }
 
   function renderMvp(config, workbench) {
@@ -1045,7 +1053,7 @@
       const task=configNow.tasks[workbench.taskIndex];
       const action=workbench.phase==='complete' ? 'finish-mvp' : workbench.phase==='review' ? 'meaning-next' : 'meaning-confirm';
       const enabled=workbench.phase!=='work' || task.slots.every(slot => workbench.placements[slot.id]) && (!task.relations || workbench.relation);
-      return `<button type="button" id="academicMvpConfirm" class="control academicConfirm" data-academic-action="${action}" ${enabled ? '' : 'disabled'}>${action==='finish-mvp' ? '완성 기록 확인 · 계속' : action==='meaning-next' ? '다음 기록' : task.confirmLabel || (task.slots.length ? '연결 확인' : '표현 복원')}</button>`;
+      return `<button type="button" id="academicMvpConfirm" class="control academicConfirm" data-academic-action="${action}" ${enabled ? '' : 'disabled'}>${action==='finish-mvp' ? '완성 기록 확인 · 계속' : action==='meaning-next' ? '다음 기록' : task.confirmLabel || (task.slots.length ? '선택 확인' : '판단 확인')}</button>`;
     }
     const actions = {
       claim: ['submit-claim', '이 주장 검토', workbench.claimId],

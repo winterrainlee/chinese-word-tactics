@@ -73,26 +73,25 @@ try:
             assert '기록과 맞아' not in page.locator('#grid').inner_text()
             tasks=page.evaluate('current().academicTower.tasks')
             for i,task in enumerate(tasks):
-                for slot in task['slots']:
-                    action('meaning-slot',slot['id']);action('meaning-source',task['sources'][1 if slot['id']=='from' else 0]['id'])
-                if task.get('relations'): action('meaning-relation',task['relation'])
-                action('meaning-confirm')
-                assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='incorrect'
+                assert page.locator('[data-academic-action="meaning-slot"]').count()==0
+                assert page.locator('[data-academic-action="meaning-source"]').count()==0
                 if i==1:
                     saved=page.evaluate('state.academicTower')
                     page.reload();page.wait_for_function('!!window.AcademicTowerRuntime');assert page.evaluate('GameFlow.resume()')
                     assert page.evaluate('state.academicTower')==saved
-                for slot in task['slots']:
-                    action('meaning-slot',slot['id']);action('meaning-source',task['answer'][slot['id']])
                 if task.get('relations'):
-                    action('meaning-relation','after-done');action('meaning-confirm')
+                    wrong=next(r['id'] for r in task['relations'] if r['id']!=task['relation'])
+                    action('meaning-relation',wrong);action('meaning-confirm')
                     assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='incorrect'
-                    action('meaning-relation','not-done');page.locator('#undoBtn').click()
-                    assert page.evaluate('state.academicTower.relation')=='after-done'
-                    action('meaning-relation','not-done')
+                    action('meaning-relation',task['relation']);page.locator('#undoBtn').click()
+                    assert page.evaluate('state.academicTower.relation')==wrong
+                    action('meaning-relation',task['relation'])
                 layout();action('meaning-confirm')
-                assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='correct'
-                if i<len(tasks)-1:action('meaning-next')
+                if task.get('type')=='read':
+                    assert page.evaluate('state.academicTower.taskIndex')==i+1
+                else:
+                    assert page.locator('.academicMvpFeedback').get_attribute('data-verdict')=='correct'
+                    if i<len(tasks)-1:action('meaning-next')
             page.locator('[data-mvp-detail="observations"] summary').click()
             assert page.locator('[data-mvp-detail="observations"] p').count()==9
             assert not page.locator('#flowNext').is_visible()
