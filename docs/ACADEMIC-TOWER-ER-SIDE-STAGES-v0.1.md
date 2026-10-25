@@ -2,8 +2,8 @@
 
 작성일: 2026-10-06 (Asia/Taipei)
 갱신일: 2026-10-25 — 03B와 함께 구체화 우선 목표로 지정, 현행 조작·저장 기준에 맞춘 남은 과제 정리
-상태: **구체화 우선 / 스토리라인 확정 / 단계별 기믹·저장 설계안 / 런타임 미구현**
-이야기 기준: [여백에 남은 길 — 확정 스토리라인](ACADEMIC-TOWER-ER-SIDE-STORY-v0.1.md).
+상태: **구체화 우선 / 10월 6일 승인한 스토리와 일곱 내부 단계의 비교·보존안 / 10월 25일 수로 외 소재·단계 재검토 허용 / 런타임 미구현**
+이전 이야기 기준: [여백에 남은 길 — 10월 6일 승인 스토리라인](ACADEMIC-TOWER-ER-SIDE-STORY-v0.1.md). 2026-10-25 사용자가 수로 소재를 필수로 삼지 않기로 했으므로, 아래 일곱 단계는 새 이야기 확정 전에 재검토할 수 있는 구안이다.
 공통 기준: [콘텐츠 구조](GAME-CONTENT-FRAMEWORK-v0.1.md), [개발 표준](REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md), [디자인 원칙 v0.3](DESIGN-PRINCIPLES-v0.3.md), [학술탑 UI](ACADEMIC-TOWER-UI-GUIDE-v0.1.md).
 초기 구현 비교 기준: `3431b5b1e29ebff08cd59d5bc5e4bbcd4d0a6dc4`의 `src/academic-tower-content.js`, `src/save-data.js`와 당시 학술탑 설계다. 2026-10-25의 구체화는 `066f00b32c27576f7fcb33d197ca08b438097d1b`까지 반영된 [현행 UI 가이드](ACADEMIC-TOWER-UI-GUIDE-v0.1.md)와 [재구축 구현 기록](ACADEMIC-TOWER-REBUILD-IMPLEMENTATION-v0.1.md)을 우선한다.
 
