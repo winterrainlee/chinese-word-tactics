@@ -120,6 +120,50 @@
     }
   });
 
+
+  // The optional 03B is an independent visit, never an automatic continuation of 03A.
+  Object.assign(stories, {
+    'academic-tower-ran-village-intro': {
+      id:'academic-tower-ran-village-intro', chapterId:'academic-tower-research',
+      titleKo:'도시락을 싸 왔어요', background:'academic-tower',
+      placeZh:'學術塔門前', placeKo:'학술탑 정문',
+      beats:[
+        {speaker:'narrator',zh:'少年又來到學術塔門前，手裡提著一個用布包好的小飯盒。這次，他不是來查記錄的。',ko:'소년이 천으로 감싼 작은 도시락을 들고 다시 학술탑 문 앞에 섰다. 이번에는 기록을 찾으러 온 게 아니었다.'},
+        {speaker:'towerGatekeeper',zh:'是你啊。這次要找哪一位？',ko:'전에 왔던 아이구나. 이번엔 누구를 찾니?'},
+        {speaker:'boy',zh:'上次幫我看記錄的那位研究員。我想跟他道謝，還帶了點吃的。',ko:'지난번에 기록을 봐주신 연구원분이요. 감사 인사드리려고 먹을 것도 조금 싸 왔어요.'},
+        {speaker:'towerGatekeeper',zh:'我先替你問一聲。進去還是要登記。',ko:'계신지 먼저 물어볼게. 들어가려면 방문 등록은 해야 하고.'},
+        {speaker:'narrator',zh:'研究員從裡面走了出來，看見少年，停下了腳步。',ko:'안에서 나온 연구원은 소년을 보고 걸음을 멈췄다.'},
+        {speaker:'towerResearcher',zh:'怎麼了？又遇到讀不懂的記錄了嗎？',ko:'무슨 일이니? 또 읽기 어려운 기록을 만났어?'},
+        {speaker:'boy',zh:'沒有啦。上次你幫了我很多。我在客棧準備了一份簡單的便當，想帶來給你。',ko:'아니에요. 지난번에 많이 도와주셔서요. 여관에서 간단한 도시락을 싸 왔어요.'},
+        {speaker:'towerResearcher',zh:'……原來是這樣。還特地準備了吃的啊。謝謝你。進來坐一下吧。',ko:'……그랬구나. 먹을 것까지 챙겨 왔네. 고맙다. 들어와서 잠깐 앉을래?'},
+        {speaker:'narrator',zh:'研究員在訪客簿上記好名字，帶少年走進自己的研究室，把飯盒放在沒有文件的小桌上。',ko:'연구원은 방문부에 이름을 적고 소년을 자기 연구실로 데려갔다. 도시락은 자료가 없는 작은 탁자에 조심스럽게 놓았다.'},
+        {speaker:'boy',zh:'裡面只有麵包和水果。不知道你喜不喜歡。',ko:'안에는 빵하고 과일밖에 없는데, 좋아하실지 모르겠어요.'},
+        {speaker:'towerResearcher',zh:'謝謝。待會兒一起吃吧。',ko:'고마워. 조금 이따 같이 먹자.'},
+        {speaker:'boy',zh:'咦？桌上這張是三溪鎮的舊地圖嗎？',ko:'어? 책상에 있는 이거 물길마을 옛 지도예요?'},
+        {speaker:'towerResearcher',zh:'是啊。我在核對舊圖旁的註記。你認得上面的地方？',ko:'맞아. 옛 지도 옆의 설명을 확인하고 있었어. 여기가 어딘지 알아보겠니?'},
+        {speaker:'boy',zh:'當然認得！我走過那條路。',ko:'당연히 알죠! 저 그 길 가 봤어요.'},
+        {speaker:'towerResearcher',zh:'那這回得向你請教了。現在那條路是什麼樣子？',ko:'그럼 이번엔 내가 물어봐야겠네. 그 길은 지금 어때?'}
+      ]
+    },
+    'academic-tower-ran-village-result': {
+      id:'academic-tower-ran-village-result', chapterId:'academic-tower-research',
+      titleKo:'함께 남긴 한 줄', background:'academic-tower',
+      placeZh:'學術塔研究室', placeKo:'학술탑 연구실',
+      beats:[
+        {speaker:'narrator',zh:'兩人在舊地圖旁放了一張新的註記。原來那張紙沒有被丟掉，只是旁邊多了一段說明。',ko:'둘은 옛 지도 옆에 새 해설을 한 장 붙였다. 원래 종이를 버린 게 아니라 그 옆에 설명을 더한 것이다.'},
+        {speaker:'boy',zh:'我本來只是來送便當、說聲謝謝，沒想到還跟你一起整理了地圖。',ko:'도시락 드리고 감사 인사만 하려던 건데, 지도까지 함께 정리했네요.'},
+        {speaker:'towerResearcher',zh:'舊圖告訴我上面畫了什麼，你卻知道現在的人怎麼走。',ko:'옛 지도는 그때 무엇을 그렸는지 알려 주고, 너는 사람들이 지금 어떻게 다니는지 알잖아.'},
+        {speaker:'boy',zh:'不過我也只看過一部分。另一處歇腳的地方還在不在，我不知道。',ko:'그래도 저도 일부만 봤어요. 다른 쉼터가 아직 남아 있는지는 모르겠고요.'},
+        {speaker:'towerResearcher',zh:'那就先留著這個問題。不是每一張註記都要有答案。',ko:'그럼 그 질문은 남겨 두자. 모든 메모에 답이 있어야 하는 건 아니니까.'},
+        {speaker:'narrator',zh:'研究員把共同寫好的註記夾回地圖封套，收好筆。兩人回到放飯盒的小桌旁。',ko:'연구원은 함께 쓴 해설을 지도 봉투에 넣고 펜을 정리했다. 둘은 도시락을 놓아둔 작은 탁자로 돌아왔다.'},
+        {speaker:'towerResearcher',zh:'差點忘了你帶來的便當。一起吃吧。',ko:'네가 가져온 도시락을 잊을 뻔했네. 같이 먹자.'},
+        {speaker:'boy',zh:'可是，這是帶來給你的。',ko:'그런데 그건 연구원님 드리려고 가져온 건데요.'},
+        {speaker:'towerResearcher',zh:'我知道啊。所以一起吃。',ko:'알아. 그러니까 같이 먹자.'},
+        {speaker:'narrator',zh:'兩人分著吃了盒裡的麵包和水果。少年起身道別，離開時照樣在訪客簿上留下記錄。',ko:'둘은 도시락의 빵과 과일을 나눠 먹었다. 소년은 작별 인사를 하고 나갈 때도 평소처럼 방문부에 퇴실을 남겼다.'}
+      ]
+    }
+  });
+
   if (journey.some(chapter => chapter.id === 'academic-tower-research')) return;
   journey.push({
     id: 'academic-tower-research',
@@ -183,6 +227,15 @@
         { type: 'story', id: 'academic-tower-ran-intro', requires: ['stage:academic-tower-turn-02-raner', 'stage:academic-tower-turn-03-expectation'] },
         { type: 'stage', id: 'academic-tower-turn-03a-ran-family', requires: ['story:academic-tower-ran-intro'] },
         { type: 'story', id: 'academic-tower-ran-result', requires: ['stage:academic-tower-turn-03a-ran-family'], returnToRegionHubAfter: 'academic-tower' }
+      ]
+    }, {
+      id:'academic-tower-optional-ran-village', regionId:'academic-tower',
+      plannedStageCount:1, nameKo:'옛 지도, 지금의 마을 · 선택 연구', stageLabel:'연구',
+      revealRequires:['stage:academic-tower-turn-03a-ran-family','story:academic-tower-ran-result'],
+      sequence:[
+        {type:'story',id:'academic-tower-ran-village-intro',requires:['story:academic-tower-ran-result']},
+        {type:'stage',id:'academic-tower-turn-03b-ran-village',requires:['story:academic-tower-ran-village-intro']},
+        {type:'story',id:'academic-tower-ran-village-result',requires:['stage:academic-tower-turn-03b-ran-village'],returnToRegionHubAfter:'academic-tower'}
       ]
     }]
   });

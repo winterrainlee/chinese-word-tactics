@@ -55,16 +55,17 @@ test('03A is optional, unlocks after both branches and remains available after f
 test('Academic Tower appends rooms 01 through 05 without changing earlier stage order', () => {
   const context = contentContext();
   const result = vm.runInContext(`(() => ({
-    lastStages: STAGES.slice(-7).map(stage => stage.id),
+    lastStages: STAGES.slice(-8).map(stage => stage.id),
     rooms: AcademicTowerContent.bundle.rooms,
     words: [WORDS['卻'], WORDS['然而'], WORDS['果然'], WORDS['竟然'], WORDS['反而']]
   }))()`, context);
   assert.deepEqual(plain(result.lastStages), [
     'north-forest-stage-8', 'academic-tower-turn-01-que',
     'academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation',
-    'academic-tower-turn-04-faner', 'academic-tower-turn-05-synthesis', 'academic-tower-turn-03a-ran-family'
+    'academic-tower-turn-04-faner', 'academic-tower-turn-05-synthesis', 'academic-tower-turn-03a-ran-family',
+    'academic-tower-turn-03b-ran-village'
   ]);
-  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), [true, true, true, true, true, true]);
+  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), Array(7).fill(true));
   assert.deepEqual(plain(result.words.map(word => word.p)), ['ㄑㄩㄝˋ', 'ㄖㄢˊ ㄦˊ', 'ㄍㄨㄛˇ ㄖㄢˊ', 'ㄐㄧㄥˋ ㄖㄢˊ', 'ㄈㄢˇ ㄦˊ']);
   assert.deepEqual(plain(vm.runInContext(`['academic-tower-turn-01-que', 'academic-tower-turn-02-raner'].map(id => STAGES.find(stage => stage.id === id)).map(stage => ({
     kind: stage.academicTower.kind,
@@ -447,4 +448,74 @@ test('01 contrasts relations then repairs an inference; old keep-both answers ar
  assert.equal(c.tasks[1].directSlot,'to');assert.equal(c.tasks[1].relations,undefined);
  const old={...M.createState(c),taskIndex:1,phase:'complete',answers:{practice:{placements:{},relation:'keep'},transfer:{placements:{},relation:'keep'}}};
  const next=M.normalizeMeaning(c,old);assert.equal(next.taskIndex,0);assert.equal(next.phase,'work');assert.ok(next.migrationNotice);
+});
+
+
+test('03B follows 03A result and remains independent of 04 and 05',()=>{
+  const ctx=contentContext(), P=vm.runInContext('JourneyProgress',ctx);
+  const progress=partial=>P.normalize(partial);
+  const intro=P.getNode('story:academic-tower-ran-village-intro');
+  const stage=P.getNode('stage:academic-tower-turn-03b-ran-village');
+  const outcome=P.getNode('story:academic-tower-ran-village-result');
+  const before=progress({completedStages:['academic-tower-turn-02-raner','academic-tower-turn-03-expectation']});
+  const afterStage=progress({completedStages:[...before.completedStages,'academic-tower-turn-03a-ran-family']});
+  const afterResult=progress({...afterStage,seenStories:['academic-tower-ran-result']});
+  const afterFive=progress({...afterResult,completedStages:[...afterResult.completedStages,'academic-tower-turn-05-synthesis'],completedMilestones:['academic-tower-turn-foundation']});
+  assert.equal(P.isJourneyVisible(intro,before),false);
+  assert.equal(P.isAvailable(intro,before),false);
+  assert.equal(P.isAvailable(intro,afterStage),false);
+  assert.equal(P.isAvailable(intro,afterResult),true);
+  assert.equal(P.isAvailable(intro,afterFive),true);
+  assert.deepEqual(plain(stage.requires),['story:academic-tower-ran-village-intro']);
+  assert.deepEqual(plain(outcome.requires),['stage:academic-tower-turn-03b-ran-village']);
+  assert.deepEqual(plain(P.getNode('stage:academic-tower-turn-04-faner').requires),['story:academic-tower-turn-before-faner']);
+  const stories=vm.runInContext('JourneyContent.STORIES',ctx);
+  assert.equal(stories['academic-tower-ran-village-intro'].beats.length,15);
+  assert.ok(stories['academic-tower-ran-village-intro'].beats.some(x=>x.zh.includes('便當')));
+  assert.ok(stories['academic-tower-ran-village-intro'].beats.some(x=>x.zh.includes('訪客簿')));
+  assert.ok(stories['academic-tower-ran-village-result'].beats.some(x=>x.zh.includes('一起吃')));
+});
+
+test('03B choices, pure reading and confirmed state survive resume without affecting old stages',()=>{
+  const ctx=contentContext(), M=mechanics();
+  const config=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03b-ran-village').academicTower",ctx);
+  assert.equal(config.kind,'meaning-links');assert.equal(config.schemaVersion,1);
+  assert.equal(config.tasks.length,6);
+  assert.deepEqual(plain(config.tasks.map(t=>t.id)),[
+    'village-path','village-paper','village-assumption',
+    'village-concession','village-scope','village-reread'
+  ]);
+  assert.deepEqual(plain(config.tasks.filter(t=>t.type==='read').map(t=>t.id)),['village-paper','village-reread']);
+  assert.ok(config.tasks[0].relations.every(t=>t.text.includes('仍然')));
+  assert.ok(config.tasks[3].choicePrefix.includes('固然'));
+  let state=plain(M.createState(config,()=>.25)),order=plain(state.optionOrders);
+  const action=(type,value)=>{const r=M.applyAction(config,state,{type,value});state=plain(r.state);return r;};
+  assert.equal(state.phase,'work');assert.deepEqual(state.answers,{});
+  for(const [index,task] of config.tasks.entries()){
+    assert.equal(state.taskIndex,index);
+    if(task.type==='read'){
+      assert.equal(action('meaning-confirm').correct,true);
+      assert.equal(state.phase,index===5?'complete':'work');
+      continue;
+    }
+    const options=task.targets||task.relations;
+    const correct=task.targets?task.answer.to:task.relation;
+    const wrong=options.find(x=>x.id!==correct).id;
+    assert.equal(action('meaning-confirm').changed,false);
+    action(task.targets?'meaning-source':'meaning-relation',wrong);
+    assert.equal(action('meaning-confirm').correct,false);
+    assert.equal(state.phase,'work');
+    assert.deepEqual(plain(M.normalizeMeaning(config,state)),state);
+    action(task.targets?'meaning-source':'meaning-relation',correct);
+    assert.equal(action('meaning-confirm').correct,true);
+    assert.equal(state.phase,'review');
+    action('meaning-next');
+    assert.deepEqual(state.optionOrders,order);
+  }
+  assert.equal(M.isSolved(config,state),true);
+  const initial=plain(M.createState(config,()=>.8));
+  assert.deepEqual(initial.answers,{});assert.equal(initial.taskIndex,0);
+  assert.equal(M.isSolved(config,initial),false);
+  const damaged=plain(state);delete damaged.answers['village-path'];
+  assert.equal(M.normalizeMeaning(config,damaged).taskIndex,0);
 });

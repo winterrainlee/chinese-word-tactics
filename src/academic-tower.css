@@ -556,3 +556,50 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
 
 .academicMeaningPaths[data-relation="surprising"] .actual { margin-left:18px; }
 .academicMeaningPaths[data-relation="matched"] .actual { margin-left:0; }
+
+
+/* 03B: village archive sources are one sheet; only decisions belong to the work surface. */
+.academicTowerMvp .academicVillageOriginal .academicMvpSource { display:block; min-width:0; }
+.academicTowerMvp .academicVillageSource { margin:0 0 15px; min-width:0; }
+.academicTowerMvp .academicVillageSource + .academicVillageSource {
+  padding-top:12px; border-top:1px solid rgba(101,104,91,.20);
+}
+.academicTowerMvp .academicVillageSource small,
+.academicTowerMvp .academicVillageDraft small,
+.academicTowerMvp .academicVillageDialogue small {
+  display:block; margin-bottom:4px; color:#645c50; font-size:12px;
+  font-weight:700; line-height:1.5;
+}
+.academicTowerMvp .academicVillageSource p,
+.academicTowerMvp .academicVillageDialogue span,
+.academicTowerMvp .academicVillageDraft p {
+  display:block; margin:0; font-size:18px; line-height:1.75;
+  overflow-wrap:anywhere; word-break:normal; min-width:0;
+}
+.academicTowerMvp .academicVillageDialogue { margin:12px 0 0; }
+.academicTowerMvp .academicVillageDialogue + .academicVillageDialogue {
+  padding-top:8px; border-top:1px solid rgba(101,104,91,.14);
+}
+.academicTowerMvp .academicVillageChoices { display:grid; gap:8px; min-width:0; }
+.academicTowerMvp .academicVillageChoices .academicMvpChoice {
+  display:block; width:100%; min-height:48px; padding:11px 12px;
+  white-space:normal; overflow-wrap:anywhere; word-break:normal; line-height:1.6;
+  text-align:left; font-size:17px;
+}
+.academicTowerMvp .academicVillageChoices .academicMvpChoice span {display:block;}
+.academicTowerMvp .academicVillageDraft {
+  margin:0 0 14px; padding:9px 0 12px;
+  border-bottom:1px solid rgba(75,93,83,.22);
+}
+.academicTowerMvp .academicVillageDraft del {color:#94706a; text-decoration-thickness:2px;}
+.academicTowerMvp .academicVillageReaction {
+  margin:12px 0 0; padding-top:11px;
+  border-top:1px solid rgba(72,92,75,.20); color:#344f42;
+  font-size:16px; line-height:1.7; overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillagePreview { overflow-wrap:anywhere; }
+@media(max-height:650px) {
+  .academicTowerMvp .academicVillageSource p,
+  .academicTowerMvp .academicVillageDialogue span {font-size:17px;line-height:1.65}
+  .academicTowerMvp .academicVillageChoices .academicMvpChoice {padding:10px}
+}

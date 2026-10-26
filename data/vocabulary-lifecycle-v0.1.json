@@ -23,81 +23,611 @@
     "note": "targetStageIds가 1개뿐인 단어는 향후 능동 재사용을 계획하거나 region 범위에서 완료로 보는 이유를 명시한다. 횟수 쿼터를 채우려고 억지로 재사용하지 않는다."
   },
   "words": {
-    "接近": { "regionId": "forest-road", "targetStageIds": ["stage-1", "stage-5"], "reuseScope": "unclassified" },
-    "遠離": { "regionId": "forest-road", "targetStageIds": ["stage-2", "stage-5"], "reuseScope": "unclassified" },
-    "通過": { "regionId": "forest-road", "targetStageIds": ["stage-3", "stage-5"], "reuseScope": "unclassified" },
-    "到達": { "regionId": "forest-road", "targetStageIds": ["stage-3", "stage-4", "stage-5"], "reuseScope": "unclassified" },
-    "避開": { "regionId": "forest-road", "targetStageIds": ["stage-4", "stage-5"], "reuseScope": "unclassified" },
-    "進入": { "regionId": "gate-town", "targetStageIds": ["gate-stage-1"], "reuseScope": "unclassified" },
-    "退出": { "regionId": "gate-town", "targetStageIds": ["gate-stage-1"], "reuseScope": "unclassified" },
-    "距離": { "regionId": "gate-town", "targetStageIds": ["gate-stage-2"], "reuseScope": "unclassified" },
-    "範圍": { "regionId": "gate-town", "targetStageIds": ["gate-stage-2"], "reuseScope": "unclassified" },
-    "路線": { "regionId": "gate-town", "targetStageIds": ["gate-stage-3", "gate-stage-7"], "reuseScope": "unclassified" },
-    "經由": { "regionId": "gate-town", "targetStageIds": ["gate-stage-3", "gate-stage-7"], "reuseScope": "unclassified" },
-    "位置": { "regionId": "gate-town", "targetStageIds": ["gate-stage-4"], "reuseScope": "unclassified" },
-    "周圍": { "regionId": "gate-town", "targetStageIds": ["gate-stage-4"], "reuseScope": "unclassified" },
-    "障礙": { "regionId": "gate-town", "targetStageIds": ["gate-stage-4"], "reuseScope": "unclassified" },
-    "移動": { "regionId": "gate-town", "targetStageIds": ["gate-stage-5"], "reuseScope": "unclassified" },
-    "前進": { "regionId": "gate-town", "targetStageIds": ["gate-stage-5"], "reuseScope": "unclassified" },
-    "後退": { "regionId": "gate-town", "targetStageIds": ["gate-stage-5"], "reuseScope": "unclassified" },
-    "跟隨": { "regionId": "gate-town", "targetStageIds": ["gate-stage-6", "gate-stage-7"], "reuseScope": "unclassified" },
-    "帶領": { "regionId": "gate-town", "targetStageIds": ["gate-stage-6", "gate-stage-7"], "reuseScope": "unclassified" },
-    "改變": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-1"], "reuseScope": "unclassified" },
-    "保持": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-1", "workshop-stage-3", "workshop-stage-5", "workshop-stage-7"], "reuseScope": "unclassified" },
-    "增加": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-2"], "reuseScope": "unclassified" },
-    "減少": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-2"], "reuseScope": "unclassified" },
-    "調整": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-2", "workshop-stage-5", "workshop-stage-7"], "reuseScope": "unclassified" },
-    "連接": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-3", "workshop-stage-7"], "reuseScope": "unclassified" },
-    "分開": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-3", "workshop-stage-7"], "reuseScope": "unclassified" },
-    "條件": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-4"], "reuseScope": "unclassified" },
-    "符合": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-4"], "reuseScope": "unclassified" },
-    "出現": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-5"], "reuseScope": "unclassified" },
-    "消失": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-5"], "reuseScope": "unclassified" },
-    "損壞": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-6"], "reuseScope": "unclassified" },
-    "修復": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-6", "workshop-stage-7"], "reuseScope": "unclassified" },
-    "恢復": { "regionId": "workshop-town", "targetStageIds": ["workshop-stage-6"], "reuseScope": "unclassified" },
-    "需求": { "regionId": "market-town", "targetStageIds": ["market-stage-1", "market-stage-7", "market-stage-8"], "reuseScope": "unclassified" },
-    "足夠": { "regionId": "market-town", "targetStageIds": ["market-stage-1"], "reuseScope": "unclassified" },
-    "不足": { "regionId": "market-town", "targetStageIds": ["market-stage-1"], "reuseScope": "unclassified" },
-    "數量": { "regionId": "market-town", "targetStageIds": ["market-stage-2", "market-stage-7"], "reuseScope": "unclassified" },
-    "剩下": { "regionId": "market-town", "targetStageIds": ["market-stage-2", "market-stage-7"], "reuseScope": "unclassified" },
-    "交換": { "regionId": "market-town", "targetStageIds": ["market-stage-3", "market-stage-8"], "reuseScope": "unclassified" },
-    "獲得": { "regionId": "market-town", "targetStageIds": ["market-stage-3"], "reuseScope": "unclassified" },
-    "買": { "regionId": "market-town", "targetStageIds": ["market-stage-4", "market-stage-8"], "reuseScope": "unclassified" },
-    "賣": { "regionId": "market-town", "targetStageIds": ["market-stage-4"], "reuseScope": "unclassified" },
-    "價格": { "regionId": "market-town", "targetStageIds": ["market-stage-4", "market-stage-5"], "reuseScope": "unclassified" },
-    "價值": { "regionId": "market-town", "targetStageIds": ["market-stage-5"], "reuseScope": "unclassified" },
-    "選擇": { "regionId": "market-town", "targetStageIds": ["market-stage-5", "market-stage-6"], "reuseScope": "unclassified" },
-    "放棄": { "regionId": "market-town", "targetStageIds": ["market-stage-6"], "reuseScope": "unclassified" },
-    "分配": { "regionId": "market-town", "targetStageIds": ["market-stage-7", "market-stage-8"], "reuseScope": "unclassified" },
-    "補充": { "regionId": "market-town", "targetStageIds": ["market-stage-7"], "reuseScope": "unclassified" },
-    "標記": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-2"], "reuseScope": "region" },
-    "方向": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-2"], "reuseScope": "region" },
-    "確認": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-2"], "reuseScope": "region" },
-    "正確": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-3"], "reuseScope": "region" },
-    "指示": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-3"], "reuseScope": "region" },
-    "特徵": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
-    "相似": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
-    "不同": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
-    "分辨": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-4"], "reuseScope": "region" },
-    "材料": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },
-    "適合": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },
-    "生長": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-5"], "reuseScope": "region" },
-    "遺失": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-6"], "reuseScope": "region" },
-    "尋找": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-6"], "reuseScope": "region" },
-    "痕跡": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-6"], "reuseScope": "region" },
-    "發現": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-7"], "reuseScope": "region" },
-    "附近": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-7"], "reuseScope": "region" },
-    "留下": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-7"], "reuseScope": "region" },
-    "情況": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
-    "安全": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
-    "危險": { "regionId": "north-forest", "targetStageIds": ["north-forest-stage-8"], "reuseScope": "region" },
-    "卻": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-01-que", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
-    "然而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-02-raner", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
-    "果然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03-expectation", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
-    "竟然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03-expectation", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
-    "反而": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-04-faner", "academic-tower-turn-05-synthesis"], "reuseScope": "region" },
-    "既然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03a-ran-family"], "reuseScope": "region", "note": "선택 연구에서 확인된 전제를 비교·적용한다. 후속 원인·귀결 연구의 능동 재사용 후보로 남긴다." },
-    "不然": { "regionId": "academic-tower", "targetStageIds": ["academic-tower-turn-03a-ran-family"], "reuseScope": "region", "note": "선택 연구에서 미실행 시 귀결을 비교·적용하며 이번 지역의 제한적 도입을 마친다." }
+    "接近": {
+      "regionId": "forest-road",
+      "targetStageIds": [
+        "stage-1",
+        "stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "遠離": {
+      "regionId": "forest-road",
+      "targetStageIds": [
+        "stage-2",
+        "stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "通過": {
+      "regionId": "forest-road",
+      "targetStageIds": [
+        "stage-3",
+        "stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "到達": {
+      "regionId": "forest-road",
+      "targetStageIds": [
+        "stage-3",
+        "stage-4",
+        "stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "避開": {
+      "regionId": "forest-road",
+      "targetStageIds": [
+        "stage-4",
+        "stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "進入": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-1"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "退出": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-1"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "距離": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-2"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "範圍": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-2"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "路線": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-3",
+        "gate-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "經由": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-3",
+        "gate-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "位置": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-4"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "周圍": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-4"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "障礙": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-4"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "移動": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "前進": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "後退": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "跟隨": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-6",
+        "gate-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "帶領": {
+      "regionId": "gate-town",
+      "targetStageIds": [
+        "gate-stage-6",
+        "gate-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "改變": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-1"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "保持": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-1",
+        "workshop-stage-3",
+        "workshop-stage-5",
+        "workshop-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "增加": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-2"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "減少": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-2"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "調整": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-2",
+        "workshop-stage-5",
+        "workshop-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "連接": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-3",
+        "workshop-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "分開": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-3",
+        "workshop-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "條件": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-4"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "符合": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-4"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "出現": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "消失": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "損壞": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-6"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "修復": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-6",
+        "workshop-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "恢復": {
+      "regionId": "workshop-town",
+      "targetStageIds": [
+        "workshop-stage-6"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "需求": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-1",
+        "market-stage-7",
+        "market-stage-8"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "足夠": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-1"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "不足": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-1"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "數量": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-2",
+        "market-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "剩下": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-2",
+        "market-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "交換": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-3",
+        "market-stage-8"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "獲得": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-3"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "買": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-4",
+        "market-stage-8"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "賣": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-4"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "價格": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-4",
+        "market-stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "價值": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-5"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "選擇": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-5",
+        "market-stage-6"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "放棄": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-6"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "分配": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-7",
+        "market-stage-8"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "補充": {
+      "regionId": "market-town",
+      "targetStageIds": [
+        "market-stage-7"
+      ],
+      "reuseScope": "unclassified"
+    },
+    "標記": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-2"
+      ],
+      "reuseScope": "region"
+    },
+    "方向": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-2"
+      ],
+      "reuseScope": "region"
+    },
+    "確認": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-2"
+      ],
+      "reuseScope": "region"
+    },
+    "正確": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-3"
+      ],
+      "reuseScope": "region"
+    },
+    "指示": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-3"
+      ],
+      "reuseScope": "region"
+    },
+    "特徵": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-4"
+      ],
+      "reuseScope": "region"
+    },
+    "相似": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-4"
+      ],
+      "reuseScope": "region"
+    },
+    "不同": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-4"
+      ],
+      "reuseScope": "region"
+    },
+    "分辨": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-4"
+      ],
+      "reuseScope": "region"
+    },
+    "材料": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-5"
+      ],
+      "reuseScope": "region"
+    },
+    "適合": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-5"
+      ],
+      "reuseScope": "region"
+    },
+    "生長": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-5"
+      ],
+      "reuseScope": "region"
+    },
+    "遺失": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-6"
+      ],
+      "reuseScope": "region"
+    },
+    "尋找": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-6"
+      ],
+      "reuseScope": "region"
+    },
+    "痕跡": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-6"
+      ],
+      "reuseScope": "region"
+    },
+    "發現": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-7"
+      ],
+      "reuseScope": "region"
+    },
+    "附近": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-7"
+      ],
+      "reuseScope": "region"
+    },
+    "留下": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-7"
+      ],
+      "reuseScope": "region"
+    },
+    "情況": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-8"
+      ],
+      "reuseScope": "region"
+    },
+    "安全": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-8"
+      ],
+      "reuseScope": "region"
+    },
+    "危險": {
+      "regionId": "north-forest",
+      "targetStageIds": [
+        "north-forest-stage-8"
+      ],
+      "reuseScope": "region"
+    },
+    "卻": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-01-que",
+        "academic-tower-turn-05-synthesis"
+      ],
+      "reuseScope": "region"
+    },
+    "然而": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-02-raner",
+        "academic-tower-turn-05-synthesis"
+      ],
+      "reuseScope": "region"
+    },
+    "果然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03-expectation",
+        "academic-tower-turn-05-synthesis"
+      ],
+      "reuseScope": "region"
+    },
+    "竟然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03-expectation",
+        "academic-tower-turn-05-synthesis"
+      ],
+      "reuseScope": "region"
+    },
+    "反而": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-04-faner",
+        "academic-tower-turn-05-synthesis"
+      ],
+      "reuseScope": "region"
+    },
+    "既然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03a-ran-family"
+      ],
+      "reuseScope": "region",
+      "note": "선택 연구에서 확인된 전제를 비교·적용한다. 후속 원인·귀결 연구의 능동 재사용 후보로 남긴다."
+    },
+    "不然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03a-ran-family"
+      ],
+      "reuseScope": "region",
+      "note": "선택 연구에서 미실행 시 귀결을 비교·적용하며 이번 지역의 제한적 도입을 마친다."
+    },
+    "仍然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03b-ran-village"
+      ],
+      "reuseScope": "region",
+      "note": "03B 향토사 선택 연구에서 쓰임을 관찰한다. 공식 TBCL 등급은 별도 확인."
+    },
+    "突然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03b-ran-village"
+      ],
+      "reuseScope": "region",
+      "note": "03B 향토사 선택 연구에서 쓰임을 관찰한다. 공식 TBCL 등급은 별도 확인."
+    },
+    "當然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03b-ran-village"
+      ],
+      "reuseScope": "region",
+      "note": "03B 향토사 선택 연구에서 쓰임을 관찰한다. 공식 TBCL 등급은 별도 확인."
+    },
+    "固然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03b-ran-village"
+      ],
+      "reuseScope": "region",
+      "note": "03B 향토사 선택 연구에서 쓰임을 관찰한다. 공식 TBCL 등급은 별도 확인."
+    },
+    "不盡然": {
+      "regionId": "academic-tower",
+      "targetStageIds": [
+        "academic-tower-turn-03b-ran-village"
+      ],
+      "reuseScope": "region",
+      "note": "03B 향토사 선택 연구에서 쓰임을 관찰한다. 공식 TBCL 등급은 별도 확인."
+    }
   }
 }

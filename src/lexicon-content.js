@@ -275,7 +275,22 @@
 
   GROUPS.push({ id: 'academic-tower-ran-family', chapterId: 'academic-tower-research', regionId: 'academic-tower', titleKo: '같은 글자, 다른 관계', type: 'contrast', displayZh: '既然 ↔ 不然', words: ['既然', '不然'], related: ['然而', '果然', '竟然'], noteKo: '既然은 이미 확인한 전제를, 不然은 그렇지 않을 경우의 귀결을 잇는다.', gameNoteKo: '공통 글자와 문장 기능을 따로 비교한 뒤 확인된 손상과 흩어질 기록의 경고에 적용했다.' });
 
+  GROUPS.push({
+    id:'academic-tower-ran-village', chapterId:'academic-tower-research', regionId:'academic-tower',
+    titleKo:'옛 지도와 지금의 마을', type:'related',
+    displayZh:'仍然 · 突然 · 當然 · 固然 · 不盡然',
+    words:['仍然','突然','當然','固然','不盡然'],
+    related:['雖然','竟然','既然','不然'],
+    noteKo:'여전히 남아 있는 것, 갑자기 생긴 일, 당연하다고 여기는 판단, 인정할 일부와 꼭 전부 맞지 않는 설명은 서로 다른 기능이야.',
+    gameNoteKo:'소년이 감사 인사로 싸 온 도시락을 나누고, 연구원과 옛 지도와 현재 길을 비교해 사실과 지나친 해석을 나눴다.'
+  });
+
   const WORD_META = {
+    '仍然': {exampleKo:'그 장터로 가는 길은 지금도 사람들이 다닌다.', usageKo:'이어지는 대상만 말할 뿐 모든 것이 예전과 같다는 뜻은 아니다.'},
+    '突然': {exampleKo:'접힌 종이가 갑자기 지도에서 미끄러져 나왔다.', usageKo:'예고 없이 일어난 사건의 시점에 주목한다.'},
+    '當然': {exampleKo:'당연히 알죠! 저 그 길 가 봤어요.', usageKo:'말하는 사람의 확신을 표시하지만 근거 자체를 증명하지는 않는다.'},
+    '固然': {exampleKo:'옛 지도에는 공방이 그려져 있지만 지금 장터에는 다른 거래도 있다.', usageKo:'인정할 일부를 남긴 채 추가할 다른 면을 연결한다.'},
+    '不盡然': {exampleKo:'그 옛 지도가 지금은 전혀 쓸모없다는 말도 꼭 그렇지만은 않다.', usageKo:'전부 부정하지 않고 과도한 범위를 제한한다.'},
     '既然': { exampleKo: '톱니 손상이 이미 확인되었으니 먼저 수리한다.', sourceRefs: ['w4s-jiran'] },
     '不然': { exampleKo: '기록을 먼저 묶어 둬. 그렇지 않으면 종이가 흩어질 거야.', sourceRefs: ['w5-buran'] },
     '接近': { exampleKo: '나는 천천히 비석에 가까이 갔다.' },

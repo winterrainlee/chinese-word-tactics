@@ -4,13 +4,30 @@
   const ENTERED_MILESTONE = 'academic-tower-entered';
   const bundle = globalThis.AcademicTowerContent?.bundle;
 
+  const introForRoom = room => room.introStoryId ||
+    (room.id === 'academic-tower-turn-03a-ran-family' ? 'academic-tower-ran-intro' : null);
+
+  function startRoom(room, state, progress) {
+    const introId = introForRoom(room);
+    if (introId && !progress.seenStories?.includes(introId)) {
+      return globalThis.GameFlow?.playStory?.(introId, {
+        stageAfterStory: room.id, returnTo: REGION_ID
+      });
+    }
+    return globalThis.GameFlow?.playStage?.(room.id, {
+      mode: state === 'complete' ? 'replay' : 'first-play', returnTo: REGION_ID
+    });
+  }
+
   function roomState(room, progress) {
     const completed = new Set(progress?.completedStages || []);
     if (completed.has(room.id)) return 'complete';
     if (!(room.requires || []).every(id => completed.has(id))) return 'locked';
+    if (!(room.requiresStories || []).every(id => progress?.seenStories?.includes(id))) return 'locked';
     const journeyNode = globalThis.JourneyProgress?.getNode?.(`stage:${room.id}`);
     if (journeyNode && !globalThis.JourneyProgress.isAvailable(journeyNode, progress)) {
-      const intro = room.optional && globalThis.JourneyProgress.getNode('story:academic-tower-ran-intro');
+      const introId = room.optional && introForRoom(room);
+      const intro = introId && globalThis.JourneyProgress.getNode(`story:${introId}`);
       if (!intro || !globalThis.JourneyProgress.isAvailable(intro, progress)) return 'locked';
     }
     return room.implemented ? 'available' : 'planned';
@@ -51,12 +68,7 @@
     if (state === 'complete') button.setAttribute('aria-label', `${ko.textContent} · 연구 완료 · 다시 연구`);
     button.append(number, names, stateLabel);
     if (!button.disabled) {
-      button.onclick = () => room.optional && !progress.seenStories?.includes('academic-tower-ran-intro')
-        ? globalThis.GameFlow?.playStory?.('academic-tower-ran-intro', { returnTo: REGION_ID })
-        : globalThis.GameFlow?.playStage?.(room.id, {
-        mode: state === 'complete' ? 'replay' : 'first-play',
-        returnTo: REGION_ID
-      });
+      button.onclick = () => startRoom(room, state, progress);
     }
     return button;
   }
@@ -107,12 +119,7 @@
     button.setAttribute('aria-label', `${room.titleKo} · ${stateText}`);
 
     if (!button.disabled) {
-      button.onclick = () => room.optional && !progress.seenStories?.includes('academic-tower-ran-intro')
-        ? globalThis.GameFlow?.playStory?.('academic-tower-ran-intro', { returnTo: REGION_ID })
-        : globalThis.GameFlow?.playStage?.(room.id, {
-        mode: state === 'complete' ? 'replay' : 'first-play',
-        returnTo: REGION_ID
-      });
+      button.onclick = () => startRoom(room, state, progress);
     }
     return button;
   }
@@ -137,7 +144,10 @@
     if (!list || !summary) return false;
     const mainRooms = bundle.rooms.filter(room => !room.optional);
     const completeCount = mainRooms.filter(room => progress.completedStages.includes(room.id)).length;
-    const optionalRooms = bundle.rooms.filter(room => room.optional);
+    // Do not reveal 03B before the player has completed 03A.
+    const optionalRooms = bundle.rooms.filter(room => room.optional &&
+      (room.id !== 'academic-tower-turn-03b-ran-village' ||
+       progress.completedStages.includes('academic-tower-turn-03a-ran-family')));
     const foundation = progress.completedMilestones.includes('academic-tower-turn-foundation');
     summary.textContent = foundation
       ? '연구 완료 · 첫 관찰 메모를 보관했어.'

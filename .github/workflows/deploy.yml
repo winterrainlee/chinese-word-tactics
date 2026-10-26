@@ -106,6 +106,7 @@ jobs:
         run: |
           python tests/smoke_academic_tower_mvp.py
           python tests/smoke_academic_tower_ran.py
+          python tests/smoke_academic_tower_ran_village.py
 
       - name: Run tactical layout viewport matrix
         env:

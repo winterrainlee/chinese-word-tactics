@@ -691,6 +691,146 @@
     if (task.id.startsWith('observe-')) task.characterGuide=ran.characterGuides[task.word];
   }
 
+
+  // Optional 03B: a thank-you visit becomes a small joint study of the village.
+  // Append only: legacy tactical saves persist STAGES indexes.
+  Object.assign(WORDS, {
+    '仍然': { p:'ㄖㄥˊ ㄖㄢˊ', k:'여전히, 아직도; 어떤 상태나 행동이 계속됨',
+      ex:'通往市集的那條路現在仍然有人走。',
+      rule:'남아 있는 대상과 기간을 살펴봐. 한 부분이 이어진다고 마을 전체가 똑같은 것은 아니야.' },
+    '突然': { p:'ㄊㄨˊ ㄖㄢˊ', k:'갑자기; 예고 없이 일이 일어남',
+      ex:'一張摺好的紙突然滑了出來。',
+      rule:'사건이 갑작스럽게 일어나는 시점이 중심이야. 놀라움의 평가와는 구별해.' },
+    '當然': { p:'ㄉㄤ ㄖㄢˊ', k:'당연히, 물론; 말하는 이가 자연스럽게 옳다고 여김',
+      ex:'當然認得！我走過那條路。',
+      rule:'말하는 사람의 확신을 표현해. 확신 자체가 근거의 증명이나 오류는 아니야.' },
+    '固然': { p:'ㄍㄨˋ ㄖㄢˊ', k:'물론, ~인 것은 사실이지만; 먼저 인정하면서 다른 면을 함께 말함',
+      ex:'舊圖上固然畫著幾間工坊，但現在的市集也有各種買賣。',
+      rule:'앞 내용을 인정하고 뒤 관점을 더해. 모든 용법이 양보 구조인 것은 아니야.' },
+    '不盡然': { p:'ㄅㄨˋ ㄐㄧㄣˋ ㄖㄢˊ', k:'꼭 그렇지만은 않다; 전부가 맞는 것은 아님',
+      ex:'說舊圖完全沒有參考價值，也不盡然。',
+      rule:'전부를 부정하는 말이 아니야. 맞는 일부와 지나친 부분을 나눠 봐.' }
+  });
+
+  bundle.rooms.push({
+    id:'academic-tower-turn-03b-ran-village', number:'03B',
+    titleKo:'옛 지도, 지금의 마을', titleZh:'舊地圖上的三溪鎮',
+    expressions:[], implemented:true, optional:true, sideGroup:'branch',
+    introStoryId:'academic-tower-ran-village-intro',
+    requires:['academic-tower-turn-03a-ran-family'],
+    requiresStories:['academic-tower-ran-result']
+  });
+
+  const villageTask = (id, word, title, sources, extra={}) => ({
+    id,word,title,sources,slots:[],answer:{},...extra
+  });
+  const villageStudy = {
+    kind:'meaning-links', schemaVersion:1, introStory:'academic-tower-ran-village-intro',
+    villageResearch:true, tasks:[
+      villageTask('village-path','仍然','옛 기록과 지금의 모습을 비교해 볼까?',[
+        {id:'old-map',label:'옛 지도와 옆 메모',text:'舊圖上標著一條通往市集的路，路旁畫著兩處歇腳的地方。圖邊寫著：「這條路常有人走。」'},
+        {id:'boy-now',label:'소년이 지금 본 것',text:'我走過那條路，路上還有人來往。不過，我只看見一處歇腳的地方。'}
+      ],{
+        question:'仍然을 써서 남길 수 있는 관찰은?',
+        relations:[
+          {id:'road-used',text:'通往市集的那條路現在仍然有人走。'},
+          {id:'two-rests',text:'路旁兩處歇腳的地方現在仍然都在。'},
+          {id:'same-crowd',text:'那條路現在仍然每天都跟以前一樣熱鬧。'}
+        ], relation:'road-used',
+        wrong:{
+          'two-rests':'소년은 쉼터 하나만 봤어. 나머지 한 곳이 지금도 있는지는 아직 몰라.',
+          'same-crowd':'그 길을 다니는 사람은 있지만, 옛날과 지금이 매일 똑같이 붐빈다는 근거는 없어.'
+        },
+        success:'그 길을 다니는 사람이 지금도 있다는 것만 남겼어. 다른 쉼터와 길의 혼잡도는 아직 확인하지 않았어.',
+        reaction:'연구원 · 原來你真的走過。那我不能只看舊圖了。',
+        translation:'옛 지도에는 장터로 향하는 길과 쉼터 두 곳이 그려져 있어. 옆 메모에는 사람들이 그 길을 자주 다닌다고 적혀 있지. 소년은 지금도 사람이 다니는 걸 봤지만, 쉼터는 한 곳만 봤대.'
+      }),
+      villageTask('village-paper','突然','지도 사이에서 나온 쪽지',[
+        {id:'paper',label:'연구실에서 생긴 일',text:'研究員剛翻開地圖的一角，一張摺好的紙突然滑了出來。'}
+      ],{
+        type:'read', readOnly:true, confirmLabel:'쪽지 펼치기',
+        readBeats:[
+          {speaker:'소년',zh:'這張紙怎麼突然跑出來了？',ko:'이 종이는 왜 갑자기 튀어나오는 거예요?'},
+          {speaker:'연구원',zh:'咦？我明明記得已經整理好了……',ko:'어? 분명 정리해 놨다고 생각했는데….'},
+          {speaker:'서술',zh:'少年忍不住笑了一下。研究員也笑了，把紙攤開。',ko:'소년이 웃음을 참지 못하자 연구원도 피식 웃고 종이를 펼쳤다.'}
+        ],
+        success:'종이가 갑자기 미끄러져 나온 짧은 순간이었어.'
+      }),
+      villageTask('village-assumption','當然','지도에서 확인한 정보와 쪽지의 생각은?',[
+        {id:'map-workshops',label:'옛 지도',text:'水道旁畫著幾間工坊。舊圖標著通往市集的路。'},
+        {id:'loose-margin',label:'작성자 미상의 쪽지',text:'水道旁有幾間工坊，鎮上的買賣當然都離不開水道。'}
+      ],{
+        question:'지도에서 보이는 사실이 아니라 작성자가 당연하다고 여기는 판단을 골라.',
+        targets:[
+          {id:'map-fact',text:'水道旁畫著幾間工坊。'},
+          {id:'author-claim',text:'鎮上的買賣當然都離不開水道。'},
+          {id:'map-path',text:'舊圖標著通往市集的路。'}
+        ],
+        slots:[{id:'to',label:'작성자의 판단'}],answer:{to:'author-claim'},directSlot:'to',
+        workLabel:'나의 검토 메모',confirmLabel:'구분 확인',
+        slotFeedback:{to:'그건 지도에서 직접 볼 수 있는 정보야. 쪽지에서 마을 전체까지 넓힌 판단을 찾아봐.'},
+        success:'당연하다고 쓴 것은 작성자의 확신이야. 지도가 마을의 모든 거래를 증명한 건 아니지.',
+        reaction:'소년 · 這張紙說得好肯定，可是它怎麼知道全鎮的事？',
+        translation:'옛 지도에는 수로 옆 공방과 장터 방향 길이 그려져 있어. 하지만 쪽지는 마을의 모든 거래가 수로에서 벗어날 수 없다고 단정했어.'
+      }),
+      villageTask('village-concession','固然','지도의 사실을 남기고 다른 모습도 덧붙이자',[
+        {id:'old-fact',label:'옛 지도의 기록',text:'水道旁畫著幾間工坊。'},
+        {id:'boy-market',label:'소년이 본 지금 장터',text:'我在市集也看過各種買賣。光看舊圖上的工坊，還不知道現在全鎮的樣子。'}
+      ],{
+        question:'옛 지도의 공방을 인정하면서 지금 본 장터 이야기를 더하려면?',
+        choicePrefix:'舊圖上固然畫著水道旁的幾間工坊，但',
+        relations:[
+          {id:'present-market',text:'現在的市集也有各種買賣，不能只憑舊圖推斷今天全鎮的生活。'},
+          {id:'old-only-workshops',text:'這表示舊時全鎮的人一定都住在工坊附近。'},
+          {id:'all-gone',text:'圖上的那幾間工坊現在一定全都消失了。'}
+        ],relation:'present-market',confirmLabel:'해설에 덧붙이기',
+        wrong:{
+          'old-only-workshops':'옛 지도에 공방이 그려져 있다고 모든 사람이 그 근처에 살았던 것은 아니야.',
+          'all-gone':'소년은 지금 공방이 모두 사라졌다고 말하지 않았어. 알고 있는 사실만 더하자.'
+        },
+        success:'옛 지도에 공방이 표시된 건 그대로 인정하고, 소년이 오늘날 장터에서 본 여러 거래를 덧붙였어.',
+        reaction:'연구원 · 原來市集現在還有這些買賣。這是你知道、舊圖上沒有寫的事。',
+        translation:'옛 지도에 수로 주변 공방이 그려진 것은 사실이야. 소년은 지금 장터에서 여러 거래를 봤고, 옛 지도만으로 현재 마을 전체를 판단할 수 없다고 말했어.'
+      }),
+      villageTask('village-scope','不盡然','옛 지도는 지금도 쓸모가 있을까?',[
+        {id:'folder-opinion',label:'자료 봉투에 적힌 평가 · 작성자 미상',text:'這張舊圖太舊了，對現在的三溪鎮已經完全沒有參考價值。'}
+      ],{
+        draft:'這張舊圖很舊，所以對現在的三溪鎮已經完全沒有參考價值。',
+        question:'내 해설 초안에서 지나치게 확정한 부분을 고쳐.',
+        targets:[
+          {id:'old-fact',text:'這張舊圖很舊'},
+          {id:'present-target',text:'對現在的三溪鎮'},
+          {id:'no-value',text:'完全沒有參考價值'}
+        ],
+        slots:[{id:'to',label:'고칠 판단'}],answer:{to:'no-value'},directSlot:'to',
+        workLabel:'나의 해설 초안',confirmLabel:'판단 고치기',
+        correction:'舊圖雖然不能告訴我們現在每個地方的樣子，但至少能用來對照那條通往市集的路。',
+        wrong:{},
+        slotFeedback:{to:'옛 지도가 오래됐고, 지금의 마을을 비교하려는 건 맞아. 완전히 쓸모없다는 판단만 다시 봐.'},
+        success:'지금 마을의 모든 것을 설명할 수는 없지만, 옛날과 지금의 길을 비교할 자료는 남아 있지.',
+        reaction:'소년 · 完全沒用了？也不盡然吧。至少那條路現在還有人走。',
+        translation:'자료 봉투에는 옛 지도가 너무 오래돼 지금 마을에는 전혀 참고할 가치가 없다고 쓰여 있어. 하지만 적어도 길을 비교할 단서는 남아 있어.'
+      }),
+      villageTask('village-reread','仍然','둘이 남긴 해설을 다시 읽자',[
+        {id:'joint-note',label:'옛 지도 옆에 붙일 공동 해설',text:'舊圖標著一條通往市集的路，圖旁還記著那條路常有人走，並畫了水道旁的幾間工坊。少年說，那條路現在仍然有人走；他只看見一處歇腳的地方，另一處是否還在，尚不知道。舊圖上固然畫著水道旁的工坊，但今天的市集也有各種買賣，不能只憑舊圖就說全鎮的買賣都離不開水道。有人說舊圖對今天毫無參考價值，這樣的說法也不盡然；至少，我們可以拿那條路和現在的情況對照。'}
+      ],{
+        type:'read',readOnly:true,confirmLabel:'함께 쓴 해설 확인',
+        readBeats:[{speaker:'연구원',zh:'不知道的地方，就先留著問題。',ko:'모르는 부분은 질문으로 남겨 두자.'}],
+        sourceNote:'옛 지도·작성자 미상 쪽지·소년의 현재 증언을 구별해 정리한 공동 해설이야.',
+        success:'원본 기록을 지우지 않고, 확인한 것과 아직 모르는 것을 함께 남겼어.'
+      })
+    ]
+  };
+  STAGES.push({
+    id:'academic-tower-turn-03b-ran-village', title:'옛 지도, 지금의 마을',
+    subtitle:'옛 지도, 지금의 마을', kicker:'학술탑 · 선택 연구 03B',
+    grid:['S'], goal:'舊地圖與現在的三溪鎮。', rule:'자료에 적힌 사실과 내 경험을 구별해 읽어.',
+    words:['仍然','突然','當然','固然','不盡然'], win:[],
+    story:'연구원과 옛 지도에 지금의 마을에 관한 해설을 덧붙이고 함께 도시락을 나눠 먹었다.',
+    completionTitle:'✓ 옛 지도, 지금의 마을', completionAction:'함께 쓴 기록 보기',
+    academicTower:villageStudy
+  });
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });

@@ -389,9 +389,13 @@
   }
 
 
-  function createMeaningState(config) {
-    return {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.introStory ? 'work' : config.introduction ? 'discovery' : config.noticeWords ? 'notice' : 'work', introRead:!!config.introStory, selectedCharacter:{},
+  function createMeaningState(config, rng = Math.random) {
+    const state = {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.introStory ? 'work' : config.introduction ? 'discovery' : config.noticeWords ? 'notice' : 'work', introRead:!!config.introStory, selectedCharacter:{},
       slot:null, placements:{}, relation:null, answers:{}, lastCheck:null};
+    if (config.villageResearch) state.optionOrders = Object.fromEntries(config.tasks.map(task => [
+      task.id, shuffledIds(task.targets || task.relations || [], rng)
+    ]));
+    return state;
   }
   function validMeaningState(config, value) {
     return !!value && value.kind === 'meaning-links' && value.schemaVersion === 1 &&
@@ -419,6 +423,17 @@
       return fresh;
     }
     const next = copy(value), task = config.tasks[next.taskIndex];
+    // 03B choices stay in one order across reloads, including incomplete drafts.
+    if (config.villageResearch) {
+      const orders = next.optionOrders && typeof next.optionOrders === 'object' ? next.optionOrders : {};
+      next.optionOrders = Object.fromEntries(config.tasks.map(item => {
+        const ids = (item.targets || item.relations || []).map(choice => choice.id);
+        const saved = orders[item.id];
+        const valid = Array.isArray(saved) && saved.length === ids.length &&
+          new Set(saved).size === ids.length && saved.every(id => ids.includes(id));
+        return [item.id, valid ? saved : ids];
+      }));
+    }
     if (config.introStory) {
       next.introRead=true;
       if (['notice','discovery'].includes(next.phase)) {next.phase='work';next.lastCheck=null;}
@@ -492,7 +507,7 @@
   }
 
   function createState(config, rng) {
-    if (config?.tasks) return createMeaningState(config);
+    if (config?.tasks) return createMeaningState(config, rng);
     if (config?.kind === 'ran-observation') return createRanState(config, rng);
     if (config?.kind === 'claim-revision') return createClaimRevisionState(config, rng);
     if (config?.kind === 'expectation-sort') return createExpectationState(config);
@@ -785,7 +800,68 @@
     return mvpDetails('task-words','표현 뜻 살펴보기',current().words.map(mvpWord).join(''));
   }
 
+
+  // 03B has a genuine reading interlude and four distinct evidence decisions.
+  // Keep the source sheet separate from choices; do not create a fake pre-solved memo.
+  function renderVillageMeaning(config, workbench) {
+    const task = config.tasks[workbench.taskIndex], done = workbench.phase !== 'work';
+    const reading = task.type === 'read';
+    const originalLabel = reading ? (task.id === 'village-reread' ? '함께 쓴 해설' : '연구실에서 일어난 일') : '원본 기록';
+    const sourceHtml = task.sources.map(item =>
+      '<div class="academicVillageSource"><small>' + escapeHtml(item.label || '기록') +
+      '</small><p lang="zh-Hant">' + mvpMarked(item.text,task.word) + '</p></div>'
+    ).join('');
+    const lines = (task.readBeats || []).map(beat =>
+      '<p class="academicVillageDialogue"><small>' + escapeHtml(beat.speaker) +
+      '</small><span lang="zh-Hant">' + escapeHtml(beat.zh) + '</span></p>'
+    ).join('');
+    const readingHelp = task.readBeats?.length ?
+      mvpDetails('village-reading', '이야기 뜻 보기',
+        task.readBeats.map(beat => '<p>' + escapeHtml(beat.speaker + ' · ' + beat.ko) + '</p>').join('')) : '';
+    const explanation = task.translation ?
+      mvpDetails('village-translation', '원문 뜻 보기', '<p>' + escapeHtml(task.translation) + '</p>') : '';
+    const original = '<section class="academicOriginal academicVillageOriginal" data-academic-zone="original" aria-label="' + originalLabel + '">' +
+      '<div class="academicRegionLabel">' + originalLabel + '</div><article class="academicMvpSource">' +
+      '<h2 class="academicTaskTitle">' + mvpWord(task.word) + '</h2>' + sourceHtml +
+      (task.sourceNote ? '<p class="academicMvpHint">' + escapeHtml(task.sourceNote) + '</p>' : '') +
+      lines + readingHelp + explanation + '</article></section>';
+    const choices = task.targets || task.relations || [];
+    const ordered = (workbench.optionOrders?.[task.id] || choices.map(c => c.id))
+      .map(id => choices.find(c => c.id === id)).filter(Boolean);
+    const chosen = task.targets ? workbench.placements.to : workbench.relation;
+    const selectedChoice = choices.find(c => c.id === chosen);
+    const action = task.targets ? 'meaning-source' : 'meaning-relation';
+    const options = ordered.map(option =>
+      mvpButton(action, option.id, '<span lang="zh-Hant">' + escapeHtml(option.text) + '</span>', chosen === option.id)
+    ).join('');
+    const prefix = task.choicePrefix && selectedChoice ?
+      '<p class="academicMvpPreview academicVillagePreview" lang="zh-Hant">' +
+      escapeHtml(task.choicePrefix + selectedChoice.text) + '</p>' : '';
+    const draft = task.draft ? '<div class="academicVillageDraft"><small>고칠 해설 초안</small><p lang="zh-Hant">' +
+      (done && task.correction ? escapeHtml(task.draft).replace('完全沒有參考價值','<del>完全沒有參考價值</del>') : escapeHtml(task.draft)) +
+      '</p></div>' : '';
+    const correction = done && task.correction ?
+      '<p class="academicMvpPreview" lang="zh-Hant">' + escapeHtml(task.correction) + '</p>' : '';
+    const reaction = done && task.reaction ?
+      '<p class="academicVillageReaction" lang="zh-Hant">' + escapeHtml(task.reaction) + '</p>' : '';
+    const selectedReading = done && selectedChoice ? '<p class="academicMeaningRelation" lang="zh-Hant">' +
+      escapeHtml(selectedChoice.text) + '</p>' : '';
+    const work = reading ? '' :
+      '<section class="academicMvpMemo academicVillageWork" data-academic-zone="work" data-academic-work-kind="interpretation">' +
+      '<div class="academicRegionLabel">' + escapeHtml(task.workLabel || '나의 해석') + '</div>' +
+      '<h2 class="academicTaskTitle">' + escapeHtml(task.question || task.title) + '</h2>' +
+      mvpFeedback(workbench.lastCheck?.feedbackKo) +
+      draft + (done ? selectedReading : '<div class="academicMvpLinks academicVillageChoices">' + options + '</div>') +
+      prefix + correction + reaction + '</section>';
+    const finishedNote = workbench.phase === 'complete' && reading ?
+      '<p class="academicMvpHint">확인한 기록과 아직 모르는 것을 남겼어. 이제 연구원과 이야기를 마무리하자.</p>' : '';
+    return '<div class="academicCaseProgress">' + (reading ? '함께 읽기' : '기록 해석') +
+      ' · ' + (workbench.taskIndex+1) + ' / ' + config.tasks.length + '</div>' +
+      original + work + finishedNote;
+  }
+
   function renderMeaning(config, workbench) {
+    if (config.villageResearch) return renderVillageMeaning(config, workbench);
     if (['notice','discovery'].includes(workbench.phase)) return renderRanWorkbench(config,workbench);
     const task=config.tasks[workbench.taskIndex], done=workbench.phase !== 'work';
     const source=id => [...task.sources,...(task.targets || [])].find(item => item.id === id)?.text || '구절을 골라 줘';

@@ -10,81 +10,339 @@
     "note": "게임에 쓰인 71개 표제어만 공식 2025-04 목록에서 대조한 개발용 부분 메타데이터다. 런타임 원자료가 아니다."
   },
   "words": {
-    "接近": { "level": "4*", "status": "listed" },
-    "遠離": { "level": null, "status": "not-listed-exact", "note": "2025-04 공식 목록에서 이 정확한 표기 문자열을 찾지 못함. 단어의 적절성이나 중국어 사용 가능성을 부정하는 판정이 아니다." },
-    "通過": { "level": "4", "status": "listed" },
-    "到達": { "level": "4*", "status": "listed" },
-    "避開": { "level": "5", "status": "listed" },
-    "進入": { "level": "4", "status": "listed" },
-    "退出": { "level": "5", "status": "listed" },
-    "距離": { "level": "4", "status": "listed" },
-    "範圍": { "level": "4*", "status": "listed" },
-    "路線": { "level": "4", "status": "listed" },
-    "經由": { "level": "5", "status": "listed" },
-    "位置": { "level": "4*", "status": "listed" },
-    "周圍": { "level": "4*", "status": "listed" },
-    "障礙": { "level": "5", "status": "listed" },
-    "移動": { "level": "4*", "status": "listed" },
-    "前進": { "level": "4*", "status": "listed" },
-    "後退": { "level": "5", "status": "listed" },
-    "跟隨": { "level": "5", "status": "listed" },
-    "帶領": { "level": "5", "status": "listed" },
-    "改變": { "level": "4", "status": "listed" },
-    "保持": { "level": "4*", "status": "listed" },
-    "增加": { "level": "4", "status": "listed" },
-    "減少": { "level": "4", "status": "listed" },
-    "調整": { "level": "4*", "status": "listed" },
-    "連接": { "level": "5", "status": "listed" },
-    "分開": { "level": "4", "status": "listed" },
-    "條件": { "level": "4", "status": "listed" },
-    "符合": { "level": "5", "status": "listed" },
-    "出現": { "level": "4", "status": "listed" },
-    "消失": { "level": "4*", "status": "listed" },
-    "損壞": { "level": "5", "status": "listed" },
-    "修復": { "level": "6", "status": "listed" },
-    "恢復": { "level": "4", "status": "listed" },
-    "需求": { "level": "5", "status": "listed" },
-    "足夠": { "level": "4", "status": "listed" },
-    "不足": { "level": "4*", "status": "listed" },
-    "數量": { "level": "4", "status": "listed" },
-    "剩下": { "level": "4", "status": "listed" },
-    "交換": { "level": "4", "status": "listed" },
-    "獲得": { "level": "5", "status": "listed" },
-    "買": { "level": "1", "status": "listed" },
-    "賣": { "level": "2", "status": "listed" },
-    "價格": { "level": "4", "status": "listed" },
-    "價值": { "level": "4*", "status": "listed" },
-    "選擇": { "level": "3*", "status": "listed" },
-    "放棄": { "level": "4", "status": "listed" },
-    "分配": { "level": "5", "status": "listed" },
-    "補充": { "level": "5", "status": "listed" },
-    "標記": { "level": "6", "status": "listed" },
-    "方向": { "level": "3*", "status": "listed" },
-    "確認": { "level": "5", "status": "listed" },
-    "正確": { "level": "4", "status": "listed" },
-    "指示": { "level": "5", "status": "listed" },
-    "特徵": { "level": "5", "status": "listed" },
-    "相似": { "level": "5", "status": "listed" },
-    "不同": { "level": "3", "status": "listed" },
-    "分辨": { "level": "5", "status": "listed" },
-    "材料": { "level": "4", "status": "listed" },
-    "適合": { "level": "3", "status": "listed" },
-    "生長": { "level": "4*", "status": "listed" },
-    "遺失": { "level": "6", "status": "listed" },
-    "尋找": { "level": "5", "status": "listed" },
-    "痕跡": { "level": "5", "status": "listed" },
-    "發現": { "level": "2", "status": "listed" },
-    "附近": { "level": "1*", "status": "listed" },
-    "留下": { "level": "3*", "status": "listed" },
-    "情況": { "level": "4", "status": "listed" },
-    "安全": { "level": "3", "status": "listed" },
-    "危險": { "level": "3", "status": "listed" },
-    "卻": { "level": "4", "status": "listed" },
-    "然而": { "level": "5", "status": "listed" },
-    "果然": { "level": "4*", "status": "listed" },
-    "竟然": { "level": "4*", "status": "listed" },
-    "反而": { "level": "5", "status": "listed" },
-    "既然": { "level": "4*", "status": "listed", "sourceRef": "w4s-jiran", "note": "tbcl-discourse-candidates-2025-04.json의 공식 추출 스냅샷과 대조했다." },
-    "不然": { "level": "5", "status": "listed", "sourceRef": "w5-buran", "note": "tbcl-discourse-candidates-2025-04.json의 공식 추출 스냅샷과 대조했다." }
+    "接近": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "遠離": {
+      "level": null,
+      "status": "not-listed-exact",
+      "note": "2025-04 공식 목록에서 이 정확한 표기 문자열을 찾지 못함. 단어의 적절성이나 중국어 사용 가능성을 부정하는 판정이 아니다."
+    },
+    "通過": {
+      "level": "4",
+      "status": "listed"
+    },
+    "到達": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "避開": {
+      "level": "5",
+      "status": "listed"
+    },
+    "進入": {
+      "level": "4",
+      "status": "listed"
+    },
+    "退出": {
+      "level": "5",
+      "status": "listed"
+    },
+    "距離": {
+      "level": "4",
+      "status": "listed"
+    },
+    "範圍": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "路線": {
+      "level": "4",
+      "status": "listed"
+    },
+    "經由": {
+      "level": "5",
+      "status": "listed"
+    },
+    "位置": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "周圍": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "障礙": {
+      "level": "5",
+      "status": "listed"
+    },
+    "移動": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "前進": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "後退": {
+      "level": "5",
+      "status": "listed"
+    },
+    "跟隨": {
+      "level": "5",
+      "status": "listed"
+    },
+    "帶領": {
+      "level": "5",
+      "status": "listed"
+    },
+    "改變": {
+      "level": "4",
+      "status": "listed"
+    },
+    "保持": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "增加": {
+      "level": "4",
+      "status": "listed"
+    },
+    "減少": {
+      "level": "4",
+      "status": "listed"
+    },
+    "調整": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "連接": {
+      "level": "5",
+      "status": "listed"
+    },
+    "分開": {
+      "level": "4",
+      "status": "listed"
+    },
+    "條件": {
+      "level": "4",
+      "status": "listed"
+    },
+    "符合": {
+      "level": "5",
+      "status": "listed"
+    },
+    "出現": {
+      "level": "4",
+      "status": "listed"
+    },
+    "消失": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "損壞": {
+      "level": "5",
+      "status": "listed"
+    },
+    "修復": {
+      "level": "6",
+      "status": "listed"
+    },
+    "恢復": {
+      "level": "4",
+      "status": "listed"
+    },
+    "需求": {
+      "level": "5",
+      "status": "listed"
+    },
+    "足夠": {
+      "level": "4",
+      "status": "listed"
+    },
+    "不足": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "數量": {
+      "level": "4",
+      "status": "listed"
+    },
+    "剩下": {
+      "level": "4",
+      "status": "listed"
+    },
+    "交換": {
+      "level": "4",
+      "status": "listed"
+    },
+    "獲得": {
+      "level": "5",
+      "status": "listed"
+    },
+    "買": {
+      "level": "1",
+      "status": "listed"
+    },
+    "賣": {
+      "level": "2",
+      "status": "listed"
+    },
+    "價格": {
+      "level": "4",
+      "status": "listed"
+    },
+    "價值": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "選擇": {
+      "level": "3*",
+      "status": "listed"
+    },
+    "放棄": {
+      "level": "4",
+      "status": "listed"
+    },
+    "分配": {
+      "level": "5",
+      "status": "listed"
+    },
+    "補充": {
+      "level": "5",
+      "status": "listed"
+    },
+    "標記": {
+      "level": "6",
+      "status": "listed"
+    },
+    "方向": {
+      "level": "3*",
+      "status": "listed"
+    },
+    "確認": {
+      "level": "5",
+      "status": "listed"
+    },
+    "正確": {
+      "level": "4",
+      "status": "listed"
+    },
+    "指示": {
+      "level": "5",
+      "status": "listed"
+    },
+    "特徵": {
+      "level": "5",
+      "status": "listed"
+    },
+    "相似": {
+      "level": "5",
+      "status": "listed"
+    },
+    "不同": {
+      "level": "3",
+      "status": "listed"
+    },
+    "分辨": {
+      "level": "5",
+      "status": "listed"
+    },
+    "材料": {
+      "level": "4",
+      "status": "listed"
+    },
+    "適合": {
+      "level": "3",
+      "status": "listed"
+    },
+    "生長": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "遺失": {
+      "level": "6",
+      "status": "listed"
+    },
+    "尋找": {
+      "level": "5",
+      "status": "listed"
+    },
+    "痕跡": {
+      "level": "5",
+      "status": "listed"
+    },
+    "發現": {
+      "level": "2",
+      "status": "listed"
+    },
+    "附近": {
+      "level": "1*",
+      "status": "listed"
+    },
+    "留下": {
+      "level": "3*",
+      "status": "listed"
+    },
+    "情況": {
+      "level": "4",
+      "status": "listed"
+    },
+    "安全": {
+      "level": "3",
+      "status": "listed"
+    },
+    "危險": {
+      "level": "3",
+      "status": "listed"
+    },
+    "卻": {
+      "level": "4",
+      "status": "listed"
+    },
+    "然而": {
+      "level": "5",
+      "status": "listed"
+    },
+    "果然": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "竟然": {
+      "level": "4*",
+      "status": "listed"
+    },
+    "反而": {
+      "level": "5",
+      "status": "listed"
+    },
+    "既然": {
+      "level": "4*",
+      "status": "listed",
+      "sourceRef": "w4s-jiran",
+      "note": "tbcl-discourse-candidates-2025-04.json의 공식 추출 스냅샷과 대조했다."
+    },
+    "不然": {
+      "level": "5",
+      "status": "listed",
+      "sourceRef": "w5-buran",
+      "note": "tbcl-discourse-candidates-2025-04.json의 공식 추출 스냅샷과 대조했다."
+    },
+    "仍然": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "게임의 새 목표어; 현재 로컬 등급 스냅샷에서 공식 TBCL 표제 대조 전."
+    },
+    "突然": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "게임의 새 목표어; 현재 로컬 등급 스냅샷에서 공식 TBCL 표제 대조 전."
+    },
+    "當然": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "게임의 새 목표어; 현재 로컬 등급 스냅샷에서 공식 TBCL 표제 대조 전."
+    },
+    "固然": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "게임의 새 목표어; 현재 로컬 등급 스냅샷에서 공식 TBCL 표제 대조 전."
+    },
+    "不盡然": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "게임의 새 목표어; 현재 로컬 등급 스냅샷에서 공식 TBCL 표제 대조 전."
+    }
   }
 }
