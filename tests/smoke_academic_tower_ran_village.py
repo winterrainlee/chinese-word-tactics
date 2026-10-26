@@ -37,7 +37,7 @@ try:
                 seed['completedStages'] += ['academic-tower-turn-04-faner','academic-tower-turn-05-synthesis']
                 seed['completedMilestones'].append('academic-tower-turn-foundation')
                 seed['seenStories'].append('academic-tower-turn-result')
-            page.add_init_script("localStorage.setItem('chinese-word-tactics-journey-v1',"+
+            page.add_init_script("if (!localStorage.getItem('chinese-word-tactics-journey-v1')) localStorage.setItem('chinese-word-tactics-journey-v1',"+
                                  json.dumps(json.dumps(seed))+");")
             page.goto(f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/')
             page.wait_for_function('!!window.AcademicTowerRuntime')
