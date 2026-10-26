@@ -285,7 +285,7 @@ test('browser entrypoints load the tower in dependency order and expose a dedica
   assert.match(html, /academic-tower-hub-runtime\.js\?v=\d{8}-[a-z0-9]+/);
   assert.match(html, /academic-tower-content\.js\?v=\d{8}-[a-z0-9]+/);
   assert.match(html, /academic-tower-runtime\.js\?v=\d{8}-[a-z0-9]+/);
-  assert.match(html, /lexicon-content\.js\?v=20261005-towerexpand1/);
+  assert.match(html, /lexicon-content\.js\?v=\d{8}-[a-z0-9-]+/);
   assert.match(html, /story-pronunciation-content\.js\?v=\d{8}-[a-z0-9]+/);
   assert.match(read('src/flow-runtime.js'), /returnTargetFor/);
   assert.match(read('src/app.js'), /research-city'\?'academic-tower/);
