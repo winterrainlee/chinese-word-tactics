@@ -742,18 +742,12 @@
           'same-crowd':'그 길을 다니는 사람은 있지만, 옛날과 지금이 매일 똑같이 붐빈다는 근거는 없어.'
         },
         success:'그 길을 다니는 사람이 지금도 있다는 것만 남겼어. 다른 쉼터와 길의 혼잡도는 아직 확인하지 않았어.',
-        reaction:'연구원 · 原來你真的走過。那我不能只看舊圖了。',
         translation:'옛 지도에는 장터로 향하는 길과 쉼터 두 곳이 그려져 있어. 옆 메모에는 사람들이 그 길을 자주 다닌다고 적혀 있지. 소년은 지금도 사람이 다니는 걸 봤지만, 쉼터는 한 곳만 봤대.'
       }),
       villageTask('village-paper','突然','지도 사이에서 나온 쪽지',[
         {id:'paper',label:'연구실에서 생긴 일',text:'研究員剛翻開地圖的一角，一張摺好的紙突然滑了出來。'}
       ],{
         type:'read', readOnly:true, confirmLabel:'쪽지 펼치기',
-        readBeats:[
-          {speaker:'소년',zh:'這張紙怎麼突然跑出來了？',ko:'이 종이는 왜 갑자기 튀어나오는 거예요?'},
-          {speaker:'연구원',zh:'咦？我明明記得已經整理好了……',ko:'어? 분명 정리해 놨다고 생각했는데….'},
-          {speaker:'서술',zh:'少年忍不住笑了一下。研究員也笑了，把紙攤開。',ko:'소년이 웃음을 참지 못하자 연구원도 피식 웃고 종이를 펼쳤다.'}
-        ],
         success:'종이가 갑자기 미끄러져 나온 짧은 순간이었어.'
       }),
       villageTask('village-assumption','當然','지도에서 확인한 정보와 쪽지의 생각은?',[
@@ -770,7 +764,6 @@
         workLabel:'나의 검토 메모',confirmLabel:'구분 확인',
         slotFeedback:{to:'그건 지도에서 직접 볼 수 있는 정보야. 쪽지에서 마을 전체까지 넓힌 판단을 찾아봐.'},
         success:'당연하다고 쓴 것은 작성자의 확신이야. 지도가 마을의 모든 거래를 증명한 건 아니지.',
-        reaction:'소년 · 這張紙說得好肯定，可是它怎麼知道全鎮的事？',
         translation:'옛 지도에는 수로 옆 공방과 장터 방향 길이 그려져 있어. 하지만 쪽지는 마을의 모든 거래가 수로에서 벗어날 수 없다고 단정했어.'
       }),
       villageTask('village-concession','固然','지도의 사실을 남기고 다른 모습도 덧붙이자',[
@@ -789,7 +782,6 @@
           'all-gone':'소년은 지금 공방이 모두 사라졌다고 말하지 않았어. 알고 있는 사실만 더하자.'
         },
         success:'옛 지도에 공방이 표시된 건 그대로 인정하고, 소년이 오늘날 장터에서 본 여러 거래를 덧붙였어.',
-        reaction:'연구원 · 原來市集現在還有這些買賣。這是你知道、舊圖上沒有寫的事。',
         translation:'옛 지도에 수로 주변 공방이 그려진 것은 사실이야. 소년은 지금 장터에서 여러 거래를 봤고, 옛 지도만으로 현재 마을 전체를 판단할 수 없다고 말했어.'
       }),
       villageTask('village-scope','不盡然','옛 지도는 지금도 쓸모가 있을까?',[
@@ -808,19 +800,44 @@
         wrong:{},
         slotFeedback:{to:'옛 지도가 오래됐고, 지금의 마을을 비교하려는 건 맞아. 완전히 쓸모없다는 판단만 다시 봐.'},
         success:'지금 마을의 모든 것을 설명할 수는 없지만, 옛날과 지금의 길을 비교할 자료는 남아 있지.',
-        reaction:'소년 · 完全沒用了？也不盡然吧。至少那條路現在還有人走。',
         translation:'자료 봉투에는 옛 지도가 너무 오래돼 지금 마을에는 전혀 참고할 가치가 없다고 쓰여 있어. 하지만 적어도 길을 비교할 단서는 남아 있어.'
       }),
       villageTask('village-reread','仍然','둘이 남긴 해설을 다시 읽자',[
         {id:'joint-note',label:'옛 지도 옆에 붙일 공동 해설',text:'舊圖標著一條通往市集的路，圖旁還記著那條路常有人走，並畫了水道旁的幾間工坊。少年說，那條路現在仍然有人走；他只看見一處歇腳的地方，另一處是否還在，尚不知道。舊圖上固然畫著水道旁的工坊，但今天的市集也有各種買賣，不能只憑舊圖就說全鎮的買賣都離不開水道。有人說舊圖對今天毫無參考價值，這樣的說法也不盡然；至少，我們可以拿那條路和現在的情況對照。'}
       ],{
         type:'read',readOnly:true,confirmLabel:'함께 쓴 해설 확인',
-        readBeats:[{speaker:'연구원',zh:'不知道的地方，就先留著問題。',ko:'모르는 부분은 질문으로 남겨 두자.'}],
         sourceNote:'옛 지도·작성자 미상 쪽지·소년의 현재 증언을 구별해 정리한 공동 해설이야.',
         success:'원본 기록을 지우지 않고, 확인한 것과 아직 모르는 것을 함께 남겼어.'
       })
     ]
   };
+
+  // Both intermediate scenes use the same shared StoryRuntime UI as the intro/outcome.
+  // They are checkpoint scenes within one stable stage, not extra Journey nodes.
+  villageStudy.scenes = {
+    paper: {
+      id:'academic-tower-03b-scene-paper', titleKo:'갑자기 나온 종이',
+      background:'academic-tower', placeZh:'學術塔研究室', placeKo:'학술탑 연구실',
+      beats:[
+        {speaker:'towerResearcher',zh:'原來你真的走過。那我不能只看舊圖了。',ko:'정말 다녀왔구나. 그럼 옛 지도만 보고 있을 순 없겠네.'},
+        {speaker:'narrator',zh:'研究員剛翻開地圖的一角，一張摺好的紙突然滑了出來。',ko:'연구원이 지도의 한쪽을 들추자 접힌 종이가 갑자기 빠져나왔다.'},
+        {speaker:'boy',zh:'這張紙怎麼突然跑出來了？',ko:'이 종이는 왜 갑자기 튀어나오는 거예요?'},
+        {speaker:'towerResearcher',zh:'咦？我明明記得已經整理好了……',ko:'어? 분명 정리해 놨다고 생각했는데….'},
+        {speaker:'narrator',zh:'少年忍不住笑了一下。研究員也笑了，把紙攤開。',ko:'소년이 웃음을 참지 못하자 연구원도 피식 웃고 종이를 펼쳤다.'}
+      ]
+    },
+    market: {
+      id:'academic-tower-03b-scene-market', titleKo:'이번에는 내가 배울 차례',
+      background:'academic-tower', placeZh:'學術塔研究室', placeKo:'학술탑 연구실',
+      beats:[
+        {speaker:'boy',zh:'剛才那張紙說得那麼肯定，怎麼會知道全鎮的事呢？',ko:'아까 그 쪽지는 그렇게 자신 있게 말하던데, 마을 전체를 어떻게 알았을까요?'},
+        {speaker:'towerResearcher',zh:'你說得對。原來現在的市集還有那麼多買賣。',ko:'그러네. 지금 장터에는 다양한 거래가 있구나.'},
+        {speaker:'boy',zh:'你沒去看過嗎？',ko:'연구원님은 가 보신 적 없어요?'},
+        {speaker:'towerResearcher',zh:'舊記錄我看得多，現在的市集倒是你比較熟。這一段就一起寫吧。',ko:'옛 기록은 내가 많이 봤지만 지금 장터는 네가 더 잘 알겠네. 이 부분은 함께 적자.'}
+      ]
+    }
+  };
+
   STAGES.push({
     id:'academic-tower-turn-03b-ran-village', title:'옛 지도, 지금의 마을',
     subtitle:'옛 지도, 지금의 마을', kicker:'학술탑 · 선택 연구 03B',

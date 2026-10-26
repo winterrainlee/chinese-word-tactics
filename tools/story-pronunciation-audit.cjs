@@ -59,6 +59,15 @@ for (const id of storyIds) {
   addBeats(id, story.beats, `story:${id}`);
 }
 
+// 03B keeps two story-screen interludes inside one stage, without adding
+// Journey nodes. Audit their exact speaker/place/beat pronunciation too.
+const villageConfig = vm.runInContext(
+  "STAGES.find(stage => stage.id === 'academic-tower-turn-03b-ran-village')?.academicTower", context);
+for (const scene of Object.values(villageConfig?.scenes || {})) {
+  add(scene.id, scene.placeZh, `stage-scene:${scene.id}:place`);
+  addBeats(scene.id, scene.beats, `stage-scene:${scene.id}`);
+}
+
 for (const [group, configs] of [
   ['outcome', context.StoryOutcomeContent.VARIANTS],
   ['market-outcome', context.StoryOutcomeContent.marketVariants]

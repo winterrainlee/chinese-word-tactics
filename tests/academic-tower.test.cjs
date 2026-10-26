@@ -474,6 +474,7 @@ test('03B follows 03A result and remains independent of 04 and 05',()=>{
   assert.ok(stories['academic-tower-ran-village-intro'].beats.some(x=>x.zh.includes('便當')));
   assert.ok(stories['academic-tower-ran-village-intro'].beats.some(x=>x.zh.includes('訪客簿')));
   assert.ok(stories['academic-tower-ran-village-result'].beats.some(x=>x.zh.includes('一起吃')));
+  assert.ok(stories['academic-tower-ran-village-result'].beats.some(x=>x.zh.includes('不盡然')));
 });
 
 test('03B choices, pure reading and confirmed state survive resume without affecting old stages',()=>{
@@ -488,14 +489,40 @@ test('03B choices, pure reading and confirmed state survive resume without affec
   assert.deepEqual(plain(config.tasks.filter(t=>t.type==='read').map(t=>t.id)),['village-paper','village-reread']);
   assert.ok(config.tasks[0].relations.every(t=>t.text.includes('仍然')));
   assert.ok(config.tasks[3].choicePrefix.includes('固然'));
+  assert.equal(config.scenes.paper.beats.length,5);
+  assert.equal(config.scenes.market.beats.length,4);
+  assert.ok(config.tasks.every(t=>!t.reaction && !t.readBeats));
   let state=plain(M.createState(config,()=>.25)),order=plain(state.optionOrders);
   const action=(type,value)=>{const r=M.applyAction(config,state,{type,value});state=plain(r.state);return r;};
   assert.equal(state.phase,'work');assert.deepEqual(state.answers,{});
   for(const [index,task] of config.tasks.entries()){
     assert.equal(state.taskIndex,index);
+    if(index===1){
+      assert.equal(state.phase,'scene');
+      assert.equal(state.sceneId,'paper');
+      assert.equal(action('meaning-confirm').changed,false);
+      // The narrative position belongs in the saved tactical state.
+      state.sceneIndex=3;
+      assert.equal(M.normalizeMeaning(config,state).sceneIndex,3);
+      action('meaning-scene-finish');
+      assert.equal(state.taskIndex,2);
+      assert.equal(state.phase,'work');
+      assert.ok(state.answers['village-paper']);
+      assert.ok(state.seenScenes.includes('paper'));
+      continue;
+    }
+    if(index===4){
+      assert.equal(state.phase,'scene');
+      assert.equal(state.sceneId,'market');
+      assert.equal(action('meaning-confirm').changed,false);
+      action('meaning-scene-finish');
+      assert.equal(state.phase,'work');
+      assert.equal(state.taskIndex,4);
+      assert.ok(state.seenScenes.includes('market'));
+    }
     if(task.type==='read'){
       assert.equal(action('meaning-confirm').correct,true);
-      assert.equal(state.phase,index===5?'complete':'work');
+      assert.equal(state.phase,'complete');
       continue;
     }
     const options=task.targets||task.relations;
@@ -518,4 +545,22 @@ test('03B choices, pure reading and confirmed state survive resume without affec
   assert.equal(M.isSolved(config,initial),false);
   const damaged=plain(state);delete damaged.answers['village-path'];
   assert.equal(M.normalizeMeaning(config,damaged).taskIndex,0);
+  const existingT2=plain(M.createState(config,()=>.5));
+  existingT2.answers['village-path']={placements:{},relation:'road-used'};
+  existingT2.taskIndex=1;existingT2.phase='work';
+  delete existingT2.sceneId;delete existingT2.seenScenes;delete existingT2.sceneIndex;
+  const convertedT2=plain(M.normalizeMeaning(config,existingT2));
+  assert.equal(convertedT2.phase,'scene');
+  assert.equal(convertedT2.sceneId,'paper');
+  assert.deepEqual(convertedT2.answers['village-path'],{placements:{},relation:'road-used'});
+  const existingT5=plain(state);
+  existingT5.phase='work';existingT5.taskIndex=4;
+  delete existingT5.answers['village-scope'];
+  delete existingT5.answers['village-reread'];
+  delete existingT5.seenScenes;delete existingT5.sceneId;delete existingT5.sceneIndex;
+  const convertedT5=plain(M.normalizeMeaning(config,existingT5));
+  assert.equal(convertedT5.phase,'scene');
+  assert.equal(convertedT5.sceneId,'market');
+  assert.ok(convertedT5.answers['village-concession']);
+
 });

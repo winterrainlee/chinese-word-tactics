@@ -1,4 +1,4 @@
-"""03B: a packed-lunch visit, four distinct semantic judgments, and two reading-only beats."""
+"""03B: separate portrait stories from research, preserve mid-scene save/replay."""
 import http.server
 import json
 import threading
@@ -88,20 +88,60 @@ try:
                 assert page.locator('.academicMvpFeedback').get_attribute('data-verdict') == 'correct'
                 action(page,'meaning-next')
 
-            wrong_then_right() # T1
+            wrong_then_right() # T1 -> portrait story with 突然
             assert page.evaluate('state.academicTower.taskIndex') == 1
-            assert page.locator('[data-academic-zone="work"]').count() == 0
-            assert '突然' in page.locator('#grid').inner_text()
-            assert '쪽지 펼치기' in page.locator('#academicMvpConfirm').inner_text()
-            layout();action(page,'meaning-confirm') # T2 read-only
+            assert page.evaluate('state.academicTower.phase') == 'scene'
+            assert page.evaluate('state.academicTower.sceneId') == 'paper'
+            assert page.locator('#storyView').is_visible()
+            assert not page.locator('#tutorialView').is_visible()
+            assert page.locator('#storyCount').inner_text() == '1 / 5'
+            assert page.locator('#storyPortrait').is_visible()
+            assert page.evaluate("""StoryPronunciation.readingFor(
+              'academic-tower-03b-scene-paper',
+              '研究員剛翻開地圖的一角，一張摺好的紙突然滑了出來。'
+            ) !== null""")
+            page.locator('#storyNext').click()
+            assert page.locator('#storyCount').inner_text() == '2 / 5'
+            assert '突然' in page.locator('#storyZh').inner_text()
+            assert page.evaluate('state.academicTower.sceneIndex') == 1
+            saved_scene = page.evaluate('state.academicTower')
+            page.reload()
+            page.wait_for_function('!!window.AcademicTowerRuntime')
+            assert page.evaluate('GameFlow.resume()')
+            assert page.locator('#storyView').is_visible()
+            assert page.locator('#storyCount').inner_text() == '2 / 5'
+            assert page.evaluate('state.academicTower') == saved_scene
+            while page.locator('#storyView').is_visible():
+                page.locator('#storyNext').click()
             assert page.evaluate('state.academicTower.taskIndex') == 2
+            assert page.evaluate('state.academicTower.phase') == 'work'
             assert page.locator('[data-academic-zone="work"]').count() == 1
+            assert page.locator('.academicVillageReaction').count() == 0
             wrong_then_right() # T3
             assert page.evaluate('state.academicTower.taskIndex') == 3
             assert '固然' in page.locator('#grid').inner_text()
-            wrong_then_right() # T4
+            wrong_then_right() # T4 -> second portrait story
             assert page.evaluate('state.academicTower.taskIndex') == 4
+            assert page.evaluate('state.academicTower.phase') == 'scene'
+            assert page.evaluate('state.academicTower.sceneId') == 'market'
+            assert page.locator('#storyView').is_visible()
+            assert page.locator('#storyCount').inner_text() == '1 / 4'
+            assert page.locator('#storyPortrait').is_visible()
+            page.locator('#storyNext').click()
+            page.locator('#storyNext').click()
+            assert page.locator('#storyCount').inner_text() == '3 / 4'
+            old_scene=page.evaluate('state.academicTower')
+            page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
+            assert page.evaluate('GameFlow.resume()')
+            assert page.locator('#storyView').is_visible()
+            assert page.locator('#storyCount').inner_text() == '3 / 4'
+            assert page.evaluate('state.academicTower') == old_scene
+            while page.locator('#storyView').is_visible():
+                page.locator('#storyNext').click()
+            assert page.evaluate('state.academicTower.taskIndex') == 4
+            assert page.evaluate('state.academicTower.phase') == 'work'
             assert '不盡然' in page.locator('#grid').inner_text()
+            assert page.locator('.academicVillageReaction').count() == 0
             wrong_then_right() # T5
             assert page.evaluate('state.academicTower.taskIndex') == 5
             assert page.locator('[data-academic-zone="work"]').count() == 0
@@ -113,7 +153,7 @@ try:
             assert page.locator('#flowNext').is_visible()
             page.locator('#flowNext').click()
             assert page.locator('#storyView').is_visible()
-            assert int(page.locator('#storyCount').inner_text().split('/')[1]) == 10
+            assert int(page.locator('#storyCount').inner_text().split('/')[1]) == 11
             finish_story(page)
             page.locator('#academicTowerView').wait_for(state='visible')
             progress=page.evaluate('GameFlow.progress()')
@@ -128,9 +168,17 @@ try:
             assert page.evaluate('state.academicTower.taskIndex') == 0
             assert page.evaluate('state.academicTower.answers') == {}
             assert page.evaluate("localStorage.getItem('chinese-word-tactics-journey-v1')") == before
+            action(page,'meaning-relation','road-used')
+            action(page,'meaning-confirm')
+            action(page,'meaning-next')
+            assert page.locator('#storyView').is_visible()
+            assert page.locator('#storySkip').is_visible()
+            page.locator('#storySkip').click()
+            assert page.evaluate('state.academicTower.taskIndex') == 2
+            assert page.evaluate("localStorage.getItem('chinese-word-tactics-journey-v1')") == before
             assert not errors,errors
             page.close()
         browser.close()
 finally:
     server.shutdown()
-print('PASS: 03B packed lunch story, 4 decisions, 2 reading steps, save/replay and four viewports.')
+print('PASS: 03B separate portrait scenes, 4 decisions, mid-scene resumes, replay skips and four viewports.')

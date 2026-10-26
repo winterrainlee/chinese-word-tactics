@@ -392,15 +392,19 @@
   function createMeaningState(config, rng = Math.random) {
     const state = {kind:'meaning-links', schemaVersion:1, taskIndex:0, phase:config.introStory ? 'work' : config.introduction ? 'discovery' : config.noticeWords ? 'notice' : 'work', introRead:!!config.introStory, selectedCharacter:{},
       slot:null, placements:{}, relation:null, answers:{}, lastCheck:null};
-    if (config.villageResearch) state.optionOrders = Object.fromEntries(config.tasks.map(task => [
-      task.id, shuffledIds(task.targets || task.relations || [], rng)
-    ]));
+    if (config.villageResearch) {
+      state.optionOrders = Object.fromEntries(config.tasks.map(task => [
+        task.id, shuffledIds(task.targets || task.relations || [], rng)
+      ]));
+      state.seenScenes=[]; state.sceneId=null; state.sceneIndex=0;
+    }
     return state;
   }
   function validMeaningState(config, value) {
     return !!value && value.kind === 'meaning-links' && value.schemaVersion === 1 &&
       Number.isInteger(value.taskIndex) && value.taskIndex >= 0 && value.taskIndex < config.tasks.length &&
-      (config.noticeWords ? ['notice','discovery','work','review','complete'] : ['work','review','complete']).includes(value.phase) && value.placements && typeof value.placements === 'object' &&
+      (config.noticeWords ? ['notice','discovery','work','review','complete'] :
+        config.villageResearch ? ['work','review','scene','complete'] : ['work','review','complete']).includes(value.phase) && value.placements && typeof value.placements === 'object' &&
       value.answers && typeof value.answers === 'object';
   }
   function meaningAnswerCorrect(task, answer) {
@@ -451,6 +455,28 @@
     next.answers = Object.fromEntries(config.tasks.filter(t => meaningAnswerCorrect(t, next.answers[t.id])).map(t => [t.id,next.answers[t.id]]));
     const missing = config.tasks.slice(0,next.taskIndex).findIndex(t => !next.answers[t.id]);
     if (missing >= 0) {next.migrationNotice='판단할 내용이 바뀐 기록부터 다시 살펴보자. 이전 완료와 이야기 기록은 그대로야.';next.taskIndex=missing; next.phase='work'; next.placements={}; next.relation=null; next.lastCheck=null;}
+    // Compatibility: mid-progress 03B saves used to show dialogues inside the task.
+    // Convert an unfinished reading task or an untouched T5 into a resumable scene.
+    if (config.villageResearch) {
+      next.seenScenes = Array.isArray(next.seenScenes)
+        ? [...new Set(next.seenScenes.filter(id => ['paper','market'].includes(id)))] : [];
+      const pendingScene = next.taskIndex === 1 && !next.answers['village-paper'] ? 'paper'
+        : next.taskIndex === 4 && !next.answers['village-scope'] && !next.seenScenes.includes('market')
+          ? 'market' : null;
+      if (next.phase === 'scene' && next.sceneId !== pendingScene) {
+        next.phase='work'; next.sceneId=null; next.sceneIndex=0;
+      }
+      if (next.phase === 'work' && pendingScene) {
+        next.phase='scene'; next.sceneId=pendingScene; next.sceneIndex=0;
+      }
+      if (next.phase === 'scene') {
+        const count=config.scenes[next.sceneId]?.beats.length || 1;
+        if (!Number.isInteger(next.sceneIndex) || next.sceneIndex < 0 || next.sceneIndex >= count) next.sceneIndex=0;
+        next.placements={}; next.relation=null; next.lastCheck=null;
+        return next;
+      }
+      next.sceneId=null; next.sceneIndex=0;
+    }
     const currentTask = config.tasks[next.taskIndex];
     next.placements = Object.fromEntries(currentTask.slots.filter(slot => [...currentTask.sources,...(currentTask.targets || [])].some(source => source.id === next.placements[slot.id])).map(slot => [slot.id,next.placements[slot.id]]));
     if (!currentTask.slots.some(slot => slot.id === next.slot)) next.slot=null;
@@ -498,7 +524,22 @@
         changed=true;
       }
     } else if (next.phase === 'review' && action.type === 'meaning-next') {
-      next.taskIndex++; next.phase='work'; next.slot=null; next.placements={}; next.relation=null; next.lastCheck=null; changed=true;
+      next.taskIndex++; next.phase='work'; next.slot=null; next.placements={}; next.relation=null; next.lastCheck=null;
+      if (config.villageResearch) {
+        const id=next.taskIndex===1 ? 'paper' : next.taskIndex===4 ? 'market' : null;
+        if (id) { next.phase='scene'; next.sceneId=id; next.sceneIndex=0; }
+      }
+      changed=true;
+    } else if (config.villageResearch && next.phase === 'scene' && action.type === 'meaning-scene-finish') {
+      const sceneId=next.sceneId;
+      next.seenScenes=[...new Set([...(next.seenScenes || []),sceneId])];
+      if (sceneId==='paper') {
+        // The reading-only step is considered read only once its story has ended.
+        next.answers[task.id]={placements:{},relation:null};
+        next.taskIndex++;
+      }
+      next.phase='work'; next.sceneId=null; next.sceneIndex=0;
+      next.slot=null; next.placements={}; next.relation=null; next.lastCheck=null; changed=true;
     }
     return {state:next,changed,correct,feedback};
   }
@@ -842,8 +883,6 @@
       '</p></div>' : '';
     const correction = done && task.correction ?
       '<p class="academicMvpPreview" lang="zh-Hant">' + escapeHtml(task.correction) + '</p>' : '';
-    const reaction = done && task.reaction ?
-      '<p class="academicVillageReaction" lang="zh-Hant">' + escapeHtml(task.reaction) + '</p>' : '';
     const selectedReading = done && selectedChoice ? '<p class="academicMeaningRelation" lang="zh-Hant">' +
       escapeHtml(selectedChoice.text) + '</p>' : '';
     const work = reading ? '' :
@@ -852,7 +891,7 @@
       '<h2 class="academicTaskTitle">' + escapeHtml(task.question || task.title) + '</h2>' +
       mvpFeedback(workbench.lastCheck?.feedbackKo) +
       draft + (done ? selectedReading : '<div class="academicMvpLinks academicVillageChoices">' + options + '</div>') +
-      prefix + correction + reaction + '</section>';
+      prefix + correction + '</section>';
     const finishedNote = workbench.phase === 'complete' && reading ?
       '<p class="academicMvpHint">확인한 기록과 아직 모르는 것을 남겼어. 이제 연구원과 이야기를 마무리하자.</p>' : '';
     return '<div class="academicCaseProgress">' + (reading ? '함께 읽기' : '기록 해석') +
@@ -1305,6 +1344,43 @@
     }, 220);
   }
 
+  // Intermediate narrative is a normal portrait-backed story screen. The
+  // stage stays one Journey node; the reading position lives in the tactical save.
+  function showVillageScene(config, workbench) {
+    const scene=config.scenes?.[workbench.sceneId];
+    if (!scene || !globalThis.StoryRuntime) return false;
+    const stageId=current().id, sceneId=workbench.sceneId;
+    globalThis.TacticalGame.showView('story');
+    globalThis.StoryRuntime.play(scene,{
+      beat:workbench.sceneIndex || 0,
+      seen:stageSession.mode==='replay' || (workbench.seenScenes || []).includes(sceneId),
+      endLabel:sceneId==='paper' ? '쪽지 살펴보기' : '마지막 기록 살펴보기',
+      onPosition(index) {
+        if (current()?.id !== stageId || state.academicTower?.phase !== 'scene' ||
+            state.academicTower.sceneId !== sceneId) return;
+        if (state.academicTower.sceneIndex !== index) {
+          state.academicTower.sceneIndex=index;
+          save();
+        }
+      },
+      onFinish() {
+        if (current()?.id !== stageId || state.academicTower?.phase !== 'scene' ||
+            state.academicTower.sceneId !== sceneId) return;
+        const transition=applyMeaningAction(config,state.academicTower,{type:'meaning-scene-finish'});
+        if (!transition.changed) return;
+        state.academicTower=transition.state;
+        state.turn++;
+        save();
+        globalThis.TacticalGame.showView('tutorial');
+        render();
+        gridEl.scrollTop=0;
+        window.scrollTo(0,0);
+      }
+    });
+    window.scrollTo(0,0);
+    return true;
+  }
+
   const baseRender = render;
   render = function academicTowerRender() {
     const stage = current();
@@ -1322,6 +1398,10 @@
     else if (!isValidState(config, state.academicTower)) state.academicTower = createState(config);
     if (!config.tasks && config.kind === 'replacement-link') state.academicTower = upgradeReplacementState(config, state.academicTower);
     const workbench = state.academicTower;
+    if (config.villageResearch && workbench.phase === 'scene') {
+      showVillageScene(config,workbench);
+      return;
+    }
     if (config.kind === 'replacement-link' && workbench.ranPrelude === undefined) {
       const progress = window.GameFlow?.progress?.();
       workbench.ranPrelude = stageSession.mode !== 'replay' && progress?.completedStages?.includes('academic-tower-turn-03a-ran-family') && !progress.completedStages.includes(stage.id);

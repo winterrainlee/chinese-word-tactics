@@ -36,3 +36,23 @@ test('story renderer creates safe per-character ruby and keeps assistive text cl
   assert.match(runtime, /element\.setAttribute\('aria-label', ariaLabel\)/);
   assert.doesNotMatch(runtime, /innerHTML\s*=/);
 });
+
+
+test('03B stage-local narrative scenes use the shared ruby corpus without new Journey story IDs', () => {
+  const context=vm.createContext({});
+  vm.runInContext(read('src/story-pronunciation-content.js'),context);
+  const P=context.StoryPronunciation;
+  const samples=[
+    ['academic-tower-03b-scene-paper','研究員剛翻開地圖的一角，一張摺好的紙突然滑了出來。'],
+    ['academic-tower-03b-scene-market','舊記錄我看得多，現在的市集倒是你比較熟。這一段就一起寫吧。']
+  ];
+  assert.equal(P.supportedStories.length,73,'stage-local scenes are not new Journey nodes');
+  for (const [sceneId,text] of samples) {
+    const reading=P.readingFor(sceneId,text);
+    assert.ok(reading,'missing reading for '+sceneId);
+    assert.equal(reading.length,[...text].filter(c=>/\p{Script=Han}/u.test(c)).length);
+    assert.equal(P.readingFor('academic-tower-ran-village-intro',text),null);
+  }
+  const t5='完全沒用了？也不盡然吧。至少那條路現在還有人走。';
+  assert.ok(P.readingFor('academic-tower-ran-village-result',t5));
+});
