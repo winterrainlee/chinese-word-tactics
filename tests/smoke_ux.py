@@ -254,8 +254,10 @@ try:
                     'academic-tower-turn-result'
                 }
                 assert {story_id for story_id,_,hub in stories if hub} == expected_hub_stories,(region,stories)
-            elif region == 'academic-tower-optional':
-                assert stories == [['academic-tower-ran-intro', False, False], ['academic-tower-ran-result', False, True]], stories
+            elif region.startswith('academic-tower-optional'):
+                # Each optional study begins with a story and ends back at the research hub.
+                assert len(stories)==2 and all(not world for _,world,_ in stories),(region,stories)
+                assert stories[0][2] is False and stories[-1][2] is True,(region,stories)
             else:
                 assert all(not world and not hub for _,world,hub in stories[:-1]),(region,stories)
                 assert stories[-1][1] is True and stories[-1][2] is False,(region,stories)
