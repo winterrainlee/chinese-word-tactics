@@ -1,11 +1,13 @@
 # 학술탑 然 재방문 03B — 변해 온 마을, 달라지는 생각 v0.1
 
+> **2026-10-26 구현 갱신:** 03B는 [상세 설계](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)의 중간 이야기 화면 2개까지 실제 구현·자동검사·Pages 배포됐다. 빌드 `2026-10-26-tower-03b-scenes-v2`이고 **iPhone Safari 실기기 승인은 별도 대기**한다. 아래 미구현 설명은 10월 25일 및 최초 상세화 당시 기록이다.
+>
 > **최신 상세 설계는 [03B 《옛 지도, 지금의 마을》](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)를 따른다.** 2026-10-26 결정: 03A 완료와 결과 이야기 열람 뒤 해금, **소년이 여관에서 도시락을 싸 와 감사 인사를 전하는 방문**, 문지기의 등록·연구원 책임 유지, 연구 뒤 두 사람이 음식을 나눠 먹는 작은 결말. 이 문서의 ‘진입 미정·장면 후보’는 이전 목표·제안 이력이며 상세 문서의 구체안이 우선한다.
 
 
 작성일: 2026-10-25 (Asia/Taipei)  
 갱신일: 2026-10-25 — 當然·突然 추가, 03A와의 구별 및 향토사 테마 반영  
-상태: **다섯 표현·향토사 테마 확정 / 2026-10-26 별도 G2 상세 설계 초안 작성 / 런타임 미구현**  
+상태: **03B 상세 구현·자동검사·Pages 배포 완료 / iPhone Safari 실기기 검수 대기**  
 상위 기준: [게임 전체 구조](GAME-CONTENT-FRAMEWORK-v0.1.md), [곁가지 연구 로드맵](ACADEMIC-TOWER-SIDE-RESEARCH-ROADMAP-v0.1.md), [학술탑 UI 기준](ACADEMIC-TOWER-UI-GUIDE-v0.1.md).  
 관련 연구: [03A가 포함된 첫 연구 묶음](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md), [04A 이전 승인 이야기](ACADEMIC-TOWER-ER-SIDE-STORY-v0.1.md), [04A 이전 단계별 설계안](ACADEMIC-TOWER-ER-SIDE-STAGES-v0.1.md).
 
