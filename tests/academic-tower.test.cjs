@@ -384,6 +384,11 @@ test('meaning drafts, confirmed links and history survive backup/restore without
   check();
   if(config.introduction)act('start-compare');
   for(const task of config.tasks){
+   if(config.villageResearch && state.phase==='scene'){
+    state.sceneIndex=1;check(); // Mid-dialogue progress must also survive backup.
+    act('meaning-scene-finish');
+    if(task.id==='village-paper')continue;
+   }
    for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
    if(task.relations)act('meaning-relation',task.relation);
    act('meaning-confirm');if(state.phase==='review')act('meaning-next');
