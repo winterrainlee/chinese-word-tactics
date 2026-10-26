@@ -731,7 +731,8 @@
         {id:'old-map',label:'옛 지도와 옆 메모',text:'舊圖上標著一條通往市集的路，路旁畫著兩處歇腳的地方。圖邊寫著：「這條路常有人走。」'},
         {id:'boy-now',label:'소년이 지금 본 것',text:'我走過那條路，路上還有人來往。不過，我只看見一處歇腳的地方。'}
       ],{
-        question:'仍然을 써서 남길 수 있는 관찰은?',
+        sourceLabel:'대조할 자료',workLabel:'소년의 비교 메모',workKind:'observe',
+        question:'소년이 仍然을 써서 남길 수 있는 관찰은?',confirmLabel:'소년의 메모 남기기',
         relations:[
           {id:'road-used',text:'通往市集的那條路現在仍然有人走。'},
           {id:'two-rests',text:'路旁兩處歇腳的地方現在仍然都在。'},
@@ -754,14 +755,14 @@
         {id:'map-workshops',label:'옛 지도',text:'水道旁畫著幾間工坊。舊圖標著通往市集的路。'},
         {id:'loose-margin',label:'작성자 미상의 쪽지',text:'水道旁有幾間工坊，鎮上的買賣當然都離不開水道。'}
       ],{
-        question:'지도에서 보이는 사실이 아니라 작성자가 당연하다고 여기는 판단을 골라.',
+        question:'소년은 쪽지의 어디를 작성자의 당연한 단정으로 표시할까?',
         targets:[
           {id:'map-fact',text:'水道旁畫著幾間工坊。'},
           {id:'author-claim',text:'鎮上的買賣當然都離不開水道。'},
           {id:'map-path',text:'舊圖標著通往市集的路。'}
         ],
         slots:[{id:'to',label:'작성자의 판단'}],answer:{to:'author-claim'},directSlot:'to',
-        workLabel:'나의 검토 메모',confirmLabel:'구분 확인',
+        workLabel:'소년의 검토 표시',workKind:'decision',confirmLabel:'작성자의 주장 표시',
         slotFeedback:{to:'그건 지도에서 직접 볼 수 있는 정보야. 쪽지에서 마을 전체까지 넓힌 판단을 찾아봐.'},
         success:'당연하다고 쓴 것은 작성자의 확신이야. 지도가 마을의 모든 거래를 증명한 건 아니지.',
         translation:'옛 지도에는 수로 옆 공방과 장터 방향 길이 그려져 있어. 하지만 쪽지는 마을의 모든 거래가 수로에서 벗어날 수 없다고 단정했어.'
@@ -770,13 +771,15 @@
         {id:'old-fact',label:'옛 지도의 기록',text:'水道旁畫著幾間工坊。'},
         {id:'boy-market',label:'소년이 본 지금 장터',text:'我在市集也看過各種買賣。光看舊圖上的工坊，還不知道現在全鎮的樣子。'}
       ],{
-        question:'옛 지도의 공방을 인정하면서 지금 본 장터 이야기를 더하려면?',
-        choicePrefix:'舊圖上固然畫著水道旁的幾間工坊，但',
+        sourceLabel:'대조할 자료',workLabel:'연구원의 해설 초안',workKind:'interpretation',
+        workContext:'연구원이 옛 지도에 그려진 공방을 먼저 적었어. 소년이 본 지금 장터의 이야기를 이어 보자.',
+        question:'연구원이 적은 문장에 소년의 장터 경험을 어떻게 덧붙일까?',
+        choicePrefix:'舊圖上固然畫著水道旁的幾間工坊，但',prefixLabel:'연구원이 적기 시작한 문장',
         relations:[
           {id:'present-market',text:'現在的市集也有各種買賣，不能只憑舊圖推斷今天全鎮的生活。'},
           {id:'old-only-workshops',text:'這表示舊時全鎮的人一定都住在工坊附近。'},
           {id:'all-gone',text:'圖上的那幾間工坊現在一定全都消失了。'}
-        ],relation:'present-market',confirmLabel:'해설에 덧붙이기',
+        ],relation:'present-market',confirmLabel:'연구원의 문장 이어 쓰기',
         wrong:{
           'old-only-workshops':'옛 지도에 공방이 그려져 있다고 모든 사람이 그 근처에 살았던 것은 아니야.',
           'all-gone':'소년은 지금 공방이 모두 사라졌다고 말하지 않았어. 알고 있는 사실만 더하자.'
@@ -788,14 +791,17 @@
         {id:'folder-opinion',label:'자료 봉투에 적힌 평가 · 작성자 미상',text:'這張舊圖太舊了，對現在的三溪鎮已經完全沒有參考價值。'}
       ],{
         draft:'這張舊圖很舊，所以對現在的三溪鎮已經完全沒有參考價值。',
-        question:'내 해설 초안에서 지나치게 확정한 부분을 고쳐.',
+        sourceLabel:'봉투 원문',workLabel:'봉투 평가의 검토문',workKind:'decision',
+        workContext:'연구원이 봉투의 주장을 검토하려고 옮겨 적었어. 소년과 연구원이 내린 결론은 아니야.',
+        draftLabel:'봉투 평가를 요약한 검토용 문장',
+        question:'함께 쓸 해설에 넣기 전에, 어디를 지나치게 단정했는지 골라.',
         targets:[
           {id:'old-fact',text:'這張舊圖很舊'},
           {id:'present-target',text:'對現在的三溪鎮'},
           {id:'no-value',text:'完全沒有參考價值'}
         ],
         slots:[{id:'to',label:'고칠 판단'}],answer:{to:'no-value'},directSlot:'to',
-        workLabel:'나의 해설 초안',confirmLabel:'판단 고치기',
+        confirmLabel:'과장된 평가 고치기',
         correction:'舊圖雖然不能告訴我們現在每個地方的樣子，但至少能用來對照那條通往市集的路。',
         wrong:{},
         slotFeedback:{to:'옛 지도가 오래됐고, 지금의 마을을 비교하려는 건 맞아. 완전히 쓸모없다는 판단만 다시 봐.'},
@@ -841,7 +847,7 @@
   STAGES.push({
     id:'academic-tower-turn-03b-ran-village', title:'옛 지도, 지금의 마을',
     subtitle:'옛 지도, 지금의 마을', kicker:'학술탑 · 선택 연구 03B',
-    grid:['S'], goal:'舊地圖與現在的三溪鎮。', rule:'자료에 적힌 사실과 내 경험을 구별해 읽어.',
+    grid:['S'], goal:'舊地圖與現在的三溪鎮。', rule:'옛 기록·소년의 경험·작성자 미상의 주장을 구별해 읽어.',
     words:['仍然','突然','當然','固然','不盡然'], win:[],
     story:'연구원과 옛 지도에 지금의 마을에 관한 해설을 덧붙이고 함께 도시락을 나눠 먹었다.',
     completionTitle:'✓ 옛 지도, 지금의 마을', completionAction:'함께 쓴 기록 보기',

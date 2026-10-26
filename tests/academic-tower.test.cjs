@@ -569,3 +569,42 @@ test('03B choices, pure reading and confirmed state survive resume without affec
   assert.ok(convertedT5.answers['village-concession']);
 
 });
+
+
+test('03B work surfaces distinguish boy notes, researcher draft, quoted folder evaluation and joint record',()=>{
+  const ctx=contentContext();
+  const stage=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03b-ran-village')",ctx);
+  const tasks=Object.fromEntries(stage.academicTower.tasks.map(task=>[task.id,task]));
+  const names={
+    'village-path':['소년의 비교 메모','소년의 메모 남기기','observe'],
+    'village-assumption':['소년의 검토 표시','작성자의 주장 표시','decision'],
+    'village-concession':['연구원의 해설 초안','연구원의 문장 이어 쓰기','interpretation'],
+    'village-scope':['봉투 평가의 검토문','과장된 평가 고치기','decision']
+  };
+  for(const [taskId,[label,button,kind]] of Object.entries(names)){
+    const task=tasks[taskId];
+    assert.equal(task.workLabel,label,taskId);
+    assert.equal(task.confirmLabel,button,taskId);
+    assert.equal(task.workKind,kind,taskId);
+    assert.ok(task.question.length>10,taskId);
+    assert.doesNotMatch(task.workLabel,/^나의|^내 /,taskId);
+  }
+  assert.ok(tasks['village-path'].question.includes('소년이'));
+  assert.ok(tasks['village-assumption'].question.includes('소년은'));
+  assert.ok(tasks['village-concession'].question.includes('연구원이 적은'));
+  assert.ok(tasks['village-concession'].workContext.includes('소년이 본'));
+  assert.ok(tasks['village-concession'].choicePrefix.includes('固然'));
+  assert.equal(tasks['village-concession'].prefixLabel,'연구원이 적기 시작한 문장');
+  assert.ok(tasks['village-scope'].workContext.includes('검토하려고 옮겨 적었어'));
+  assert.ok(tasks['village-scope'].workContext.includes('결론은 아니야'));
+  assert.equal(tasks['village-scope'].draftLabel,'봉투 평가를 요약한 검토용 문장');
+  assert.equal(tasks['village-scope'].sourceLabel,'봉투 원문');
+  assert.equal(tasks['village-reread'].sources[0].label,'옛 지도 옆에 붙일 공동 해설');
+  assert.equal(tasks['village-reread'].workLabel,undefined);
+  assert.ok(stage.rule.includes('소년의 경험'));
+  assert.ok(!stage.rule.includes('내 경험'));
+  // The in-world author is presentation content, not a new completion state.
+  const M=mechanics(), before=plain(M.createState(stage.academicTower,()=>.1));
+  assert.equal(before.schemaVersion,1);
+  assert.deepEqual(before.answers,{});
+});

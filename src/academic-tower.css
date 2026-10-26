@@ -603,3 +603,18 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
   .academicTowerMvp .academicVillageDialogue span {font-size:17px;line-height:1.65}
   .academicTowerMvp .academicVillageChoices .academicMvpChoice {padding:10px}
 }
+
+
+/* 03B authorship: the work area belongs to a story character or an
+   attributed source, not automatically to an unnamed "me". */
+.academicTowerMvp .academicVillageWorkContext {
+  margin:0 0 11px;
+  color:#5b615b;
+  font-size:14px;
+  font-weight:450;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageWork .academicVillageSentence {
+  margin:3px 0 13px;
+}

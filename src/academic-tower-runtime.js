@@ -847,7 +847,7 @@
   function renderVillageMeaning(config, workbench) {
     const task = config.tasks[workbench.taskIndex], done = workbench.phase !== 'work';
     const reading = task.type === 'read';
-    const originalLabel = reading ? (task.id === 'village-reread' ? '함께 쓴 해설' : '연구실에서 일어난 일') : '원본 기록';
+    const originalLabel = reading ? (task.id === 'village-reread' ? '함께 쓴 해설' : '연구실에서 일어난 일') : (task.sourceLabel || '원본 기록');
     const sourceHtml = task.sources.map(item =>
       '<div class="academicVillageSource"><small>' + escapeHtml(item.label || '기록') +
       '</small><p lang="zh-Hant">' + mvpMarked(item.text,task.word) + '</p></div>'
@@ -875,23 +875,35 @@
     const options = ordered.map(option =>
       mvpButton(action, option.id, '<span lang="zh-Hant">' + escapeHtml(option.text) + '</span>', chosen === option.id)
     ).join('');
-    const prefix = task.choicePrefix && selectedChoice ?
-      '<p class="academicMvpPreview academicVillagePreview" lang="zh-Hant">' +
-      escapeHtml(task.choicePrefix + selectedChoice.text) + '</p>' : '';
-    const draft = task.draft ? '<div class="academicVillageDraft"><small>고칠 해설 초안</small><p lang="zh-Hant">' +
+    // The sentence begun by the researcher must be visible before any choice.
+    // Use one live preview, not separate duplicates of the same sentence.
+    const prefix = task.choicePrefix ?
+      '<div class="academicVillageDraft academicVillageSentence"><small>' +
+      escapeHtml(done ? '함께 완성한 문장' : selectedChoice ? '선택 중인 문장' : (task.prefixLabel || '이어 쓸 앞부분')) +
+      '</small><p lang="zh-Hant">' +
+      escapeHtml(task.choicePrefix + (selectedChoice ? selectedChoice.text : '＿＿')) +
+      '</p></div>' : '';
+    const draft = task.draft ?
+      '<div class="academicVillageDraft"><small>' + escapeHtml(task.draftLabel || '검토할 문장') +
+      '</small><p lang="zh-Hant">' +
       (done && task.correction ? escapeHtml(task.draft).replace('完全沒有參考價值','<del>完全沒有參考價值</del>') : escapeHtml(task.draft)) +
       '</p></div>' : '';
+    const workContext = task.workContext ? '<p class="academicVillageWorkContext">' +
+      escapeHtml(task.workContext) + '</p>' : '';
     const correction = done && task.correction ?
       '<p class="academicMvpPreview" lang="zh-Hant">' + escapeHtml(task.correction) + '</p>' : '';
-    const selectedReading = done && selectedChoice ? '<p class="academicMeaningRelation" lang="zh-Hant">' +
-      escapeHtml(selectedChoice.text) + '</p>' : '';
+    const selectedReading = done && selectedChoice && !task.choicePrefix ?
+      '<p class="academicMeaningRelation" lang="zh-Hant">' + escapeHtml(selectedChoice.text) + '</p>' : '';
     const work = reading ? '' :
-      '<section class="academicMvpMemo academicVillageWork" data-academic-zone="work" data-academic-work-kind="interpretation">' +
-      '<div class="academicRegionLabel">' + escapeHtml(task.workLabel || '나의 해석') + '</div>' +
+      '<section class="academicMvpMemo academicVillageWork" data-academic-zone="work" data-academic-work-kind="' +
+      escapeHtml(task.workKind || 'interpretation') + '">' +
+      '<div class="academicRegionLabel">' + escapeHtml(task.workLabel || '검토 작업') + '</div>' +
+      workContext +
       '<h2 class="academicTaskTitle">' + escapeHtml(task.question || task.title) + '</h2>' +
       mvpFeedback(workbench.lastCheck?.feedbackKo) +
-      draft + (done ? selectedReading : '<div class="academicMvpLinks academicVillageChoices">' + options + '</div>') +
-      prefix + correction + '</section>';
+      draft + prefix +
+      (done ? selectedReading : '<div class="academicMvpLinks academicVillageChoices">' + options + '</div>') +
+      correction + '</section>';
     const finishedNote = workbench.phase === 'complete' && reading ?
       '<p class="academicMvpHint">확인한 기록과 아직 모르는 것을 남겼어. 이제 연구원과 이야기를 마무리하자.</p>' : '';
     return '<div class="academicCaseProgress">' + (reading ? '함께 읽기' : '기록 해석') +

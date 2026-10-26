@@ -68,11 +68,37 @@ try:
             assert page.locator('.academicVillageChoices button').count() == 3
             def wrong_then_right():
                 task=page.evaluate('current().academicTower.tasks[state.academicTower.taskIndex]')
+                work=page.locator('[data-academic-zone="work"]')
+                assert work.locator(':scope > .academicRegionLabel').inner_text() == task['workLabel']
+                assert work.locator(':scope > .academicTaskTitle').inner_text() == task['question']
+                assert work.get_attribute('data-academic-work-kind') == task['workKind']
+                assert page.locator('#academicMvpConfirm').inner_text() == task['confirmLabel']
+                assert '나의 해설 초안' not in work.inner_text()
+                if task.get('sourceLabel'):
+                    assert page.locator('[data-academic-zone="original"] > .academicRegionLabel').inner_text() == task['sourceLabel']
+                if task.get('workContext'):
+                    assert work.locator('.academicVillageWorkContext').inner_text() == task['workContext']
+                else:
+                    assert work.locator('.academicVillageWorkContext').count() == 0
+                if task.get('choicePrefix'):
+                    preview=work.locator('.academicVillageSentence')
+                    assert preview.count() == 1
+                    assert task['prefixLabel'] in preview.inner_text()
+                    assert task['choicePrefix']+'＿＿' in preview.inner_text()
+                    assert work.locator('.academicMvpPreview.academicVillagePreview').count() == 0
+                if task.get('draft'):
+                    assert task['draftLabel'] in work.locator('.academicVillageDraft').inner_text()
+                    assert '결론은 아니야' in work.locator('.academicVillageWorkContext').inner_text()
                 candidates=task.get('targets') or task.get('relations')
                 correct=task['answer']['to'] if task.get('targets') else task['relation']
                 wrong=next(option['id'] for option in candidates if option['id']!=correct)
                 select='meaning-source' if task.get('targets') else 'meaning-relation'
                 action(page,select,wrong)
+                if task.get('choicePrefix'):
+                    preview=page.locator('.academicVillageSentence')
+                    bad_text=next(option['text'] for option in candidates if option['id']==wrong)
+                    assert task['choicePrefix']+bad_text in preview.inner_text()
+                    assert preview.count() == 1
                 layout()
                 action(page,'meaning-confirm')
                 assert page.evaluate('state.academicTower.phase') == 'work'
@@ -86,6 +112,13 @@ try:
                 action(page,'meaning-confirm')
                 assert page.evaluate('state.academicTower.phase') == 'review'
                 assert page.locator('.academicMvpFeedback').get_attribute('data-verdict') == 'correct'
+                if task.get('choicePrefix'):
+                    correct_text=next(option['text'] for option in candidates if option['id']==correct)
+                    assert task['choicePrefix']+correct_text in page.locator('.academicVillageSentence').inner_text()
+                    assert page.locator('.academicMeaningRelation').count() == 0, 'do not duplicate the completed line'
+                if task.get('draft'):
+                    assert page.locator('.academicVillageDraft del').count() == 1
+                    assert task['correction'] in page.locator('[data-academic-zone="work"]').inner_text()
                 action(page,'meaning-next')
 
             wrong_then_right() # T1 -> portrait story with 突然
@@ -146,6 +179,7 @@ try:
             assert page.evaluate('state.academicTower.taskIndex') == 5
             assert page.locator('[data-academic-zone="work"]').count() == 0
             assert page.locator('[data-academic-zone="original"]').count() == 1
+            assert page.locator('[data-academic-zone="original"] > .academicRegionLabel').inner_text() == '함께 쓴 해설'
             layout();action(page,'meaning-confirm') # T6 joint reread
             assert page.evaluate('state.academicTower.phase') == 'complete'
             assert page.locator('#academicMvpConfirm').inner_text().startswith('완성 기록 확인')
@@ -181,4 +215,4 @@ try:
         browser.close()
 finally:
     server.shutdown()
-print('PASS: 03B separate portrait scenes, 4 decisions, mid-scene resumes, replay skips and four viewports.')
+print('PASS: 03B scene rhythm, character-attributed workspace labels, prefix preview, save/replay, four viewports.')
