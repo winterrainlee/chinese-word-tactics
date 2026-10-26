@@ -235,6 +235,9 @@
     return playNode(action.node);
   }
   function resume() {
+    // Clear any previous story before restoring the tactical stage. An academic
+    // stage may itself resume into a saved portrait scene during render().
+    StoryRuntime.stop();
     const progress = store.get(), location = progress.lastLocation, node = P.resumeNode(progress);
     const saved = P.getNode(location?.nodeId), pending = readPendingCompletion();
     if (!location && TacticalGame.hasSavedGame) {
@@ -243,7 +246,7 @@
         const context = { mode: 'first-play', returnTo: returnTargetFor(stageNode), nodeId: stageNode.nodeId, type: 'stage' };
         if (TacticalGame.resumeStage(stageId, context)) {
           recordWordEncounter(stageId);
-          active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: stageNode.nodeId }); return true;
+          active = context; store.locate({ view: 'tactical', nodeId: stageNode.nodeId }); return true;
         }
       }
     }
@@ -252,7 +255,7 @@
         const context = { mode: 'first-play', returnTo: returnTargetFor(saved), nodeId: saved.nodeId, type: 'stage' };
         if (TacticalGame.resumeStage(saved.id, context)) {
           recordWordEncounter(saved.id);
-          active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: saved.nodeId });
+          active = context; store.locate({ view: 'tactical', nodeId: saved.nodeId });
           globalThis.__CWT_PENDING_COMPLETION__ = { id: saved.id, context };
           const completion = globalThis.GameFlow?.showStageComplete;
           if (typeof completion === 'function' && completion !== showStageComplete) {
@@ -272,7 +275,7 @@
     const context = { mode: 'first-play', returnTo: returnTargetFor(node), nodeId: node.nodeId, type: 'stage' };
     if (TacticalGame.resumeStage(node.id, context)) {
       recordWordEncounter(node.id);
-      active = context; StoryRuntime.stop(); store.locate({ view: 'tactical', nodeId: node.nodeId }); return true;
+      active = context; store.locate({ view: 'tactical', nodeId: node.nodeId }); return true;
     }
     return playStage(node.id);
   }
