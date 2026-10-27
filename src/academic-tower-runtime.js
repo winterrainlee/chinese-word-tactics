@@ -1446,17 +1446,19 @@
     document.querySelectorAll('#tutorialView [data-academic-action]').forEach(button => {
       button.addEventListener('click', () => runAction(button.dataset.academicAction, button.dataset.value));
     });
-    // Native button keyboard semantics remain available throughout the list.
-    // Escape closes only the dropdown without clearing any answer or verdict.
-    gridEl.querySelector('.academicVillageClozeDropdown')?.addEventListener('keydown',event=>{
-      if(event.key!=='Escape') return;
-      event.preventDefault();
-      const blankId=state.academicTower?.slot;
-      runAction('meaning-cloze-close');
-      gridEl.querySelector('[data-academic-action="meaning-cloze-slot"][data-value="' + blankId + '"]')
-        ?.focus({preventScroll:true});
-    });
   }
+
+  // Escape must work both on the open-menu trigger and on one of its
+  // options; binding only inside the dropdown misses keyboard focus on the blank.
+  document.getElementById('tutorialView')?.addEventListener('keydown',event=>{
+    if(event.key!=='Escape' || !state?.academicTower?.clozeMenuOpen ||
+       screen!=='tutorial' || !current()?.academicTower?.villageResearch) return;
+    event.preventDefault();event.stopPropagation();
+    const blankId=state.academicTower.slot;
+    runAction('meaning-cloze-close');
+    gridEl.querySelector('[data-academic-action="meaning-cloze-slot"][data-value="' + blankId + '"]')
+      ?.focus({preventScroll:true});
+  });
 
   // Tapping outside an expanded list dismisses it. Unlike resetting a blank,
   // dismissal preserves the placed word and any previously checked feedback.

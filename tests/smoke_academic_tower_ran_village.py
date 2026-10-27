@@ -223,6 +223,12 @@ try:
             action(page,'meaning-cloze-close')
             assert page.locator('.academicVillageClozeDropdown').count() == 0
             action(page,'meaning-cloze-slot','incident')
+            # Keyboard Escape closes even if focus remains on the blank trigger.
+            assert page.locator('.academicVillageClozeBlank[aria-expanded="true"]').is_visible()
+            page.keyboard.press('Escape')
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
+            assert page.evaluate('state.academicTower.clozeMenuOpen') is False
+            action(page,'meaning-cloze-slot','incident')
             page.locator('[data-academic-zone="original"] > .academicRegionLabel').click()
             assert page.locator('.academicVillageClozeDropdown').count() == 0
             assert page.evaluate('state.academicTower.placements') == {}
