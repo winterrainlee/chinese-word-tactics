@@ -34,7 +34,7 @@
 
 검증은 별도로 **코드 존재 → Node 단위검사 → 브라우저·모바일 검사 → Pages 배포 → iPhone Safari G6 실기기 승인**을 남긴다. C여도 G6가 미완료일 수 있다. S여도 해당 스테이지는 자동검사를 통과했을 수 있다.
 
-2026-10-27 학술탑 03B 빈칸 직접 드롭다운은 빌드 `2026-10-27-tower-03b-dropdown-v5`, Node **337개**와 네 모바일 뷰포트 브라우저 검사·Pages 성공 이력이 있다([v0.1 §13](REUSABLE-MECHANICS-v0.1.md), [03B 상세 설계 §13](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)). **iPhone 13 mini Safari 실기기 최종 승인은 별도 대기**다. 다른 지역의 기기 승인은 [개발 상황판](DEVELOPMENT-STATUS.md)과 해당 구현 기록을 따른다.
+2026-10-27 학술탑 03B 빈칸 직접 드롭다운은 빌드 `2026-10-27-tower-03b-dropdown-v5`, Node **337개**와 네 모바일 뷰포트 브라우저 검사·Pages 성공 이력이 있다([v0.1 §13](REUSABLE-MECHANICS-v0.1.md), [03B 상세 설계 §13](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)). **03B의 G6 검수는 2026-10-27 사용자 완료 확인으로 마감됐다**. 별도 실검수 수행일·세부 체크리스트는 전달되지 않았으며 학술탑 본선 01~05·선택 03A의 기기 승인과는 구분한다. 다른 지역의 기기 승인은 [개발 상황판](DEVELOPMENT-STATUS.md)과 해당 구현 기록을 따른다.
 
 ### 0.3 일곱 공통 원칙
 

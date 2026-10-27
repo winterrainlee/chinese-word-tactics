@@ -1,5 +1,7 @@
 # 학술탑 然 재방문 03B — 변해 온 마을, 달라지는 생각 v0.1
 
+> **2026-10-27 최신 완료 확인:** 03B의 현행 `2026-10-27-tower-03b-dropdown-v5`는 **사용자 검수 완료(G6 마감)**로 기록한다. 기존 v4 및 이전 단계의 ‘검수 대기’ 표기는 당시 이력이다. 사용자 승인 상세는 [03B 상세 §14](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)를 따른다.
+>
 > **2026-10-27 T6 추가 구현:** 연구 마지막을 **다섯 표현·다섯 빈칸 종합 복원**으로 변경했고 [상세 설계 §12](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)에 최종 조작·저장·검증을 정리했다. 빌드 `2026-10-27-tower-03b-cloze-v4`, 자동검사·Pages 성공, iPhone Safari 감수 대기.
 >
 > **2026-10-26 구현 갱신(이전):** 03B는 [상세 설계](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)의 중간 이야기 화면 2개까지 실제 구현·자동검사·Pages 배포됐다. 빌드 `2026-10-26-tower-03b-scenes-v2`이고 **iPhone Safari 실기기 승인은 별도 대기**한다. 아래 미구현 설명은 10월 25일 및 최초 상세화 당시 기록이다.
@@ -9,7 +11,7 @@
 
 작성일: 2026-10-25 (Asia/Taipei)  
 갱신일: 2026-10-25 — 當然·突然 추가, 03A와의 구별 및 향토사 테마 반영  
-상태: **03B 상세 구현·자동검사·Pages 배포 완료 / iPhone Safari 실기기 검수 대기**  
+상태: **03B 상세 구현·자동검사·Pages 배포 완료 / 2026-10-27 사용자 확인으로 G6 마감**  
 상위 기준: [게임 전체 구조](GAME-CONTENT-FRAMEWORK-v0.1.md), [곁가지 연구 로드맵](ACADEMIC-TOWER-SIDE-RESEARCH-ROADMAP-v0.1.md), [학술탑 UI 기준](ACADEMIC-TOWER-UI-GUIDE-v0.1.md).  
 관련 연구: [03A가 포함된 첫 연구 묶음](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md), [04A 이전 승인 이야기](ACADEMIC-TOWER-ER-SIDE-STORY-v0.1.md), [04A 이전 단계별 설계안](ACADEMIC-TOWER-ER-SIDE-STAGES-v0.1.md).
 
