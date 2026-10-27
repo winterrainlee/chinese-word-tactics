@@ -113,7 +113,7 @@ ID는 저장과 여정에서 사용한 뒤 이름을 바꾸지 않는다. 표시
 
 > 학술탑 신규 연구는 `ACADEMIC-TOWER-UI-GUIDE-v0.1.md`를 지역 전용 UI 계약으로 함께 적용한다. 원본/사용자 작업 영역의 1차 경계와 연구실 공간 언어를 유지하며, 새 스테이지별 카드형 UI를 별도로 만들지 않는다.
 >
-> 학술탑에서 **03B의 검증된 기믹을 참고할 경우** [재사용 기믹 도감 §13](REUSABLE-MECHANICS-v0.1.md)에서 **✅ 공통 기반 / 🟨 03B 전용 일반화 필요**를 확인한다. 단어의 뜻이 요구하지 않으면 중간 대화·다섯 빈칸을 의무로 추가하지 않는다.
+> 신규 기믹은 [재사용 기믹 도감 v0.2](REUSABLE-MECHANICS-v0.2.md)의 `SP/ST/RS/OB/LN/PR` 색인과 `C/R/S/P` 재사용 범위를 먼저 확인한다. 학술탑 03B의 중간 이야기 전환·빈칸 직접 드롭다운은 **실제 구현됐지만 아직 03B 전용**이다. 단어의 뜻이 요구하지 않으면 중간 대화나 다섯 빈칸을 의무로 추가하지 않는다. 당시 03B 구현 이력은 [v0.1 §13](REUSABLE-MECHANICS-v0.1.md)에 보존한다.
 
 ### G2 — 구현 수준 사양
 
@@ -302,7 +302,7 @@ Pages 빌드(cwt-build):
 - `data/vocabulary-lifecycle-v0.1.json`
 - 지역 구현 기록
 - `docs/DEVELOPMENT-STATUS.md`
-- 새로 검증된 공통 규칙이 있으면 `docs/REUSABLE-MECHANICS-v0.1.md`
+- 새로 검증된 공통 규칙이 있으면 `docs/REUSABLE-MECHANICS-v0.2.md` (코드·테스트 근거와 공용/지역 공통/전용 상태 구분)
 - 문서 색인 `docs/README.md`
 
 ---
