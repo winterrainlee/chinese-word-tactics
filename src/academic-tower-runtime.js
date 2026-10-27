@@ -397,6 +397,7 @@
         task.id, shuffledIds(task.wordBank || task.targets || task.relations || [], rng)
       ]));
       state.seenScenes=[]; state.sceneId=null; state.sceneIndex=0;
+      state.clozeMenuOpen=false;
     }
     return state;
   }
@@ -479,6 +480,9 @@
     }
     const currentTask = config.tasks[next.taskIndex];
     if (currentTask.type === 'cloze') {
+      // A selected blank and an open dropdown are separate states. Normalize
+      // older T6 saves to a closed menu without discarding their placements.
+      next.clozeMenuOpen=next.phase==='work' && next.clozeMenuOpen === true;
       // Words, not source IDs, fill these five slots. Keep correct and incorrect
       // placements across reload, but repair unknown or duplicate values.
       const used=new Set(), entries=[];
@@ -526,12 +530,18 @@
     else if (next.phase === 'work') {
       if (task.type === 'cloze' && action.type === 'meaning-cloze-slot' &&
           task.slots.some(slot=>slot.id===action.value)) {
-        changed=next.slot!==action.value || !!next.lastCheck;
-        next.slot=action.value; next.lastCheck=null;
+        // One tap opens the list anchored under that sentence; tapping the
+        // same blank again closes it. Opening does not clear prior feedback.
+        const open=next.slot!==action.value || !next.clozeMenuOpen;
+        changed=next.slot!==action.value || next.clozeMenuOpen!==open;
+        next.slot=action.value; next.clozeMenuOpen=open;
+      } else if (task.type === 'cloze' && action.type === 'meaning-cloze-close' &&
+                 next.clozeMenuOpen) {
+        next.clozeMenuOpen=false; changed=true;
       } else if (task.type === 'cloze' && action.type === 'meaning-cloze-place' &&
-                 task.wordBank.includes(action.value)) {
+                 next.clozeMenuOpen && task.wordBank.includes(action.value)) {
         const slotId=task.slots.some(slot=>slot.id===next.slot) ? next.slot : task.slots[0].id;
-        const hadCheck=!!next.lastCheck;
+        const hadCheck=!!next.lastCheck, hadMenu=next.clozeMenuOpen;
         const assigned=Object.keys(next.placements).find(id=>next.placements[id]===action.value);
         const displaced=next.placements[slotId];
         if (assigned && assigned!==slotId) {
@@ -540,10 +550,11 @@
         }
         next.placements[slotId]=action.value;
         next.slot=task.slots.find(slot=>!next.placements[slot.id])?.id || slotId;
-        next.lastCheck=null;changed=assigned!==slotId || next.slot!==slotId || hadCheck;
+        next.lastCheck=null;next.clozeMenuOpen=false;
+        changed=assigned!==slotId || next.slot!==slotId || hadCheck || hadMenu;
       } else if (task.type === 'cloze' && action.type === 'meaning-cloze-reset' &&
                  Object.keys(next.placements).length) {
-        next.placements={}; next.slot=task.slots[0].id; next.lastCheck=null; changed=true;
+        next.placements={}; next.slot=task.slots[0].id; next.lastCheck=null; next.clozeMenuOpen=false; changed=true;
       } else if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
         changed=next.slot !== action.value; next.slot=action.value;
       } else if (action.type === 'meaning-source' && (next.slot || task.directSlot) && [...task.sources,...(task.targets || [])].some(source => source.id === action.value)) {
@@ -560,6 +571,7 @@
           : wrongSlot ? (task.slotFeedback?.[wrongSlot.id] || `“${wrongSlot.label}”에 놓은 구절을 다시 읽어 봐. 원문의 앞뒤와 시점을 살펴보자.`)
             : (task.wrong?.[next.relation] || '두 구절을 어떻게 잇는지 다시 살펴보자.');
         next.lastCheck={correct,feedbackKo:feedback,...(task.type==='cloze' ? {step:'cloze'} : {})};
+        if (task.type==='cloze') next.clozeMenuOpen=false;
         if (correct) {
           next.answers[task.id]={placements:copy(next.placements),relation:next.relation};
           next.phase=next.taskIndex === config.tasks.length-1 ? 'complete' : 'review';
@@ -890,12 +902,16 @@
   // Keep the source sheet separate from choices; do not create a fake pre-solved memo.
   // 03B's final task creates a real three-section research record. Each word
   // is used once, but the paper's quotation is NOT endorsed as a historical fact.
+  // T6: a tapped blank reveals its own five-choice dropdown. No duplicate
+  // word bank or second trip down the page is necessary on small iPhones.
   function renderVillageCloze(config, workbench) {
     const task=config.tasks[workbench.taskIndex], placements=workbench.placements;
     const done=workbench.phase==='complete';
     const checked=done || workbench.lastCheck?.step==='cloze';
     const active=workbench.slot || task.slots[0].id;
     const filled=task.slots.filter(slot=>placements[slot.id]).length;
+    const ordered=(workbench.optionOrders?.[task.id] || task.wordBank)
+      .filter(word=>task.wordBank.includes(word));
     const sourceHtml=task.sources.map(source=>
       '<div class="academicVillageSource"><small>' + escapeHtml(source.label) +
       '</small><p lang="zh-Hant">' + escapeHtml(source.text) + '</p></div>'
@@ -906,40 +922,53 @@
       currentSection=blank.section;
       const word=placements[blank.id] || '';
       const matched=word===task.answer[blank.id];
+      const opened=!done && workbench.clozeMenuOpen===true && active===blank.id;
       const marker=checked
         ? '<p class="academicVillageClozeHint" data-verdict="' + (matched ? 'correct' : 'incorrect') + '">' +
           (matched ? '✓ ' + escapeHtml(blank.meaningKo) : '! 문장의 앞뒤를 다시 읽고 표현을 바꿔 보자.') + '</p>'
         : '';
+      const dropdown=opened ?
+        '<div class="academicVillageClozeDropdown" id="academicVillageClozeDropdown-' + escapeHtml(blank.id) +
+          '" role="group" data-village-dropdown-for="' + escapeHtml(blank.id) +
+          '" aria-label="' + escapeHtml(blank.section + '의 빈칸에 넣을 표현 선택') + '">' +
+          '<div class="academicVillageClozeDropdownHeader"><strong>이 칸에 넣을 표현</strong>' +
+          '<button type="button" class="academicVillageClozeClose" data-academic-action="meaning-cloze-close"' +
+          ' aria-label="표현 목록 닫기">닫기</button></div>' +
+          '<div class="academicVillageClozeDropdownOptions">' +
+          ordered.map(choice=>{
+            const owner=task.slots.find(slot=>placements[slot.id]===choice)?.id;
+            const usedElsewhere=!!owner && owner!==blank.id;
+            const status=owner===blank.id ? '현재 이 칸' :
+              usedElsewhere ? (word ? '자리 바꾸기' : '다른 칸에서 이동') : '';
+            return '<button type="button" class="academicVillageClozeOption" lang="zh-Hant"' +
+              ' data-academic-action="meaning-cloze-place" data-value="' + escapeHtml(choice) +
+              '" data-used="' + usedElsewhere + '"' +
+              ' aria-label="' + escapeHtml(choice + (status ? ', ' + status : '')) +
+              '" aria-pressed="' + (owner===blank.id) + '">' +
+              '<span>' + escapeHtml(choice) + '</span>' +
+              (status ? '<small lang="ko">' + escapeHtml(status) + '</small>' : '') +
+              '</button>';
+          }).join('') + '</div></div>' : '';
       return '<div class="academicVillageClozeLine" data-village-blank-id="' + escapeHtml(blank.id) + '">' +
         (newSection ? '<h3 class="academicVillageClozeSection">' + escapeHtml(blank.section) + '</h3>' : '') +
         '<p class="academicVillageClozeSentence" lang="zh-Hant">' +
         '<span>' + escapeHtml(blank.before) + '</span>' +
         (done ? '<strong class="academicVillageClozeFilled">' + escapeHtml(word) + '</strong>'
           : '<button type="button" class="academicVillageClozeBlank' +
-            (active===blank.id ? ' selected' : '') +
+            (opened ? ' selected' : '') +
             '" data-academic-action="meaning-cloze-slot" data-value="' + escapeHtml(blank.id) +
-            '" aria-label="' + escapeHtml(blank.section + '의 빈칸, 현재 ' + (word || '비어 있음') + '. 탭해서 이 칸에 표현 배치') +
-            '" aria-pressed="' + (active===blank.id) + '">' + escapeHtml(word || '＿＿') + '</button>') +
-        '<span>' + escapeHtml(blank.after) + '</span></p>' + marker + '</div>';
+            '" aria-label="' + escapeHtml(blank.section + '의 빈칸, 현재 ' + (word || '비어 있음') + '. 탭해서 표현 선택') +
+            '" aria-expanded="' + opened + '"' +
+            (opened ? ' aria-controls="academicVillageClozeDropdown-' + escapeHtml(blank.id) + '"' : '') +
+            '><span>' + escapeHtml(word || '＿＿') + '</span>' +
+            '<span class="academicVillageClozeChevron" aria-hidden="true">⌄</span></button>') +
+        '<span>' + escapeHtml(blank.after) + '</span></p>' + dropdown + marker + '</div>';
     }).join('');
-    const ordered=(workbench.optionOrders?.[task.id] || task.wordBank)
-      .filter(word=>task.wordBank.includes(word));
-    const bank=done ? '' :
-      '<div class="academicVillageClozeBank" role="group" aria-label="사용할 표현 다섯 개">' +
-      '<div class="academicVillageClozeBankHeading"><strong>표현 다섯 개</strong><small>' +
-      filled + ' / ' + task.wordBank.length + ' 배치</small></div>' +
-      '<div class="academicVillageClozeWords">' +
-      ordered.map(word=>'<button type="button" data-academic-action="meaning-cloze-place" data-value="' +
-        escapeHtml(word) + '" class="academicVillageClozeWord" data-used="' +
-        Object.values(placements).includes(word) +
-        '" aria-label="' + escapeHtml(word) +
-        (Object.values(placements).includes(word) ? ', 이미 배치됨. 다른 칸에 배치하면 두 표현을 교환해.' : ', 선택한 빈칸에 배치') +
-        '" lang="zh-Hant">' + escapeHtml(word) + '</button>').join('') +
-      '</div><div class="academicVillageClozeBankFooter">' +
-      '<small>빈칸을 누른 뒤 표현을 골라. 배치된 표현도 눌러 서로 바꿀 수 있어.</small>' +
+    const tools=done ? '' :
+      '<div class="academicVillageClozeTools">' +
+      '<small aria-live="polite">' + filled + ' / ' + task.wordBank.length + ' 칸 채움</small>' +
       '<button type="button" class="academicVillageClozeReset" data-academic-action="meaning-cloze-reset"' +
-      (filled ? '' : ' disabled') + '>다시 배치</button>' +
-      '</div></div>';
+      (filled ? '' : ' disabled') + '>다시 배치</button></div>';
     return '<div class="academicCaseProgress">공동 기록 완성 · ' +
       (workbench.taskIndex+1) + ' / ' + config.tasks.length + '</div>' +
       '<section class="academicOriginal academicVillageOriginal" data-academic-zone="original" aria-label="' +
@@ -952,8 +981,9 @@
       escapeHtml(task.workLabel) + '</div>' +
       '<p class="academicVillageWorkContext">' + escapeHtml(task.workContext) + '</p>' +
       '<h2 class="academicTaskTitle">' + escapeHtml(task.question) + '</h2>' +
+      '<p class="academicVillageClozeInstruction">빈칸을 누르면 그 자리에서 표현을 고를 수 있어.</p>' +
       mvpFeedback(workbench.lastCheck?.feedbackKo) +
-      '<div class="academicVillageClozeLines">' + sentences + '</div>' + bank +
+      '<div class="academicVillageClozeLines">' + sentences + '</div>' + tools +
       (done ? '<p class="academicVillageClozeComplete">다섯 표현이 제자리에 들어갔어. 이제 함께 쓴 기록을 남기자.</p>' : '') +
       '</section>';
   }
@@ -1416,7 +1446,27 @@
     document.querySelectorAll('#tutorialView [data-academic-action]').forEach(button => {
       button.addEventListener('click', () => runAction(button.dataset.academicAction, button.dataset.value));
     });
+    // Native button keyboard semantics remain available throughout the list.
+    // Escape closes only the dropdown without clearing any answer or verdict.
+    gridEl.querySelector('.academicVillageClozeDropdown')?.addEventListener('keydown',event=>{
+      if(event.key!=='Escape') return;
+      event.preventDefault();
+      const blankId=state.academicTower?.slot;
+      runAction('meaning-cloze-close');
+      gridEl.querySelector('[data-academic-action="meaning-cloze-slot"][data-value="' + blankId + '"]')
+        ?.focus({preventScroll:true});
+    });
   }
+
+  // Tapping outside an expanded list dismisses it. Unlike resetting a blank,
+  // dismissal preserves the placed word and any previously checked feedback.
+  document.addEventListener('click',event=>{
+    if(screen!=='tutorial' || !current()?.academicTower?.villageResearch ||
+       !state?.academicTower?.clozeMenuOpen) return;
+    if(event.target.closest('.academicVillageClozeBlank,.academicVillageClozeDropdown')) return;
+    if(event.target.closest('[data-academic-action]')) return;
+    runAction('meaning-cloze-close');
+  });
 
   function runAction(type, value) {
     const stage = current();
@@ -1575,8 +1625,23 @@
       });
       $('.controls').insertAdjacentHTML('beforeend', mvpFooter(workbench));
       gridEl.scrollTop = scroll;
+      const clozeDropdown = gridEl.querySelector('.academicVillageClozeDropdown');
+      if (clozeDropdown) {
+        // Its choices expand in the document flow (never clipped behind the
+        // virtual keyboard/viewport). Scroll only the academic desk as needed.
+        const rect=clozeDropdown.getBoundingClientRect();
+        const viewport=gridEl.getBoundingClientRect();
+        if (rect.bottom>viewport.bottom-12) gridEl.scrollTop+=rect.bottom-viewport.bottom+16;
+        if (rect.top<viewport.top+8) gridEl.scrollTop-=viewport.top+8-rect.top;
+      }
       const target = [...view.querySelectorAll('[data-academic-action]')].find(el => el.dataset.academicAction === focusAction && el.dataset.value === focusValue);
-      if (sameRecord && target) target.focus({ preventScroll: true });
+      if (config.villageResearch && config.tasks?.[workbench.taskIndex]?.type==='cloze' &&
+          focusAction==='meaning-cloze-place' && workbench.phase==='work') {
+        const nextBlank=gridEl.querySelector('[data-academic-action="meaning-cloze-slot"][data-value="' +
+          workbench.slot + '"]');
+        nextBlank?.focus({preventScroll:true});
+        nextBlank?.scrollIntoView({block:'nearest'});
+      } else if (sameRecord && target) target.focus({ preventScroll: true });
       else if (focusAction) {
         const anchor = gridEl.querySelector(sameRecord ? '[data-academic-zone="work"]' : '[data-academic-zone="original"]') || gridEl.querySelector('.academicTaskTitle');
         anchor?.setAttribute('tabindex', '-1');

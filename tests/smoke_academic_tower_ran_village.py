@@ -190,38 +190,81 @@ try:
             ]
             assert page.locator('.academicVillageClozeSentence').count() == 5
             assert page.locator('.academicVillageClozeBlank').count() == 5
-            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '0 / 5 배치'
-            assert sorted(page.locator('.academicVillageClozeWord').all_inner_texts()) == sorted([
-                '仍然', '突然', '當然', '固然', '不盡然'
-            ])
+            assert page.locator('.academicVillageClozeTools small').inner_text() == '0 / 5 칸 채움'
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
+            assert page.locator('.academicVillageClozeOption').count() == 0
+            assert page.locator('.academicVillageClozeBank').count() == 0
             assert page.locator('.academicVillageClozeReset').is_disabled()
             assert page.locator('#academicMvpConfirm').is_disabled()
             assert '突然' not in page.locator('[data-academic-zone="original"]').inner_text()
             assert page.locator('.academicVillageClozeLine[data-village-blank-id="claim"]').inner_text().count('「') == 1
-            assert page.locator('.academicVillageClozeBlank.selected').count() == 1
+            assert page.locator('.academicVillageClozeBlank.selected').count() == 0
+            assert page.locator('.academicVillageClozeBlank[aria-expanded="false"]').count() == 5
             layout()
 
-            # Tap a blank, place a word, then reset without affecting earlier work.
+            # The blank is the trigger: one tap reveals all five terms just
+            # under that sentence, without a duplicated footer word bank.
+            action(page,'meaning-cloze-slot','incident')
+            assert page.locator('.academicVillageClozeDropdown').count() == 1
+            assert page.locator('.academicVillageClozeBlank[aria-expanded="true"]').count() == 1
+            assert page.locator('.academicVillageClozeDropdown').get_attribute('data-village-dropdown-for') == 'incident'
+            assert sorted(page.locator('.academicVillageClozeOption span').all_inner_texts()) == sorted([
+                '仍然','突然','當然','固然','不盡然'
+            ])
+            assert page.locator('.academicVillageClozeOption').count() == 5
+            assert page.locator('.academicVillageClozeOption').first.is_visible()
+            layout()
+            assert page.evaluate('state.academicTower.clozeMenuOpen') is True
+            # Re-tapping the same blank, using "Close", or tapping elsewhere
+            # dismisses without resetting any placed word.
+            action(page,'meaning-cloze-slot','incident')
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
+            action(page,'meaning-cloze-slot','incident')
+            action(page,'meaning-cloze-close')
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
+            action(page,'meaning-cloze-slot','incident')
+            page.locator('[data-academic-zone="original"] > .academicRegionLabel').click()
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
+            assert page.evaluate('state.academicTower.placements') == {}
+
+            # Save a menu that is open in the middle of the task.
+            action(page,'meaning-cloze-slot','incident')
+            saved=page.evaluate('state.academicTower')
+            options_before=page.locator('.academicVillageClozeOption span').all_inner_texts()
+            page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
+            assert page.evaluate('GameFlow.resume()')
+            assert page.evaluate('state.academicTower') == saved
+            assert page.locator('.academicVillageClozeDropdown').count() == 1
+            assert page.locator('.academicVillageClozeOption span').all_inner_texts() == options_before
+
             action(page,'meaning-cloze-place','仍然')
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
+            action(page,'meaning-cloze-slot','claim')
+            assert page.locator('.academicVillageClozeDropdown').get_attribute('data-village-dropdown-for') == 'claim'
             action(page,'meaning-cloze-place','突然')
             assert page.evaluate('state.academicTower.placements') == {'incident':'仍然','claim':'突然'}
-            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '2 / 5 배치'
+            assert page.locator('.academicVillageClozeTools small').inner_text() == '2 / 5 칸 채움'
             saved=page.evaluate('state.academicTower')
             page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
             assert page.evaluate('GameFlow.resume()')
             assert page.evaluate('state.academicTower') == saved
-            assert page.locator('.academicVillageClozeWord[data-used="true"]').count() == 2
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
             action(page,'meaning-cloze-reset')
             assert page.evaluate('state.academicTower.placements') == {}
-            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '0 / 5 배치'
+            assert page.locator('.academicVillageClozeTools small').inner_text() == '0 / 5 칸 채움'
             assert page.locator('#academicMvpConfirm').is_disabled()
 
-            # Fill every blank with a unique word, but put the first three in
-            # incorrect positions. The player can review and swap, not restart.
+            # Fill all blanks, deliberately mixing up three words. Each blank
+            # opens its own menu and closes as soon as a word is chosen.
             for word in ['仍然','突然','當然','固然','不盡然']:
+                slot_id=page.evaluate('state.academicTower.slot')
+                action(page,'meaning-cloze-slot',slot_id)
+                assert page.locator('.academicVillageClozeDropdown').get_attribute('data-village-dropdown-for') == slot_id
+                assert page.locator('.academicVillageClozeOption').count() == 5
+                layout()
                 action(page,'meaning-cloze-place',word)
-            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '5 / 5 배치'
-            assert page.locator('.academicVillageClozeWord[data-used="true"]').count() == 5
+                assert page.locator('.academicVillageClozeDropdown').count() == 0
+            assert page.locator('.academicVillageClozeTools small').inner_text() == '5 / 5 칸 채움'
             assert page.locator('#academicMvpConfirm').is_enabled()
             layout()
             action(page,'meaning-confirm')
@@ -229,27 +272,32 @@ try:
             assert page.evaluate('state.academicTower.lastCheck.step') == 'cloze'
             assert page.locator('.academicVillageClozeHint[data-verdict="incorrect"]').count() == 3
             assert page.locator('.academicVillageClozeHint[data-verdict="correct"]').count() == 2
-            assert page.locator('#academicMvpConfirm').is_enabled()
             saved=page.evaluate('state.academicTower')
             page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
             assert page.evaluate('GameFlow.resume()')
             assert page.evaluate('state.academicTower') == saved
             assert page.locator('.academicVillageClozeHint[data-verdict="incorrect"]').count() == 3
 
+            # Opening the dropdown does not erase feedback; choosing does.
             action(page,'meaning-cloze-slot','incident')
+            assert page.locator('.academicVillageClozeHint[data-verdict="incorrect"]').count() == 3
+            assert page.locator('[data-village-dropdown-for="incident"] [data-value="突然"] small').inner_text() == '자리 바꾸기'
+            layout()
             action(page,'meaning-cloze-place','突然')
             assert page.evaluate('state.academicTower.placements.incident') == '突然'
             assert page.evaluate('state.academicTower.placements.claim') == '仍然'
             assert page.locator('.academicVillageClozeHint').count() == 0
             action(page,'meaning-cloze-slot','claim')
+            assert page.locator('[data-village-dropdown-for="claim"] [data-value="當然"] small').inner_text() == '자리 바꾸기'
             action(page,'meaning-cloze-place','當然')
             assert page.evaluate('state.academicTower.placements.claim') == '當然'
             assert page.evaluate('state.academicTower.placements.continuity') == '仍然'
             assert page.locator('.academicVillageClozeBlank').count() == 5
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
             action(page,'meaning-confirm')
             assert page.evaluate('state.academicTower.phase') == 'complete'
             assert page.locator('.academicVillageClozeHint[data-verdict="correct"]').count() == 5
-            assert page.locator('.academicVillageClozeBank').count() == 0
+            assert page.locator('.academicVillageClozeDropdown').count() == 0
             assert page.locator('.academicVillageClozeFilled').count() == 5
             assert page.locator('.academicVillageClozeComplete').is_visible()
             assert page.locator('#academicMvpConfirm').inner_text().startswith('완성 기록 확인')
@@ -285,4 +333,4 @@ try:
         browser.close()
 finally:
     server.shutdown()
-print('PASS: 03B five unique cloze placements, swap, reset, feedback, save/replay and four viewports.')
+print('PASS: 03B per-blank dropdowns, tap/close/swap, wrong-answer feedback, saved menu, replay and four viewports.')

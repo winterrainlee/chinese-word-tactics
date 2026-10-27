@@ -623,7 +623,13 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
 /* 03B T6: one shared record, five inline blanks, three evidence scopes.
    Keep the archive/workbench boundary and large touch targets on narrow phones. */
 .academicTowerMvp .academicVillageClozeWork .academicTaskTitle{
-  margin:4px 0 18px;
+  margin:4px 0 6px;
+}
+.academicTowerMvp .academicVillageClozeInstruction{
+  margin:0 0 16px;
+  color:#58665c;
+  font-size:13px;
+  line-height:1.55;
 }
 .academicTowerMvp .academicVillageClozeLines{
   display:grid;
@@ -681,7 +687,8 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
   border-color:rgba(73,91,83,.35);
 }
 .academicTowerMvp .academicVillageClozeBlank:focus-visible,
-.academicTowerMvp .academicVillageClozeWord:focus-visible,
+.academicTowerMvp .academicVillageClozeOption:focus-visible,
+.academicTowerMvp .academicVillageClozeClose:focus-visible,
 .academicTowerMvp .academicVillageClozeReset:focus-visible{
   outline:3px solid #365d4b;
   outline-offset:2px;
@@ -694,61 +701,101 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
 }
 .academicTowerMvp .academicVillageClozeHint[data-verdict="correct"]{color:#286246}
 .academicTowerMvp .academicVillageClozeHint[data-verdict="incorrect"]{color:#91503e}
-.academicTowerMvp .academicVillageClozeBank{
-  margin-top:20px;
-  padding-top:14px;
-  border-top:1px solid rgba(73,91,83,.24);
-}
-.academicTowerMvp .academicVillageClozeBankHeading{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin:0 0 12px;
+
+/* The blank is the dropdown trigger. Options expand immediately below its
+   sentence in document flow, avoiding popover clipping in the phone scrollport. */
+.academicTowerMvp .academicVillageClozeChevron{
+  margin-left:6px;
   font-size:15px;
+  line-height:1;
+  opacity:.65;
 }
-.academicTowerMvp .academicVillageClozeBankHeading small{
-  color:#59645e;
-  font-size:12px;
-  white-space:nowrap;
-}
-.academicTowerMvp .academicVillageClozeWords{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
+.academicTowerMvp .academicVillageClozeDropdown{
   min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+  margin:7px 0 11px;
+  padding:10px;
+  background:#f5f4ed;
+  border:1px solid rgba(73,91,83,.36);
+  border-radius:10px;
+  box-shadow:0 3px 10px rgba(52,45,35,.08);
 }
-.academicTowerMvp .academicVillageClozeWord{
-  min-height:46px;
-  min-width:66px;
-  padding:9px 12px;
-  border:1px solid rgba(73,91,83,.45);
-  border-radius:9px;
-  background:#fffdf8;
-  color:#2f4337;
+.academicTowerMvp .academicVillageClozeDropdownHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+  color:#42564b;
+  font-size:13px;
+  line-height:1.4;
+}
+.academicTowerMvp .academicVillageClozeDropdownHeader strong{
+  font-weight:750;
+}
+.academicTowerMvp .academicVillageClozeDropdownOptions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.academicTowerMvp .academicVillageClozeOption{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:2px;
+  min-height:48px;
+  min-width:0;
+  box-sizing:border-box;
+  padding:7px 5px;
+  border:1px solid rgba(73,91,83,.37);
+  border-radius:8px;
+  background:#fffdf7;
+  color:#30453a;
   font-size:18px;
-  font-weight:650;
-  white-space:normal;
+  font-weight:680;
+  line-height:1.4;
   overflow-wrap:anywhere;
 }
-.academicTowerMvp .academicVillageClozeWord[data-used="true"]{
-  background:#e5e8df;
-  border-color:rgba(73,91,83,.23);
-  color:#47584c;
+.academicTowerMvp .academicVillageClozeOption[data-used="true"]{
+  background:#e9ede6;
 }
-.academicTowerMvp .academicVillageClozeBankFooter{
+.academicTowerMvp .academicVillageClozeOption[aria-pressed="true"]{
+  background:#e2ebdd;
+  border-color:#3f7455;
+}
+.academicTowerMvp .academicVillageClozeOption small{
+  color:#647368;
+  font-size:10px;
+  font-weight:520;
+  line-height:1.25;
+  text-align:center;
+}
+.academicTowerMvp .academicVillageClozeClose{
+  min-height:44px;
+  padding:6px 12px;
+  border:1px solid rgba(73,91,83,.26);
+  border-radius:7px;
+  background:#fffdf7;
+  color:#48584d;
+  font-size:13px;
+  font-weight:650;
+}
+.academicTowerMvp .academicVillageClozeTools{
   display:flex;
   flex-wrap:wrap;
   justify-content:space-between;
   align-items:center;
   gap:8px;
-  margin-top:12px;
+  margin-top:19px;
+  padding-top:12px;
+  border-top:1px solid rgba(73,91,83,.24);
 }
-.academicTowerMvp .academicVillageClozeBankFooter small{
-  flex:1 1 155px;
-  color:#5b635e;
-  font-size:12px;
-  line-height:1.55;
+.academicTowerMvp .academicVillageClozeTools small{
+  color:#59645e;
+  font-size:13px;
+  line-height:1.5;
 }
 .academicTowerMvp .academicVillageClozeReset{
   min-height:44px;
@@ -769,5 +816,5 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
 }
 @media(max-width:390px){
   .academicTowerMvp .academicVillageClozeSentence{font-size:17px;line-height:1.95}
-  .academicTowerMvp .academicVillageClozeWord{padding:9px 10px;font-size:17px}
+  .academicTowerMvp .academicVillageClozeOption{font-size:17px}
 }

@@ -664,10 +664,24 @@ test('03B final record places five unique words, reveals only incorrect slots, a
     state=plain(result.state);return result;
   };
   assert.equal(M.normalizeMeaning(config,state).slot,'incident');
+  assert.equal(state.clozeMenuOpen,false);
   assert.equal(a('meaning-confirm').changed,false);
   assert.equal(a('meaning-cloze-reset').changed,false);
+  assert.equal(a('meaning-cloze-place','仍然').changed,false,'a closed dropdown cannot place words');
+  assert.equal(a('meaning-cloze-slot','incident').changed,true,'tapping first blank opens its dropdown');
+  assert.equal(state.clozeMenuOpen,true);
+  assert.deepEqual(plain(M.normalizeMeaning(config,state)),state,'open dropdown survives reload');
+  assert.equal(a('meaning-cloze-slot','incident').changed,true,'tapping again closes dropdown');
+  assert.equal(state.clozeMenuOpen,false);
+  assert.equal(a('meaning-cloze-slot','incident').changed,true);
+  assert.equal(a('meaning-cloze-close').changed,true);
+  assert.equal(state.clozeMenuOpen,false);
+  assert.deepEqual(state.placements,{});
   for(const word of ['仍然','突然']){
+    assert.equal(a('meaning-cloze-slot',state.slot).changed,true);
+    assert.equal(state.clozeMenuOpen,true);
     assert.equal(a('meaning-cloze-place',word).changed,true);
+    assert.equal(state.clozeMenuOpen,false);
   }
   assert.deepEqual(state.placements,{incident:'仍然',claim:'突然'});
   assert.equal(state.slot,'continuity');
@@ -677,7 +691,9 @@ test('03B final record places five unique words, reveals only incorrect slots, a
   assert.equal(a('meaning-confirm').changed,false);
 
   for(const word of ['仍然','突然','當然','固然','不盡然']){
+    assert.equal(a('meaning-cloze-slot',state.slot).changed,true);
     assert.equal(a('meaning-cloze-place',word).changed,true);
+    assert.equal(state.clozeMenuOpen,false);
   }
   const wrong=plain(state),firstOrder=plain(state.optionOrders);
   assert.equal(a('meaning-confirm').correct,false);
@@ -689,6 +705,8 @@ test('03B final record places five unique words, reveals only incorrect slots, a
   assert.deepEqual(state.optionOrders,firstOrder);
   assert.equal(M.isSolved(config,state),false);
   a('meaning-cloze-slot','incident');
+  assert.equal(state.clozeMenuOpen,true);
+  assert.equal(state.lastCheck.step,'cloze','opening the list does not dismiss the incorrect verdict');
   a('meaning-cloze-place','突然');
   assert.equal(state.placements.incident,'突然');
   assert.equal(state.placements.claim,'仍然');
@@ -697,6 +715,7 @@ test('03B final record places five unique words, reveals only incorrect slots, a
   a('meaning-cloze-place','當然');
   assert.equal(state.placements.claim,'當然');
   assert.equal(state.placements.continuity,'仍然');
+  assert.equal(state.clozeMenuOpen,false);
   assert.equal(a('meaning-confirm').correct,true);
   assert.equal(state.phase,'complete');
   assert.equal(M.isSolved(config,state),true);
@@ -712,6 +731,7 @@ test('03B final record places five unique words, reveals only incorrect slots, a
   assert.equal(migrated.taskIndex,5);
   assert.equal(migrated.phase,'work');
   assert.equal(migrated.slot,'incident');
+  assert.equal(migrated.clozeMenuOpen,false);
   assert.equal(migrated.answers[task.id],undefined);
   assert.equal(Object.keys(migrated.answers).length,5);
 });
