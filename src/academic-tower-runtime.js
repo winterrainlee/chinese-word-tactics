@@ -394,7 +394,7 @@
       slot:null, placements:{}, relation:null, answers:{}, lastCheck:null};
     if (config.villageResearch) {
       state.optionOrders = Object.fromEntries(config.tasks.map(task => [
-        task.id, shuffledIds(task.targets || task.relations || [], rng)
+        task.id, shuffledIds(task.wordBank || task.targets || task.relations || [], rng)
       ]));
       state.seenScenes=[]; state.sceneId=null; state.sceneIndex=0;
     }
@@ -431,7 +431,7 @@
     if (config.villageResearch) {
       const orders = next.optionOrders && typeof next.optionOrders === 'object' ? next.optionOrders : {};
       next.optionOrders = Object.fromEntries(config.tasks.map(item => {
-        const ids = (item.targets || item.relations || []).map(choice => choice.id);
+        const ids = (item.wordBank || item.targets || item.relations || []).map(choice => typeof choice === 'string' ? choice : choice.id);
         const saved = orders[item.id];
         const valid = Array.isArray(saved) && saved.length === ids.length &&
           new Set(saved).size === ids.length && saved.every(id => ids.includes(id));
@@ -478,10 +478,31 @@
       next.sceneId=null; next.sceneIndex=0;
     }
     const currentTask = config.tasks[next.taskIndex];
-    next.placements = Object.fromEntries(currentTask.slots.filter(slot => [...currentTask.sources,...(currentTask.targets || [])].some(source => source.id === next.placements[slot.id])).map(slot => [slot.id,next.placements[slot.id]]));
-    if (!currentTask.slots.some(slot => slot.id === next.slot)) next.slot=null;
-    if (!currentTask.relations?.some(r => r.id === next.relation)) next.relation=null;
-    if (next.phase !== 'work' && !meaningAnswerCorrect(currentTask,next.answers[currentTask.id])) {next.phase='work'; next.lastCheck=null;}
+    if (currentTask.type === 'cloze') {
+      // Words, not source IDs, fill these five slots. Keep correct and incorrect
+      // placements across reload, but repair unknown or duplicate values.
+      const used=new Set(), entries=[];
+      for (const slot of currentTask.slots) {
+        const word=next.placements?.[slot.id];
+        if (currentTask.wordBank.includes(word) && !used.has(word)) {
+          entries.push([slot.id,word]); used.add(word);
+        }
+      }
+      next.placements=Object.fromEntries(entries);
+      if (!currentTask.slots.some(slot=>slot.id===next.slot)) {
+        next.slot=currentTask.slots.find(slot=>!next.placements[slot.id])?.id || currentTask.slots[0].id;
+      }
+      next.relation=null;
+    } else {
+      next.placements = Object.fromEntries(currentTask.slots.filter(slot => [...currentTask.sources,...(currentTask.targets || [])].some(source => source.id === next.placements[slot.id])).map(slot => [slot.id,next.placements[slot.id]]));
+      if (!currentTask.slots.some(slot => slot.id === next.slot)) next.slot=null;
+      if (!currentTask.relations?.some(r => r.id === next.relation)) next.relation=null;
+    }
+    if (next.phase !== 'work' && !meaningAnswerCorrect(currentTask,next.answers[currentTask.id])) {
+      next.phase='work'; next.lastCheck=null;
+      // An old read-only T6 completion is not proof of the new five blanks.
+      if (currentTask.type==='cloze') {next.placements={};next.slot=currentTask.slots[0].id;}
+    }
     if (next.phase !== 'work') {
       next.placements=copy(next.answers[currentTask.id].placements);
       next.relation=next.answers[currentTask.id].relation || null;
@@ -503,7 +524,27 @@
       }
     } else if (next.phase==='discovery' && action.type==='start-compare') {next.phase='work';next.introRead=true;next.lastCheck=null;changed=true;}
     else if (next.phase === 'work') {
-      if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
+      if (task.type === 'cloze' && action.type === 'meaning-cloze-slot' &&
+          task.slots.some(slot=>slot.id===action.value)) {
+        changed=next.slot!==action.value || !!next.lastCheck;
+        next.slot=action.value; next.lastCheck=null;
+      } else if (task.type === 'cloze' && action.type === 'meaning-cloze-place' &&
+                 task.wordBank.includes(action.value)) {
+        const slotId=task.slots.some(slot=>slot.id===next.slot) ? next.slot : task.slots[0].id;
+        const hadCheck=!!next.lastCheck;
+        const assigned=Object.keys(next.placements).find(id=>next.placements[id]===action.value);
+        const displaced=next.placements[slotId];
+        if (assigned && assigned!==slotId) {
+          if (displaced) next.placements[assigned]=displaced;
+          else delete next.placements[assigned];
+        }
+        next.placements[slotId]=action.value;
+        next.slot=task.slots.find(slot=>!next.placements[slot.id])?.id || slotId;
+        next.lastCheck=null;changed=assigned!==slotId || next.slot!==slotId || hadCheck;
+      } else if (task.type === 'cloze' && action.type === 'meaning-cloze-reset' &&
+                 Object.keys(next.placements).length) {
+        next.placements={}; next.slot=task.slots[0].id; next.lastCheck=null; changed=true;
+      } else if (action.type === 'meaning-slot' && task.slots.some(slot => slot.id === action.value)) {
         changed=next.slot !== action.value; next.slot=action.value;
       } else if (action.type === 'meaning-source' && (next.slot || task.directSlot) && [...task.sources,...(task.targets || [])].some(source => source.id === action.value)) {
         const slot=task.directSlot || next.slot;
@@ -514,8 +555,11 @@
       } else if (action.type === 'meaning-confirm' && task.slots.every(slot => next.placements[slot.id]) && (!task.relations || next.relation)) {
         correct=meaningAnswerCorrect(task,next);
         const wrongSlot=task.slots.find(slot => next.placements[slot.id] !== task.answer[slot.id]);
-        feedback=correct ? task.success : wrongSlot ? (task.slotFeedback?.[wrongSlot.id] || `“${wrongSlot.label}”에 놓은 구절을 다시 읽어 봐. 원문의 앞뒤와 시점을 살펴보자.`) : (task.wrong?.[next.relation] || '두 구절을 어떻게 잇는지 다시 살펴보자.');
-        next.lastCheck={correct,feedbackKo:feedback};
+        feedback=correct ? task.success : task.type==='cloze'
+          ? '아직 맞지 않는 자리가 있어. 표시된 문장을 읽고 표현을 바꿔 보자.'
+          : wrongSlot ? (task.slotFeedback?.[wrongSlot.id] || `“${wrongSlot.label}”에 놓은 구절을 다시 읽어 봐. 원문의 앞뒤와 시점을 살펴보자.`)
+            : (task.wrong?.[next.relation] || '두 구절을 어떻게 잇는지 다시 살펴보자.');
+        next.lastCheck={correct,feedbackKo:feedback,...(task.type==='cloze' ? {step:'cloze'} : {})};
         if (correct) {
           next.answers[task.id]={placements:copy(next.placements),relation:next.relation};
           next.phase=next.taskIndex === config.tasks.length-1 ? 'complete' : 'review';
@@ -844,8 +888,79 @@
 
   // 03B has a genuine reading interlude and four distinct evidence decisions.
   // Keep the source sheet separate from choices; do not create a fake pre-solved memo.
+  // 03B's final task creates a real three-section research record. Each word
+  // is used once, but the paper's quotation is NOT endorsed as a historical fact.
+  function renderVillageCloze(config, workbench) {
+    const task=config.tasks[workbench.taskIndex], placements=workbench.placements;
+    const done=workbench.phase==='complete';
+    const checked=done || workbench.lastCheck?.step==='cloze';
+    const active=workbench.slot || task.slots[0].id;
+    const filled=task.slots.filter(slot=>placements[slot.id]).length;
+    const sourceHtml=task.sources.map(source=>
+      '<div class="academicVillageSource"><small>' + escapeHtml(source.label) +
+      '</small><p lang="zh-Hant">' + escapeHtml(source.text) + '</p></div>'
+    ).join('');
+    let currentSection='';
+    const sentences=task.blanks.map(blank=>{
+      const newSection=blank.section!==currentSection;
+      currentSection=blank.section;
+      const word=placements[blank.id] || '';
+      const matched=word===task.answer[blank.id];
+      const marker=checked
+        ? '<p class="academicVillageClozeHint" data-verdict="' + (matched ? 'correct' : 'incorrect') + '">' +
+          (matched ? '✓ ' + escapeHtml(blank.meaningKo) : '! 문장의 앞뒤를 다시 읽고 표현을 바꿔 보자.') + '</p>'
+        : '';
+      return '<div class="academicVillageClozeLine" data-village-blank-id="' + escapeHtml(blank.id) + '">' +
+        (newSection ? '<h3 class="academicVillageClozeSection">' + escapeHtml(blank.section) + '</h3>' : '') +
+        '<p class="academicVillageClozeSentence" lang="zh-Hant">' +
+        '<span>' + escapeHtml(blank.before) + '</span>' +
+        (done ? '<strong class="academicVillageClozeFilled">' + escapeHtml(word) + '</strong>'
+          : '<button type="button" class="academicVillageClozeBlank' +
+            (active===blank.id ? ' selected' : '') +
+            '" data-academic-action="meaning-cloze-slot" data-value="' + escapeHtml(blank.id) +
+            '" aria-label="' + escapeHtml(blank.section + '의 빈칸, 현재 ' + (word || '비어 있음') + '. 탭해서 이 칸에 표현 배치') +
+            '" aria-pressed="' + (active===blank.id) + '">' + escapeHtml(word || '＿＿') + '</button>') +
+        '<span>' + escapeHtml(blank.after) + '</span></p>' + marker + '</div>';
+    }).join('');
+    const ordered=(workbench.optionOrders?.[task.id] || task.wordBank)
+      .filter(word=>task.wordBank.includes(word));
+    const bank=done ? '' :
+      '<div class="academicVillageClozeBank" role="group" aria-label="사용할 표현 다섯 개">' +
+      '<div class="academicVillageClozeBankHeading"><strong>표현 다섯 개</strong><small>' +
+      filled + ' / ' + task.wordBank.length + ' 배치</small></div>' +
+      '<div class="academicVillageClozeWords">' +
+      ordered.map(word=>'<button type="button" data-academic-action="meaning-cloze-place" data-value="' +
+        escapeHtml(word) + '" class="academicVillageClozeWord" data-used="' +
+        Object.values(placements).includes(word) +
+        '" aria-label="' + escapeHtml(word) +
+        (Object.values(placements).includes(word) ? ', 이미 배치됨. 다른 칸에 배치하면 두 표현을 교환해.' : ', 선택한 빈칸에 배치') +
+        '" lang="zh-Hant">' + escapeHtml(word) + '</button>').join('') +
+      '</div><div class="academicVillageClozeBankFooter">' +
+      '<small>빈칸을 누른 뒤 표현을 골라. 배치된 표현도 눌러 서로 바꿀 수 있어.</small>' +
+      '<button type="button" class="academicVillageClozeReset" data-academic-action="meaning-cloze-reset"' +
+      (filled ? '' : ' disabled') + '>다시 배치</button>' +
+      '</div></div>';
+    return '<div class="academicCaseProgress">공동 기록 완성 · ' +
+      (workbench.taskIndex+1) + ' / ' + config.tasks.length + '</div>' +
+      '<section class="academicOriginal academicVillageOriginal" data-academic-zone="original" aria-label="' +
+      escapeHtml(task.sourceLabel) + '">' +
+      '<div class="academicRegionLabel">' + escapeHtml(task.sourceLabel) + '</div>' +
+      '<article class="academicMvpSource"><h2 class="academicTaskTitle">앞에서 확인한 자료</h2>' +
+      sourceHtml + '<p class="academicMvpHint">' + escapeHtml(task.sourceNote) + '</p></article></section>' +
+      '<section class="academicMvpMemo academicVillageWork academicVillageClozeWork" data-academic-zone="work"' +
+      ' data-academic-work-kind="restore"><div class="academicRegionLabel">' +
+      escapeHtml(task.workLabel) + '</div>' +
+      '<p class="academicVillageWorkContext">' + escapeHtml(task.workContext) + '</p>' +
+      '<h2 class="academicTaskTitle">' + escapeHtml(task.question) + '</h2>' +
+      mvpFeedback(workbench.lastCheck?.feedbackKo) +
+      '<div class="academicVillageClozeLines">' + sentences + '</div>' + bank +
+      (done ? '<p class="academicVillageClozeComplete">다섯 표현이 제자리에 들어갔어. 이제 함께 쓴 기록을 남기자.</p>' : '') +
+      '</section>';
+  }
+
   function renderVillageMeaning(config, workbench) {
     const task = config.tasks[workbench.taskIndex], done = workbench.phase !== 'work';
+    if (task.type==='cloze') return renderVillageCloze(config,workbench);
     const reading = task.type === 'read';
     const originalLabel = reading ? (task.id === 'village-reread' ? '함께 쓴 해설' : '연구실에서 일어난 일') : (task.sourceLabel || '원본 기록');
     const sourceHtml = task.sources.map(item =>

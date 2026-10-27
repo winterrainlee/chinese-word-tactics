@@ -618,3 +618,156 @@ body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
 .academicTowerMvp .academicVillageWork .academicVillageSentence {
   margin:3px 0 13px;
 }
+
+
+/* 03B T6: one shared record, five inline blanks, three evidence scopes.
+   Keep the archive/workbench boundary and large touch targets on narrow phones. */
+.academicTowerMvp .academicVillageClozeWork .academicTaskTitle{
+  margin:4px 0 18px;
+}
+.academicTowerMvp .academicVillageClozeLines{
+  display:grid;
+  gap:15px;
+  min-width:0;
+}
+.academicTowerMvp .academicVillageClozeLine{
+  min-width:0;
+}
+.academicTowerMvp .academicVillageClozeSection{
+  margin:1px 0 8px;
+  font-size:13px;
+  font-weight:750;
+  line-height:1.45;
+  color:#52645a;
+}
+.academicTowerMvp .academicVillageClozeSentence{
+  margin:0;
+  font-size:18px;
+  line-height:2.05;
+  font-weight:450;
+  word-break:normal;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeBlank,
+.academicTowerMvp .academicVillageClozeFilled{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  vertical-align:middle;
+  box-sizing:border-box;
+  min-height:44px;
+  min-width:68px;
+  max-width:100%;
+  padding:4px 9px;
+  margin:1px 4px;
+  border:1px solid rgba(73,91,83,.5);
+  border-radius:8px;
+  font:inherit;
+  font-weight:700;
+  line-height:1.4;
+  white-space:normal;
+  text-align:center;
+  color:#30453a;
+  background:#fffdf6;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeBlank.selected{
+  border-color:#2e6b50;
+  box-shadow:0 0 0 2px rgba(52,105,75,.20);
+  background:#e9f1e9;
+}
+.academicTowerMvp .academicVillageClozeFilled{
+  background:#edf0e7;
+  border-color:rgba(73,91,83,.35);
+}
+.academicTowerMvp .academicVillageClozeBlank:focus-visible,
+.academicTowerMvp .academicVillageClozeWord:focus-visible,
+.academicTowerMvp .academicVillageClozeReset:focus-visible{
+  outline:3px solid #365d4b;
+  outline-offset:2px;
+}
+.academicTowerMvp .academicVillageClozeHint{
+  margin:4px 0 0;
+  font-size:13px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeHint[data-verdict="correct"]{color:#286246}
+.academicTowerMvp .academicVillageClozeHint[data-verdict="incorrect"]{color:#91503e}
+.academicTowerMvp .academicVillageClozeBank{
+  margin-top:20px;
+  padding-top:14px;
+  border-top:1px solid rgba(73,91,83,.24);
+}
+.academicTowerMvp .academicVillageClozeBankHeading{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin:0 0 12px;
+  font-size:15px;
+}
+.academicTowerMvp .academicVillageClozeBankHeading small{
+  color:#59645e;
+  font-size:12px;
+  white-space:nowrap;
+}
+.academicTowerMvp .academicVillageClozeWords{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  min-width:0;
+}
+.academicTowerMvp .academicVillageClozeWord{
+  min-height:46px;
+  min-width:66px;
+  padding:9px 12px;
+  border:1px solid rgba(73,91,83,.45);
+  border-radius:9px;
+  background:#fffdf8;
+  color:#2f4337;
+  font-size:18px;
+  font-weight:650;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeWord[data-used="true"]{
+  background:#e5e8df;
+  border-color:rgba(73,91,83,.23);
+  color:#47584c;
+}
+.academicTowerMvp .academicVillageClozeBankFooter{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-top:12px;
+}
+.academicTowerMvp .academicVillageClozeBankFooter small{
+  flex:1 1 155px;
+  color:#5b635e;
+  font-size:12px;
+  line-height:1.55;
+}
+.academicTowerMvp .academicVillageClozeReset{
+  min-height:44px;
+  padding:8px 12px;
+  border:1px solid rgba(73,91,83,.4);
+  border-radius:8px;
+  background:#f2efe8;
+  color:#3b4940;
+  font-size:14px;
+  font-weight:650;
+}
+.academicTowerMvp .academicVillageClozeReset:disabled{opacity:.45}
+.academicTowerMvp .academicVillageClozeComplete{
+  margin:14px 0 0;
+  color:#2c5b43;
+  line-height:1.65;
+  font-weight:650;
+}
+@media(max-width:390px){
+  .academicTowerMvp .academicVillageClozeSentence{font-size:17px;line-height:1.95}
+  .academicTowerMvp .academicVillageClozeWord{padding:9px 10px;font-size:17px}
+}

@@ -177,11 +177,81 @@ try:
             assert page.locator('.academicVillageReaction').count() == 0
             wrong_then_right() # T5
             assert page.evaluate('state.academicTower.taskIndex') == 5
-            assert page.locator('[data-academic-zone="work"]').count() == 0
+            assert page.evaluate('state.academicTower.phase') == 'work'
             assert page.locator('[data-academic-zone="original"]').count() == 1
-            assert page.locator('[data-academic-zone="original"] > .academicRegionLabel').inner_text() == '함께 쓴 해설'
-            layout();action(page,'meaning-confirm') # T6 joint reread
+            assert page.locator('[data-academic-zone="work"]').count() == 1
+            assert page.locator('[data-academic-zone="original"] > .academicRegionLabel').inner_text() == '기록의 근거'
+            assert page.locator('[data-academic-zone="work"] > .academicRegionLabel').inner_text() == '두 사람의 공동 연구 기록'
+            assert page.locator('[data-academic-zone="work"]').get_attribute('data-academic-work-kind') == 'restore'
+            assert page.locator('.academicVillageClozeLine').count() == 5
+            assert page.locator('.academicVillageClozeSection').all_inner_texts() == [
+                '연구실에서 있었던 일', '옛 쪽지 · 작성자 미상의 주장',
+                '소년과 연구원의 공동 해설'
+            ]
+            assert page.locator('.academicVillageClozeSentence').count() == 5
+            assert page.locator('.academicVillageClozeBlank').count() == 5
+            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '0 / 5 배치'
+            assert sorted(page.locator('.academicVillageClozeWord').all_inner_texts()) == sorted([
+                '仍然', '突然', '當然', '固然', '不盡然'
+            ])
+            assert page.locator('.academicVillageClozeReset').is_disabled()
+            assert page.locator('#academicMvpConfirm').is_disabled()
+            assert '突然' not in page.locator('[data-academic-zone="original"]').inner_text()
+            assert page.locator('.academicVillageClozeLine[data-village-blank-id="claim"]').inner_text().count('「') == 1
+            assert page.locator('.academicVillageClozeBlank.selected').count() == 1
+            layout()
+
+            # Tap a blank, place a word, then reset without affecting earlier work.
+            action(page,'meaning-cloze-place','仍然')
+            action(page,'meaning-cloze-place','突然')
+            assert page.evaluate('state.academicTower.placements') == {'incident':'仍然','claim':'突然'}
+            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '2 / 5 배치'
+            saved=page.evaluate('state.academicTower')
+            page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
+            assert page.evaluate('GameFlow.resume()')
+            assert page.evaluate('state.academicTower') == saved
+            assert page.locator('.academicVillageClozeWord[data-used="true"]').count() == 2
+            action(page,'meaning-cloze-reset')
+            assert page.evaluate('state.academicTower.placements') == {}
+            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '0 / 5 배치'
+            assert page.locator('#academicMvpConfirm').is_disabled()
+
+            # Fill every blank with a unique word, but put the first three in
+            # incorrect positions. The player can review and swap, not restart.
+            for word in ['仍然','突然','當然','固然','不盡然']:
+                action(page,'meaning-cloze-place',word)
+            assert page.locator('.academicVillageClozeBankHeading small').inner_text() == '5 / 5 배치'
+            assert page.locator('.academicVillageClozeWord[data-used="true"]').count() == 5
+            assert page.locator('#academicMvpConfirm').is_enabled()
+            layout()
+            action(page,'meaning-confirm')
+            assert page.evaluate('state.academicTower.phase') == 'work'
+            assert page.evaluate('state.academicTower.lastCheck.step') == 'cloze'
+            assert page.locator('.academicVillageClozeHint[data-verdict="incorrect"]').count() == 3
+            assert page.locator('.academicVillageClozeHint[data-verdict="correct"]').count() == 2
+            assert page.locator('#academicMvpConfirm').is_enabled()
+            saved=page.evaluate('state.academicTower')
+            page.reload();page.wait_for_function('!!window.AcademicTowerRuntime')
+            assert page.evaluate('GameFlow.resume()')
+            assert page.evaluate('state.academicTower') == saved
+            assert page.locator('.academicVillageClozeHint[data-verdict="incorrect"]').count() == 3
+
+            action(page,'meaning-cloze-slot','incident')
+            action(page,'meaning-cloze-place','突然')
+            assert page.evaluate('state.academicTower.placements.incident') == '突然'
+            assert page.evaluate('state.academicTower.placements.claim') == '仍然'
+            assert page.locator('.academicVillageClozeHint').count() == 0
+            action(page,'meaning-cloze-slot','claim')
+            action(page,'meaning-cloze-place','當然')
+            assert page.evaluate('state.academicTower.placements.claim') == '當然'
+            assert page.evaluate('state.academicTower.placements.continuity') == '仍然'
+            assert page.locator('.academicVillageClozeBlank').count() == 5
+            action(page,'meaning-confirm')
             assert page.evaluate('state.academicTower.phase') == 'complete'
+            assert page.locator('.academicVillageClozeHint[data-verdict="correct"]').count() == 5
+            assert page.locator('.academicVillageClozeBank').count() == 0
+            assert page.locator('.academicVillageClozeFilled').count() == 5
+            assert page.locator('.academicVillageClozeComplete').is_visible()
             assert page.locator('#academicMvpConfirm').inner_text().startswith('완성 기록 확인')
             action(page,'finish-mvp')
             assert page.locator('#flowNext').is_visible()
@@ -215,4 +285,4 @@ try:
         browser.close()
 finally:
     server.shutdown()
-print('PASS: 03B scene rhythm, character-attributed workspace labels, prefix preview, save/replay, four viewports.')
+print('PASS: 03B five unique cloze placements, swap, reset, feedback, save/replay and four viewports.')

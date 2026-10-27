@@ -80,6 +80,7 @@ if (args.has('--browser')) {
     'tests/smoke_academic_tower.py',
     'tests/smoke_academic_tower_mvp.py',
     'tests/smoke_academic_tower_ran.py',
+    'tests/smoke_academic_tower_ran_village.py',
     'tests/smoke_gate_layout.py',
     'tests/smoke_workshop_layout.py',
     'tests/smoke_market_layout.py',

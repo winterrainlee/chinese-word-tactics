@@ -808,12 +808,46 @@
         success:'지금 마을의 모든 것을 설명할 수는 없지만, 옛날과 지금의 길을 비교할 자료는 남아 있지.',
         translation:'자료 봉투에는 옛 지도가 너무 오래돼 지금 마을에는 전혀 참고할 가치가 없다고 쓰여 있어. 하지만 적어도 길을 비교할 단서는 남아 있어.'
       }),
-      villageTask('village-reread','仍然','둘이 남긴 해설을 다시 읽자',[
-        {id:'joint-note',label:'옛 지도 옆에 붙일 공동 해설',text:'舊圖標著一條通往市集的路，圖旁還記著那條路常有人走，並畫了水道旁的幾間工坊。少年說，那條路現在仍然有人走；他只看見一處歇腳的地方，另一處是否還在，尚不知道。舊圖上固然畫著水道旁的工坊，但今天的市集也有各種買賣，不能只憑舊圖就說全鎮的買賣都離不開水道。有人說舊圖對今天毫無參考價值，這樣的說法也不盡然；至少，我們可以拿那條路和現在的情況對照。'}
+      villageTask('village-reread','仍然','오늘의 연구 기록을 완성하자',[
+        {id:'final-map',label:'옛 지도에 표시된 것',text:'舊圖標著通往市集的路，水道旁也畫著幾間工坊。'},
+        {id:'final-boy',label:'소년이 현재 직접 본 것',text:'我走過那條路，現在還有人往來。我也看過市集裡的各種買賣。'},
+        {id:'final-comments',label:'출처가 불분명한 기록',text:'地圖旁還夾著沒有署名的紙條和封套評語，這些說法都需要另外核對。'}
       ],{
-        type:'read',readOnly:true,confirmLabel:'함께 쓴 해설 확인',
-        sourceNote:'옛 지도·작성자 미상 쪽지·소년의 현재 증언을 구별해 정리한 공동 해설이야.',
-        success:'원본 기록을 지우지 않고, 확인한 것과 아직 모르는 것을 함께 남겼어.'
+        type:'cloze', workLabel:'두 사람의 공동 연구 기록',workKind:'restore',
+        sourceLabel:'기록의 근거',confirmLabel:'기록 검토',
+        workContext:'연구실에서 있었던 일, 쪽지의 주장, 두 사람이 함께 쓴 해설을 구분해 적자. 인용한 주장이 곧 두 사람의 결론은 아니야.',
+        question:'다섯 표현을 알맞은 자리에 한 번씩 배치해 기록을 완성하자.',
+        wordBank:['固然','突然','不盡然','當然','仍然'],
+        blanks:[
+          {id:'incident',section:'연구실에서 있었던 일',
+           before:'整理舊地圖時，一張摺好的紙',after:'滑了出來。',
+           meaningKo:'종이가 갑자기 빠져나온 순간'},
+          {id:'claim',section:'옛 쪽지 · 작성자 미상의 주장',
+           before:'「鎮上的買賣',after:'都離不開水道。」',
+           meaningKo:'쪽지 작성자가 당연하다고 여긴 주장'},
+          {id:'continuity',section:'소년과 연구원의 공동 해설',
+           before:'通往市集的那條路，現在',after:'有人走。',
+           meaningKo:'옛길을 이용하는 사람이 지금도 있음'},
+          {id:'concession',section:'소년과 연구원의 공동 해설',
+           before:'舊圖上',after:'畫著水道旁的幾間工坊，但不能只憑這張圖推斷今天全鎮的生活。',
+           meaningKo:'옛 지도의 사실을 인정하면서 전체 판단은 제한함'},
+          {id:'qualification',section:'소년과 연구원의 공동 해설',
+           before:'有人認為舊圖已經毫無參考價值，但這樣說也',after:'。',
+           meaningKo:'전혀 쓸모없다는 평가를 부분적으로 반박함'}
+        ],
+        slots:[
+          {id:'incident',label:'연구실에서 있었던 일'},
+          {id:'claim',label:'쪽지 작성자의 주장'},
+          {id:'continuity',label:'현재도 이어지는 길'},
+          {id:'concession',label:'인정하며 덧붙일 해설'},
+          {id:'qualification',label:'평가의 범위'}
+        ],
+        answer:{
+          incident:'突然',claim:'當然',continuity:'仍然',
+          concession:'固然',qualification:'不盡然'
+        },
+        success:'다섯 표현을 각자의 자리에서 사용해 공동 연구 기록을 완성했어.',
+        sourceNote:'원본에 적힌 표시와 작성자 미상의 의견, 소년이 실제로 본 것을 혼동하지 말자.'
       })
     ]
   };

@@ -389,8 +389,14 @@ test('meaning drafts, confirmed links and history survive backup/restore without
     act('meaning-scene-finish');
     if(task.id==='village-paper')continue;
    }
-   for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
-   if(task.relations)act('meaning-relation',task.relation);
+   if (task.type==='cloze') {
+    for(const slot of task.slots){
+     act('meaning-cloze-slot',slot.id);act('meaning-cloze-place',task.answer[slot.id]);
+    }
+   } else {
+    for(const slot of task.slots){act('meaning-slot',slot.id);act('meaning-source',task.answer[slot.id]);}
+    if(task.relations)act('meaning-relation',task.relation);
+   }
    act('meaning-confirm');if(state.phase==='review')act('meaning-next');
   }
   assert.equal(M.isSolved(config,state),true);
@@ -491,7 +497,8 @@ test('03B choices, pure reading and confirmed state survive resume without affec
     'village-path','village-paper','village-assumption',
     'village-concession','village-scope','village-reread'
   ]);
-  assert.deepEqual(plain(config.tasks.filter(t=>t.type==='read').map(t=>t.id)),['village-paper','village-reread']);
+  assert.deepEqual(plain(config.tasks.filter(t=>t.type==='read').map(t=>t.id)),['village-paper']);
+  assert.equal(config.tasks[5].type,'cloze');
   assert.ok(config.tasks[0].relations.every(t=>t.text.includes('仍然')));
   assert.ok(config.tasks[3].choicePrefix.includes('固然'));
   assert.equal(config.scenes.paper.beats.length,5);
@@ -524,6 +531,16 @@ test('03B choices, pure reading and confirmed state survive resume without affec
       assert.equal(state.phase,'work');
       assert.equal(state.taskIndex,4);
       assert.ok(state.seenScenes.includes('market'));
+    }
+    if(task.type==='cloze'){
+      assert.equal(action('meaning-confirm').changed,false);
+      for(const slot of task.slots){
+        action('meaning-cloze-slot',slot.id);
+        assert.equal(action('meaning-cloze-place',task.answer[slot.id]).changed,true);
+      }
+      assert.equal(action('meaning-confirm').correct,true);
+      assert.equal(state.phase,'complete');
+      continue;
     }
     if(task.type==='read'){
       assert.equal(action('meaning-confirm').correct,true);
@@ -599,12 +616,102 @@ test('03B work surfaces distinguish boy notes, researcher draft, quoted folder e
   assert.ok(tasks['village-scope'].workContext.includes('결론은 아니야'));
   assert.equal(tasks['village-scope'].draftLabel,'봉투 평가를 요약한 검토용 문장');
   assert.equal(tasks['village-scope'].sourceLabel,'봉투 원문');
-  assert.equal(tasks['village-reread'].sources[0].label,'옛 지도 옆에 붙일 공동 해설');
-  assert.equal(tasks['village-reread'].workLabel,undefined);
+  assert.equal(tasks['village-reread'].sources[0].label,'옛 지도에 표시된 것');
+  assert.equal(tasks['village-reread'].workLabel,'두 사람의 공동 연구 기록');
+  assert.equal(tasks['village-reread'].workKind,'restore');
+  assert.equal(tasks['village-reread'].type,'cloze');
   assert.ok(stage.rule.includes('소년의 경험'));
   assert.ok(!stage.rule.includes('내 경험'));
   // The in-world author is presentation content, not a new completion state.
   const M=mechanics(), before=plain(M.createState(stage.academicTower,()=>.1));
   assert.equal(before.schemaVersion,1);
   assert.deepEqual(before.answers,{});
+});
+
+
+test('03B final record places five unique words, reveals only incorrect slots, and can swap without resetting',()=>{
+  const ctx=contentContext(), M=mechanics();
+  const config=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-03b-ran-village').academicTower",ctx);
+  const task=config.tasks[5];
+  assert.equal(task.type,'cloze');
+  assert.equal(task.blanks.length,5);
+  assert.equal(task.slots.length,5);
+  assert.deepEqual(plain(task.blanks.map(x=>x.section)),[
+    '연구실에서 있었던 일','옛 쪽지 · 작성자 미상의 주장',
+    '소년과 연구원의 공동 해설','소년과 연구원의 공동 해설','소년과 연구원의 공동 해설'
+  ]);
+  assert.equal(new Set(task.wordBank).size,5);
+  assert.deepEqual([...task.wordBank].sort(),Object.values(task.answer).sort());
+  assert.match(task.blanks[1].before,/「/);
+  assert.match(task.blanks[1].after,/」/);
+  assert.ok(task.blanks.every(blank=>!Object.values(task.answer).some(word=>
+    blank.before.includes(word)||blank.after.includes(word))));
+  assert.ok(!task.sources.some(item=>task.wordBank.some(word=>item.text.includes(word))),
+    'original evidence must not give away five cloze answers');
+
+  let state=plain(M.createState(config,()=>.0));
+  const originalOrder=plain(state.optionOrders[task.id]);
+  assert.equal(originalOrder.length,5);
+  assert.deepEqual([...originalOrder].sort(),[...task.wordBank].sort());
+  const past=config.tasks.slice(0,5);
+  state.taskIndex=5;state.phase='work';state.seenScenes=['paper','market'];
+  state.answers=Object.fromEntries(past.map(t=>[t.id,{
+    placements:plain(t.answer),relation:t.relation||null
+  }]));
+  state.placements={};state.slot=null;state.lastCheck=null;
+  const a=(type,value)=>{
+    const result=M.applyAction(config,state,{type,value});
+    state=plain(result.state);return result;
+  };
+  assert.equal(M.normalizeMeaning(config,state).slot,'incident');
+  assert.equal(a('meaning-confirm').changed,false);
+  assert.equal(a('meaning-cloze-reset').changed,false);
+  for(const word of ['仍然','突然']){
+    assert.equal(a('meaning-cloze-place',word).changed,true);
+  }
+  assert.deepEqual(state.placements,{incident:'仍然',claim:'突然'});
+  assert.equal(state.slot,'continuity');
+  assert.equal(a('meaning-cloze-reset').changed,true);
+  assert.deepEqual(state.placements,{});
+  assert.equal(state.slot,'incident');
+  assert.equal(a('meaning-confirm').changed,false);
+
+  for(const word of ['仍然','突然','當然','固然','不盡然']){
+    assert.equal(a('meaning-cloze-place',word).changed,true);
+  }
+  const wrong=plain(state),firstOrder=plain(state.optionOrders);
+  assert.equal(a('meaning-confirm').correct,false);
+  assert.equal(state.phase,'work');
+  assert.equal(state.lastCheck.step,'cloze');
+  assert.equal(state.lastCheck.correct,false);
+  assert.deepEqual(state.placements,wrong.placements);
+  assert.deepEqual(plain(M.normalizeMeaning(config,state)),state);
+  assert.deepEqual(state.optionOrders,firstOrder);
+  assert.equal(M.isSolved(config,state),false);
+  a('meaning-cloze-slot','incident');
+  a('meaning-cloze-place','突然');
+  assert.equal(state.placements.incident,'突然');
+  assert.equal(state.placements.claim,'仍然');
+  assert.equal(state.lastCheck,null);
+  a('meaning-cloze-slot','claim');
+  a('meaning-cloze-place','當然');
+  assert.equal(state.placements.claim,'當然');
+  assert.equal(state.placements.continuity,'仍然');
+  assert.equal(a('meaning-confirm').correct,true);
+  assert.equal(state.phase,'complete');
+  assert.equal(M.isSolved(config,state),true);
+  assert.deepEqual(state.answers[task.id].placements,plain(task.answer));
+  assert.deepEqual(plain(M.normalizeMeaning(config,state)),state);
+
+  // Existing incomplete T6 saves (the old read-only task) retain all prior
+  // progress but must redo five blanks instead of being auto-awarded success.
+  const legacy=plain(wrong);
+  legacy.phase='complete';legacy.placements={};
+  legacy.answers[task.id]={placements:{},relation:null};
+  const migrated=plain(M.normalizeMeaning(config,legacy));
+  assert.equal(migrated.taskIndex,5);
+  assert.equal(migrated.phase,'work');
+  assert.equal(migrated.slot,'incident');
+  assert.equal(migrated.answers[task.id],undefined);
+  assert.equal(Object.keys(migrated.answers).length,5);
 });
