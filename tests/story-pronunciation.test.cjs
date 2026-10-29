@@ -12,7 +12,7 @@ test('the pronunciation corpus covers every implemented story and outcome', () =
   const output = execFileSync(process.execPath, ['tools/story-pronunciation-audit.cjs'], {
     cwd: root, encoding: 'utf8'
   });
-  assert.match(output, /73 stories/);
+  assert.match(output, /75 stories/);
 });
 
 test('pronunciation lookup is scoped to the exact story context', () => {
@@ -24,7 +24,7 @@ test('pronunciation lookup is scoped to the exact story context', () => {
   assert.ok(context.StoryPronunciation.readingFor('gate-arrival', gate));
   assert.equal(context.StoryPronunciation.readingFor('gate-arrival', first), null);
   assert.equal(context.StoryPronunciation.readingFor('prologue-departure', gate), null);
-  assert.equal(context.StoryPronunciation.supportedStories.length, 73);
+  assert.equal(context.StoryPronunciation.supportedStories.length, 75);
 });
 
 test('story renderer creates safe per-character ruby and keeps assistive text clean', () => {
@@ -46,7 +46,7 @@ test('03B stage-local narrative scenes use the shared ruby corpus without new Jo
     ['academic-tower-03b-scene-paper','研究員剛翻開地圖的一角，一張摺好的紙突然滑了出來。'],
     ['academic-tower-03b-scene-market','舊記錄我看得多，現在的市集倒是你比較熟。這一段就一起寫吧。']
   ];
-  assert.equal(P.supportedStories.length,73,'stage-local scenes are not new Journey nodes');
+  assert.equal(P.supportedStories.length,75,'stage-local scenes are not new Journey nodes');
   for (const [sceneId,text] of samples) {
     const reading=P.readingFor(sceneId,text);
     assert.ok(reading,'missing reading for '+sceneId);
