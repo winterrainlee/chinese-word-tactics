@@ -60,7 +60,7 @@ test('lexicon groups cover every first-chapter stage word without inventing voca
     'workshop-town': 14,
     'market-town': 15,
     'north-forest': 21,
-    'academic-tower': 12
+    'academic-tower': 18
   });
 
   assert.equal(new Set(snapshot.groupIds).size, snapshot.groupIds.length, 'group ids must be unique');
