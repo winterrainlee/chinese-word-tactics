@@ -1,0 +1,68 @@
+/* Academic Tower 04A — approved 375x640 fieldwork layout.
+   Keeps existing tower surface hierarchy; no additional app shell. */
+.academicTowerMvp .academicErZone { min-width:0; }
+.academicTowerMvp .academicErZone .academicRegionLabel { margin-bottom:12px; }
+.academicTowerMvp .academicErSourceLine { padding:8px 0 12px; border-bottom:1px solid rgba(100,108,96,.19); }
+.academicTowerMvp .academicErSourceLine:last-child { border-bottom:0; padding-bottom:0; }
+.academicTowerMvp .academicErSourceLine small { display:block; font-size:12px; color:#536359; font-weight:700; margin-bottom:5px; }
+.academicTowerMvp .academicErSourceLine p[lang="zh-Hant"] { margin:2px 0; font-size:18px; line-height:1.75; overflow-wrap:anywhere; }
+.academicTowerMvp .academicErTranslation { margin:6px 0; font-size:13px; color:#505a56; line-height:1.55; }
+.academicTowerMvp .academicErSubinfo { margin:0 0 7px; font-size:12px; color:#657067; }
+.academicTowerMvp .academicErChoices { display:grid; gap:8px; min-width:0; }
+.academicTowerMvp .academicErChoice {
+  display:block; width:100%; min-height:48px; padding:10px 12px;
+  background:#fffdf7; border:1px solid #bbbcb0; border-radius:8px;
+  font-size:15px; line-height:1.5; font-weight:600;
+  text-align:left; word-break:keep-all; overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicErChoice.selected { background:#e7eff6; border-color:#537b9c; box-shadow:inset 0 0 0 1px #537b9c; }
+.academicTowerMvp .academicErChoice small { display:block; font-size:12px; margin-top:3px; font-weight:400; color:#657067; }
+.academicTowerMvp .academicErHint { margin:9px 0 0; font-size:13px; line-height:1.55; color:#4b5751; }
+.academicTowerMvp .academicErPreview { margin:12px 0; padding:10px 9px; background:rgba(255,253,247,.69); border-left:3px solid #8b9f91; font-size:16px; line-height:1.7; word-break:normal; overflow-wrap:anywhere; }
+.academicTowerMvp .academicErPreview span { display:inline-block; font-size:12px; padding:3px 5px; border:1px solid #b4c4b7; border-radius:5px; margin:0 5px 4px 0; }
+.academicTowerMvp .academicErWordHelp { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:14px 0 3px; }
+.academicTowerMvp .academicErWordHelp .academicMvpWord { font-size:17px; min-height:44px; }
+.academicTowerMvp .academicErWaterDiagram {
+  position:relative; min-height:158px; border-radius:5px; overflow:hidden;
+  background:#edf1eb; margin:10px 0 9px;
+}
+.academicTowerMvp .academicErWaterDiagram svg { display:block; width:100%; height:158px; }
+.academicTowerMvp .academicErWaterDiagram.found { min-height:114px; }
+.academicTowerMvp .academicErWaterDiagram.found svg { height:114px; }
+.academicTowerMvp .academicErMapCaption {
+  position:absolute; left:9px; top:5px; font-size:11px;
+  font-weight:700; color:#52615a;
+}
+.academicTowerMvp .academicErLookOptions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-top:10px; }
+.academicTowerMvp .academicErLookOptions button {
+  min-height:48px; padding:8px 3px; border:1px solid #a8b8af;
+  border-radius:7px; background:#fcfbf7; color:#2d4740;
+  font-size:12px; font-weight:650; line-height:1.35; text-align:center;
+  white-space:normal; word-break:keep-all;
+}
+.academicTowerMvp .academicErRecordRow { padding:11px 0; border-bottom:1px solid #cbd5ca; }
+.academicTowerMvp .academicErRecordRow:last-child { border:0; }
+.academicTowerMvp .academicErRecordRow > small { display:block; font-size:13px; color:#536359; font-weight:750; margin-bottom:8px; }
+.academicTowerMvp .academicErRecordRow .academicErChoice { font-size:14px; }
+.academicTowerMvp .academicErEvidence { margin:0; }
+.academicTowerMvp .academicErEvidence summary {
+  display:flex; align-items:center; min-height:44px;
+  cursor:pointer; font-size:13px; color:#365c76; font-weight:700;
+}
+.academicTowerMvp .academicErEvidence .academicErSourceLine { padding:8px 0; }
+.academicTowerMvp .academicErZone .academicTaskTitle { font-size:17px; line-height:1.5; margin:6px 0 14px; }
+.academicTowerMvp .academicErZone .academicMvpFeedback { font-size:14px; line-height:1.55; }
+.academicTowerMvp .academicErChoice:focus-visible,
+.academicTowerMvp .academicErLookOptions button:focus-visible {
+  outline:3px solid #365c76; outline-offset:2px;
+}
+@media (max-height:650px) {
+  .academicTowerMvp .academicErZone .academicRegionLabel { margin-bottom:10px; }
+  .academicTowerMvp .academicErChoice { padding:9px 10px; }
+  .academicTowerMvp .academicErZone .academicTaskTitle { margin-bottom:10px; }
+  .academicTowerMvp .academicErSourceLine p[lang="zh-Hant"] { font-size:17px; }
+}
+@media (max-width:360px) {
+  .academicTowerMvp .academicErLookOptions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .academicTowerMvp .academicErLookOptions button:last-child { grid-column:span 2; }
+}
