@@ -178,7 +178,7 @@ def assert_number_layout(page, width, height):
 
     # 03A is a journey reference only; the research-room side room stays numberless.
     assert page.evaluate('AcademicTowerRuntime.showHub()') is True
-    side_room = page.locator('.academicHubSideRoom')
+    side_room = page.locator('.academicHubGroup[data-group="branch"] .academicHubSideRoom')
     assert side_room.is_visible()
     assert '03A' not in side_room.inner_text()
     assert side_room.locator('.academicTowerRoomNumber').count() == 0
