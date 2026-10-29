@@ -165,6 +165,39 @@
     }
   });
 
+
+  // 04A: a chance meeting outdoors, followed by a small fieldwork result.
+  Object.assign(stories, {
+    'academic-tower-er-intro': {
+      id:'academic-tower-er-intro',chapterId:'academic-tower-research',
+      titleKo:'비가 그친 탑의 문밖',background:'academic-tower',
+      placeZh:'學術塔門外',placeKo:'학술탑 밖 산책길',
+      beats:[
+        {speaker:'narrator',zh:'雨停了，少年沿著水道散步。學術塔的門開了，研究員正要出門。',ko:'비가 그친 뒤 소년은 물길을 따라 걷고 있었다. 학술탑 문이 열리고 연구원이 밖으로 나왔다.'},
+        {speaker:'boy',zh:'咦？你要去哪裡？',ko:'어? 어디 가세요?'},
+        {speaker:'towerResearcher',zh:'前幾天下了大雨。我想去看看上游的水門。',ko:'며칠 전에 큰비가 왔거든. 상류 수문을 보러 가는 길이야.'},
+        {speaker:'boy',zh:'水門壞了嗎？',ko:'수문이 고장 났어요?'},
+        {speaker:'towerResearcher',zh:'還沒有這樣的報告。不過，今年的雨和以前不太一樣。',ko:'그런 보고는 없었어. 다만 올해는 비 오는 모양이 평소와 좀 달라.'},
+        {speaker:'towerResearcher',zh:'下過大雨，不代表每一段水道的情況都一樣。我要去看看。',ko:'큰비가 왔다고 모든 수로의 상태가 같다는 뜻은 아니니까. 직접 확인하려고.'},
+        {speaker:'boy',zh:'我也可以一起去嗎？',ko:'저도 같이 가도 돼요?'},
+        {speaker:'towerResearcher',zh:'好啊。不過，只能走安全的路。',ko:'좋지. 대신 안전한 길로만 다니자.'}
+      ]
+    },
+    'academic-tower-er-result': {
+      id:'academic-tower-er-result',chapterId:'academic-tower-research',
+      titleKo:'남겨 둔 다음 질문',background:'academic-tower',
+      placeZh:'學術塔門外',placeKo:'학술탑으로 돌아오는 길',
+      beats:[
+        {speaker:'boy',zh:'原圖上沒有那條水路。我們真的找到新的線索了。',ko:'원래 도면에는 없던 물길이었어요. 새로운 단서를 찾았네요.'},
+        {speaker:'towerResearcher',zh:'對。不過，還不知道是誰做的，也不知道水會流去哪裡。',ko:'맞아. 하지만 누가 만들었고 물이 어디로 가는지는 아직 모르지.'},
+        {speaker:'boy',zh:'那今天的調查算完成了嗎？',ko:'그럼 오늘 조사는 끝난 건가요?'},
+        {speaker:'towerResearcher',zh:'我們把看到的事記下來，也會告訴管理人員。接著要查什麼，也記好了。',ko:'오늘 확인한 걸 기록했고 관리자에게도 알려야지. 다음에 무엇을 조사할지도 정했어.'},
+        {speaker:'boy',zh:'本來只是一起去看水門，沒想到又有新的問題。',ko:'처음에는 그냥 수문 보러 따라왔는데, 새로운 질문까지 생겼네요.'},
+        {speaker:'towerResearcher',zh:'研究就是這樣。知道了一件事，才能再往前問一步。',ko:'연구란 그런 거야. 하나를 알아야 그다음 질문도 할 수 있거든.'}
+      ]
+    }
+  });
+
   if (journey.some(chapter => chapter.id === 'academic-tower-research')) return;
   journey.push({
     id: 'academic-tower-research',
@@ -237,6 +270,15 @@
         {type:'story',id:'academic-tower-ran-village-intro',requires:['story:academic-tower-ran-result']},
         {type:'stage',id:'academic-tower-turn-03b-ran-village',requires:['story:academic-tower-ran-village-intro']},
         {type:'story',id:'academic-tower-ran-village-result',requires:['stage:academic-tower-turn-03b-ran-village'],returnToRegionHubAfter:'academic-tower'}
+      ]
+    , {
+      id:'academic-tower-optional-er-fieldwork',regionId:'academic-tower',
+      plannedStageCount:1,nameKo:'비가 그친 물길 · 선택 연구',stageLabel:'연구',
+      revealRequires:['stage:academic-tower-turn-04-faner'],
+      sequence:[
+        {type:'story',id:'academic-tower-er-intro',requires:['stage:academic-tower-turn-04-faner']},
+        {type:'stage',id:'academic-tower-turn-04a-er-family',requires:['story:academic-tower-er-intro']},
+        {type:'story',id:'academic-tower-er-result',requires:['stage:academic-tower-turn-04a-er-family'],returnToWorldAfter:true}
       ]
     }]
   });
