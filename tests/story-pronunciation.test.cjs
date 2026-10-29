@@ -56,3 +56,14 @@ test('03B stage-local narrative scenes use the shared ruby corpus without new Jo
   const t5='完全沒用了？也不盡然吧。至少那條路現在還有人走。';
   assert.ok(P.readingFor('academic-tower-ran-village-result',t5));
 });
+
+
+test('04A stage-local 反而 discovery line reads 一部分 as ㄧˊ ㄅㄨˋ ㄈㄣˋ',()=>{
+  const ctx=vm.createContext({});
+  vm.runInContext(read('src/story-pronunciation-content.js'),ctx);
+  const line='原來有一部分水從旁邊流走了！那個小孔是怎麼來的？';
+  const reading=ctx.StoryPronunciation.readingFor('academic-tower-er-scene-record',line);
+  assert.ok(reading,'04A result-scene pronunciation must be available');
+  const prefix=[...line.slice(0,line.indexOf('一部分'))].filter(c=>/\p{Script=Han}/u.test(c)).length;
+  assert.deepEqual(Array.from(reading.slice(prefix,prefix+3)),['ㄧˊ','ㄅㄨˋ','ㄈㄣˋ']);
+});
