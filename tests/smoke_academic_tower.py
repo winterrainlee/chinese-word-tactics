@@ -214,7 +214,9 @@ try:
         page.locator('#academicTowerJourneyFooter').click()
         assert page.locator('[data-journey-filter="all"]').get_attribute('aria-pressed') == 'true'
         tower = page.locator('[data-chapter-id="academic-tower-research"]')
-        assert tower.locator('.journeyRegionKo').all_text_contents() == ['방향이 바뀌는 문장', '색인 옆의 메모 · 선택 연구']
+        tower_groups = tower.locator('.journeyRegionKo').all_text_contents()
+        assert tower_groups[:2] == ['방향이 바뀌는 문장', '색인 옆의 메모 · 선택 연구'], tower_groups
+        assert '비가 그친 물길 · 선택 연구' in tower_groups, tower_groups
         assert tower.locator('[data-node-id="story:academic-tower-turn-result"]').is_visible()
         assert '두 갈래 연구' in tower.inner_text()
         page.screenshot(path=str(OUT / 'academic-tower-journey-375x812.png'), full_page=True)
