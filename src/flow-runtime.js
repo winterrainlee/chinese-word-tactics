@@ -181,7 +181,9 @@
     const normalized = validOptions(options), returnContext = returnContextFor(options, normalized);
     const context = { ...normalized, ...(returnContext ? { returnContext } : {}), nodeId: node.nodeId, type: 'stage' };
     const introStory=STAGES.find(stage=>stage.id===id)?.academicTower?.introStory;
-    if (introStory && !options.skipStageIntro) return playStory(introStory,{...context,stageAfterStory:id});
+    if (introStory && !options.skipStageIntro &&
+        !(id === globalThis.AcademicTowerEr04A?.STAGE_ID && store.get().seenStories.includes(introStory)))
+      return playStory(introStory,{...context,stageAfterStory:id});
     if (!TacticalGame.playStage(id, context)) return false;
     recordWordEncounter(id);
     active = context; StoryRuntime.stop();
@@ -279,6 +281,13 @@
     }
     return playStage(node.id);
   }
+  function checkpointEr04A(snapshot) {
+    return store.checkpointSide(globalThis.AcademicTowerEr04A?.STAGE_ID,snapshot);
+  }
+  function completeEr04A(snapshot) {
+    return store.completeSide(globalThis.AcademicTowerEr04A?.STAGE_ID,snapshot,
+      snapshot?.drafts?.inquiry);
+  }
   function recordStageComplete(id, context) {
     const node = P.getNode(`stage:${id}`);
     const stage = STAGES.find(item => item.id === id);
@@ -370,7 +379,7 @@
     requestAnimationFrame(() => $('flowResume')?.focus());
   }
   globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, showRegionHub, playStory, playStage, continueFromNode, enterRegion,
-    continueCampaign, resume, returnFromReplay, showMenu, showWords, showSettings, resetJourney, recordStageComplete, showStageComplete,
+    continueCampaign, resume, returnFromReplay, showMenu, showWords, showSettings, resetJourney, recordStageComplete, showStageComplete, checkpointEr04A, completeEr04A,
     captureViewContext, restoreViewContext, progress: () => store.get() });
   document.querySelectorAll('[data-flow-menu]').forEach(button => { button.onclick = showMenu; });
   $('worldBack').onclick = () => returnFromTravelRoot('world');
