@@ -55,7 +55,7 @@ test('03A is optional, unlocks after both branches and remains available after f
 test('Academic Tower appends rooms 01 through 05 without changing earlier stage order', () => {
   const context = contentContext();
   const result = vm.runInContext(`(() => ({
-    lastStages: STAGES.slice(-8).map(stage => stage.id),
+    lastStages: STAGES.slice(-9).map(stage => stage.id),
     rooms: AcademicTowerContent.bundle.rooms,
     words: [WORDS['卻'], WORDS['然而'], WORDS['果然'], WORDS['竟然'], WORDS['反而']]
   }))()`, context);
@@ -63,9 +63,9 @@ test('Academic Tower appends rooms 01 through 05 without changing earlier stage 
     'north-forest-stage-8', 'academic-tower-turn-01-que',
     'academic-tower-turn-02-raner', 'academic-tower-turn-03-expectation',
     'academic-tower-turn-04-faner', 'academic-tower-turn-05-synthesis', 'academic-tower-turn-03a-ran-family',
-    'academic-tower-turn-03b-ran-village'
+    'academic-tower-turn-03b-ran-village', 'academic-tower-turn-04a-er-family'
   ]);
-  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), Array(7).fill(true));
+  assert.deepEqual(plain(result.rooms.map(room => room.implemented)), Array(8).fill(true));
   assert.deepEqual(plain(result.words.map(word => word.p)), ['ㄑㄩㄝˋ', 'ㄖㄢˊ ㄦˊ', 'ㄍㄨㄛˇ ㄖㄢˊ', 'ㄐㄧㄥˋ ㄖㄢˊ', 'ㄈㄢˇ ㄦˊ']);
   assert.deepEqual(plain(vm.runInContext(`['academic-tower-turn-01-que', 'academic-tower-turn-02-raner'].map(id => STAGES.find(stage => stage.id === id)).map(stage => ({
     kind: stage.academicTower.kind,
