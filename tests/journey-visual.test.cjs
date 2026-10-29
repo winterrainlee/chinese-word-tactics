@@ -29,7 +29,7 @@ test('journey rows keep full type labels while compacting status actions by stat
   assert.match(runtime, /\? '연구' : '스테이지'/);
   assert.match(runtime, /`준비 중 · 스테이지 \$\{section\.plannedStageCount\}개`/);
   assert.match(runtime, /make\('span', 'journeyNodeMeta'\)/);
-  assert.match(runtime, /const actionLabel = current \? '계속' : done \? '다시'/);
+  assert.match(runtime, /const actionLabel = current \? '계속' : pastRain \? '돌아보기' : done \? '다시'/);
   assert.match(runtime, /action\.dataset\.icon = current \? 'continue' : 'replay'/);
   assert.match(runtime, /action\.setAttribute\('aria-hidden', 'true'\)/);
   assert.doesNotMatch(runtime, /journeyNodeNow|'지금'/);
@@ -126,8 +126,8 @@ test('journey reset is separated from the primary continue action', () => {
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
   assert.match(html, /stage-reference\.js\?v=20261006-a10a061/);
-  assert.match(html, /journey\.css\?v=20261006-a041/);
-  assert.match(html, /journey-runtime\.js\?v=20261006-a042/);
-  assert.match(html, /journey-progress\.js\?v=20261029-04a1/);
+  assert.match(html, /journey\.css\?v=20261029-rain-journey1/);
+  assert.match(html, /journey-runtime\.js\?v=20261029-rain-journey1/);
+  assert.match(html, /journey-progress\.js\?v=20261029-rain-journey1/);
   assert.match(html, /flow-runtime\.js\?v=\d{8}-[a-z0-9]+/);
 });

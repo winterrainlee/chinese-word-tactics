@@ -38,7 +38,7 @@ test('A09a preserves meaningful state and work-surface boundaries', () => {
 test('A09a settings stay cached while later boundary work refreshes only changed assets', () => {
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[a-z0-9-]+"/);
   assert.match(html, /settings\.css\?v=20261005-a09a1/);
-  assert.match(html, /journey\.css\?v=20261006-a041/);
+  assert.match(html, /journey\.css\?v=20261029-rain-journey1/);
   assert.match(html, /first-free-quest\.css\?v=20261006-a09b1/);
   assert.match(html, /flow-runtime\.js\?v=\d{8}-[a-z0-9]+/);
   assert.match(html, /navigation\.css\?v=20261006-a043/);
