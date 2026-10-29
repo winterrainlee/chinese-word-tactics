@@ -464,7 +464,8 @@
         '<p class="academicErHint">두 선택 모두 타당해. 아직 완료한 조사가 아니라 앞으로의 계획이야.</p></div>')) +
         '<div class="academicErWordHelp">' + wordBtn('從而') + wordBtn('因而') + wordBtn('進而') + '</div>' + verdict(s);
     }
-    return taskLabel(s)+section(s.taskIndex===2?'현장 관찰':'원본 기록',original,'original') +
+    const evidenceTitle=['현장 관찰','관측 자료','현장 관찰','현장·도면 대조','관측 기록'][s.taskIndex];
+    return taskLabel(s)+section(evidenceTitle,original,'original') +
       section(['소년의 상류 관찰 메모','연구원과 함께 검토할 점검 메모','소년의 물길 관찰',
         '연구원의 도면 대조 메모','소년과 연구원의 현장 조사 기록'][s.taskIndex],work,'work',
         ['observe','decision','observe','decision','restore'][s.taskIndex]);
@@ -473,6 +474,7 @@
     const s=normalizeState(state);
     if(s.phase==='complete')return '<button id="academicMvpConfirm" type="button" class="control academicConfirm" data-academic-action="finish-mvp">결과 이야기로</button>';
     if(s.phase==='review')return '<button id="academicMvpConfirm" type="button" class="control academicConfirm" data-academic-action="er-next">다음 기록</button>';
+    if(s.taskIndex===2 && s.step==='search')return '<p class="academicErFooterPrompt">위쪽 관찰 지점을 눌러 물소리의 근원을 찾아봐.</p>';
     const label = s.taskIndex===0?'관찰 메모 남기기':s.taskIndex===1?'점검 메모 남기기':
       s.taskIndex===2?(s.step==='search'?'구간을 살펴보자':'물의 방향 기록'):
       s.taskIndex===3?(s.step==='correct'?'형태 판단 확인':'판단의 범위 기록'):'현장 기록 마무리';
