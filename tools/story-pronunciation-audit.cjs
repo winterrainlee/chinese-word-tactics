@@ -22,6 +22,7 @@ for (const file of [
   'src/market-late-journey-content.js',
   'src/continuous-region-flow.js',
   'src/chapter1-finale-content.js',
+  'src/chapter2-rain-content.js',
   'src/first-free-quest-content.js',
   'src/north-forest-content.js',
   'src/academic-tower-content.js',

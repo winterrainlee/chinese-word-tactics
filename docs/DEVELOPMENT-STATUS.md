@@ -203,6 +203,12 @@ v1.0 마감까지 `main 반영 → GitHub Pages 배포 → iPhone 실기기 확�
 
 코드 구현과 실기기 통과는 구분한다. `🧪`를 `✅`로 바꿀 때는 해당 항목의 완료 조건을 직접 확인한다.
 
+### 2026-10-29 · 2장 공통 큰비 도입 구현
+
+- 신규 `chapter2-rain-opening`/`chapter2-rain-passed`: 1장 방 결말 뒤 처음 방을 나가는 시점의 네 장면 큰비 도입. 1장 진행·C08 자유 의뢰·04A의 동일한 비 사건은 유지한다.
+- 구현·검사 경로: `src/chapter2-rain-content.js`, `src/chapter2-rain-runtime.js`, `tests/chapter2-rain.test.cjs`, `tests/smoke_chapter2_rain.py`.
+- **상태: 새 코드 제출 · CI/Pages 결과 및 iPhone Safari 검수 전**. 큰비 이후 세 지역 풍경·회의소 첫 회의는 별도 구현 대상이다.
+
 ## 1.0 필수
 
 ### 첫 번째 완결된 여행

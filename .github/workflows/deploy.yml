@@ -88,6 +88,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_inn.py
 
+      - name: Run Chapter 2 rain introductory story browser smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_chapter2_rain.py
+
       - name: Run C08 first free quest browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
