@@ -171,3 +171,10 @@
   .academicTowerMvp .academicErT1Looks button:last-child { grid-column:auto; }
   .academicTowerMvp .academicErRoutePoint span { font-size:11px; }
 }
+
+/* T3 search is performed in the diagram, not by a disabled footer button. */
+.academicTowerMvp .controls .academicErFooterPrompt {
+  margin:0; min-height:48px; display:flex; align-items:center; justify-content:center;
+  padding:6px 9px; text-align:center; color:#53675c;
+  font-size:12px; line-height:1.4; font-weight:650;
+}
