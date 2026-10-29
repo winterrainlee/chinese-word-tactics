@@ -1,0 +1,177 @@
+"""04A: mobile first-play, hidden fieldwork, independent resume and first outcome."""
+import http.server
+import json
+import threading
+from pathlib import Path
+
+from playwright.sync_api import sync_playwright
+
+ROOT = Path(__file__).resolve().parents[1]
+ER = "academic-tower-turn-04a-er-family"
+
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, *_):
+        pass
+
+    def translate_path(self, url):
+        return str(ROOT / url.split("?", 1)[0].removeprefix("/chinese-word-tactics/"))
+
+
+server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+threading.Thread(target=server.serve_forever, daemon=True).start()
+
+seed = {
+    "seenStories": ["chapter1-room-finale", "academic-tower-arrival",
+                    "academic-tower-turn-intro", "academic-tower-turn-after-que",
+                    "academic-tower-turn-before-faner"],
+    "completedStages": ["stage-5", "academic-tower-turn-01-que",
+                        "academic-tower-turn-02-raner",
+                        "academic-tower-turn-03-expectation",
+                        "academic-tower-turn-04-faner"],
+    "completedMilestones": ["chapter1-complete", "academic-tower-entered"],
+    "acknowledgedNodes": [],
+    "stageOutcomes": {},
+    "lastLocation": {"view": "world"}
+}
+
+
+def click(page, op, value=None):
+    sel = f'[data-academic-action="{op}"]'
+    if value is not None:
+        sel += f'[data-value="{value}"]'
+    page.locator(sel).click()
+
+
+def all_story(page):
+    for _ in range(24):
+        if not page.locator("#storyView").is_visible():
+            return
+        page.locator("#storyNext").click()
+    raise AssertionError("story did not end")
+
+
+def layout(page, width):
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), "horizontal page overflow"
+    assert page.locator("#grid").evaluate("el => el.scrollWidth <= el.clientWidth + 1"), "workbench overflow"
+    assert page.locator('[data-academic-zone="original"]').count() == 1
+    assert page.locator('[data-academic-zone="work"]').count() == 1
+    violations = page.locator('#grid button, #grid summary, #academicMvpConfirm').evaluate_all("""
+      nodes => nodes.filter(el => {
+        const r=el.getBoundingClientRect();
+        const s=getComputedStyle(el);
+        return r.width && r.height && s.display!=='none' &&
+          (r.width<44 || r.height<44);
+      }).map(el=>[el.outerHTML.slice(0,120),el.getBoundingClientRect().width,el.getBoundingClientRect().height])
+    """)
+    assert not violations, (width, violations)
+
+
+try:
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(args=["--no-sandbox"])
+        for width, height in [(375, 640), (375, 667), (375, 812), (360, 640)]:
+            page = browser.new_page(viewport={"width": width, "height": height},
+                                    is_mobile=True, has_touch=True)
+            errors = []
+            page.on("pageerror", lambda e: errors.append(str(e)))
+            page.add_init_script("""
+              if (!localStorage.getItem("chinese-word-tactics-journey-v1"))
+                localStorage.setItem("chinese-word-tactics-journey-v1", JSON.stringify(%s));
+            """ % json.dumps(seed, ensure_ascii=False))
+            page.goto(f"http://127.0.0.1:{server.server_port}/chinese-word-tactics/")
+            page.wait_for_function("!!window.GameFlow && !!window.AcademicTowerEr04A")
+            assert page.evaluate("GameFlow.enterRegion('academic-tower')")
+            room = page.locator(f'[data-room-id="{ER}"]')
+            assert room.get_attribute("data-state") == "available"
+            room.click()
+            assert page.locator("#storyView").is_visible()
+            assert "雨" in page.locator("#storyZh").inner_text()
+            all_story(page)
+            assert page.evaluate("TacticalGame.stageId()") == ER
+            layout(page, width)
+            assert "而且" in page.locator("#grid").inner_text()
+            click(page, "er-select", "a-current-level")
+            click(page, "er-confirm")
+            assert page.locator(".academicMvpFeedback").get_attribute("data-verdict") == "incorrect"
+            click(page, "er-select", "a-grass-high")
+            click(page, "er-confirm")
+            assert page.evaluate("state.academicTower.phase") == "review"
+            click(page, "er-next")
+
+            assert page.evaluate("state.academicTower.taskIndex") == 1
+            click(page, "er-select", "check-between-b-c")
+            click(page, "er-confirm")
+            click(page, "er-next")
+            assert page.locator("#storyView").is_visible()
+            assert page.evaluate("state.academicTower.sceneId") == "retrace"
+            all_story(page)
+            assert page.evaluate("state.academicTower.taskIndex") == 2
+            assert page.evaluate("state.academicTower.openingFound") is False
+            assert page.locator('[data-value="flow-out"]').count() == 0
+            assert page.locator('.academicErWaterDiagram.found').count() == 0
+            layout(page, width)
+
+            click(page, "er-search", "top-stone")
+            assert page.evaluate("state.academicTower.openingFound") is False
+            click(page, "er-search", "low-bank")
+            assert page.evaluate("state.academicTower.openingFound") is True
+            layout(page, width)
+
+            # A different stage overwrites the legacy tactical slot, not 04A's
+            # per-study checkpoint. Return through the real tower hub.
+            if width == 375 and height == 640:
+                before = page.evaluate("GameFlow.progress().sideResearchProgress[%s]" % json.dumps(ER))
+                assert page.evaluate("TacticalGame.playStage('academic-tower-turn-01-que',{mode:'first-play'})")
+                assert page.evaluate("GameFlow.enterRegion('academic-tower')")
+                page.locator(f'[data-room-id="{ER}"]').click()
+                page.wait_for_function("(id)=>TacticalGame.stageId()===id", arg=ER)
+                after = page.evaluate("state.academicTower")
+                assert after == before, "04A resumed after another stage"
+                page.reload()
+                page.wait_for_function("!!window.GameFlow")
+                assert page.evaluate("GameFlow.resume()")
+                assert page.evaluate("state.academicTower.openingFound") is True
+
+            click(page, "er-select", "flow-in")
+            click(page, "er-confirm")
+            assert page.evaluate("state.academicTower.phase") == "work"
+            assert page.evaluate("state.academicTower.openingFound") is True
+            click(page, "er-select", "flow-out")
+            click(page, "er-confirm")
+            assert page.evaluate("state.academicTower.phase") == "review"
+            click(page, "er-next")
+            assert page.locator("#storyView").is_visible()
+            all_story(page)
+            assert page.evaluate("state.academicTower.taskIndex") == 3
+            click(page, "er-select", "natural-crack")
+            click(page, "er-confirm")
+            assert page.evaluate("state.academicTower.step") == "correct"
+            click(page, "er-select", "artificial-passage")
+            click(page, "er-confirm")
+            assert page.evaluate("state.academicTower.step") == "scope"
+            click(page, "er-select", "scope-original-only")
+            click(page, "er-confirm")
+            click(page, "er-next")
+            assert page.evaluate("state.academicTower.taskIndex") == 4
+            layout(page, width)
+            click(page, "er-note", "method:method-compare")
+            click(page, "er-note", "action:notify-manager")
+            click(page, "er-note", "inquiry:inquiry-records")
+            click(page, "er-confirm")
+            assert page.evaluate("state.academicTower.phase") == "complete"
+            assert page.evaluate("(id)=>GameFlow.progress().stageOutcomes[id].nextInquiryId", ER) == "inquiry-records"
+            assert page.evaluate("(id)=>GameFlow.progress().completedStages.filter(x=>x===id).length", ER) == 1
+            click(page, "finish-mvp")
+            page.locator("#flowNext").click()
+            assert page.locator("#storyView").is_visible()
+            all_story(page)
+            assert page.evaluate("GameFlow.progress().seenStories.includes('academic-tower-er-result')")
+            assert page.evaluate("(id)=>GameFlow.progress().stageOutcomes[id].nextInquiryId", ER) == "inquiry-records"
+            assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            assert not errors, errors
+            page.close()
+        browser.close()
+    print("04A fieldwork browser smoke passed: four mobile viewports, first-play and independent resume.")
+finally:
+    server.shutdown()
