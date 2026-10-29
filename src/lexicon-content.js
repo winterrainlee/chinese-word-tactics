@@ -285,6 +285,17 @@
     gameNoteKo:'소년이 감사 인사로 싸 온 도시락을 나누고, 연구원과 옛 지도와 현재 길을 비교해 사실과 지나친 해석을 나눴다.'
   });
 
+
+  GROUPS.push({
+    id:'academic-tower-er-fieldwork',chapterId:'academic-tower-research',regionId:'academic-tower',
+    titleKo:'현장 조사에서 이어진 말',type:'related',
+    displayZh:'而且 · 而是 · 而已 · 因而 · 從而 · 進而',
+    words:['而且','而是','而已','因而','從而','進而'],
+    related:['然而','反而'],
+    noteKo:'관찰을 더하고, 잘못된 추정을 바로잡고, 확인한 범위를 제한한 뒤 근거에서 다음 조사로 이어 간다.',
+    gameNoteKo:'소년과 연구원이 큰비 뒤 물길을 조사하고 원래 도면에 없던 인공 분기를 발견해 다음 질문을 남겼다.'
+  });
+
   const WORD_META = {
     '仍然': {exampleKo:'그 장터로 가는 길은 지금도 사람들이 다닌다.', usageKo:'이어지는 대상만 말할 뿐 모든 것이 예전과 같다는 뜻은 아니다.'},
     '突然': {exampleKo:'접힌 종이가 갑자기 지도에서 미끄러져 나왔다.', usageKo:'예고 없이 일어난 사건의 시점에 주목한다.'},
