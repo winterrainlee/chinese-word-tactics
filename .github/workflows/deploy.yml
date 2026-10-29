@@ -162,6 +162,21 @@ jobs:
         with:
           path: .
 
+      # One-time recovery: the 2026-10-29 Pages API returned 502 while
+      # registering commit 228a31d, but left that failed deployment marked
+      # in progress. Later clean builds are blocked with HTTP 400.
+      # Cancel *only that known failed deployment*, then upload this build.
+      - name: Release abandoned Pages deployment lock (one-time recovery)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api --method POST "repos/${{ github.repository }}/pages/deployments/228a31d00050767afbda37b6c8bcdb8f9112042f/cancel"; then
+            echo "Abandoned 502 deployment cancellation accepted."
+            sleep 4
+          else
+            echo "Cancellation unavailable or already cleared; Deploy will verify the state."
+          fi
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
