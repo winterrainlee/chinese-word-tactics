@@ -1635,7 +1635,11 @@
     gridEl.setAttribute('role', 'group');
     gridEl.setAttribute('aria-label', '학술탑 기록 검토 작업대');
     const observationRecord = ['compare', 'compare-review'].includes(workbench.phase) ? 'compare' : workbench.phase;
-    const recordKey = `${stage.id}:${workbench.taskIndex ?? workbench.blankIndex ?? workbench.caseIndex}:${config.kind === 'ran-observation' && (!config.tasks || ['notice','discovery'].includes(workbench.phase)) ? observationRecord : ''}`;
+    // 04A reveals evidence at separate steps. Re-enter the top of the workbench
+    // when a new observation surface appears; retain scroll during simple
+    // choices inside the same step.
+    const erRecord = config.kind === 'er-fieldwork' ? workbench.step + ':' + workbench.phase : '';
+    const recordKey = `${stage.id}:${workbench.taskIndex ?? workbench.blankIndex ?? workbench.caseIndex}:${erRecord || (config.kind === 'ran-observation' && (!config.tasks || ['notice','discovery'].includes(workbench.phase)) ? observationRecord : '')}`;
     const sameRecord = gridEl.dataset.mvpRecord === recordKey;
     const enteringLink = workbench.phase === 'choose-link' &&
       (!sameRecord || gridEl.dataset.mvpPhase !== 'choose-link');
