@@ -226,3 +226,53 @@ test('T1 illustrated event, screen-reader wording and T5 evidence agree with 這
   const final=solved(er);
   assert.match(er.renderWorkbench(null,final),/A · 직접 관찰 · 이번 큰비의 흔적/);
 });
+
+
+test('T3 反而 compares the workshop waterway with a side diversion, not an unsupported boy inflow expectation',()=>{
+ const c=setup(),er=c.AcademicTowerEr04A;
+ const cfg=vm.runInContext("STAGES.find(s=>s.id==='academic-tower-turn-04a-er-family').academicTower",c);
+ const i1=cfg.scenes.retrace.beats.map(x=>x.zh+' '+x.ko).join(' ');
+ const i2=cfg.scenes.record.beats.map(x=>x.zh+' '+x.ko).join(' ');
+ assert.match(i1,/這條水道通往工坊/);
+ assert.doesNotMatch(i1,/草叢裡的雨水流進水道|수풀에 남은 빗물이 수로로 들어오는/);
+ assert.match(i2,/有一部分水從旁邊流走了/);
+ assert.doesNotMatch(i2,/原來水是往外流的/);
+ let s=er.createState();
+ s.taskIndex=2;s.completedTaskIds=plain(er.TASK_IDS.slice(0,2));
+ s.phase='scene';s.sceneId='retrace';
+ assert.equal(er.validState(s),true);
+ s=action(er,s,'er-scene-finish');
+ const hidden=er.renderWorkbench(null,s);
+ assert.match(hidden,/이 수로는 공방으로 이어져/);
+ assert.doesNotMatch(hidden,/소년은 수풀의 빗물이|소년은 유입을 예상했어|有一部分反而/);
+ s=action(er,s,'er-search','low-bank');
+ const view=er.renderWorkbench(null,s);
+ assert.match(view,/물 일부는 어디로 움직일까/);
+ assert.match(view,/수로의 물 일부가 측벽의 틈으로 갈라져 나가/);
+ assert.match(view,/수풀 쪽 물이 틈을 통해 수로에 합쳐져/);
+ s=action(er,s,'er-select','flow-in');
+ const wrong=er.applyAction(null,s,{type:'er-confirm'});
+ assert.equal(wrong.correct,false);
+ assert.equal(wrong.state.openingFound,true);
+ s=action(er,wrong.state,'er-select','flow-out');
+ const right=er.applyAction(null,s,{type:'er-confirm'});
+ assert.equal(right.correct,true);
+ assert.match(right.feedback,/물 일부가 오히려 옆 통로로/);
+ assert.match(right.feedback,/전부 설명되지는 않아/);
+ const done=er.renderWorkbench(null,right.state);
+ assert.match(done,/有一部分反而從旁邊的孔口流走了/);
+ assert.match(done,/새로 확인한 갈래 · 일부가 옆으로 유출/);
+});
+
+test('existing T3 flow-in checkpoint IDs remain valid when returning after an update',()=>{
+ const er=setup().AcademicTowerEr04A;
+ const s=er.createState();
+ s.taskIndex=2;s.step='direction';
+ s.completedTaskIds=plain(er.TASK_IDS.slice(0,2));
+ s.openingFound=true;s.inspectedZoneIds=['low-bank'];
+ s.seenScenes=['retrace'];s.selected='flow-in';s.drafts.t3='flow-in';
+ assert.equal(er.validState(s),true);
+ const after=er.normalizeState(s);
+ assert.equal(after.selected,'flow-in');
+ assert.match(er.renderWorkbench(null,after),/수풀 쪽 물이 틈을 통해 수로에 합쳐져/);
+});

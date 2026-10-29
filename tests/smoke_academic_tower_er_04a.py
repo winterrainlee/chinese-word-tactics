@@ -143,11 +143,17 @@ try:
             click(page, "er-next")
             assert page.locator("#storyView").is_visible()
             assert page.evaluate("state.academicTower.sceneId") == "retrace"
+            for _ in range(3):
+                page.locator("#storyNext").click()
+            assert "這條水道通往工坊" in page.locator("#storyZh").inner_text()
+            assert "草叢裡的雨水" not in page.locator("#storyZh").inner_text()
             all_story(page)
             assert page.evaluate("state.academicTower.taskIndex") == 2
             assert page.evaluate("state.academicTower.openingFound") is False
             assert page.locator('[data-value="flow-out"]').count() == 0
             assert page.locator('.academicErWaterDiagram.found').count() == 0
+            assert "이 수로는 공방으로 이어져" in page.locator("#grid").inner_text()
+            assert "수풀의 빗물이 수로로 들어오는" not in page.locator("#grid").inner_text()
             assert page.locator('.academicOriginal > .academicRegionLabel').inner_text() == '현장 관찰'
             assert page.locator('.controls .academicErFooterPrompt').count() == 1
             assert page.locator('#academicMvpConfirm').count() == 0
@@ -181,6 +187,7 @@ try:
                 assert page.evaluate("GameFlow.resume()")
                 assert page.evaluate("state.academicTower.openingFound") is True
 
+            assert "수로의 물 일부가 측벽의 틈으로 갈라져 나가" in page.locator("#grid").inner_text()
             click(page, "er-select", "flow-in")
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.phase") == "work"
@@ -188,8 +195,11 @@ try:
             click(page, "er-select", "flow-out")
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.phase") == "review"
+            assert "有一部分反而從旁邊的孔口流走了" in page.locator("#grid").inner_text()
+            assert "일부가 옆으로 유출" in page.locator("#grid").inner_text()
             click(page, "er-next")
             assert page.locator("#storyView").is_visible()
+            assert "有一部分水從旁邊流走了" in page.locator("#storyZh").inner_text()
             all_story(page)
             assert page.evaluate("state.academicTower.taskIndex") == 3
             assert page.locator(".academicErStone").count() == 1

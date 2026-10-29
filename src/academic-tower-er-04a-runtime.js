@@ -208,8 +208,8 @@
             : '수문 고장은 확인되지 않았어. B와 C 사이를 더 살펴볼 이유는 있지.');
         } else if (next.taskIndex===2 && next.step==='direction' && selected) {
           next.drafts.t3=selected;
-          if (selected==='flow-out') accept('수풀에서 들어올 줄 알았던 물이 오히려 수로 밖으로 나가고 있었어.');
-          else wrong('잎은 수로 가운데에서 벽의 틈으로 움직여. 물이 어디로 향하는지 다시 확인해 보자.');
+          if (selected==='flow-out') accept('공방으로 이어지는 수로에서 물 일부가 오히려 옆 통로로 빠져나갔어. 이것만으로 C의 약한 흐름이 전부 설명되지는 않아.');
+          else wrong('잎은 수로 가운데에서 벽의 틈 쪽으로 움직이고 있어. 수로에 합류하는지, 밖으로 갈라지는지 다시 확인해 보자.');
         } else if (next.taskIndex===3 && selected &&
             (next.step!=='correct' || next.t4Inspected)) {
           if (next.step==='correct') {
@@ -396,15 +396,15 @@
         (s.step==='search' ? '<div class="academicErLookOptions">' +
           ALLOWED.zones.map((z,i)=>choice('er-search',z,['상류 돌벽','수풀 옆 낮은 둑','수차 쪽'][i],
             s.inspectedZoneIds.includes(z)?z:null)).join('') + '</div>' : '');
-      work=question(s.openingFound ? '소년은 유입을 예상했어. 실제로 물은 어느 쪽으로 움직일까?' : '소리가 나는 쪽을 살펴보자.') +
+      work=question(s.openingFound ? '공방으로 이어지는 수로에서 물 일부는 어디로 움직일까?' : '소리가 나는 쪽을 살펴보자.') +
         (s.openingFound ? (done ?
-          '<p class="academicErPreview"><span>소년의 예상 · 유입</span><span>실제 관측 · 유출</span></p>' +
-          tentative('原以為水會從草叢流進水道，沒想到水反而從水道往草叢下方流去。') :
+          '<p class="academicErPreview"><span>원래 물길 · 공방 방향</span><span>새로 확인한 갈래 · 일부가 옆으로 유출</span></p>' +
+          tentative('原以為水會順著水道流向工坊，沒想到有一部分反而從旁邊的孔口流走了。') :
           controls([
-            ['flow-out','수로 안 → 벽의 틈 → 수풀 아래'],
-            ['flow-in','수풀 아래 → 벽의 틈 → 수로 안']
+            ['flow-out','수로의 물 일부가 측벽의 틈으로 갈라져 나가.'],
+            ['flow-in','수풀 쪽 물이 틈을 통해 수로에 합쳐져.']
           ],'er-select',s.selected)) :
-          '<p class="academicErHint">소년은 수풀의 빗물이 수로로 들어오는 것일지도 모른다고 예상했어. 아직 확인한 사실은 아니야.</p>') +
+          '<p class="academicErHint">이 수로는 공방으로 이어져 있어. 소년은 수풀 옆에서도 물소리가 들리는 이유가 궁금해졌어.</p>') +
         '<div class="academicErWordHelp">' + wordBtn('反而') + '</div>' + verdict(s);
     } else if(s.taskIndex===3) {
       if(s.step==='correct') {

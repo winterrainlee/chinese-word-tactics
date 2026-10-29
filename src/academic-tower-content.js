@@ -935,14 +935,14 @@
             {speaker:'towerResearcher',zh:'光看水門的紀錄，還不能知道中間每一段的情況。',ko:'수문 기록만으로는 중간 구간의 상황을 다 알 수 없어.'},
             {speaker:'towerResearcher',zh:'我們沿著安全的路，往回看一段吧。',ko:'안전한 길을 따라 조금 되짚어 보자.'},
             {speaker:'boy',zh:'等一下，那邊也有水聲！',ko:'잠깐만요. 저쪽에서도 물소리가 나요!'},
-            {speaker:'boy',zh:'會不會是草叢裡的雨水流進水道？',ko:'수풀에 남은 빗물이 수로로 들어오는 걸까요?'}
+            {speaker:'boy',zh:'這條水道通往工坊，怎麼旁邊也有水聲？',ko:'이 수로는 공방으로 이어지는데, 왜 옆에서도 물소리가 날까요?'}
           ]
         },
         record:{
           id:'academic-tower-er-scene-record',titleKo:'원래 도면을 펼치다',
           background:'academic-tower',placeZh:'工坊水道旁',placeKo:'공방 수로 점검길',
           beats:[
-            {speaker:'boy',zh:'原來水是往外流的！那個小孔是怎麼來的？',ko:'물은 바깥으로 나가고 있었네요! 저 구멍은 어떻게 생긴 거죠?'},
+            {speaker:'boy',zh:'原來有一部分水從旁邊流走了！那個小孔是怎麼來的？',ko:'물 일부가 옆으로 빠져나가고 있었네요! 저 구멍은 어떻게 생긴 거죠?'},
             {speaker:'towerResearcher',zh:'我帶了原來的圖，先和現場對照看看。',ko:'원래 도면을 가져왔어. 먼저 현장과 비교해 보자.'},
             {speaker:'narrator',zh:'研究員把圖攤開，少年又看了一眼石壁上的孔口。',ko:'연구원이 도면을 펼쳤다. 소년은 돌벽의 구멍을 다시 살펴봤다.'}
           ]
