@@ -888,6 +888,69 @@
     academicTower:villageStudy
   });
 
+
+  // 04A is one optional study with five internal fieldwork tasks.
+  // Append only: older tactical saves persist numeric STAGES indices.
+  Object.assign(WORDS, {
+    '而且': { p:'ㄦˊ ㄑㄧㄝˇ', k:'게다가, 또한; 다른 사실을 보태거나 더 강조함',
+      ex:'石壁上有高水痕，而且石縫裡還卡著草葉。',
+      rule:'서로 다른 관측 사실을 함께 남겨. 앞 근거를 다시 누르는 반복은 아니야.' },
+    '而是': { p:'ㄦˊ ㄕˋ', k:'~이 아니라 ~이다; 不是 A，而是 B에서 잘못 짚은 대상을 바로잡음',
+      ex:'這不是自然裂開的縫，而是有人鑿出的通道。',
+      rule:'그냥 다른 이야기를 덧붙이는 게 아니라 잘못된 해석을 더 근거 있는 해석으로 고쳐.' },
+    '而已': { p:'ㄦˊ ㄧˇ', k:'~일 뿐이다, 그뿐이다; 진술 범위를 한정함',
+      ex:'這張原圖沒有標出通道而已。',
+      rule:'확인한 범위가 어디까지인지 살펴봐. 다른 관측까지 없던 일로 만들지는 않아.' },
+    '因而': { p:'ㄧㄣ ㄦˊ', k:'그래서, 그러므로; 앞 사정을 받아 뒤의 결과·판단으로 이음',
+      ex:'發現了新的出水口，因而需要通知管理人員。',
+      rule:'앞에서 확인한 일이 뒤의 판단이나 조치를 왜 필요하게 했는지 읽어.' },
+    '從而': { p:'ㄘㄨㄥˊ ㄦˊ', k:'그리하여, 그 결과; 앞의 방법·사정을 받아 결과나 목적을 이음',
+      ex:'我們對照現場和原圖，從而確認了不同之處。',
+      rule:'앞에서 한 일과 그로써 확인한 결과를 연결해. 因而와 뜻이 겹치는 문맥도 있어.' },
+    '進而': { p:'ㄐㄧㄣˋ ㄦˊ', k:'더 나아가; 먼저 한 일을 발판으로 다음 단계로 나아감',
+      ex:'先記下水流方向，進而安排下一次調查。',
+      rule:'단순한 시간 순서가 아니라 앞 단계의 확인에서 다음 조사로 나아가는 이유가 중요해.' }
+  });
+  bundle.rooms.push({
+    id:'academic-tower-turn-04a-er-family', number:'04A',
+    titleKo:'비가 그친 물길', titleZh:'雨後的水道',
+    expressions:[], implemented:true, optional:true, sideGroup:'synthesis',
+    introStoryId:'academic-tower-er-intro',
+    requires:['academic-tower-turn-04-faner']
+  });
+  STAGES.push({
+    id:'academic-tower-turn-04a-er-family', title:'비가 그친 물길',
+    subtitle:'남은 흔적', kicker:'학술탑 · 선택 연구 04A',
+    grid:['S'], goal:'現場的觀察和原圖上的記錄。', rule:'확인한 사실과 아직 모르는 것을 구별하며 조사해.',
+    words:['而且','然而','反而','而是','而已','從而','因而','進而'], win:[],
+    story:'설계도에 없던 물의 갈래를 발견하고, 직접 관찰한 사실과 다음 조사 질문을 나누어 남겼다.',
+    completionTitle:'✓ 비가 그친 물길', completionAction:'현장 기록 마무리',
+    academicTower:{
+      kind:'er-fieldwork', schemaVersion:1, introStory:'academic-tower-er-intro',
+      scenes:{
+        retrace:{
+          id:'academic-tower-er-scene-retrace',titleKo:'다른 쪽의 물소리',
+          background:'academic-tower',placeZh:'工坊水道旁',placeKo:'공방 수로 점검길',
+          beats:[
+            {speaker:'towerResearcher',zh:'光看水門的紀錄，還不能知道中間每一段的情況。',ko:'수문 기록만으로는 중간 구간의 상황을 다 알 수 없어.'},
+            {speaker:'towerResearcher',zh:'我們沿著安全的路，往回看一段吧。',ko:'안전한 길을 따라 조금 되짚어 보자.'},
+            {speaker:'boy',zh:'等一下，那邊也有水聲！',ko:'잠깐만요. 저쪽에서도 물소리가 나요!'},
+            {speaker:'boy',zh:'會不會是草叢裡的雨水流進水道？',ko:'수풀에 남은 빗물이 수로로 들어오는 걸까요?'}
+          ]
+        },
+        record:{
+          id:'academic-tower-er-scene-record',titleKo:'원래 도면을 펼치다',
+          background:'academic-tower',placeZh:'工坊水道旁',placeKo:'공방 수로 점검길',
+          beats:[
+            {speaker:'boy',zh:'原來水是往外流的！那個小孔是怎麼來的？',ko:'물은 바깥으로 나가고 있었네요! 저 구멍은 어떻게 생긴 거죠?'},
+            {speaker:'towerResearcher',zh:'我帶了原來的圖，先和現場對照看看。',ko:'원래 도면을 가져왔어. 먼저 현장과 비교해 보자.'},
+            {speaker:'narrator',zh:'研究員把圖攤開，少年又看了一眼石壁上的孔口。',ko:'연구원이 도면을 펼쳤다. 소년은 돌벽의 구멍을 다시 살펴봤다.'}
+          ]
+        }
+      }
+    }
+  });
+
   globalThis.AcademicTowerContent = Object.freeze({
     bundle: Object.freeze({ ...bundle, rooms: Object.freeze(bundle.rooms.map(room => Object.freeze(room))) })
   });
