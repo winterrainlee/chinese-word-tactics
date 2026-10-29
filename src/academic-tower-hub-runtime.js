@@ -8,10 +8,18 @@
     (room.id === 'academic-tower-turn-03a-ran-family' ? 'academic-tower-ran-intro' : null);
 
   function startRoom(room, state, progress) {
+    const er=globalThis.AcademicTowerEr04A;
+    if (er && room.id===er.STAGE_ID &&
+        progress.completedStages?.includes(room.id) &&
+        !progress.seenStories?.includes('academic-tower-er-result')) {
+      return globalThis.GameFlow?.playStory?.('academic-tower-er-result',{returnTo:REGION_ID});
+    }
     const introId = introForRoom(room);
     if (introId && !progress.seenStories?.includes(introId)) {
       return globalThis.GameFlow?.playStory?.(introId, {
-        stageAfterStory: room.id, returnTo: REGION_ID
+        stageAfterStory: room.id, returnTo: REGION_ID,
+        beat: er && room.id===er.STAGE_ID && progress.lastLocation?.nodeId==='story:'+introId
+          ? progress.lastLocation.beat : 0
       });
     }
     return globalThis.GameFlow?.playStage?.(room.id, {
