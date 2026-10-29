@@ -66,3 +66,108 @@
   .academicTowerMvp .academicErLookOptions { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .academicTowerMvp .academicErLookOptions button:last-child { grid-column:span 2; }
 }
+
+
+/* 04A observation-first revision: distinct field evidence, original sketch and
+   authored memo. Observed data is visible before the reasoning question. */
+.academicTowerMvp .academicErZone .academicRegionLabel {
+  font-size:19px; line-height:1.35; margin:0 0 10px;
+}
+.academicTowerMvp .academicErScene {
+  margin:7px 0 10px;
+  border:1px solid rgba(108,113,96,.25);
+  border-radius:6px;
+  background:#eceae1;
+  overflow:hidden;
+}
+.academicTowerMvp .academicErScene svg { display:block; width:100%; height:180px; }
+.academicTowerMvp .academicErStone svg { height:154px; }
+.academicTowerMvp .academicErT1Looks {
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.academicTowerMvp .academicErT1Looks button {
+  min-height:48px; padding:8px; font-size:13px; line-height:1.4;
+}
+.academicTowerMvp .academicErT1Looks button[aria-pressed="true"] {
+  background:#e3ece5; border-color:#4c765f;
+  box-shadow:inset 0 0 0 1px #4c765f;
+}
+.academicTowerMvp .academicErFound {
+  margin:10px 0 0; padding:10px 11px;
+  border-left:3px solid #547660; background:#f2f3e9;
+  font-size:14px; line-height:1.55;
+}
+.academicTowerMvp .academicErFound strong { color:#355a43; }
+.academicTowerMvp .academicErFound p { margin:4px 0 0; }
+.academicTowerMvp .academicErToday {
+  border-top:1px solid #aebcad; padding:8px 0 0; margin:12px 0 0;
+  font-size:13px; line-height:1.55; color:#47554b;
+}
+.academicTowerMvp .academicErInspect {
+  display:block; width:100%; min-height:48px; margin-top:9px; padding:10px;
+  font-size:14px; line-height:1.5; font-weight:700;
+  border-color:#9cac9b; text-align:center;
+}
+.academicTowerMvp .academicErRoute {
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.85fr) minmax(0,1fr);
+  gap:5px; align-items:stretch; margin:0 0 12px;
+}
+.academicTowerMvp .academicErRoutePoint {
+  min-height:94px; border:1px solid #a7b5b0; border-radius:8px;
+  background:#f1f2eb; padding:9px 7px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:5px;
+}
+.academicTowerMvp .academicErRoutePoint strong { font-size:14px; color:#355063; }
+.academicTowerMvp .academicErRoutePoint span { font-size:12px; color:#526056; line-height:1.4; }
+.academicTowerMvp .academicErRouteGap {
+  text-align:center; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:4px; color:#566a65;
+}
+.academicTowerMvp .academicErRouteGap > span { font-size:17px; letter-spacing:-1px; white-space:nowrap; }
+.academicTowerMvp .academicErRouteGap small { font-size:11px; line-height:1.4; }
+.academicTowerMvp .academicErPlans {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px; margin:10px 0 16px;
+}
+.academicTowerMvp .academicErPlan {
+  min-width:0; background:#f2f1eb; border:1px solid #b7baac;
+  border-radius:7px; padding:9px 8px; text-align:center;
+}
+.academicTowerMvp .academicErPlan small { color:#56625b; display:block; font-size:12px; }
+.academicTowerMvp .academicErPlan strong { display:block; font-size:13px; margin-top:6px; }
+.academicTowerMvp .academicErPlanLine {
+  margin:8px auto; width:72%; height:28px;
+  border-left:4px solid #8d978b; border-right:4px solid #8d978b;
+  background:linear-gradient(#bdd4da,#a4c6d0);
+}
+.academicTowerMvp .academicErPlanLine.marked span {
+  display:block; background:#506f79; width:21px; height:12px;
+  margin:8px 0 0 -12px; border:2px solid #7d8d82;
+}
+.academicTowerMvp .academicErFinalReport {
+  display:grid; gap:10px;
+}
+.academicTowerMvp .academicErFinalReport > div {
+  padding:10px 10px 12px;
+  border-bottom:1px solid rgba(100,118,103,.28);
+  background:rgba(255,253,247,.64);
+}
+.academicTowerMvp .academicErFinalReport small {
+  font-size:13px; color:#435e4e; font-weight:750;
+}
+.academicTowerMvp .academicErFinalReport p {
+  margin:7px 0 0; font-size:17px; line-height:1.75;
+  font-weight:500; overflow-wrap:anywhere;
+}
+@media(max-height:650px) {
+  .academicTowerMvp .academicErScene svg { height:166px; }
+  .academicTowerMvp .academicErStone svg { height:136px; }
+  .academicTowerMvp .academicErRoutePoint { min-height:80px; }
+}
+@media(max-width:360px) {
+  .academicTowerMvp .academicErT1Looks { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .academicTowerMvp .academicErT1Looks button:last-child { grid-column:auto; }
+  .academicTowerMvp .academicErRoutePoint span { font-size:11px; }
+}
