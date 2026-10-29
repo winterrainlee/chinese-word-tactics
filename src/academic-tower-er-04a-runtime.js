@@ -35,7 +35,9 @@
       kind: 'er-fieldwork', schemaVersion: 1, taskIndex: 0, phase: 'work', step: 'choice',
       completedTaskIds: [], seenScenes: [], sceneId: null, sceneIndex: 0,
       introVariantId: 'ordinary', selected: null, inspectedZoneIds: [],
-      openingFound: false, drafts: {}, lastCheck: null
+      openingFound: false, drafts: {}, lastCheck: null,
+      // Optional v1 extension. Legacy 04A saves without these fields are valid.
+      t1ObservedIds: [], t1Focus: null, t1CurrentRecorded: false, t4Inspected: false
     };
   }
   function validState(value) {
@@ -49,6 +51,14 @@
         !Array.isArray(value.inspectedZoneIds) || value.openingFound !== true && value.openingFound !== false ||
         !value.drafts || typeof value.drafts !== 'object' || Array.isArray(value.drafts) ||
         !Number.isInteger(value.sceneIndex) || value.sceneIndex < 0 || value.sceneIndex > 10) return false;
+    if (value.t1ObservedIds !== undefined && (!Array.isArray(value.t1ObservedIds) ||
+        value.t1ObservedIds.length > 2 ||
+        new Set(value.t1ObservedIds).size !== value.t1ObservedIds.length ||
+        !value.t1ObservedIds.every(id=>['a-grass-high','a-current-level'].includes(id)))) return false;
+    if (value.t1Focus !== undefined && value.t1Focus !== null &&
+        !['a-grass-high','a-current-level'].includes(value.t1Focus)) return false;
+    if (value.t1CurrentRecorded !== undefined && typeof value.t1CurrentRecorded !== 'boolean') return false;
+    if (value.t4Inspected !== undefined && typeof value.t4Inspected !== 'boolean') return false;
     if (value.seenScenes.length > 2 || new Set(value.seenScenes).size !== value.seenScenes.length ||
         !value.seenScenes.every(v => Object.hasOwn(SCENES, v))) return false;
     if (value.inspectedZoneIds.length > 3 || new Set(value.inspectedZoneIds).size !== value.inspectedZoneIds.length ||
@@ -84,7 +94,21 @@
       !includes('inquiry',value.drafts.inquiry))) return false;
     return true;
   }
-  function normalizeState(value) { return validState(value) ? clone(value) : createState(); }
+  function normalizeState(value) {
+    if (!validState(value)) return createState();
+    const saved=clone(value);
+    const fresh=createState();
+    saved.t1ObservedIds ||= [];
+    saved.t1Focus ??= null;
+    saved.t1CurrentRecorded ??= false;
+    saved.t4Inspected ??= false;
+    // Previous completed records remain complete, not re-opened for new artwork.
+    if (saved.completedTaskIds.includes(TASK_IDS[0]) &&
+        !saved.t1ObservedIds.includes('a-grass-high')) saved.t1ObservedIds.push('a-grass-high');
+    if (saved.completedTaskIds.includes(TASK_IDS[3]) ||
+        saved.drafts.t4a==='artificial-passage') saved.t4Inspected=true;
+    return saved;
+  }
   function validProgressMap(raw) {
     return !!raw && typeof raw==='object' && !Array.isArray(raw) &&
       Object.keys(raw).every(key=>key===STAGE_ID && validState(raw[key]));
@@ -133,10 +157,27 @@
         changed=true;
       }
     } else if (next.phase === 'work') {
-      if (action.type==='er-select') {
+      if (action.type==='er-observe' && next.taskIndex===0 &&
+          ['a-grass-high','a-current-level'].includes(action.value)) {
+        if (!next.t1ObservedIds.includes(action.value)) next.t1ObservedIds.push(action.value);
+        next.t1Focus=action.value;
+        // A current-level observation is true and belongs to today's record.
+        if (action.value==='a-current-level') {
+          next.t1CurrentRecorded=true; next.selected=null;
+          next.lastCheck={correct:true,feedbackKo:'지금 수위도 관찰했어. 오늘의 수위에 따로 적어 두었어.'};
+        } else {
+          next.selected='a-grass-high'; next.lastCheck=null;
+        }
+        changed=true;
+      } else if (action.type==='er-inspect-d' && next.taskIndex===3 &&
+          next.step==='correct' && !next.t4Inspected) {
+        next.t4Inspected=true;next.lastCheck=null;changed=true;
+      } else if (action.type==='er-select') {
         const list=next.taskIndex===0?'t1':next.taskIndex===1?'t2':
           next.taskIndex===2?'t3':next.taskIndex===3?(next.step==='correct'?'t4a':'t4b'):null;
-        if(list && (next.taskIndex!==2 || next.step==='direction')) select(list,action.value);
+        if (list && (next.taskIndex!==2 || next.step==='direction') &&
+            (next.taskIndex!==0 || next.t1ObservedIds.includes('a-grass-high')) &&
+            (next.taskIndex!==3 || next.step!=='correct' || next.t4Inspected)) select(list,action.value);
       } else if (action.type==='er-search' && next.taskIndex===2 && next.step==='search' && includes('zones',action.value)) {
         if (!next.inspectedZoneIds.includes(action.value)) next.inspectedZoneIds.push(action.value);
         if (action.value==='low-bank') {
@@ -153,7 +194,7 @@
         }
       } else if (action.type==='er-confirm') {
         const selected=next.selected;
-        if (next.taskIndex===0 && selected) {
+        if (next.taskIndex===0 && selected && next.t1ObservedIds.includes('a-grass-high')) {
           next.drafts.t1=selected;
           if (selected==='a-grass-high') accept('물 자국에 다른 큰물 흔적을 더했어. 지금 수위와는 시점이 달라.');
           else wrong(selected==='a-current-level'
@@ -169,7 +210,8 @@
           next.drafts.t3=selected;
           if (selected==='flow-out') accept('수풀에서 들어올 줄 알았던 물이 오히려 수로 밖으로 나가고 있었어.');
           else wrong('잎은 수로 가운데에서 벽의 틈으로 움직여. 물이 어디로 향하는지 다시 확인해 보자.');
-        } else if (next.taskIndex===3 && selected) {
+        } else if (next.taskIndex===3 && selected &&
+            (next.step!=='correct' || next.t4Inspected)) {
           if (next.step==='correct') {
             next.drafts.t4a=selected;
             if(selected==='artificial-passage') {
@@ -185,8 +227,8 @@
         } else if (next.taskIndex===4) {
           const d=next.drafts;
           if (!d.method || !d.action || !d.inquiry) return {state:next,changed:false};
-          if (d.method!=='method-compare') wrong('실제로 확인한 것은 현장과 원래 도면을 대조해서 얻은 결과야.');
-          else if(d.action!=='notify-manager') wrong('소유 시설은 담당자가 관리해야 해. 확인한 사실을 전달하는 게 우선이야.');
+          if (d.method!=='method-compare') wrong('C의 예상과 다른 흐름만으로 새 통로를 확인할 수는 없어. D 현장과 원래 도면을 대조했지.');
+          else if(d.action!=='notify-manager') wrong('D가 C의 흐름을 전부 설명한다는 근거는 없어. 관측한 사실부터 관리자에게 전달하자.');
           else accept('확인한 결과, 필요한 조치, 다음 조사 계획을 구분해 한 장의 기록으로 남겼어.');
         }
       }
