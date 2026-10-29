@@ -67,6 +67,14 @@ for (const scene of Object.values(villageConfig?.scenes || {})) {
   add(scene.id, scene.placeZh, `stage-scene:${scene.id}:place`);
   addBeats(scene.id, scene.beats, `stage-scene:${scene.id}`);
 }
+// 04A's fieldwork narrative uses the same common story screen without
+// inflating the Journey stage count.
+const erConfig = vm.runInContext(
+  "STAGES.find(stage => stage.id === 'academic-tower-turn-04a-er-family')?.academicTower", context);
+for (const scene of Object.values(erConfig?.scenes || {})) {
+  add(scene.id, scene.placeZh, `stage-scene:${scene.id}:place`);
+  addBeats(scene.id, scene.beats, `stage-scene:${scene.id}`);
+}
 
 for (const [group, configs] of [
   ['outcome', context.StoryOutcomeContent.VARIANTS],
