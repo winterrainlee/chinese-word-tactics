@@ -103,7 +103,11 @@
     if (!stage) return false;
     let changed = false;
     if (!visitedStages.has(stageId)) { visitedStages.add(stageId); changed = true; }
-    (Array.isArray(stage.words) ? stage.words : []).forEach(word => {
+    // 04A reveals expressions as the player reaches each task.
+    const encounterWords = stageId === globalThis.AcademicTowerEr04A?.STAGE_ID
+      ? (Array.isArray(options.words) ? options.words.filter(word=>stage.words.includes(word)) : [])
+      : (Array.isArray(stage.words) ? stage.words : []);
+    encounterWords.forEach(word => {
       if (WORDS[word] && !discovered.has(word)) { discovered.add(word); changed = true; }
     });
     const regionId = C.stageRegionId(stageId), region = regionById(regionId);
@@ -120,10 +124,18 @@
   function syncProgress(progress) {
     let changed = false;
     const completed = Array.isArray(progress?.completedStages) ? progress.completedStages : [];
-    completed.forEach(stageId => { if (visitStage(stageId, { trackLast: false, persist: false, render: false })) changed = true; });
+    completed.forEach(stageId => {
+      const words = stageId === globalThis.AcademicTowerEr04A?.STAGE_ID
+        ? STAGES.find(stage=>stage.id===stageId)?.words || [] : undefined;
+      if (visitStage(stageId, { words, trackLast: false, persist: false, render: false })) changed = true;
+    });
     const nodeId = progress?.lastLocation?.nodeId;
     if (progress?.lastLocation?.view === 'tactical' && typeof nodeId === 'string' && nodeId.startsWith('stage:')) {
-      if (visitStage(nodeId.slice(6), { trackLast: true, persist: false, render: false })) changed = true;
+      const stageId=nodeId.slice(6);
+      const words=stageId===globalThis.AcademicTowerEr04A?.STAGE_ID
+        ? globalThis.AcademicTowerEr04A?.revealedWords?.(progress?.sideResearchProgress?.[stageId]) || []
+        : undefined;
+      if (visitStage(stageId, { words, trackLast: true, persist: false, render: false })) changed = true;
     }
     if (changed) saveStore();
   }
