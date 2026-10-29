@@ -239,7 +239,7 @@ test('T3 反而 compares the workshop waterway with a side diversion, not an uns
  assert.doesNotMatch(i2,/原來水是往外流的/);
  let s=er.createState();
  s.taskIndex=2;s.completedTaskIds=plain(er.TASK_IDS.slice(0,2));
- s.phase='scene';s.sceneId='retrace';
+ s.phase='scene';s.sceneId='retrace';s.step='search';
  assert.equal(er.validState(s),true);
  s=action(er,s,'er-scene-finish');
  const hidden=er.renderWorkbench(null,s);
