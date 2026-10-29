@@ -271,7 +271,7 @@
         {type:'stage',id:'academic-tower-turn-03b-ran-village',requires:['story:academic-tower-ran-village-intro']},
         {type:'story',id:'academic-tower-ran-village-result',requires:['stage:academic-tower-turn-03b-ran-village'],returnToRegionHubAfter:'academic-tower'}
       ]
-    , {
+    }, {
       id:'academic-tower-optional-er-fieldwork',regionId:'academic-tower',
       plannedStageCount:1,nameKo:'비가 그친 물길 · 선택 연구',stageLabel:'연구',
       revealRequires:['stage:academic-tower-turn-04-faner'],
