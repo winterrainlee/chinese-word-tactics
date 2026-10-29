@@ -1,5 +1,6 @@
 # 학술탑 04A 《비가 그친 물길》 — 첫 플레이·화면 검토 v0.1
 
+> **통합 후속 설계:** [04A G2 v0.2](ACADEMIC-TOWER-ER-04A-G2-INTEGRATED-REVIEW-v0.2.md)에 본 문서의 첫 플레이 수정안을 반영했다. 본 문서는 당시 UX 검토의 근거로 보존한다.
 > 2026-10-29 · 상태: G2 첫 플레이 검토 초안. **구현·검사·배포 미착수, G2 최종 승인 전**
 > 사용자 결정: 1A · 2A · 3A · 4A · 5A.
 > 기존 기준: [다섯 작업 G2 초안](ACADEMIC-TOWER-ER-04A-G2-RAIN-FIELDWORK-DRAFT-v0.1.md), [현장 이야기](ACADEMIC-TOWER-ER-04A-RAIN-FIELDWORK-DRAFT-v0.1.md), [수계 지리](THREE-STREAMS-WATERWAYS-GEOGRAPHY-DRAFT-v0.1.md), [학술탑 UI](ACADEMIC-TOWER-UI-GUIDE-v0.1.md), [기믹 도감](REUSABLE-MECHANICS-v0.2.md).
