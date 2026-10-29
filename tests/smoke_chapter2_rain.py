@@ -44,6 +44,15 @@ try:
     with sync_playwright() as pw:
         browser = pw.chromium.launch(args=['--no-sandbox'])
         context, page, errors = open_page(browser, seed)
+        page.evaluate('GameFlow.showJourney()')
+        chapter = page.locator('.journeyChapter[data-chapter-id="chapter-2-after-rain"]')
+        assert chapter.count() == 1
+        assert '2장 · 비가 지나간 물길마을' in chapter.locator('.journeyChapterSummary').inner_text()
+        assert chapter.get_attribute('open') is not None
+        rain = chapter.locator('.journeyNode[data-node-id="story:chapter2-rain-opening"]')
+        assert rain.count() == 1
+        assert rain.get_attribute('data-state') == 'available'
+        page.screenshot(path=str(OUT / 'chapter2-journey-opening-375x812.png'), full_page=True)
         page.evaluate('WorldInn.openRoom()')
         page.locator('#innRoomBack').click()
         page.locator('#storyView').wait_for(state='visible')
@@ -74,6 +83,18 @@ try:
         assert 'chapter1-complete' in result['completedMilestones']
         assert 'chapter2-rain-opening' in result['seenStories']
         page.locator('#firstQuestLater').click()
+        page.evaluate('GameFlow.showJourney()')
+        completed_rain = page.locator(
+            '.journeyChapter[data-chapter-id="chapter-2-after-rain"] .journeyNode[data-node-id="story:chapter2-rain-opening"]')
+        assert completed_rain.get_attribute('data-state') == 'complete'
+        before_replay = page.evaluate('GameFlow.progress()')
+        completed_rain.click()
+        assert page.locator('#storyTitle').inner_text() == '큰비가 내리던 밤'
+        page.locator('#storySkip').click()
+        page.locator('#journeyView').wait_for(state='visible')
+        after_replay = page.evaluate('GameFlow.progress()')
+        assert after_replay['seenStories'] == before_replay['seenStories']
+        assert after_replay['completedMilestones'] == before_replay['completedMilestones']
         page.evaluate('WorldInn.openRoom()')
         page.locator('#innRoomBack').click()
         assert page.locator('#worldView').is_visible()
@@ -87,6 +108,17 @@ try:
         ]:
             legacy = dict(seed, **changed)
             context, page, errors = open_page(browser, legacy)
+            page.evaluate('GameFlow.showJourney()')
+            older_rain = page.locator(
+                '.journeyChapter[data-chapter-id="chapter-2-after-rain"] .journeyNode[data-node-id="story:chapter2-rain-opening"]')
+            assert older_rain.get_attribute('data-state') == 'past'
+            assert '돌아보기' in older_rain.get_attribute('aria-label')
+            older_rain.click()
+            assert page.locator('#storyTitle').inner_text() == '큰비가 내리던 밤'
+            for _ in range(4):
+                page.locator('#storyNext').click()
+            page.locator('#journeyView').wait_for(state='visible')
+            assert not page.evaluate('GameFlow.progress().seenStories.includes("chapter2-rain-opening")')
             page.evaluate('WorldInn.openRoom()')
             page.locator('#innRoomBack').click()
             assert page.locator('#worldView').is_visible()

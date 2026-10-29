@@ -17,9 +17,9 @@
   };
   if (!journey.some(chapter => chapter.id === 'chapter-2-after-rain')) journey.push({
     id: 'chapter-2-after-rain', titleKo: '2장 · 비가 지나간 물길마을',
-    hiddenFromJourney: true,
+    tag: '三溪鎮 · 큰비가 그친 뒤',
     sections: [{
-      id: 'chapter2-rain-intro', hiddenFromJourney: true,
+      id: 'chapter2-rain-intro', revealRequires: ['story:chapter1-room-finale'],
       sequence: [{ type: 'story', id: STORY_ID,
         requires: ['story:chapter1-room-finale'],
         milestone: 'chapter2-rain-passed', returnToWorldAfter: true }]

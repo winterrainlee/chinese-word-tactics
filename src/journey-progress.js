@@ -112,8 +112,12 @@
       const intro = getNode('story:chapter1-roadside-merchant');
       if (!isComplete(intro, progress)) return intro;
     }
-    // Internal place stories such as the inn finale are entered from their world place, not generic resume.
-    return campaignNodes(progress).find(node => isAvailable(node, progress) && !isComplete(node, progress)) || null;
+    // The rain begins at the inn door or through an explicit journey entry.
+    // Ordinary Continue should not pull the player out of the new room.
+    // A partly read rain story remains resumable via the saved-node branch.
+    return campaignNodes(progress).find(node =>
+      node.id !== 'chapter2-rain-opening' && isAvailable(node, progress) &&
+      !isComplete(node, progress)) || null;
   }
   function continueAction(progress) {
     const node = recommendedNode(progress);

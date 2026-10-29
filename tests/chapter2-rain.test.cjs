@@ -21,10 +21,26 @@ test('rain intro is a hidden story after the intact 1st chapter', () => {
   assert.deepEqual(plain(node.requires), ['story:chapter1-room-finale']);
   assert.equal(node.milestone, 'chapter2-rain-passed');
   assert.equal(node.returnToWorldAfter, true);
-  assert.equal(node.hiddenFromJourney, true);
-  assert.ok(!P.nodes().some(n => n.nodeId === node.nodeId));
+  const chapter = ctx.JourneyContent.JOURNEY.find(ch => ch.id === 'chapter-2-after-rain');
+  assert.equal(chapter.hiddenFromJourney, undefined);
+  assert.equal(chapter.titleKo, '2장 · 비가 지나간 물길마을');
+  assert.equal(chapter.tag, '三溪鎮 · 큰비가 그친 뒤');
+  assert.equal(chapter.sections[0].hiddenFromJourney, undefined);
+  assert.deepEqual(plain(chapter.sections[0].revealRequires), ['story:chapter1-room-finale']);
+  assert.equal(node.hiddenFromJourney, false);
+  assert.ok(!P.nodes(P.normalize({})).some(n => n.nodeId === node.nodeId));
+  const afterChapter1 = P.normalize({ seenStories: ['chapter1-room-finale'] });
+  assert.ok(P.nodes(afterChapter1).some(n => n.nodeId === node.nodeId));
   assert.equal(P.isAvailable(node, P.normalize({})), false);
-  assert.equal(P.isAvailable(node, P.normalize({ seenStories: ['chapter1-room-finale'] })), true);
+  assert.equal(P.isAvailable(node, afterChapter1), true);
+  const previousNodes = P.allNodes().filter(n => n.id !== story.id);
+  const chapterComplete = P.normalize({
+    seenStories: previousNodes.filter(n => n.type === 'story').map(n => n.id),
+    completedStages: previousNodes.filter(n => n.type === 'stage').map(n => n.id),
+    completedMilestones: ['chapter1-complete']
+  });
+  assert.equal(P.recommendedNode(chapterComplete), null,
+    'the newly visible story must not autoplay through generic Continue');
   const disk = new Map();
   const store = P.createStore({
     getItem: k => disk.get(k) || null,

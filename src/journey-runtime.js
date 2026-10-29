@@ -80,6 +80,10 @@
 
   function makeTimelineItem(node, content, progress, recommendedId, questCurrentId = null) {
     const done = JourneyProgress.isComplete(node, progress), open = JourneyProgress.isAvailable(node, progress);
+    // Old saves experienced the rain via later stories, not this new scene.
+    const pastRain = node.id === 'chapter2-rain-opening' &&
+      globalThis.Chapter2Rain?.statusFor?.(progress) === 'legacy';
+    const reread = done || pastRain;
     const id = JourneyProgress.nodeId(node), campaignCurrent = id === recommendedId;
     const questCurrent = id === questCurrentId;
     const current = campaignCurrent || questCurrent;
@@ -90,12 +94,14 @@
     const terms = open && node.type === 'stage' ? content.title.replaceAll('・', ' · ') : '';
     const stateLabel = current
       ? `${questCurrent ? '의뢰 ' : ''}진행 중 · ${node.type === 'stage' ? '이어서 플레이' : '이어서 보기'}`
-      : done ? (node.type === 'stage' ? '완료 · 다시 플레이' : '완료 · 다시 보기')
-        : open ? (node.type === 'stage' ? '열림 · 연습하기' : '새 이야기 · 보기') : '아직 잠김';
-    const actionLabel = current ? '계속' : done ? '다시' : open ? (node.type === 'stage' ? '연습' : '보기') : '잠김';
+      : pastRain ? '이미 지나간 비 · 돌아보기'
+        : done ? (node.type === 'stage' ? '완료 · 다시 플레이' : '완료 · 다시 보기')
+          : open ? (node.type === 'stage' ? '열림 · 연습하기' : '새 이야기 · 보기') : '아직 잠김';
+    const actionLabel = current ? '계속' : pastRain ? '돌아보기' : done ? '다시'
+      : open ? (node.type === 'stage' ? '연습' : '보기') : '잠김';
     const button = make('button', 'journeyNode');
     button.type = 'button'; button.disabled = !open; button.dataset.nodeId = id;
-    button.dataset.state = done ? 'complete' : open ? 'available' : 'locked';
+    button.dataset.state = done ? 'complete' : pastRain ? 'past' : open ? 'available' : 'locked';
     button.dataset.current = String(campaignCurrent);
     button.dataset.questCurrent = String(questCurrent);
     if (reference) button.dataset.stageNumber = reference.number;
@@ -108,7 +114,7 @@
     if (terms) meta.append(make('span', 'journeyNodeTerms', terms));
     const state = make('span', 'journeyNodeState');
     const action = make('span', 'journeyNodeAction', current || done ? undefined : actionLabel);
-    if (current || done) {
+    if (current || reread) {
       action.dataset.icon = current ? 'continue' : 'replay';
       action.setAttribute('aria-hidden', 'true');
     }
@@ -120,7 +126,7 @@
     }
     button.append(make('strong', 'journeyNodeTitle', open ? title : '???'), meta, state);
     button.onclick = () => {
-      const mode = done ? 'replay' : (questCurrent || node.type === 'story') ? 'first-play' : 'replay';
+      const mode = reread ? 'replay' : (questCurrent || node.type === 'story') ? 'first-play' : 'replay';
       return node.type === 'stage' ? GameFlow.playStage(node.id, { mode, returnTo: 'journey' }) :
         GameFlow.playStory(node.id, { mode, returnTo: 'journey' });
     };
@@ -395,8 +401,11 @@
       chapterDetails.dataset.journeyStateKey = chapter.id;
       const containsFocusedRegion = chapter.sections.some(section => section.regionId === focusRegionId);
       const forceChapterOpen = (forceCurrentOpen && current.chapterId === chapter.id) || containsFocusedRegion;
+      // Once visible, Chapter 2 starts expanded unless the player closed it.
+      const defaultOpen = current.chapterId === chapter.id ||
+        chapter.id === 'chapter-2-after-rain';
       rememberDisclosure(chapterDetails, chapter.id, chapterOpenStates,
-        current.chapterId === chapter.id, forceChapterOpen);
+        defaultOpen, forceChapterOpen);
 
       const display = chapterDisplay(chapter);
       const summary = make('summary', 'journeyChapterSummary');

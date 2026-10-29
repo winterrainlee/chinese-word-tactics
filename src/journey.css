@@ -51,6 +51,9 @@
 .journeyNodeAction[data-icon="replay"]{-webkit-mask-image:url('../icons/ui/ui-restart.svg');mask-image:url('../icons/ui/ui-restart.svg')}.journeyNodeAction[data-icon="continue"]{-webkit-mask-image:url('../icons/ui/ui-continue.svg');mask-image:url('../icons/ui/ui-continue.svg')}
 .journeyNode[data-state="complete"]::before{border-color:var(--accent);background:var(--accent)}.journeyNode[data-state="complete"] .journeyNodeState{color:var(--accent)}
 .journeyNode[data-state="available"]::before{border-color:var(--accent);background:var(--paper);box-shadow:0 0 0 3px var(--accent-soft)}
+/* Existing saves may browse this earlier event without marking unseen story complete. */
+.journeyNode[data-state="past"]::before{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--paper)}
+.journeyNode[data-state="past"] .journeyNodeState{color:var(--muted)}
 
 /* The recommended unfinished node is the quiet “you are here” marker. */
 .journeyNode[data-current="true"]{background:linear-gradient(90deg,color-mix(in srgb,var(--accent-soft) 58%,transparent),transparent 88%)}
