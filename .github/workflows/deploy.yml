@@ -108,6 +108,11 @@ jobs:
           python tests/smoke_academic_tower_ran.py
           python tests/smoke_academic_tower_ran_village.py
 
+      - name: 04A fieldwork mobile and persistence smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_academic_tower_er_04a.py
+
       - name: Run tactical layout viewport matrix
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
