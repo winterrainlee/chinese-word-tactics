@@ -7,7 +7,7 @@
     "entryCountInSnapshot": 14452,
     "url": "https://coct.naer.edu.tw/file/files/14452%E8%A9%9E%E8%AA%9E%E8%A1%A8202504.pdf",
     "verifiedAt": "2026-09-19",
-    "note": "게임에 쓰인 71개 표제어만 공식 2025-04 목록에서 대조한 개발용 부분 메타데이터다. 런타임 원자료가 아니다."
+    "note": "게임 목표어에 한정한 개발용 부분 TBCL 메타데이터다. 원자료의 등급 확인을 완료하지 않은 새 표현은 not-verified-in-snapshot으로 별도 표시하며 공식 수준을 추정하지 않는다."
   },
   "words": {
     "接近": {
@@ -343,6 +343,36 @@
       "level": null,
       "status": "not-verified-in-snapshot",
       "note": "게임의 새 목표어; 현재 로컬 등급 스냅샷에서 공식 TBCL 표제 대조 전."
+    },
+    "而且": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "04A 신규 목표 표현. 공식 2025-04 표제의 등급을 이 부분 스냅샷에서 아직 대조하지 않았으므로 미검증으로 남긴다."
+    },
+    "而是": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "04A 신규 목표 표현. 공식 2025-04 표제의 등급을 이 부분 스냅샷에서 아직 대조하지 않았으므로 미검증으로 남긴다."
+    },
+    "而已": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "04A 신규 목표 표현. 공식 2025-04 표제의 등급을 이 부분 스냅샷에서 아직 대조하지 않았으므로 미검증으로 남긴다."
+    },
+    "從而": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "04A 신규 목표 표현. 공식 2025-04 표제의 등급을 이 부분 스냅샷에서 아직 대조하지 않았으므로 미검증으로 남긴다."
+    },
+    "因而": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "04A 신규 목표 표현. 공식 2025-04 표제의 등급을 이 부분 스냅샷에서 아직 대조하지 않았으므로 미검증으로 남긴다."
+    },
+    "進而": {
+      "level": null,
+      "status": "not-verified-in-snapshot",
+      "note": "04A 신규 목표 표현. 공식 2025-04 표제의 등급을 이 부분 스냅샷에서 아직 대조하지 않았으므로 미검증으로 남긴다."
     }
   }
 }
