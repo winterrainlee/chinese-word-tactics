@@ -143,7 +143,7 @@ test('T1 accepts both observations without treating current water as a wrong fac
   s=action(er,s,'er-observe','a-current-level');
   assert.equal(s.t1CurrentRecorded,true);
   assert.equal(s.phase,'work');
-  assert.equal(s.lastCheck.correct,true);
+  assert.equal(s.lastCheck,null,'valid optional current observation must not imply whole task success');
   assert.equal(er.validState(s),true);
   const water=er.renderWorkbench(null,s);
   assert.match(water,/오늘의 관측/);
