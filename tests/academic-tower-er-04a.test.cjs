@@ -23,7 +23,10 @@ const action=(ER,s,type,value)=>ER.applyAction(null,s,{type,value}).state;
 function solved(ER) {
   let s=ER.createState();
   const doAction=(type,value)=>{s=action(ER,s,type,value);assert.equal(ER.validState(s),true);};
-  doAction('er-select','a-grass-high');doAction('er-confirm');
+  doAction('er-observe','a-current-level');
+  assert.equal(s.t1CurrentRecorded,true);
+  assert.equal(s.phase,'work');
+  doAction('er-observe','a-grass-high');doAction('er-confirm');
   assert.equal(s.phase,'review');doAction('er-next');
   doAction('er-select','check-between-b-c');doAction('er-confirm');doAction('er-next');
   assert.equal(s.phase,'scene');assert.equal(s.sceneId,'retrace');
@@ -32,6 +35,8 @@ function solved(ER) {
   assert.equal(s.openingFound,true);assert.equal(s.step,'direction');
   doAction('er-select','flow-out');doAction('er-confirm');doAction('er-next');
   assert.equal(s.sceneId,'record');doAction('er-scene-finish');
+  doAction('er-inspect-d');
+  assert.equal(s.t4Inspected,true);
   doAction('er-select','artificial-passage');doAction('er-confirm');
   assert.equal(s.step,'scope');
   doAction('er-select','scope-original-only');doAction('er-confirm');doAction('er-next');
@@ -85,6 +90,7 @@ test('T4 wrong interpretation survives normalization, and replay supports either
   let s=er.createState();
   s.taskIndex=3;s.completedTaskIds=plain(er.TASK_IDS.slice(0,3));
   s.step='correct';s.openingFound=true;s.inspectedZoneIds=['low-bank'];s.seenScenes=['retrace','record'];
+  s=action(er,s,'er-inspect-d');
   s=action(er,s,'er-select','natural-crack');
   s=action(er,s,'er-confirm');
   assert.equal(er.validState(s),true);
@@ -123,4 +129,87 @@ test('journey checkpoint and first outcome survive restore, malformed 04A backup
     broken.storage[K.journey].sideResearchProgress[er.STAGE_ID].taskIndex=999;
     assert.equal(SD.validateBackup(broken).ok,false);
   }
+});
+
+test('T1 accepts both observations without treating current water as a wrong fact',()=>{
+  const c=setup(),er=c.AcademicTowerEr04A;
+  let s=er.createState();
+  const first=er.renderWorkbench(null,s);
+  assert.match(first,/academicErUpstream/);
+  assert.match(first,/data-academic-action="er-observe"/);
+  assert.doesNotMatch(first,/水門壞了|data-academic-action="er-select"/);
+  assert.equal(er.applyAction(null,s,{type:'er-confirm'}).changed,false);
+  assert.equal(er.applyAction(null,s,{type:'er-select',value:'a-grass-high'}).changed,false);
+  s=action(er,s,'er-observe','a-current-level');
+  assert.equal(s.t1CurrentRecorded,true);
+  assert.equal(s.phase,'work');
+  assert.equal(s.lastCheck.correct,true);
+  assert.equal(er.validState(s),true);
+  const water=er.renderWorkbench(null,s);
+  assert.match(water,/오늘의 관측/);
+  assert.doesNotMatch(water,/그림에서 높은 석틈을 관찰하면 새 흔적을 메모에 더할 수 있어/);
+  s=action(er,s,'er-observe','a-grass-high');
+  const after=er.renderWorkbench(null,s);
+  assert.match(after,/높은 틈에 풀잎이 걸려 있어/);
+  assert.match(after,/data-academic-action="er-observe"/);
+  s=action(er,s,'er-confirm');
+  assert.equal(s.phase,'review');
+  assert.equal(s.t1CurrentRecorded,true);
+  assert.deepEqual(plain(s.t1ObservedIds),['a-current-level','a-grass-high']);
+  assert.match(er.renderWorkbench(null,s),/而且高處的石縫/);
+});
+
+test('T2 preserves true B and C observations, not a uniquely forced investigation location',()=>{
+  const c=setup(),er=c.AcademicTowerEr04A;
+  const s=er.createState();
+  s.taskIndex=1;s.completedTaskIds=[er.TASK_IDS[0]];
+  assert.equal(er.validState(s),true);
+  const view=er.renderWorkbench(null,s);
+  assert.match(view,/academicErRoute/);
+  assert.match(view,/B · 수문/);
+  assert.match(view,/C · 공방/);
+  assert.match(view,/아직 확인하지 않은 구간/);
+  assert.match(view,/원인은 보류한다/);
+  assert.doesNotMatch(view,/data-academic-action="er-search"/);
+});
+
+test('T4 toolmarks are learned by inspecting the same opening before choosing interpretation',()=>{
+  const c=setup(),er=c.AcademicTowerEr04A;
+  let s=er.createState();
+  s.taskIndex=3;s.completedTaskIds=plain(er.TASK_IDS.slice(0,3));
+  s.step='correct';s.openingFound=true;s.inspectedZoneIds=['low-bank'];s.seenScenes=['retrace','record'];
+  assert.equal(er.validState(s),true);
+  const before=er.renderWorkbench(null,s);
+  assert.match(before,/data-academic-action="er-inspect-d"/);
+  assert.doesNotMatch(before,/反覆鑿刻的痕跡/);
+  assert.equal(er.applyAction(null,s,{type:'er-select',value:'artificial-passage'}).changed,false);
+  s=action(er,s,'er-inspect-d');
+  assert.equal(er.validState(s),true);
+  const inspected=er.renderWorkbench(null,s);
+  assert.match(inspected,/反覆鑿刻的痕跡/);
+  s=action(er,s,'er-select','artificial-passage');
+  s=action(er,s,'er-confirm');
+  assert.equal(s.step,'scope');
+  assert.match(er.renderWorkbench(null,s),/academicErPlans/);
+});
+
+test('legacy 04A checkpoints normalize without losing progress, new IDs are validated',()=>{
+  const c=setup(),er=c.AcademicTowerEr04A;
+  let old=er.createState();
+  old.selected='a-grass-high';
+  for(const key of ['t1ObservedIds','t1Focus','t1CurrentRecorded','t4Inspected'])delete old[key];
+  assert.equal(er.validState(old),true);
+  let migrated=er.normalizeState(old);
+  assert.equal(migrated.selected,'a-grass-high');
+  assert.deepEqual(plain(migrated.t1ObservedIds),[]);
+  assert.equal(migrated.t1CurrentRecorded,false);
+  assert.equal(er.applyAction(null,migrated,{type:'er-confirm'}).changed,false);
+  const review={...old,phase:'review',selected:null,completedTaskIds:[er.TASK_IDS[0]],drafts:{t1:'a-grass-high'}};
+  assert.equal(er.validState(review),true);
+  assert.deepEqual(plain(er.normalizeState(review).t1ObservedIds),['a-grass-high']);
+  const malformed={...old,t1ObservedIds:['outside-the-map']};
+  assert.equal(er.validState(malformed),false);
+  const completed=solved(er);
+  assert.match(er.renderWorkbench(null,completed),/academicErFinalReport/);
+  assert.match(er.renderWorkbench(null,completed),/從而確認/);
 });
