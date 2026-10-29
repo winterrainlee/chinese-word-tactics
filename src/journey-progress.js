@@ -65,7 +65,8 @@
       (['story', 'tactical'].includes(location.view) && getNode(location.nodeId)?.type === (location.view === 'story' ? 'story' : 'stage')));
     return { seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
       completedMilestones: strings(raw.completedMilestones),
-      acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes), lastLocation: validLocation ? {
+      acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes),
+      sideResearchProgress: globalThis.AcademicTowerEr04A?.progressMap?.(raw.sideResearchProgress) || {}, lastLocation: validLocation ? {
         view: location.view, ...(location.view !== 'world' ? { nodeId: location.nodeId,
           beat: Number.isInteger(location.beat) && location.beat >= 0 ? location.beat : 0 } : {})
       } : null };
@@ -151,10 +152,33 @@
         viaIds, routeChoices: strings(legacy?.state?.routeChoices).filter(id => ['west', 'east'].includes(id))
       };
     }
-    const persist = () => { try { storage.setItem(KEY, JSON.stringify(progress)); } catch { onError(); } };
+    const persist = () => { try { storage.setItem(KEY, JSON.stringify(progress)); return true; } catch { onError(); return false; } };
     persist();
     return Object.freeze({
       get: () => copy(progress),
+      checkpointSide(stageId, snapshot) {
+        const er=globalThis.AcademicTowerEr04A;
+        if (!er || stageId!==er.STAGE_ID || !er.validState(snapshot) ||
+            progress.completedStages.includes(stageId)) return false;
+        const previous=copy(progress);
+        progress.sideResearchProgress[stageId]=copy(snapshot);
+        if (!persist()) {progress=previous;return false;}
+        return true;
+      },
+      completeSide(stageId, snapshot, nextInquiryId) {
+        const er=globalThis.AcademicTowerEr04A;
+        if (!er || stageId!==er.STAGE_ID || !er.isSolved(snapshot) ||
+            !['inquiry-records','inquiry-outlet'].includes(nextInquiryId) ||
+            !getNode('stage:'+stageId)) return false;
+        if (progress.completedStages.includes(stageId)) return true;
+        const previous=copy(progress);
+        progress.sideResearchProgress[stageId]=copy(snapshot);
+        progress.completedStages=strings([...progress.completedStages,stageId]);
+        progress.acknowledgedNodes=strings([...progress.acknowledgedNodes,'stage:'+stageId]);
+        progress.stageOutcomes[stageId]={nextInquiryId};
+        if (!persist()) {progress=previous;return false;}
+        return true;
+      },
       complete(node, mode = 'first-play', outcome = null, milestone = null) {
         if (mode !== 'first-play' || !getNode(nodeId(node))) return;
         const field = node.type === 'story' ? 'seenStories' : 'completedStages';
