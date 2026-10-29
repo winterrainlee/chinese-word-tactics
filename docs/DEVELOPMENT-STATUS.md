@@ -207,7 +207,8 @@ v1.0 마감까지 `main 반영 → GitHub Pages 배포 → iPhone 실기기 확�
 
 - 신규 `chapter2-rain-opening`/`chapter2-rain-passed`: 1장 방 결말 뒤 처음 방을 나가는 시점의 네 장면 큰비 도입. 1장 진행·C08 자유 의뢰·04A의 동일한 비 사건은 유지한다.
 - 구현·검사 경로: `src/chapter2-rain-content.js`, `src/chapter2-rain-runtime.js`, `tests/chapter2-rain.test.cjs`, `tests/smoke_chapter2_rain.py`.
-- **상태: 새 코드 제출 · CI/Pages 결과 및 iPhone Safari 검수 전**. 큰비 이후 세 지역 풍경·회의소 첫 회의는 별도 구현 대상이다.
+- **도입 본편 G5:** `2c8de4c`의 CI [40838444090](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/40838444090)에서 전체 검사와 Pages 배포 성공. iPhone Safari G6는 별도 사용자 검수 대기. 큰비 이후 세 지역 풍경·회의소 첫 회의는 별도 구현 대상이다.
+- **2026-10-29 여정 추가:** 2장 표지와 첫 이야기 타임라인을 1장 종료 이후 공개하고, 정상 완료는 다시 보기·기존 04A/자유 의뢰 저장은 `이미 지나간 비 · 돌아보기`로 안내한다. 저장 값은 소급 작성하지 않으며, 일반 Continue가 최초 도입을 방보다 먼저 재생하지 않도록 한다. 추가 검사 및 새 Pages 배포 결과는 별도 확인한다.
 
 ## 1.0 필수
 
