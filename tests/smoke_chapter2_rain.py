@@ -30,8 +30,8 @@ seed = {
 
 def open_page(browser, state):
     context = browser.new_context(viewport={'width':375,'height':812}, is_mobile=True, has_touch=True)
-    context.add_init_script("localStorage.setItem('%s',JSON.stringify(%s));" %
-                            (KEY, json.dumps(state, ensure_ascii=False)))
+    context.add_init_script("if (!localStorage.getItem('%s')) localStorage.setItem('%s',JSON.stringify(%s));" %
+                            (KEY, KEY, json.dumps(state, ensure_ascii=False)))
     page = context.new_page()
     page.set_default_timeout(7000)
     errors = []
@@ -55,7 +55,7 @@ try:
         page.locator('#storyNext').click()
         page.locator('#storyNext').click()
         assert page.evaluate('GameFlow.progress().lastLocation.beat') == 2
-        assert page.evaluate('"chapter2-rain-passed" in GameFlow.progress().completedMilestones') is False
+        assert page.evaluate('GameFlow.progress().completedMilestones.includes("chapter2-rain-passed")') is False
         page.reload()
         page.wait_for_function('!!window.GameFlow && !!window.Chapter2Rain')
         page.evaluate('GameFlow.resume()')
