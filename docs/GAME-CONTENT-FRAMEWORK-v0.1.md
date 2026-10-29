@@ -1,7 +1,7 @@
 # 게임 전체 구조와 콘텐츠 설계 기준 v0.1
 
 작성일: 2026-10-04 (Asia/Taipei)
-갱신: 2026-10-27 — 03B는 인라인 드롭다운(v5)까지 구현·Pages 배포하고 **사용자 검수 완료로 G6 마감**. 아래 10월 25일 구체화 기록은 과거 기준이며 [03B 상세 구현](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md)·[개발 상황판](DEVELOPMENT-STATUS.md)을 우선한다. 04A는 미구현이며 다음 G2 설계 우선
+갱신: 2026-10-29 — 1장 직후 큰비·학술탑/회의소/길목의 공통 영향과 세 갈래 첫 풍경 반영. 03B는 2026-10-27 G6 완료; 04A는 2026-10-29 G0~G5 구현·배포, G6 실기기 검수 별도.
 상태: 현재 목적·구조를 정리한 상위 기준 / 향후 확장과 2장 사건은 별도 제안
 구현 확인 기준: `c44873d`의 코드와 지역별 구현 기록
 
@@ -121,7 +121,11 @@ F1~F8은 ‘숲과 처음 친해지는 묶음’으로 보존한다. 후속 묶�
 
 2026-10-25에는 본선의 조건·전제·양보·범위·앞말 받기 확장과 공통 글자 곁가지의 계보를 정리했다. **현재 구체화 우선 목표는 03B 然 재방문과 而 04A다.** 03B는 수업의 仍然에서 출발해 仍然·突然·當然·固然·不盡然 다섯 표현을 물길마을의 향토사 연구에 쓰는 테마로 정했다. 04A는 이전 승인 수로 이야기를 보존하되 소재·단계를 다시 검토할 수 있다. 둘 다 상세 이야기·기믹 또는 런타임이 미완성이다. 본선 확장과 是·於는 후속 후보로, 此·以는 관찰 후보로 보존한다. 실제 계보와 표현별 역할은 [곁가지 연구 로드맵](ACADEMIC-TOWER-SIDE-RESEARCH-ROADMAP-v0.1.md), 03B의 연구 목표는 [별도 목표 문서](ACADEMIC-TOWER-RAN-REVISIT-03B-v0.1.md)에서 관리한다. 이 우선순위로 기존 완료를 바꾸거나 03B→04A 잠금을 추가하지 않는다.
 
-## 8. 2장 — 기존 방향과 미확정 제안
+## 8. 2장 — 확정된 큰비 사건과 미확정 세부 제안
+
+**2026-10-29 승인:** 1장 세 구역과 여관 방 결말 이후, 소년이 자기 방에 머문 직후 이례적인 큰비가 한 차례 내린다. 비가 그친 뒤 **길목→끝마을 / 장터→회의소 / 장인골→학술탑**에 같은 사건의 다른 영향이 나타나고 세 갈래를 자유롭게 다시 방문한다. **북쪽 숲은 필수 연결에서 제외**한다. 회의소의 첫 회의는 길 보수·수로 점검·안전 대비를 둘러싼 서로 다른 우선순위로 시작한다. 자세한 첫 풍경과 저장·진입 경계는 [큰비 도입 설계](CHAPTER2-RAIN-OPENING-DESIGN-v0.1.md)를 따른다. 1장의 기존 완료 및 자유 의뢰는 보존하며, 신규 큰비 도입 런타임/회의소·길목 후속 플레이는 아직 미구현이다.
+
+이 아래는 **그 밖의 2026-10-04 당시 검토안**이다.
 
 기존 [2장 초안](TIER2-CONCEPT-DRAFT-v0.1.md)의 ‘익숙한 내용어를 재사용하며 복잡한 말을 앞에서부터 이해하고 갱신한다’는 방향을 보존한다. 다만 학술탑을 2장 한정 필수 지역으로, 북쪽 숲을 필수 예습 과정으로 취급하지 않는다.
 
@@ -146,7 +150,7 @@ F1~F8은 ‘숲과 처음 친해지는 묶음’으로 보존한다. 후속 묶�
 | 방·여관 | [여관 설계](INN-HUB-DESIGN-v0.2.md) | `src/world-inn-runtime.js`, `src/inn-keepsakes-runtime.js`, [게시판](QUEST-BOARD-DESIGN-v0.2.md) |
 | 북쪽 숲 | [상설 역할·첫 묶음](NORTH-FOREST-QUEST-EXPANSION-v0.1.md), [이야기](NORTH-FOREST-STORY-v0.1.md) | [F2~F8 사양](NORTH-FOREST-STAGES-F2-F8-SPEC-v0.1.md) |
 | 학술탑 | [후보·선수 관계](ACADEMIC-TOWER-CANDIDATE-CURRICULUM-v0.1.md), [첫 방문 이야기](ACADEMIC-TOWER-OPENING-STORY-v0.1.md) | [첫 연구 묶음](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md), [구현 기록·최신 상태](ACADEMIC-TOWER-SLICE-A-IMPLEMENTATION-v0.1.md) |
-| 후속 본편 | [2장 초안](TIER2-CONCEPT-DRAFT-v0.1.md), [끝마을 컨셉](END-VILLAGE-CONCEPT-STORY-v0.1.md) | 회의소·끝마을의 플레이 상세 사양과 구현은 아직 없다. |
+| 후속 본편 | [2장 초안](TIER2-CONCEPT-DRAFT-v0.1.md), [큰비 도입·세 갈래 첫 풍경](CHAPTER2-RAIN-OPENING-DESIGN-v0.1.md), [끝마을 컨셉](END-VILLAGE-CONCEPT-STORY-v0.1.md) | 회의소·끝마을의 플레이 상세 사양과 구현은 아직 없다. |
 | 기록·공통 UX | [단어장](WORD-BOOK-DESIGN-v0.1.md), [단어장 시각 설계](WORD-BOOK-VISUAL-REDESIGN-v0.2.md) | [디자인 원칙](DESIGN-PRINCIPLES-v0.2.md), [개발 표준](REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md) |
 
 ## 10. 갱신 규칙
