@@ -1609,6 +1609,10 @@
     else if (!isValidState(config, state.academicTower)) state.academicTower = createState(config);
     if (!config.tasks && config.kind === 'replacement-link') state.academicTower = upgradeReplacementState(config, state.academicTower);
     const workbench = state.academicTower;
+    if (config.kind==='er-fieldwork')
+      globalThis.LexiconRuntime?.visitStage?.(stage.id,{
+        words:globalThis.AcademicTowerEr04A.revealedWords(workbench),render:false
+      });
     if ((config.villageResearch || config.kind==='er-fieldwork') && workbench.phase === 'scene') {
       showVillageScene(config,workbench);
       return;
