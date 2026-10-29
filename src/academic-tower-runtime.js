@@ -713,6 +713,13 @@
     const next = baseInitialState(stage);
     const config = configFor(stage);
     if (config) next.academicTower = createState(config);
+    if (config?.kind === 'er-fieldwork' && stageSession?.mode !== 'replay') {
+      const progress=globalThis.GameFlow?.progress?.();
+      const saved=progress?.sideResearchProgress?.[stage.id];
+      if (globalThis.AcademicTowerEr04A.validState(saved)) next.academicTower=copy(saved);
+      else next.academicTower.introVariantId =
+        progress?.completedStages?.includes('academic-tower-turn-03b-ran-village') ? 'familiar' : 'ordinary';
+    }
     return next;
   };
 
@@ -1492,8 +1499,14 @@
     save();
     const solved = isSolved(config, state.academicTower);
     if (config.kind === 'er-fieldwork' && stageSession.mode !== 'replay') {
-      if (solved) window.GameFlow?.completeEr04A?.(state.academicTower);
-      else window.GameFlow?.checkpointEr04A?.(state.academicTower);
+      const persisted=solved ? window.GameFlow?.completeEr04A?.(state.academicTower)
+        : window.GameFlow?.checkpointEr04A?.(state.academicTower);
+      if (solved && persisted === false) {
+        state=history.pop() || state;
+        save();render();
+        setStatus('완료 기록을 저장하지 못했어. 다시 확인하면 저장을 재시도할 수 있어.','bad');
+        return;
+      }
     }
     render();
     if (isMvp(stage)) {
