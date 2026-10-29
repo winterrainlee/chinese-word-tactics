@@ -97,7 +97,6 @@
   function normalizeState(value) {
     if (!validState(value)) return createState();
     const saved=clone(value);
-    const fresh=createState();
     saved.t1ObservedIds ||= [];
     saved.t1Focus ??= null;
     saved.t1CurrentRecorded ??= false;
@@ -164,7 +163,8 @@
         // A current-level observation is true and belongs to today's record.
         if (action.value==='a-current-level') {
           next.t1CurrentRecorded=true; next.selected=null;
-          next.lastCheck={correct:true,feedbackKo:'지금 수위도 관찰했어. 오늘의 수위에 따로 적어 두었어.'};
+          // Correct observation, but do not show a green task-complete stamp.
+          next.lastCheck=null;
         } else {
           next.selected='a-grass-high'; next.lastCheck=null;
         }
@@ -253,7 +253,7 @@
   const waterDiagram = (found) => '<div class="academicErWaterDiagram' + (found?' found':'') +
     '" role="img" aria-label="' + (found
       ? '공방 수로 왼쪽 돌벽에 작은 네모난 틈이 드러났어. 실제 방향은 잎의 움직임을 관찰해야 해.'
-      : '위에서 아래로 흐르는 공방 수로. 왼쪽에 수풀과 낮은 둑, 오른쪽에 안전한 점검길이 있어.') +
+      : '위에서 아래로 흐르는 공방 수로. 왼쪽 수풀 가까운 낮은 둑에 다른 물소리와 젖은 돌 흔적이 있고, 오른쪽에는 안전한 점검길이 있어.') +
     '"><span class="academicErMapCaption">B 상류 ↓ C 하류</span>' +
     '<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
     '<rect x="92" y="0" width="134" height="160" fill="#abcbd8" opacity=".43"/>' +
@@ -265,6 +265,8 @@
     '<path d="M124 24Q139 30 157 25 M158 123Q180 127 200 122" stroke="#64a4ba" stroke-width="2" fill="none"/>' +
     '<g fill="#77987c"><ellipse cx="51" cy="36" rx="29" ry="14"/><ellipse cx="44" cy="70" rx="31" ry="14"/>' +
     '<ellipse cx="53" cy="106" rx="30" ry="14"/><ellipse cx="43" cy="140" rx="26" ry="13"/></g>' +
+    (found ? '' : '<path d="M76 84q-11 9 0 18 M83 87q-7 6 0 13" fill="none" stroke="#4a7785" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 3"/>' +
+      '<path d="M83 118q6-4 9-2v10q-9-3-13 0" fill="#879d9e" opacity=".7"/>') +
     '<g fill="#475a53" font-size="12" text-anchor="middle"><text x="43" y="153">수풀</text>' +
     '<text x="161" y="150">수로</text><text x="277" y="90">점검길</text></g></svg></div>';
 
