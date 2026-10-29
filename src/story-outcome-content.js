@@ -57,16 +57,53 @@
       }
     }
   };
+  // 04A: the earlier 03B visit changes one greeting, while the first
+  // fieldwork inquiry changes what the pair actually plans to do next.
+  // These are replacements of one beat, never new Journey nodes.
+  const erVariants = Object.freeze({
+    intro: Object.freeze({
+      familiar: Object.freeze({ index:1, beat:Object.freeze({
+        speaker:'boy', zh:'哎，又在這裡遇到你了！你要去哪裡？',
+        ko:'어, 여기서 또 만나네요! 어디 가세요?'
+      }) })
+    }),
+    result: Object.freeze({
+      'inquiry-records': Object.freeze({ index:3, beat:Object.freeze({
+        speaker:'towerResearcher',
+        zh:'我們先查查後來有沒有修繕紀錄。今天的觀察也會告訴管理人員。',
+        ko:'나중에 보수 기록이 남았는지 먼저 찾아보자. 오늘 관찰도 관리자에게 알리고.'
+      }) }),
+      'inquiry-outlet': Object.freeze({ index:3, beat:Object.freeze({
+        speaker:'towerResearcher',
+        zh:'等管理人員確認安全後，我們再去查看下游出口。今天的觀察也會先告訴他們。',
+        ko:'관리자가 안전을 확인한 뒤에 하류 출구를 살펴보자. 오늘 관찰은 먼저 전달하고.'
+      }) })
+    })
+  });
+  const ER_STAGE = 'academic-tower-turn-04a-er-family';
+  const replaceBeat = (story, replacement) => replacement && story?.beats?.[replacement.index]
+    ? { ...story, beats:story.beats.map((beat,index) => index===replacement.index ? replacement.beat : beat) }
+    : story;
   const strings = value => Array.isArray(value) ? [...new Set(value.filter(item => typeof item === 'string'))] : [];
   const outcomeKey = outcome => strings(outcome?.viaIds).sort().join('+');
   function resolve(story, progress) {
     if (story?.lateIntroMilestone && progress?.completedMilestones?.includes(story.lateIntroMilestone)) {
       story={...story,beats:story.beats.map((beat,index)=>index===0 ? {...beat,ko:story.lateIntroKo} : beat)};
     }
+    if (story?.id === 'academic-tower-er-intro') {
+      const saved = progress?.sideResearchProgress?.[ER_STAGE]?.introVariantId;
+      const familiar = saved === 'familiar' || (saved == null &&
+        progress?.completedStages?.includes('academic-tower-turn-03b-ran-village'));
+      return familiar ? replaceBeat(story,erVariants.intro.familiar) : story;
+    }
+    if (story?.id === 'academic-tower-er-result') {
+      const selected = progress?.stageOutcomes?.[ER_STAGE]?.nextInquiryId;
+      return replaceBeat(story,erVariants.result[selected]);
+    }
     const cfg = VARIANTS[story?.id];
     if (!cfg) return story;
     const beats = cfg.variants[outcomeKey(progress?.stageOutcomes?.[cfg.stageId])];
     return beats ? { ...story, beats } : story;
   }
-  globalThis.StoryOutcomeContent = Object.freeze({ VARIANTS, outcomeKey, resolve });
+  globalThis.StoryOutcomeContent = Object.freeze({ VARIANTS, erVariants, outcomeKey, resolve });
 })();
