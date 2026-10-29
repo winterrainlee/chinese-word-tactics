@@ -92,6 +92,27 @@ try:
             assert page.evaluate("GameFlow.enterRegion('academic-tower')")
             room = page.locator(f'[data-room-id="{ER}"]')
             assert room.get_attribute("data-state") == "available"
+            synthesis = page.locator('.academicHubGroup[data-group="synthesis"]')
+            # A side room belonging to floor 04 must be between 04 and 05,
+            # not trailing at the end of the whole synthesis section.
+            assert synthesis.locator('[data-room-id]').evaluate_all(
+                "nodes => nodes.map(n => n.dataset.roomId)") == [
+                "academic-tower-turn-04-faner",
+                ER,
+                "academic-tower-turn-05-synthesis"
+            ]
+            assert synthesis.locator(".academicHubSideRoom").count() == 1
+            assert synthesis.locator(".academicHubSideRoom").evaluate("""side => (
+                side.previousElementSibling?.dataset.roomId ===
+                    'academic-tower-turn-04-faner' &&
+                side.nextElementSibling?.dataset.roomId ===
+                    'academic-tower-turn-05-synthesis' &&
+                side.querySelector('.academicTowerSideRoomTitle')?.textContent ===
+                    '비가 그친 물길'
+            )""")
+            assert room.locator('.academicTowerRoomNumber').count() == 0
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-below-floor-04-375x640.png"))
             room.click()
             assert page.locator("#storyView").is_visible()
             assert "雨" in page.locator("#storyZh").inner_text()

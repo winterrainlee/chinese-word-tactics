@@ -184,11 +184,22 @@
     const placedOptionalIds = new Set();
     for (const config of groups) {
       const group = makeGroup(config.title, config.key, config.note || '');
-      config.rooms.forEach(room => group.append(makeRoomButton(room, progress)));
       const sideRooms = sideRoomsFor(config.key, optionalRooms)
         .filter(room => !placedOptionalIds.has(room.id));
-      sideRooms.forEach(room => placedOptionalIds.add(room.id));
-      appendSideRoom(group, sideRooms, progress);
+      for (const room of config.rooms) {
+        group.append(makeRoomButton(room, progress));
+        // A side study may branch from a specific floor. Place it directly
+        // beneath its parent, rather than after every floor in the section.
+        const attached = sideRooms.filter(side => side.sideParentId === room.id);
+        if (attached.length) {
+          attached.forEach(side => placedOptionalIds.add(side.id));
+          appendSideRoom(group, attached, progress);
+        }
+      }
+      // Existing 03A/03B remain a single side-room group under 02/03.
+      const remaining = sideRooms.filter(room => !placedOptionalIds.has(room.id));
+      remaining.forEach(room => placedOptionalIds.add(room.id));
+      appendSideRoom(group, remaining, progress);
       list.append(group);
     }
 

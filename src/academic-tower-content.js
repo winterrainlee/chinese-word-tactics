@@ -915,6 +915,7 @@
     id:'academic-tower-turn-04a-er-family', number:'04A',
     titleKo:'비가 그친 물길', titleZh:'雨後的水道',
     expressions:[], implemented:true, optional:true, sideGroup:'synthesis',
+    sideParentId:'academic-tower-turn-04-faner',
     introStoryId:'academic-tower-er-intro',
     requires:['academic-tower-turn-04-faner']
   });

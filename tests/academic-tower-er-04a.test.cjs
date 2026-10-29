@@ -52,6 +52,7 @@ test('04A remains one optional study and does not require 03A/03B/05',()=>{
   const id=er.STAGE_ID,room=c.AcademicTowerContent.bundle.rooms.find(r=>r.id===id);
   assert.deepEqual(plain(room.requires),['academic-tower-turn-04-faner']);
   assert.equal(room.sideGroup,'synthesis');
+  assert.equal(room.sideParentId,'academic-tower-turn-04-faner');
   const stages=vm.runInContext('STAGES.map(s=>s.id)',c);
   assert.equal(stages.filter(s=>s===id).length,1);
   const story=c.JourneyProgress.getNode('story:academic-tower-er-intro');
