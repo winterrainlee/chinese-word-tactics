@@ -1601,6 +1601,8 @@
     view?.classList.toggle('academicTowerMvp', !!config && isMvp(stage));
     const priorFocus = document.activeElement;
     document.getElementById('academicMvpConfirm')?.remove();
+    // 04A T3 has a read-only footer prompt in place of a disabled button.
+    document.querySelector('#tutorialView .controls .academicErFooterPrompt')?.remove();
     if (!config) {
       gridEl.classList.remove('academicTowerWorkbench');
       return baseRender();
