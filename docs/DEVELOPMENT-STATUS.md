@@ -1,5 +1,17 @@
 # 개발 상황판
 
+
+## 2026-10-29 학술탑 04A 현장 관찰형 개편 v5 배포·검증 (사용자 Safari 재검수 대기)
+
+사용자가 iPhone Safari에서 발견한 T1 문제(보지 않은 풀잎이 정답 선택지에 갑자기 등장하고, 참인 현재 수위가 오답처럼 취급되는 현상)를 해결하기 위해 [현장 관찰 UX 보강안](ACADEMIC-TOWER-ER-04A-FIELD-OBSERVATION-UX-REVIEW-v0.1.md)을 구현했다. T1에서 물 자국·높은 석틈·현재 수면을 그림으로 관찰하며, 현재 수위는 ‘오늘의 관측’으로 따로 보존한다. T2에 B~C 도식과 원인 미확정 판단, T3에 물소리·젖은 돌 탐색 단서와 발견 후 새 관측에 맞춘 스크롤, T4에 동일 입구의 근접·도구 흔적 조사와 원래 도면 비교, T5에 확인 결과·관리자 통보·후속 계획의 세 문장 보고서를 추가했다.
+
+- 빌드: 2026-10-29-tower-04a-observation-v5, 검증 코드 SHA: 467e337db81d69d6f09c9c6a8923514e1801e5a7.
+- G4: GitHub Actions [40814977857](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/40814977857)에서 단위검사 348/348 통과, 4개 모바일 뷰포트(360×640 / 375×640 / 375×667 / 375×812) 브라우저 테스트 및 기존 학술탑·여정 회귀검사 통과. 원본/작업 영역, 터치 버튼, 옛 04A 저장·첫 inquiry 보존도 검사했다.
+- G5: GitHub Pages Deploy 성공 및 https://winterrainlee.github.io/chinese-word-tactics/ URL 확인. 직전의 Pages 502 실패가 남긴 잠금은 해당 실패 SHA에 한정한 공식 취소로 복구했다. **일회성 복구 코드는 이후 workflow에서 제거**했다.
+- G6: 개선된 v5를 사용자 iPhone Safari에서 다시 플레이해 체감과 언어를 확인하기 전에는 실기기 검수 완료로 표시하지 않는다.
+- 구현 근거: [04A 관찰형 구현·검증 기록](ACADEMIC-TOWER-ER-04A-OBSERVATION-IMPLEMENTATION-2026-10-29.md).
+
+
 ## 2026-10-29 04A 실제 iPhone 피드백 — 현장 관찰형 개선 설계 검토 중 (코드 미변경)
 
 사용자가 04A T1 실제 Safari 화면에서 **원본에는 높은 물 자국만 나오고 추가 풀잎은 선택지에서 처음 등장**하며, 현재의 낮은 수위를 선택해도 정당한 관찰로 다뤄지지 않는다고 지적했다. [현장 관찰 UX 보강 v0.1](ACADEMIC-TOWER-ER-04A-FIELD-OBSERVATION-UX-REVIEW-v0.1.md)에 **T1 상류 현장 그림·높은 석틈/현재 수면의 조사 행동, 증거 추가 而且, 그리고 T2~T4 동일 수계 관찰 자료의 전달 및 T5 보고서 연결**을 상세 설계했다.

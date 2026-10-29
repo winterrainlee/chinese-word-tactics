@@ -1,5 +1,7 @@
 # 학술탑 04A 《비가 그친 물길》 — 현장 관찰형 T1~T5 UX 보강안 v0.1
 
+> **후속 실행 상태:** [v5 구현·검증 기록](ACADEMIC-TOWER-ER-04A-OBSERVATION-IMPLEMENTATION-2026-10-29.md)에서 이 설계의 구현·자동검사·배포 성공을 확인할 수 있어. 아래 미구현 상태는 **당시 초안의 상태**이며 현재 코드에 대한 설명이 아니야. 실제 iPhone Safari 재검수는 남아 있어.
+
 > 2026-10-29 · 사용자 iPhone Safari의 T1 피드백을 반영한 **설계 검토 초안**. 구현 코드·CSS·저장 데이터·게임 배포 변경 없음. 사용자 승인 전.
 > 현재 구현: [04A 구현 기록](ACADEMIC-TOWER-ER-04A-IMPLEMENTATION-2026-10-29.md), src/academic-tower-er-04a-runtime.js.
 > 기획 기준: [G2 통합 검토안 v0.2](ACADEMIC-TOWER-ER-04A-G2-INTEGRATED-REVIEW-v0.2.md)와 [학술탑 UI 기준](ACADEMIC-TOWER-UI-GUIDE-v0.1.md).
