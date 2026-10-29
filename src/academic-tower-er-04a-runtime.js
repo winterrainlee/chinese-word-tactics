@@ -61,7 +61,7 @@
     if (value.phase !== 'scene' && (value.sceneId !== null || value.sceneIndex !== 0)) return false;
     if (value.phase !== 'complete' && value.phase !== 'scene' &&
         value.step !== (value.taskIndex===2 ? (value.openingFound ? 'direction' : 'search') :
-        value.taskIndex===3 ? (value.drafts.t4a ? 'scope' : 'correct') : taskStep(value.taskIndex))) return false;
+        value.taskIndex===3 ? (value.drafts.t4a==='artificial-passage' ? 'scope' : 'correct') : taskStep(value.taskIndex))) return false;
     if (value.taskIndex < 2 && value.openingFound) return false;
     if (value.openingFound && !value.inspectedZoneIds.includes('low-bank')) return false;
     const selected = value.selected;
@@ -307,17 +307,17 @@
         '<div class="academicErRecordRow"><small>從而 · 조사로 확인한 결과</small>' +
         controls([['method-compare','현장과 도면을 대조해 새로운 통로를 확인했어.'],
           ['method-guess','구멍을 만든 사람이 누구인지 알아냈어.']],
-          'er-note',d.method ? 'method:'+d.method : '') .replaceAll('data-value="method-compare"','data-value="method:method-compare"')
+          'er-note',d.method || '') .replaceAll('data-value="method-compare"','data-value="method:method-compare"')
           .replaceAll('data-value="method-guess"','data-value="method:method-guess"') +
         '</div><div class="academicErRecordRow"><small>因而 · 필요한 조치</small>' +
         controls([['notify-manager','관리자에게 발견 사실을 알리고 기록 확인을 요청해.'],
           ['close-opening','소년이 직접 구멍을 막고 조사를 마치자.']],
-          'er-note',d.action ? 'action:'+d.action : '').replaceAll('data-value="notify-manager"','data-value="action:notify-manager"')
+          'er-note',d.action || '').replaceAll('data-value="notify-manager"','data-value="action:notify-manager"')
           .replaceAll('data-value="close-opening"','data-value="action:close-opening"') +
         '</div><div class="academicErRecordRow"><small>進而 · 다음 조사 질문</small>' +
         controls([['inquiry-records','나중의 변경·보수 기록을 찾아볼 계획'],
           ['inquiry-outlet','안전을 확인한 뒤 하류 출구를 살펴볼 계획']],
-          'er-note',d.inquiry ? 'inquiry:'+d.inquiry : '').replaceAll('data-value="inquiry-records"','data-value="inquiry:inquiry-records"')
+          'er-note',d.inquiry || '').replaceAll('data-value="inquiry-records"','data-value="inquiry:inquiry-records"')
           .replaceAll('data-value="inquiry-outlet"','data-value="inquiry:inquiry-outlet"') +
         '<p class="academicErHint">둘 다 가능한 다음 질문이야. 오늘 이미 알아낸 결과는 아니지.</p></div>' +
         '<div class="academicErWordHelp">' + wordBtn('從而') + wordBtn('因而') + wordBtn('進而') + '</div>' + verdict(s);
@@ -334,7 +334,7 @@
     if(s.phase==='review')return '<button id="academicMvpConfirm" type="button" class="control academicConfirm" data-academic-action="er-next">다음 기록</button>';
     const label = s.taskIndex===0?'관찰 메모 남기기':s.taskIndex===1?'점검 메모 남기기':
       s.taskIndex===2?(s.step==='search'?'구간을 살펴보자':'물의 방향 기록'):
-      s.taskIndex===3?'판단의 범위 기록':'현장 기록 마무리';
+      s.taskIndex===3?(s.step==='correct'?'형태 판단 확인':'판단의 범위 기록'):'현장 기록 마무리';
     const ready=s.taskIndex===2 ? s.step==='direction' && !!s.selected :
       s.taskIndex===4 ? !!s.drafts.method && !!s.drafts.action && !!s.drafts.inquiry :
       !!s.selected;
