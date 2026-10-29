@@ -604,6 +604,7 @@
   }
 
   function createState(config, rng) {
+    if (config?.kind === 'er-fieldwork') return globalThis.AcademicTowerEr04A.createState();
     if (config?.tasks) return createMeaningState(config, rng);
     if (config?.kind === 'ran-observation') return createRanState(config, rng);
     if (config?.kind === 'claim-revision') return createClaimRevisionState(config, rng);
@@ -614,6 +615,7 @@
   }
 
   function isValidState(config, workbench) {
+    if (config?.kind === 'er-fieldwork') return globalThis.AcademicTowerEr04A.validState(workbench);
     if (config?.tasks) return validMeaningState(config, workbench);
     if (config?.kind === 'ran-observation') return !!workbench && workbench.kind === config.kind && workbench.schemaVersion === 1 && Number.isInteger(workbench.caseIndex) && Array.isArray(workbench.relationPlacements) && workbench.optionOrders && ['notice', 'discovery', 'compare', 'compare-review', 'apply-premise', 'apply-alternative', 'complete'].includes(workbench.phase);
     if (config?.kind === 'claim-revision') return isValidClaimRevisionState(config, workbench);
@@ -624,6 +626,7 @@
   }
 
   function applyAction(config, currentState, action) {
+    if (config?.kind === 'er-fieldwork') return globalThis.AcademicTowerEr04A.applyAction(config,currentState,action);
     if (config?.tasks) return applyMeaningAction(config, currentState, action);
     if (config?.kind === 'ran-observation') return applyRanAction(config, currentState, action);
     if (config?.kind === 'claim-revision') return applyClaimRevisionAction(config, currentState, action);
@@ -634,6 +637,7 @@
   }
 
   function isSolved(config, workbench) {
+    if (config?.kind === 'er-fieldwork') return globalThis.AcademicTowerEr04A.isSolved(workbench);
     if (config?.tasks) return meaningSolved(config, workbench);
     if (config?.kind === 'ran-observation') return isValidState(config, workbench) && workbench.phase === 'complete' && workbench.relationPlacements.length === config.cards.length && workbench.applicationsCompleted === 2 && config.noticeWords.every(word => workbench.selectedCharacter[word] === '然');
     if (config?.kind === 'claim-revision') return isClaimRevisionSolved(config, workbench);
@@ -1087,6 +1091,7 @@
   }
 
   function renderMvp(config, workbench) {
+    if (config.kind === 'er-fieldwork') return globalThis.AcademicTowerEr04A.renderWorkbench(config,workbench);
     if (config.tasks) return renderMeaning(config,workbench);
     if (config.kind === 'ran-observation') return renderRanWorkbench(config, workbench);
     if (config.kind === 'expectation-sort') return renderExpectationMvp(config, workbench);
@@ -1169,6 +1174,7 @@
   // Region labels describe ownership; the persistent title describes the task.
   // Arrange the existing controls without duplicating source sentences or listeners.
   function renderWorkbenchHierarchy(config, workbench) {
+    if (config.kind === 'er-fieldwork') return; // 04A renders its own original/work zones.
     if (config.tasks && !['notice','discovery'].includes(workbench.phase)) return;
     const label = text => {
       const el = document.createElement('div');
@@ -1361,6 +1367,7 @@
 
   function mvpFooter(workbench) {
     const configNow=current().academicTower;
+    if (configNow.kind === 'er-fieldwork') return globalThis.AcademicTowerEr04A.footer(workbench);
     if (configNow.tasks && !['notice','discovery'].includes(workbench.phase)) {
       const task=configNow.tasks[workbench.taskIndex];
       const action=workbench.phase==='complete' ? 'finish-mvp' : workbench.phase==='review' ? 'meaning-next' : 'meaning-confirm';
@@ -1407,6 +1414,7 @@
   }
 
   function goalHtml(config, workbench) {
+    if (config.kind === 'er-fieldwork') return globalThis.AcademicTowerEr04A.titleFor(workbench.taskIndex);
     if (config.tasks) return config.tasks[workbench.taskIndex].title;
     if (config.kind === 'claim-revision') return claimGoalHtml(workbench);
     if (config.kind === 'expectation-sort') {
@@ -1482,8 +1490,12 @@
     state.academicTower = result.state;
     state.turn += 1;
     save();
-    render();
     const solved = isSolved(config, state.academicTower);
+    if (config.kind === 'er-fieldwork' && stageSession.mode !== 'replay') {
+      if (solved) window.GameFlow?.completeEr04A?.(state.academicTower);
+      else window.GameFlow?.checkpointEr04A?.(state.academicTower);
+    }
+    render();
     if (isMvp(stage)) {
       const feedback = gridEl.querySelector('.academicMvpFeedback');
       if (feedback && result.feedback) {
@@ -1514,7 +1526,7 @@
     } else if (result.feedback) setStatus(result.feedback, result.correct === false ? 'info' : 'good');
     if (!solved) return;
     if (stageSession.mode !== 'replay') completed.add(stage.id);
-    window.GameFlow?.recordStageComplete(stage.id, stageSession);
+    if (config.kind !== 'er-fieldwork') window.GameFlow?.recordStageComplete(stage.id, stageSession);
     save();
     clearTimeout(completionTimer);
     if (isMvp(stage)) return;
@@ -1533,23 +1545,30 @@
     globalThis.StoryRuntime.play(scene,{
       beat:workbench.sceneIndex || 0,
       seen:stageSession.mode==='replay' || (workbench.seenScenes || []).includes(sceneId),
-      endLabel:sceneId==='paper' ? '쪽지 살펴보기' : '마지막 기록 살펴보기',
+      endLabel:config.kind==='er-fieldwork' ? '현장 조사 계속' :
+        sceneId==='paper' ? '쪽지 살펴보기' : '마지막 기록 살펴보기',
       onPosition(index) {
         if (current()?.id !== stageId || state.academicTower?.phase !== 'scene' ||
             state.academicTower.sceneId !== sceneId) return;
         if (state.academicTower.sceneIndex !== index) {
           state.academicTower.sceneIndex=index;
           save();
+          if (config.kind==='er-fieldwork' && stageSession.mode!=='replay')
+            window.GameFlow?.checkpointEr04A?.(state.academicTower);
         }
       },
       onFinish() {
         if (current()?.id !== stageId || state.academicTower?.phase !== 'scene' ||
             state.academicTower.sceneId !== sceneId) return;
-        const transition=applyMeaningAction(config,state.academicTower,{type:'meaning-scene-finish'});
+        const transition=config.kind==='er-fieldwork'
+          ? globalThis.AcademicTowerEr04A.applyAction(config,state.academicTower,{type:'er-scene-finish'})
+          : applyMeaningAction(config,state.academicTower,{type:'meaning-scene-finish'});
         if (!transition.changed) return;
         state.academicTower=transition.state;
         state.turn++;
         save();
+        if (config.kind==='er-fieldwork' && stageSession.mode!=='replay')
+          window.GameFlow?.checkpointEr04A?.(state.academicTower);
         globalThis.TacticalGame.showView('tutorial');
         render();
         gridEl.scrollTop=0;
@@ -1577,7 +1596,7 @@
     else if (!isValidState(config, state.academicTower)) state.academicTower = createState(config);
     if (!config.tasks && config.kind === 'replacement-link') state.academicTower = upgradeReplacementState(config, state.academicTower);
     const workbench = state.academicTower;
-    if (config.villageResearch && workbench.phase === 'scene') {
+    if ((config.villageResearch || config.kind==='er-fieldwork') && workbench.phase === 'scene') {
       showVillageScene(config,workbench);
       return;
     }
@@ -1590,7 +1609,7 @@
       save();
     }
     $('#stageKicker').textContent = stage.kicker;
-    $('#stageTitle').textContent = stage.subtitle;
+    $('#stageTitle').textContent = config.kind==='er-fieldwork' ? globalThis.AcademicTowerEr04A.titleFor(workbench.taskIndex) : stage.subtitle;
     if (config.kind === 'ran-observation' && workbench.phase !== 'notice') $('#stageTitle').textContent = '같은 然';
     $('#goal').innerHTML = goalHtml(config, workbench);
     $('#ruleLine').textContent = stage.rule;
