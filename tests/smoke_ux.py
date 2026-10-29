@@ -254,6 +254,11 @@ try:
                     'academic-tower-turn-result'
                 }
                 assert {story_id for story_id,_,hub in stories if hub} == expected_hub_stories,(region,stories)
+            elif region == 'academic-tower-optional-er-fieldwork':
+                # 04A ends outside the tower after a real field trip;
+                # replay from the journey still returns to its source context.
+                assert len(stories) == 2 and stories[0][1:] == [False, False], (region, stories)
+                assert stories[-1][1:] == [True, False], (region, stories)
             elif region.startswith('academic-tower-optional'):
                 # Each optional study begins with a story and ends back at the research hub.
                 assert len(stories)==2 and all(not world for _,world,_ in stories),(region,stories)
