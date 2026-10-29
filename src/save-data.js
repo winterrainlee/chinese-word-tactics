@@ -20,6 +20,13 @@
     if (!stringArray(value.seenStories) || !stringArray(value.completedStages) ||
       !stringArray(value.completedMilestones) || !stringArray(value.acknowledgedNodes) ||
       !isPlainObject(value.stageOutcomes)) return false;
+    // Validate 04A even when lastLocation is null/world (early-return branches below).
+    if (Object.hasOwn(value,'sideResearchProgress') &&
+        !globalThis.AcademicTowerEr04A?.validProgressMap?.(value.sideResearchProgress)) return false;
+    const erOutcome=value.stageOutcomes['academic-tower-turn-04a-er-family'];
+    if (erOutcome !== undefined &&
+        (!isPlainObject(erOutcome) || Object.keys(erOutcome).length !== 1 ||
+         !['inquiry-records','inquiry-outlet'].includes(erOutcome.nextInquiryId))) return false;
     const location = value.lastLocation;
     if (location === null) return true;
     if (!isPlainObject(location) || !['world', 'story', 'tactical'].includes(location.view)) return false;
