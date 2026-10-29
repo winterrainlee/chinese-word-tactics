@@ -267,6 +267,71 @@
     '<ellipse cx="53" cy="106" rx="30" ry="14"/><ellipse cx="43" cy="140" rx="26" ry="13"/></g>' +
     '<g fill="#475a53" font-size="12" text-anchor="middle"><text x="43" y="153">수풀</text>' +
     '<text x="161" y="150">수로</text><text x="277" y="90">점검길</text></g></svg></div>';
+
+  // Field observations are part of the original/evidence surface, not answers
+  // discovered by reading a multiple-choice button.
+  const upstreamDiagram = state => '<figure class="academicErScene academicErUpstream" role="img" aria-label="' +
+    (state.t1Focus==='a-grass-high'
+      ? '상류 돌벽. 높은 물 자국 근처의 석틈에 풀잎이 걸린 것을 확인했어. 지금 수면은 아래에 있어.'
+      : state.t1Focus==='a-current-level'
+        ? '상류 돌벽. 오늘의 수면이 지난 큰비의 높은 물 자국보다 아래에 있어.'
+        : '상류 돌벽의 높은 물 자국과 아래쪽 현재 수면. 자국 근처 높은 석틈에 작은 녹색 흔적이 보이지만 아직 자세히 살피지 않았어.') +
+    '"><svg viewBox="0 0 340 208" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<defs><linearGradient id="erWall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dcd5c2"/><stop offset="1" stop-color="#bab5a5"/></linearGradient>' +
+    '<linearGradient id="erWater" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#87b3c1"/><stop offset="1" stop-color="#b4d3d5"/></linearGradient></defs>' +
+    '<rect x="2" y="2" width="336" height="204" rx="6" fill="url(#erWall)"/>' +
+    '<g stroke="#a6a18e" fill="none" stroke-width="1.7"><path d="M4 46H336 M4 94H336 M4 143H336"/>' +
+    '<path d="M85 4V46 M182 4V46 M277 4V46 M44 46V94 M151 46V94 M268 46V94 M102 94V143 M205 94V143 M304 94V143 M54 143V202 M175 143V202 M284 143V202"/></g>' +
+    '<path d="M10 82Q52 78 93 82T174 82T258 81T330 81" stroke="#837b68" stroke-width="7" fill="none" opacity=".8"/>' +
+    '<path d="M10 88Q72 84 117 89T231 88T331 87" stroke="#b39a7a" stroke-width="3" fill="none" opacity=".9"/>' +
+    '<path d="M5 158Q57 153 106 159T218 157T335 158V205H5Z" fill="url(#erWater)"/>' +
+    '<g stroke="#dfedf0" fill="none" stroke-width="2"><path d="M15 176Q37 171 62 176T111 176 M136 187Q157 182 180 187T236 187 M252 169Q270 164 286 169T324 169"/></g>' +
+    '<g stroke="#736c59" stroke-width="3" stroke-linecap="round" fill="none"><path d="M198 59L211 51L224 60L245 53L263 62"/></g>' +
+    '<g stroke="#557d61" stroke-width="2.5" stroke-linecap="round" fill="none"><path d="M231 57L223 33 M231 57L241 30 M231 57L254 44"/></g>' +
+    '<g fill="#6d986c"><ellipse cx="223" cy="36" rx="5" ry="10" transform="rotate(-36 223 36)"/><ellipse cx="242" cy="35" rx="5" ry="10" transform="rotate(22 242 35)"/><ellipse cx="251" cy="44" rx="5" ry="9" transform="rotate(63 251 44)"/></g>' +
+    '<g fill="#4e5047" font-size="12" font-family="sans-serif"><text x="14" y="70">지난 큰비의 물 자국</text><text x="14" y="192">지금 수면</text></g>' +
+    (state.t1Focus==='a-grass-high'
+      ? '<circle cx="234" cy="47" r="30" fill="none" stroke="#3d6c50" stroke-width="2.5" stroke-dasharray="5 4"/>'
+      : state.t1Focus==='a-current-level'
+        ? '<path d="M6 158Q82 153 160 158T335 158" fill="none" stroke="#2e6880" stroke-width="3.5"/>' : '') +
+    '</svg></figure>';
+
+  const routeDiagram = () =>
+    '<figure class="academicErRoute" role="img" aria-label="B 수문에서는 현재 물이 유입되고 있고 C 공방 쪽에서는 소년의 예상보다 물살이 약해. B와 C 사이의 상태는 아직 확인하지 않았어.">' +
+    '<div class="academicErRoutePoint"><strong>B · 수문</strong><span>현재 유입 확인</span></div>' +
+    '<div class="academicErRouteGap"><span aria-hidden="true">··· → ···</span><small>아직 확인하지 않은 구간</small></div>' +
+    '<div class="academicErRoutePoint"><strong>C · 공방</strong><span>소년 예상보다 약함</span></div>' +
+    '</figure>';
+
+  const stoneDiagram = inspected => '<figure class="academicErScene academicErStone" role="img" aria-label="' +
+    (inspected
+      ? 'D 통로 가까이 다듬어진 네모난 모서리와 일정하게 반복된 도구 자국이 보여.'
+      : 'T3에서 발견했던 D 통로의 같은 입구. 가까이서 돌벽 표면을 살펴볼 수 있어.') +
+    '"><svg viewBox="0 0 340 166" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<rect width="340" height="166" rx="5" fill="#c8c2b1"/>' +
+    '<path d="M0 48H340 M0 112H340 M85 0V48 M234 0V48 M163 48V112 M73 112V166 M266 112V166" stroke="#a5a090" stroke-width="2" fill="none"/>' +
+    '<path d="M115 48H230V139H115Z" fill="#5c747e" stroke="#747064" stroke-width="8"/>' +
+    '<path d="M122 58H221V131H122Z" fill="#769ba9"/>' +
+    '<path d="M128 76Q159 69 186 78T218 77 M129 111Q165 105 190 113T220 110" fill="none" stroke="#b4d0d5" stroke-width="2"/>' +
+    (inspected
+      ? '<g stroke="#756c5e" stroke-width="3" stroke-linecap="round"><path d="M105 47l8 -9 M105 62l8 -9 M105 78l8 -9 M105 94l8 -9 M230 49l9 -8 M230 65l9 -8 M230 81l9 -8 M230 97l9 -8"/></g>' +
+        '<circle cx="238" cy="54" r="31" fill="none" stroke="#466e56" stroke-width="2.5" stroke-dasharray="5 3"/>' : '') +
+    '</svg></figure>';
+
+  const planComparison = () =>
+    '<div class="academicErPlans" aria-label="같은 위치를 현장과 원래 도면에서 대조">' +
+    '<div class="academicErPlan"><small>현장에서 확인</small><div class="academicErPlanLine marked" aria-hidden="true"><span></span></div><strong>통로가 있어</strong></div>' +
+    '<div class="academicErPlan"><small>원래 설계도</small><div class="academicErPlanLine" aria-hidden="true"></div><strong>표시가 없어</strong></div></div>';
+
+  const finalReport = drafts => {
+    const next = drafts.inquiry==='inquiry-outlet'
+      ? '先記下孔口的位置和水流方向，進而規劃在確認安全後觀察下游出口。'
+      : '先記下孔口的位置和水流方向，進而安排查閱後來的修繕紀錄。';
+    return '<div class="academicErFinalReport" aria-label="소년과 연구원이 완성한 현장 조사 기록">' +
+      '<div><small>확인한 결과 · 從而</small><p lang="zh-Hant">我們對照現場和原圖，從而確認這裡有一條原圖沒有標出的通道。</p></div>' +
+      '<div><small>필요한 조치 · 因而</small><p lang="zh-Hant">現場發現有水從原圖未標出的通道流出，因而需要通知管理人員，請他們核對紀錄。</p></div>' +
+      '<div><small>다음 조사 · 進而</small><p lang="zh-Hant">' + html(next) + '</p></div></div>';
+  };
   const section = (name,body,kind,author='') => '<section class="' + (kind==='original'?'academicOriginal':'academicMvpMemo') +
     ' academicErZone" data-academic-zone="' + kind + '"' +
     (kind==='work' ? ' data-academic-work-kind="' + html(author || 'decision') + '"' : '') +
