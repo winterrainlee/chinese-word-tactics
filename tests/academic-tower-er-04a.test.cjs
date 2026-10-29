@@ -147,7 +147,7 @@ test('T1 accepts both observations without treating current water as a wrong fac
   assert.equal(er.validState(s),true);
   const water=er.renderWorkbench(null,s);
   assert.match(water,/오늘의 관측/);
-  assert.doesNotMatch(water,/그림에서 높은 석틈을 관찰하면 새 흔적을 메모에 더할 수 있어/);
+  assert.match(water,/그림에서 높은 석틈을 관찰하면 새 흔적을 메모에 더할 수 있어/);
   s=action(er,s,'er-observe','a-grass-high');
   const after=er.renderWorkbench(null,s);
   assert.match(after,/높은 틈에 풀잎이 걸려 있어/);
