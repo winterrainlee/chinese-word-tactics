@@ -1,6 +1,7 @@
 """04A: mobile first-play, hidden fieldwork, independent resume and first outcome."""
 import http.server
 import json
+import os
 import threading
 from pathlib import Path
 
@@ -8,6 +9,8 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 ER = "academic-tower-turn-04a-er-family"
+OUT = Path(os.environ.get("TEST_OUTPUT", "/tmp/chinese-word-tactics-04a-observation"))
+OUT.mkdir(parents=True, exist_ok=True)
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -101,6 +104,8 @@ try:
             layout(page, width)
             assert "而且" in page.locator("#grid").inner_text()
             assert page.locator(".academicErUpstream").count() == 1
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-T1-first-observation-375x640.png"))
             assert page.locator('[data-academic-action="er-observe"]').count() == 2
             assert page.locator("#academicMvpConfirm").is_disabled()
             assert "높은 석틈에 풀잎이 걸려 있어" not in page.locator("#grid").inner_text()
@@ -109,6 +114,8 @@ try:
             assert page.evaluate("state.academicTower.phase") == "work"
             assert "오늘의 관측" in page.locator("#grid").inner_text()
             assert page.locator(".academicMvpFeedback").get_attribute("data-verdict") != "incorrect"
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-T1-current-water-valid-375x640.png"))
             if width == 375 and height == 640:
                 page.reload()
                 page.wait_for_function("!!window.GameFlow")
@@ -124,6 +131,8 @@ try:
 
             assert page.evaluate("state.academicTower.taskIndex") == 1
             assert page.locator(".academicErRoute").count() == 1
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-T2-source-route-375x640.png"))
             assert "아직 확인하지 않은 구간" in page.locator("#grid").inner_text()
             click(page, "er-select", "check-between-b-c")
             click(page, "er-confirm")
@@ -136,12 +145,17 @@ try:
             assert page.locator('[data-value="flow-out"]').count() == 0
             assert page.locator('.academicErWaterDiagram.found').count() == 0
             layout(page, width)
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-T3-hidden-bank-375x640.png"))
 
             click(page, "er-search", "top-stone")
             assert page.evaluate("state.academicTower.openingFound") is False
             click(page, "er-search", "low-bank")
             assert page.evaluate("state.academicTower.openingFound") is True
+            assert page.locator("#grid").evaluate("el => el.scrollTop") <= 4
             layout(page, width)
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-T3-opening-discovered-375x640.png"))
 
             # A different stage overwrites the legacy tactical slot, not 04A's
             # per-study checkpoint. Return through the real tower hub.
@@ -175,6 +189,8 @@ try:
             click(page, "er-inspect-d")
             assert page.evaluate("state.academicTower.t4Inspected") is True
             assert "反覆鑿刻的痕跡" in page.locator("#grid").inner_text()
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-T4-toolmarks-inspected-375x640.png"))
             click(page, "er-select", "natural-crack")
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.step") == "correct"
@@ -182,6 +198,7 @@ try:
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.step") == "scope"
             assert page.locator(".academicErPlans").count() == 1
+            assert page.locator("#grid").evaluate("el => el.scrollTop") <= 4
             click(page, "er-select", "scope-original-only")
             click(page, "er-confirm")
             click(page, "er-next")
@@ -194,6 +211,8 @@ try:
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.phase") == "complete"
             assert page.locator(".academicErFinalReport").count() == 1
+            if width == 375 and height == 640:
+                page.screenshot(path=str(OUT / "04a-T5-completed-report-375x640.png"))
             assert "從而確認" in page.locator(".academicErFinalReport").inner_text()
             assert "因而需要" in page.locator(".academicErFinalReport").inner_text()
             assert "進而" in page.locator(".academicErFinalReport").inner_text()
