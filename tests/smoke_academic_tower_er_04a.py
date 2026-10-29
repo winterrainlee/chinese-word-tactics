@@ -75,10 +75,15 @@ try:
                                     is_mobile=True, has_touch=True)
             errors = []
             page.on("pageerror", lambda e: errors.append(str(e)))
+            first_progress = json.loads(json.dumps(seed))
+            # 03B-familiar greeting gets its own first-play variant on the
+            # narrowest viewport. Other viewports exercise the ordinary one.
+            if width == 360:
+                first_progress["completedStages"].append("academic-tower-turn-03b-ran-village")
             page.add_init_script("""
               if (!localStorage.getItem("chinese-word-tactics-journey-v1"))
                 localStorage.setItem("chinese-word-tactics-journey-v1", JSON.stringify(%s));
-            """ % json.dumps(seed, ensure_ascii=False))
+            """ % json.dumps(first_progress, ensure_ascii=False))
             page.goto(f"http://127.0.0.1:{server.server_port}/chinese-word-tactics/")
             page.wait_for_function("!!window.GameFlow && !!window.AcademicTowerEr04A")
             assert page.evaluate("GameFlow.enterRegion('academic-tower')")
@@ -87,6 +92,10 @@ try:
             room.click()
             assert page.locator("#storyView").is_visible()
             assert "雨" in page.locator("#storyZh").inner_text()
+            page.locator("#storyNext").click()
+            assert ("又在這裡遇到" in page.locator("#storyZh").inner_text()) == (width == 360)
+            frozen = page.evaluate("(id)=>GameFlow.progress().sideResearchProgress[id].introVariantId", ER)
+            assert frozen == ("familiar" if width == 360 else "ordinary")
             all_story(page)
             assert page.evaluate("TacticalGame.stageId()") == ER
             layout(page, width)
@@ -157,17 +166,22 @@ try:
             layout(page, width)
             click(page, "er-note", "method:method-compare")
             click(page, "er-note", "action:notify-manager")
-            click(page, "er-note", "inquiry:inquiry-records")
+            inquiry = "inquiry-outlet" if width == 360 else "inquiry-records"
+            click(page, "er-note", "inquiry:" + inquiry)
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.phase") == "complete"
-            assert page.evaluate("(id)=>GameFlow.progress().stageOutcomes[id].nextInquiryId", ER) == "inquiry-records"
+            assert page.evaluate("(id)=>GameFlow.progress().stageOutcomes[id].nextInquiryId", ER) == inquiry
             assert page.evaluate("(id)=>GameFlow.progress().completedStages.filter(x=>x===id).length", ER) == 1
             click(page, "finish-mvp")
             page.locator("#flowNext").click()
             assert page.locator("#storyView").is_visible()
+            for _ in range(3):
+                page.locator("#storyNext").click()
+            expected = "下游出口" if inquiry == "inquiry-outlet" else "修繕紀錄"
+            assert expected in page.locator("#storyZh").inner_text()
             all_story(page)
             assert page.evaluate("GameFlow.progress().seenStories.includes('academic-tower-er-result')")
-            assert page.evaluate("(id)=>GameFlow.progress().stageOutcomes[id].nextInquiryId", ER) == "inquiry-records"
+            assert page.evaluate("(id)=>GameFlow.progress().stageOutcomes[id].nextInquiryId", ER) == inquiry
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
             assert not errors, errors
             page.close()
