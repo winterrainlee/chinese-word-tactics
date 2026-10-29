@@ -104,6 +104,7 @@ try:
             layout(page, width)
             assert "而且" in page.locator("#grid").inner_text()
             assert page.locator(".academicErUpstream").count() == 1
+            assert page.locator('.academicOriginal > .academicRegionLabel').inner_text() == '현장 관찰'
             if width == 375 and height == 640:
                 page.screenshot(path=str(OUT / "04a-T1-first-observation-375x640.png"))
             assert page.locator('[data-academic-action="er-observe"]').count() == 2
@@ -131,6 +132,7 @@ try:
 
             assert page.evaluate("state.academicTower.taskIndex") == 1
             assert page.locator(".academicErRoute").count() == 1
+            assert page.locator('.academicOriginal > .academicRegionLabel').inner_text() == '관측 자료'
             if width == 375 and height == 640:
                 page.screenshot(path=str(OUT / "04a-T2-source-route-375x640.png"))
             assert "아직 확인하지 않은 구간" in page.locator("#grid").inner_text()
@@ -144,13 +146,18 @@ try:
             assert page.evaluate("state.academicTower.openingFound") is False
             assert page.locator('[data-value="flow-out"]').count() == 0
             assert page.locator('.academicErWaterDiagram.found').count() == 0
+            assert page.locator('.academicOriginal > .academicRegionLabel').inner_text() == '현장 관찰'
+            assert page.locator('.controls .academicErFooterPrompt').count() == 1
+            assert page.locator('#academicMvpConfirm').count() == 0
             layout(page, width)
             if width == 375 and height == 640:
                 page.screenshot(path=str(OUT / "04a-T3-hidden-bank-375x640.png"))
 
             click(page, "er-search", "top-stone")
             assert page.evaluate("state.academicTower.openingFound") is False
+            assert page.locator('.controls .academicErFooterPrompt').count() == 1, 'footer prompt must not duplicate'
             click(page, "er-search", "low-bank")
+            assert page.locator('.controls .academicErFooterPrompt').count() == 0
             assert page.evaluate("state.academicTower.openingFound") is True
             assert page.locator("#grid").evaluate("el => el.scrollTop") <= 4
             layout(page, width)
@@ -184,6 +191,7 @@ try:
             all_story(page)
             assert page.evaluate("state.academicTower.taskIndex") == 3
             assert page.locator(".academicErStone").count() == 1
+            assert page.locator('.academicOriginal > .academicRegionLabel').inner_text() == '현장·도면 대조'
             assert page.locator('[data-academic-action="er-inspect-d"]').count() == 1
             assert "反覆鑿刻的痕跡" not in page.locator("#grid").inner_text()
             click(page, "er-inspect-d")
@@ -203,6 +211,7 @@ try:
             click(page, "er-confirm")
             click(page, "er-next")
             assert page.evaluate("state.academicTower.taskIndex") == 4
+            assert page.locator('.academicOriginal > .academicRegionLabel').inner_text() == '관측 기록'
             layout(page, width)
             click(page, "er-note", "method:method-compare")
             click(page, "er-note", "action:notify-manager")
