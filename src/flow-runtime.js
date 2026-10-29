@@ -150,7 +150,19 @@
     return showJourney();
   }
   function playStory(id, options = {}) {
-    const baseStory = JourneyContent.STORIES[id], node = P.getNode(`story:${id}`), progress = store.get();
+    const baseStory = JourneyContent.STORIES[id], node = P.getNode(`story:${id}`);
+    let progress = store.get();
+    // Freeze the greeting before the first 04A story starts. If the player
+    // later completes 03B while this intro is unfinished, its wording stays put.
+    const er = globalThis.AcademicTowerEr04A;
+    if (er && id === 'academic-tower-er-intro' && options.mode !== 'replay' &&
+        !progress.sideResearchProgress?.[er.STAGE_ID] && node && P.isAvailable(node,progress)) {
+      const initial = er.createState();
+      initial.introVariantId = progress.completedStages.includes('academic-tower-turn-03b-ran-village')
+        ? 'familiar' : 'ordinary';
+      store.checkpointSide(er.STAGE_ID, initial);
+      progress = store.get();
+    }
     const story = globalThis.StoryOutcomeContent?.resolve(baseStory, progress) || baseStory;
     if (!story || !node || !P.isAvailable(node, progress)) return false;
     const normalized = validOptions(options), returnContext = returnContextFor(options, normalized);
