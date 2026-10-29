@@ -100,15 +100,31 @@ try:
             assert page.evaluate("TacticalGame.stageId()") == ER
             layout(page, width)
             assert "而且" in page.locator("#grid").inner_text()
-            click(page, "er-select", "a-current-level")
-            click(page, "er-confirm")
-            assert page.locator(".academicMvpFeedback").get_attribute("data-verdict") == "incorrect"
-            click(page, "er-select", "a-grass-high")
+            assert page.locator(".academicErUpstream").count() == 1
+            assert page.locator('[data-academic-action="er-observe"]').count() == 2
+            assert page.locator("#academicMvpConfirm").is_disabled()
+            assert "높은 석틈에 풀잎이 걸려 있어" not in page.locator("#grid").inner_text()
+            click(page, "er-observe", "a-current-level")
+            assert page.evaluate("state.academicTower.t1CurrentRecorded") is True
+            assert page.evaluate("state.academicTower.phase") == "work"
+            assert "오늘의 관측" in page.locator("#grid").inner_text()
+            assert page.locator(".academicMvpFeedback").get_attribute("data-verdict") != "incorrect"
+            if width == 375 and height == 640:
+                page.reload()
+                page.wait_for_function("!!window.GameFlow")
+                assert page.evaluate("GameFlow.resume()")
+                assert page.evaluate("state.academicTower.t1CurrentRecorded") is True
+            click(page, "er-observe", "a-grass-high")
+            assert "높은 틈에 풀잎이 걸려 있어" in page.locator("#grid").inner_text()
+            assert not page.locator("#academicMvpConfirm").is_disabled()
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.phase") == "review"
+            assert "而且" in page.locator("#grid").inner_text()
             click(page, "er-next")
 
             assert page.evaluate("state.academicTower.taskIndex") == 1
+            assert page.locator(".academicErRoute").count() == 1
+            assert "아직 확인하지 않은 구간" in page.locator("#grid").inner_text()
             click(page, "er-select", "check-between-b-c")
             click(page, "er-confirm")
             click(page, "er-next")
@@ -153,12 +169,19 @@ try:
             assert page.locator("#storyView").is_visible()
             all_story(page)
             assert page.evaluate("state.academicTower.taskIndex") == 3
+            assert page.locator(".academicErStone").count() == 1
+            assert page.locator('[data-academic-action="er-inspect-d"]').count() == 1
+            assert "反覆鑿刻的痕跡" not in page.locator("#grid").inner_text()
+            click(page, "er-inspect-d")
+            assert page.evaluate("state.academicTower.t4Inspected") is True
+            assert "反覆鑿刻的痕跡" in page.locator("#grid").inner_text()
             click(page, "er-select", "natural-crack")
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.step") == "correct"
             click(page, "er-select", "artificial-passage")
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.step") == "scope"
+            assert page.locator(".academicErPlans").count() == 1
             click(page, "er-select", "scope-original-only")
             click(page, "er-confirm")
             click(page, "er-next")
@@ -170,6 +193,10 @@ try:
             click(page, "er-note", "inquiry:" + inquiry)
             click(page, "er-confirm")
             assert page.evaluate("state.academicTower.phase") == "complete"
+            assert page.locator(".academicErFinalReport").count() == 1
+            assert "從而確認" in page.locator(".academicErFinalReport").inner_text()
+            assert "因而需要" in page.locator(".academicErFinalReport").inner_text()
+            assert "進而" in page.locator(".academicErFinalReport").inner_text()
             assert page.evaluate("(id)=>GameFlow.progress().stageOutcomes[id].nextInquiryId", ER) == inquiry
             assert page.evaluate("(id)=>GameFlow.progress().completedStages.filter(x=>x===id).length", ER) == 1
             click(page, "finish-mvp")
