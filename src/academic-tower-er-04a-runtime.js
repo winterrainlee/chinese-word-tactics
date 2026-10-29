@@ -348,34 +348,53 @@
     let original='',work='';
     const d=s.drafts, done=s.phase==='review' || s.phase==='complete';
     if (s.taskIndex===0) {
-      original=source('A · 상류 수위 눈금','石壁上留著這次大雨的高水位痕跡。','지금 수위는 그때의 자국보다 낮아.');
-      work=question('이 물 자국과 함께 기록할 다른 흔적은?') +
-        (done ? tentative('石壁上留著高水痕，而且高處的石縫裡還卡著草葉。') :
-          controls([
-            ['a-grass-high','높은 석틈에 걸린 풀잎'],['a-current-level','지금은 낮아진 물높이'],
-            ['a-gate-failure-theory','물이 높았으니 수문 고장']
-          ],'er-select',s.selected) + (s.selected ? '<p class="academicErHint">선택한 관찰을 메모에 추가할 거야.</p>' : '')) +
+      original='<p class="academicErSubinfo">A · 상류 수위 눈금과 돌벽</p>' +
+        upstreamDiagram(s) +
+        '<p class="academicErHint">높은 물 자국은 이미 봤어. 돌벽 주변을 더 살펴보자.</p>' +
+        '<div class="academicErLookOptions academicErT1Looks">' +
+        choice('er-observe','a-grass-high','높은 석틈 살펴보기',s.t1Focus) +
+        choice('er-observe','a-current-level','현재 수면 살펴보기',s.t1Focus) +
+        '</div>' +
+        (s.t1Focus==='a-grass-high'
+          ? '<div class="academicErFound" aria-live="polite"><strong>석틈에서 찾았어</strong><p>높은 틈에 풀잎이 걸려 있어. 큰물이 그 높이까지 올라왔다는 걸 뒷받침하는 별도의 흔적이야.</p></div>'
+          : s.t1Focus==='a-current-level'
+            ? '<div class="academicErFound" aria-live="polite"><strong>오늘의 수위도 관찰했어</strong><p>지금 수면은 물 자국보다 아래에 있어. 오늘의 기록에 따로 남겼어.</p></div>' : '');
+      work=source('소년이 이미 기록한 관찰','石壁上留著這次大雨的高水位痕跡。') +
+        question('큰물이 여기까지 올라왔음을 보여 주는 또 다른 흔적은?') +
+        (done
+          ? tentative('石壁上留著這次大雨的高水位痕跡，而且高處的石縫裡還卡著草葉。')
+          : s.t1ObservedIds.includes('a-grass-high')
+            ? '<p class="academicErHint">방금 살펴본 높은 석틈의 풀잎을 지난 큰물의 흔적에 더할 수 있어.</p>'
+            : '<p class="academicErHint">그림에서 높은 석틈을 관찰하면 새 흔적을 메모에 더할 수 있어.</p>') +
+        (s.t1CurrentRecorded
+          ? '<p class="academicErToday"><strong>오늘의 관측</strong> · 지금 수면은 지난 물 자국보다 낮아.</p>'
+          : '') +
         '<div class="academicErWordHelp">' + wordBtn('而且') + '</div>' + verdict(s);
     } else if (s.taskIndex===1) {
-      original=source('B · 수문 관리 기록','管理人員在雨後調整過進水口，現在仍有水流進工坊水道。')+
-        source('C · 소년의 현재 관찰','到了工坊附近，水流沒有我原先想的那麼急。','비가 많이 와서 물살도 거셀 줄 알았는데 예상보다 약했어.');
-      work=question('두 기록을 함께 읽으면 어디를 더 살펴봐야 할까?') +
-        (done ? tentative('進水口還有水流入工坊水道。然而，到了工坊附近，水流沒有少年預想的那麼急。') :
-          controls([
-            ['check-between-b-c','B와 C 사이를 더 살펴본다'],
-            ['deny-b-intake','C가 약하니 B에는 물이 들어오지 않는다'],
-            ['conclude-gate-broken','수문이 반드시 고장 났다']
-          ],'er-select',s.selected)) + '<div class="academicErWordHelp">' + wordBtn('然而') + '</div>' + verdict(s);
+      original=routeDiagram() +
+        source('B · 수문 관리 담당자의 기록','管理人員在雨後調整過進水口，現在仍有水流進工坊水道。') +
+        source('C · 소년의 현재 관찰','到了工坊附近，水流沒有我原先想的那麼急。',
+          '큰비 뒤 더 거셀 줄 알았지만 소년의 예상보다 약했어. 평소보다 낮다고 측정한 것은 아니야.');
+      work=question('두 사실을 함께 기록한다면 어디까지 말할 수 있을까?') +
+        (done
+          ? tentative('進水口還有水流入工坊水道。然而，到了工坊附近，水流沒有少年預想的那麼急。') +
+            '<p class="academicErHint">둘 다 사실이지만 원인은 아직 몰라. 연구원은 B~C의 안전한 점검길을 확인하자고 해.</p>'
+          : controls([
+            ['check-between-b-c','B의 유입과 C의 예상 밖 흐름을 둘 다 남기고, 원인은 보류한다.'],
+            ['deny-b-intake','C의 흐름이 약하니 B의 유입 기록은 잘못됐을 거야.'],
+            ['conclude-gate-broken','수문 조절이 고장의 원인이라고 확정해 보고한다.']
+          ],'er-select',s.selected)) +
+        '<div class="academicErWordHelp">' + wordBtn('然而') + '</div>' + verdict(s);
     } else if(s.taskIndex===2) {
-      original='<p class="academicErSubinfo">B~C 사이의 안전한 점검길</p>' +
+      original='<p class="academicErSubinfo">B~C 사이 · 조금 전 도식의 미조사 구간</p>' +
         waterDiagram(s.openingFound) +
         '<p class="academicErHint">' + (s.openingFound
           ? '작은 틈이 보여. 잎이 수로 가운데에서 벽의 틈 쪽으로 움직이고 있어.'
-          : '소년: “잠깐, 저쪽에서도 물소리가 나요.”') + '</p>' +
+          : '소년: “저쪽에서도 물소리가 나요.” 수풀 가까운 곳에서는 돌이 젖은 흔적도 보여.') + '</p>' +
         (s.step==='search' ? '<div class="academicErLookOptions">' +
           ALLOWED.zones.map((z,i)=>choice('er-search',z,['상류 돌벽','수풀 옆 낮은 둑','수차 쪽'][i],
             s.inspectedZoneIds.includes(z)?z:null)).join('') + '</div>' : '');
-      work=question(s.openingFound ? '실제로 물은 어느 쪽으로 움직일까?' : '소리가 나는 쪽을 살펴보자.') +
+      work=question(s.openingFound ? '소년은 유입을 예상했어. 실제로 물은 어느 쪽으로 움직일까?' : '소리가 나는 쪽을 살펴보자.') +
         (s.openingFound ? (done ?
           '<p class="academicErPreview"><span>소년의 예상 · 유입</span><span>실제 관측 · 유출</span></p>' +
           tentative('原以為水會從草叢流進水道，沒想到水反而從水道往草叢下方流去。') :
@@ -383,52 +402,65 @@
             ['flow-out','수로 안 → 벽의 틈 → 수풀 아래'],
             ['flow-in','수풀 아래 → 벽의 틈 → 수로 안']
           ],'er-select',s.selected)) :
-          '<p class="academicErHint">소년은 수풀의 빗물이 수로 안으로 들어오는 걸지도 모른다고 생각했어.</p>') +
+          '<p class="academicErHint">소년은 수풀의 빗물이 수로로 들어오는 것일지도 모른다고 예상했어. 아직 확인한 사실은 아니야.</p>') +
         '<div class="academicErWordHelp">' + wordBtn('反而') + '</div>' + verdict(s);
     } else if(s.taskIndex===3) {
-      original=source('D · 입구의 돌벽','石壁上的孔口很整齊，還留著反覆鑿刻的痕跡。','돌벽에 가지런한 모서리와 반복된 도구 자국이 있어.')+
-        source('연구원이 가진 원래 설계도','原圖沒有標出這個孔。');
       if(s.step==='correct') {
+        original='<p class="academicErSubinfo">D · T3에서 찾은 바로 그 입구</p>' +
+          stoneDiagram(s.t4Inspected) +
+          (s.t4Inspected
+            ? source('가까이서 확인한 돌벽','石壁上的孔口很整齊，還留著反覆鑿刻的痕跡。',
+                '네모난 모서리를 따라 도구 자국이 반복돼.')
+            : '<p class="academicErHint">이 틈이 비로 생겼을까? 돌벽의 표면을 더 가까이 살펴볼 수 있어.</p>' +
+              '<button type="button" class="academicMvpChoice academicErInspect" data-academic-action="er-inspect-d">돌벽의 모서리와 표면 살펴보기</button>');
         work=question('이 틈은 비로 생긴 균열일까?') +
-          controls([['artificial-passage','사람이 도구로 만든 통로'],['natural-crack','큰비에 자연히 깨진 돌벽']],
-            'er-select',s.selected) + '<div class="academicErWordHelp">' + wordBtn('而是') + '</div>' + verdict(s);
+          (s.t4Inspected
+            ? controls([['artificial-passage','자연 균열이 아니라 사람이 도구로 만든 통로'],
+                        ['natural-crack','큰비에 자연히 깨진 돌벽']],
+                'er-select',s.selected)
+            : '<p class="academicErHint">그림을 더 자세히 관찰한 뒤 어느 해석에 근거가 있는지 정해 보자.</p>') +
+          '<div class="academicErWordHelp">' + wordBtn('而是') + '</div>' + verdict(s);
       } else {
+        original=stoneDiagram(true)+planComparison() +
+          source('연구원이 가진 원래 설계도','原圖沒有標出這個孔。',
+            '이후에 만든 변경·보수 기록이 있는지는 아직 조사하지 않았어.');
         work=tentative('這不是大雨沖出的裂縫，而是有人鑿出的通道。') +
-          question('원래 설계도 한 장으로 어디까지 알 수 있지?') +
-          (done ? tentative('圖上沒有標這條通道而已。後來有沒有修改紀錄，還需要再查。') :
-            controls([
-              ['scope-original-only','원래 도면에 표시가 없어. 이후 변경은 아직 몰라.'],
-              ['scope-all-records-missing','다른 변경 기록도 전혀 없는 게 확실해.'],
-              ['scope-theft-certain','누군가 몰래 물을 가져가는 게 확실해.']
+          question('원래 설계도 한 장으로 어디까지 말할 수 있지?') +
+          (done
+            ? tentative('圖上沒有標這條通道而已。後來有沒有修改紀錄，還需要再查。')
+            : controls([
+              ['scope-original-only','원래 도면에 표시가 없어. 이후 변경 기록은 아직 몰라.'],
+              ['scope-all-records-missing','원래 도면에 없으니 이후 변경 기록도 전혀 없을 거야.'],
+              ['scope-theft-certain','사람이 팠고 물이 나가니 절도가 확실해.']
             ],'er-select',s.selected)) +
           '<div class="academicErWordHelp">' + wordBtn('而是') + wordBtn('而已') + '</div>' + verdict(s);
       }
     } else if(s.taskIndex===4) {
-      original='<details class="academicErEvidence"><summary>관측 근거 4개 다시 보기</summary>' +
-        source('A · 높은 물 자국','石壁上留著這次大雨的高水位痕跡。') +
-        source('B · 수문 관리','進水口還有水流入工坊水道。')+
-        source('C · 예상과 다른 흐름','水流沒有少年預想的那麼急。')+
-        source('D · 발견한 통로','原圖沒有標出這個孔，但現場有水從這裡流出。')+
+      original='<details class="academicErEvidence"><summary>확인한 관측 근거 다시 보기 (A~D)</summary>' +
+        source('A · 직접 관찰 · 지난 큰비','石壁上留著這次大雨的高水位痕跡，而且高處的石縫裡還卡著草葉。') +
+        source('B · 수문 담당자의 기록 · 현재','進水口還有水流入工坊水道。') +
+        source('C · 소년의 관찰 · 현재','水流沒有少年預想的那麼急。') +
+        source('D · 현장과 원래 설계도 대조','原圖沒有標出這個孔，但現場有水從這裡流出。') +
         '</details>';
-      work=question('확인한 결과와 다음 계획을 구별해 기록하자.')+
-        '<div class="academicErRecordRow"><small>從而 · 조사로 확인한 결과</small>' +
-        controls([['method-compare','현장과 도면을 대조해 새로운 통로를 확인했어.'],
-          ['method-guess','구멍을 만든 사람이 누구인지 알아냈어.']],
-          'er-note',d.method || '') .replaceAll('data-value="method-compare"','data-value="method:method-compare"')
+      work=question('확인한 결과와 다음 계획을 구별해 기록하자.') +
+        (done ? finalReport(d) : (
+        '<div class="academicErRecordRow"><small>從而 · 조사로 실제 확인한 결과</small>' +
+        controls([['method-compare','D 현장과 원래 도면을 대조해 미표시 통로를 확인했어.'],
+          ['method-guess','C의 흐름이 예상보다 약한 것만으로 새 통로를 확인했어.']],
+          'er-note',d.method || '').replaceAll('data-value="method-compare"','data-value="method:method-compare"')
           .replaceAll('data-value="method-guess"','data-value="method:method-guess"') +
-        '</div><div class="academicErRecordRow"><small>因而 · 필요한 조치</small>' +
-        controls([['notify-manager','관리자에게 발견 사실을 알리고 기록 확인을 요청해.'],
-          ['close-opening','소년이 직접 구멍을 막고 조사를 마치자.']],
+        '</div><div class="academicErRecordRow"><small>因而 · 지금 필요한 전달</small>' +
+        controls([['notify-manager','관리자에게 새 통로와 현재 유출을 알리고 변경 기록 확인을 요청해.'],
+          ['close-opening','D가 C의 원인이라고 단정해서 수문 조절을 요구해.']],
           'er-note',d.action || '').replaceAll('data-value="notify-manager"','data-value="action:notify-manager"')
           .replaceAll('data-value="close-opening"','data-value="action:close-opening"') +
-        '</div><div class="academicErRecordRow"><small>進而 · 다음 조사 질문</small>' +
+        '</div><div class="academicErRecordRow"><small>進而 · 다음 조사 질문 (둘 다 가능한 계획)</small>' +
         controls([['inquiry-records','나중의 변경·보수 기록을 찾아볼 계획'],
           ['inquiry-outlet','안전을 확인한 뒤 하류 출구를 살펴볼 계획']],
           'er-note',d.inquiry || '').replaceAll('data-value="inquiry-records"','data-value="inquiry:inquiry-records"')
           .replaceAll('data-value="inquiry-outlet"','data-value="inquiry:inquiry-outlet"') +
-        '<p class="academicErHint">둘 다 가능한 다음 질문이야. 오늘 이미 알아낸 결과는 아니지.</p></div>' +
+        '<p class="academicErHint">두 선택 모두 타당해. 아직 완료한 조사가 아니라 앞으로의 계획이야.</p></div>')) +
         '<div class="academicErWordHelp">' + wordBtn('從而') + wordBtn('因而') + wordBtn('進而') + '</div>' + verdict(s);
-      if(done) work+='<p class="academicErPreview">✓ 확인한 사실·필요한 통보·다음 질문을 구별해서 남겼어.</p>';
     }
     return taskLabel(s)+section(s.taskIndex===2?'현장 관찰':'원본 기록',original,'original') +
       section(['소년의 상류 관찰 메모','연구원과 함께 검토할 점검 메모','소년의 물길 관찰',
@@ -442,9 +474,12 @@
     const label = s.taskIndex===0?'관찰 메모 남기기':s.taskIndex===1?'점검 메모 남기기':
       s.taskIndex===2?(s.step==='search'?'구간을 살펴보자':'물의 방향 기록'):
       s.taskIndex===3?(s.step==='correct'?'형태 판단 확인':'판단의 범위 기록'):'현장 기록 마무리';
-    const ready=s.taskIndex===2 ? s.step==='direction' && !!s.selected :
-      s.taskIndex===4 ? !!s.drafts.method && !!s.drafts.action && !!s.drafts.inquiry :
-      !!s.selected;
+    const ready=s.taskIndex===0
+      ? s.t1ObservedIds.includes('a-grass-high') && s.selected==='a-grass-high'
+      : s.taskIndex===2 ? s.step==='direction' && !!s.selected
+      : s.taskIndex===3 && s.step==='correct' ? s.t4Inspected && !!s.selected
+      : s.taskIndex===4 ? !!s.drafts.method && !!s.drafts.action && !!s.drafts.inquiry
+      : !!s.selected;
     return '<button id="academicMvpConfirm" type="button" class="control academicConfirm" data-academic-action="er-confirm"' +
       (ready?'':' disabled') + '>' + label + '</button>';
   }
