@@ -9,7 +9,8 @@
 ## 핵심 기획
 
 - [게임 전체 구조와 콘텐츠 설계 기준 v0.1](GAME-CONTENT-FRAMEWORK-v0.1.md) — 실제 학습 필요, 본편·상설 공간의 역할, 중복·재사용, 신규 콘텐츠 배치와 지역별 문서 연결을 정리한다.
-- [2장 학습·스토리 초안](TIER2-CONCEPT-DRAFT-v0.1.md) — 장기 학습 방향과 미확정 사건·진행 후보를 보존한다.
+- [2장 학습·스토리 초안](TIER2-CONCEPT-DRAFT-v0.1.md) — 2.0 언어 처리 목표와 기존 검토안.
+- [2장 공통 큰비 사건과 세 갈래 첫 풍경](CHAPTER2-RAIN-OPENING-DESIGN-v0.1.md) — **2026-10-29 승인 시간선**(1장 직후 큰비), 길목·장터·장인골의 풍경, 첫 회의 안건, 기존 04A·저장과의 충돌 방지. 도입 실행은 미구현.
 - [끝마을 컨셉·스토리](END-VILLAGE-CONCEPT-STORY-v0.1.md) — 통행 제한과 바깥세계 인물의 생활 사정. 상세 플레이는 미구현이다.
 
 - [지역·스테이지 개발 표준 v0.1](REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md) — 신규 지역과 기존 지역 확장을 `범위·ID → 학습 설계 → 구현 수준 사양 → 작은 수직 slice → 자동검증 → Pages → iPhone 승인`으로 닫는 표준 절차, 사양 템플릿, Definition of Ready/Done
