@@ -86,6 +86,15 @@ for (const [group, configs] of [
     }
   }
 }
+// 04A's resolved greeting and inquiry outcome each replace one beat in a
+// Journey story. Audit those authored variants as well as its base text.
+const erVariants = context.StoryOutcomeContent.erVariants || {};
+if (erVariants.intro?.familiar?.beat) {
+  addBeats('academic-tower-er-intro', [erVariants.intro.familiar.beat], '04a-intro:familiar');
+}
+for (const [name, replacement] of Object.entries(erVariants.result || {})) {
+  addBeats('academic-tower-er-result', [replacement.beat], `${'04a-result:${name}'}`);
+}
 for (const [variant, beats] of Object.entries(context.StoryOutcomeContent.g7Variants || {})) {
   addBeats('gate-after-convoy', beats, `g7-outcome:gate-after-convoy:${variant}`);
 }
