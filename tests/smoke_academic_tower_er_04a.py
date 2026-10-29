@@ -104,6 +104,8 @@ try:
             layout(page, width)
             assert "而且" in page.locator("#grid").inner_text()
             assert page.locator(".academicErUpstream").count() == 1
+            assert "이번 큰비의 물 자국" in page.locator(".academicErUpstream svg").text_content()
+            assert "지난 큰비의 물 자국" not in page.locator("#grid").inner_text()
             assert page.locator('.academicOriginal > .academicRegionLabel').inner_text() == '현장 관찰'
             if width == 375 and height == 640:
                 page.screenshot(path=str(OUT / "04a-T1-first-observation-375x640.png"))

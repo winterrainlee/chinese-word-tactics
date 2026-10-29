@@ -276,7 +276,7 @@
     (state.t1Focus==='a-grass-high'
       ? '상류 돌벽. 높은 물 자국 근처의 석틈에 풀잎이 걸린 것을 확인했어. 지금 수면은 아래에 있어.'
       : state.t1Focus==='a-current-level'
-        ? '상류 돌벽. 오늘의 수면이 지난 큰비의 높은 물 자국보다 아래에 있어.'
+        ? '상류 돌벽. 오늘의 수면이 이번 큰비 때 남은 높은 물 자국보다 아래에 있어.'
         : '상류 돌벽의 높은 물 자국과 아래쪽 현재 수면. 자국 근처 높은 석틈에 작은 녹색 흔적이 보이지만 아직 자세히 살피지 않았어.') +
     '"><svg viewBox="0 0 340 208" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
     '<defs><linearGradient id="erWall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dcd5c2"/><stop offset="1" stop-color="#bab5a5"/></linearGradient>' +
@@ -291,7 +291,7 @@
     '<g stroke="#736c59" stroke-width="3" stroke-linecap="round" fill="none"><path d="M198 59L211 51L224 60L245 53L263 62"/></g>' +
     '<g stroke="#557d61" stroke-width="2.5" stroke-linecap="round" fill="none"><path d="M231 57L223 33 M231 57L241 30 M231 57L254 44"/></g>' +
     '<g fill="#6d986c"><ellipse cx="223" cy="36" rx="5" ry="10" transform="rotate(-36 223 36)"/><ellipse cx="242" cy="35" rx="5" ry="10" transform="rotate(22 242 35)"/><ellipse cx="251" cy="44" rx="5" ry="9" transform="rotate(63 251 44)"/></g>' +
-    '<g fill="#4e5047" font-size="12" font-family="sans-serif"><text x="14" y="70">지난 큰비의 물 자국</text><text x="14" y="192">지금 수면</text></g>' +
+    '<g fill="#4e5047" font-size="12" font-family="sans-serif"><text x="14" y="70">이번 큰비의 물 자국</text><text x="14" y="192">지금 수면</text></g>' +
     (state.t1Focus==='a-grass-high'
       ? '<circle cx="234" cy="47" r="30" fill="none" stroke="#3d6c50" stroke-width="2.5" stroke-dasharray="5 4"/>'
       : state.t1Focus==='a-current-level'
@@ -358,18 +358,18 @@
         choice('er-observe','a-current-level','현재 수면 살펴보기',s.t1Focus) +
         '</div>' +
         (s.t1Focus==='a-grass-high'
-          ? '<div class="academicErFound" aria-live="polite"><strong>석틈에서 찾았어</strong><p>높은 틈에 풀잎이 걸려 있어. 큰물이 그 높이까지 올라왔다는 걸 뒷받침하는 별도의 흔적이야.</p></div>'
+          ? '<div class="academicErFound" aria-live="polite"><strong>석틈에서 찾았어</strong><p>높은 틈에 풀잎이 걸려 있어. 이번 큰비에 물이 그 높이까지 올라왔다는 걸 뒷받침하는 별도의 흔적이야.</p></div>'
           : s.t1Focus==='a-current-level'
             ? '<div class="academicErFound" aria-live="polite"><strong>오늘의 수위도 관찰했어</strong><p>지금 수면은 물 자국보다 아래에 있어. 오늘의 기록에 따로 남겼어.</p></div>' : '');
       work=source('소년이 이미 기록한 관찰','石壁上留著這次大雨的高水位痕跡。') +
-        question('큰물이 여기까지 올라왔음을 보여 주는 또 다른 흔적은?') +
+        question('이번 큰비에 물이 여기까지 올라왔음을 보여 주는 또 다른 흔적은?') +
         (done
           ? tentative('石壁上留著這次大雨的高水位痕跡，而且高處的石縫裡還卡著草葉。')
           : s.t1ObservedIds.includes('a-grass-high')
-            ? '<p class="academicErHint">방금 살펴본 높은 석틈의 풀잎을 지난 큰물의 흔적에 더할 수 있어.</p>'
+            ? '<p class="academicErHint">방금 살펴본 높은 석틈의 풀잎을 이번 큰비의 흔적에 더할 수 있어.</p>'
             : '<p class="academicErHint">그림에서 높은 석틈을 관찰하면 새 흔적을 메모에 더할 수 있어.</p>') +
         (s.t1CurrentRecorded
-          ? '<p class="academicErToday"><strong>오늘의 관측</strong> · 지금 수면은 지난 물 자국보다 낮아.</p>'
+          ? '<p class="academicErToday"><strong>오늘의 관측</strong> · 지금 수면은 이번 큰비 때 남은 물 자국보다 낮아.</p>'
           : '') +
         '<div class="academicErWordHelp">' + wordBtn('而且') + '</div>' + verdict(s);
     } else if (s.taskIndex===1) {
@@ -439,7 +439,7 @@
       }
     } else if(s.taskIndex===4) {
       original='<details class="academicErEvidence"><summary>확인한 관측 근거 다시 보기 (A~D)</summary>' +
-        source('A · 직접 관찰 · 지난 큰비','石壁上留著這次大雨的高水位痕跡，而且高處的石縫裡還卡著草葉。') +
+        source('A · 직접 관찰 · 이번 큰비의 흔적','石壁上留著這次大雨的高水位痕跡，而且高處的石縫裡還卡著草葉。') +
         source('B · 수문 담당자의 기록 · 현재','進水口還有水流入工坊水道。') +
         source('C · 소년의 관찰 · 현재','水流沒有少年預想的那麼急。') +
         source('D · 현장과 원래 설계도 대조','原圖沒有標出這個孔，但現場有水從這裡流出。') +

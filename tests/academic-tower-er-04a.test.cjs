@@ -213,3 +213,16 @@ test('legacy 04A checkpoints normalize without losing progress, new IDs are vali
   assert.match(er.renderWorkbench(null,completed),/academicErFinalReport/);
   assert.match(er.renderWorkbench(null,completed),/從而確認/);
 });
+
+test('T1 illustrated event, screen-reader wording and T5 evidence agree with 這次大雨',()=>{
+  const {AcademicTowerEr04A:er}=setup();
+  const first=er.renderWorkbench(null,er.createState());
+  assert.match(first,/這次大雨/);
+  assert.match(first,/이번 큰비의 물 자국/);
+  assert.match(first,/이번 큰비에 물이 여기까지 올라왔음을/);
+  assert.doesNotMatch(first,/지난 큰비|지난 큰물|지난 물 자국/);
+  const afterWater=action(er,er.createState(),'er-observe','a-current-level');
+  assert.match(er.renderWorkbench(null,afterWater),/이번 큰비 때 남은 물 자국/);
+  const final=solved(er);
+  assert.match(er.renderWorkbench(null,final),/A · 직접 관찰 · 이번 큰비의 흔적/);
+});
