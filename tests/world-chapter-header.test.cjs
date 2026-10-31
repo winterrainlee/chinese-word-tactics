@@ -38,6 +38,7 @@ function harness(initial = {}) {
     GameFlow: { progress: () => progress },
     document: {
       getElementById: id => id === 'worldView' ? world : null,
+      querySelectorAll: () => [],
       addEventListener() {},
       createElement() { return { className: '', textContent: '' }; }
     },
