@@ -44,6 +44,9 @@ try:
     with sync_playwright() as pw:
         browser = pw.chromium.launch(args=['--no-sandbox'])
         context, page, errors = open_page(browser, seed)
+        page.evaluate('GameFlow.showWorld()')
+        page.wait_for_function("""document.querySelector('#worldView .worldHeading .stagekicker')
+            ?.textContent === '2장 · 새로운 이야기'""")
         page.evaluate('GameFlow.showJourney()')
         chapter = page.locator('.journeyChapter[data-chapter-id="chapter-2-after-rain"]')
         assert chapter.count() == 1
@@ -76,6 +79,8 @@ try:
         page.locator('#storyNext').click()
         page.locator('#storyNext').click()
         page.locator('#worldView').wait_for(state='visible')
+        page.wait_for_function("""document.querySelector('#worldView .worldHeading .stagekicker')
+            ?.textContent === '2장 · 비가 그친 뒤'""")
         page.locator('#firstQuestLater').wait_for(state='visible')
         assert page.locator('#sheet h2').inner_text() == '여관 주인의 부탁'
         result = page.evaluate('GameFlow.progress()')
@@ -108,6 +113,9 @@ try:
         ]:
             legacy = dict(seed, **changed)
             context, page, errors = open_page(browser, legacy)
+            page.evaluate('GameFlow.showWorld()')
+            page.wait_for_function("""document.querySelector('#worldView .worldHeading .stagekicker')
+                ?.textContent === '2장 · 비가 그친 뒤'""")
             page.evaluate('GameFlow.showJourney()')
             older_rain = page.locator(
                 '.journeyChapter[data-chapter-id="chapter-2-after-rain"] .journeyNode[data-node-id="story:chapter2-rain-opening"]')

@@ -15,6 +15,16 @@
   const regionSection = regionId => globalThis.JourneyContent?.JOURNEY?.flatMap(chapter => chapter.sections || []).find(section => section.regionId === regionId) || null;
   const hasJourneyContent = region => (regionSection(region.id)?.sequence?.length || 0) > 0;
 
+  // World-map chapter follows the main story, not the region being revisited.
+  function worldChapterKicker(value = globalThis.GameFlow?.progress?.() || {}) {
+    const milestones = Array.isArray(value.completedMilestones) ? value.completedMilestones : [];
+    if (!milestones.includes('chapter1-complete')) return '1장 · 세 갈래 길';
+    const rainStatus = globalThis.Chapter2Rain?.statusFor?.(value);
+    return rainStatus === 'complete' || rainStatus === 'legacy'
+      ? '2장 · 비가 그친 뒤'
+      : '2장 · 새로운 이야기';
+  }
+
   function enhanceWorldHeader() {
     const view = document.getElementById('worldView');
     if (!view) return;
@@ -22,7 +32,9 @@
     const kicker = view.querySelector('.worldHeading .stagekicker');
     const heading = view.querySelector('.worldHeading h1');
     const compass = view.querySelector('.worldCompass');
-    if (kicker) kicker.textContent = '1장 · 세 갈래 길';
+    const chapterLabel = worldChapterKicker();
+    if (kicker) kicker.textContent = chapterLabel;
+    view.dataset.worldChapterLabel = chapterLabel;
     if (heading) {
       heading.textContent = '물길마을';
       let zh = view.querySelector('.worldHeadingZh');
@@ -202,6 +214,16 @@
   const observer = new MutationObserver(syncWorldPresentation);
   if (map) observer.observe(map, { childList: true });
   if (sheet) observer.observe(sheet, { childList: true, subtree: false });
+  // A completed story returns to the map without rebuilding its region nodes.
+  // Observing view visibility also refreshes the heading after Chapter2Rain
+  // is registered (world-runtime loads earlier in index.html).
+  const worldView = document.getElementById('worldView');
+  if (worldView) observer.observe(worldView, { attributes: true, attributeFilter: ['hidden'] });
+  window.addEventListener('pageshow', enhanceWorldHeader);
 
+  globalThis.WorldChapterHeader = Object.freeze({
+    labelFor: worldChapterKicker,
+    refresh: enhanceWorldHeader
+  });
   syncWorldPresentation();
 })();
