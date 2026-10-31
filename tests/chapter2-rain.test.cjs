@@ -71,9 +71,14 @@ function harness(state) {
     playStory(id) { calls.push('play:' + id); return true; },
     resume() { calls.push('resume'); return true; }
   };
+  // Use the actual shared evidence classifier: optional Tower 01-05 is not
+  // proof that this Chapter 2 rain has already happened.
+  load(ctx, 'src/journey-progress.js');
+  const hasPostRainEvidence = ctx.JourneyProgress.hasPostRainEvidence;
   ctx.JourneyProgress = {
     getNode: id => id === 'story:chapter2-rain-opening' ? { nodeId: id } : null,
-    isAvailable: () => true
+    isAvailable: () => true,
+    hasPostRainEvidence
   };
   ctx.TacticalGame = { closeSheet() { calls.push('close-sheet'); } };
   ctx.FirstFreeQuest = {
@@ -131,6 +136,12 @@ test('older post-chapter saves skip a second rain; partial rain resumes', () => 
     { completedMilestones:[...base.completedMilestones,'quest-board-unlocked'] },
     { lastLocation:{view:'story',nodeId:'story:north-forest-signs-accepted'} }
   ]) assert.equal(ctx.Chapter2Rain.statusFor({ ...base, ...update }), 'legacy');
+  for (const earlier of [
+    { completedStages:['academic-tower-turn-01-que'] },
+    { completedStages:['academic-tower-turn-03b-ran-village'] },
+    { seenStories:[...base.seenStories,'academic-tower-arrival','academic-tower-turn-result'] }
+  ]) assert.equal(ctx.Chapter2Rain.statusFor({ ...base, ...earlier }), 'pending',
+    'ordinary Tower work during Chapter 1 cannot skip the rain');
   assert.equal(ctx.Chapter2Rain.statusFor({ ...base, completedMilestones:[] }), 'locked');
   assert.equal(ctx.Chapter2Rain.statusFor({
     ...base, completedMilestones:['chapter1-complete','chapter2-rain-passed']

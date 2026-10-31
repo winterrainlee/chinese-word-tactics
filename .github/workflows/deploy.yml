@@ -103,6 +103,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_north_forest.py
 
+      - name: Run Academic Tower branching/unlock mobile smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_tower_unlock_conditions.py
+
       - name: Run Academic Tower Slice A browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots

@@ -9,7 +9,17 @@
     const values = globalThis.GameFlow?.progress?.()?.completedMilestones;
     return Array.isArray(values) ? values : [];
   };
-  const isLocked = region => region.status === 'locked' && !milestones().includes(region.requires);
+  // World access accepts a completed story as well as a chapter milestone.
+  // A workshop-core stage alone is not enough: the repair token and tower
+  // invitation are received in the subsequent workshop-finale story.
+  const worldRequirementMet = (requires, value = globalThis.GameFlow?.progress?.() || {}) => {
+    if (!requires) return true;
+    if (typeof requires === 'string' && requires.startsWith('story:')) {
+      return (value.seenStories || []).includes(requires.slice('story:'.length));
+    }
+    return (value.completedMilestones || []).includes(requires);
+  };
+  const isLocked = region => region.status === 'locked' && !worldRequirementMet(region.requires);
   const isComplete = region => !!region.completionMilestone && milestones().includes(region.completionMilestone);
   const recommendationNeeded = region => !!region.recommendation && (!region.recommendationMilestone || !milestones().includes(region.recommendationMilestone));
   const regionSection = regionId => globalThis.JourneyContent?.JOURNEY?.flatMap(chapter => chapter.sections || []).find(section => section.regionId === regionId) || null;

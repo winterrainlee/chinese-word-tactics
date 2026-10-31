@@ -93,7 +93,7 @@ test('watercolor map runs top to bottom and aligns markers to illustrated landma
   assert.match(byId['border-village'].recommendation, /길목/);
   assert.match(byId['council-town'].recommendation, /장터/);
   assert.match(byId['academic-tower'].lockHint, /세 갈래 여행/);
-  assert.equal(byId['academic-tower'].requires, 'chapter1-complete');
+  assert.equal(byId['academic-tower'].requires, 'story:workshop-finale');
 });
 
 test('chunked map data reconstructs a real WebP and preserves useful detail', () => {

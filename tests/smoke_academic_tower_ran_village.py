@@ -26,7 +26,8 @@ try:
             late = height == 640
             seed = {
                 'seenStories': ['chapter1-room-finale','academic-tower-arrival',
-                                'academic-tower-turn-intro','academic-tower-ran-intro','academic-tower-ran-result'],
+                                'academic-tower-turn-intro','academic-tower-ran-intro','academic-tower-ran-result',
+                                'market-after-m4'],
                 'completedStages': ['stage-5','academic-tower-turn-01-que',
                                     'academic-tower-turn-02-raner','academic-tower-turn-03-expectation',
                                     'academic-tower-turn-03a-ran-family'],

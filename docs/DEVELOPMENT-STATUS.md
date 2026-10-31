@@ -1,5 +1,14 @@
 # 개발 상황판
 
+## 2026-10-31 · 학술탑 독립 개방·연구별 선수·큰비 사건 분리
+
+- **새 입장 조건:** `workshop-core`(W7 전술 완료) 직후가 아니라 `workshop-finale`(수리패·학술탑 제안을 받은 후일담) 열람 직후부터 탑을 상설 방문한다. 1장 전체 결말과 별개다. 월드 장소의 `requires`와 `academic-tower-arrival`의 `requires`를 함께 변경했다.
+- **첫 이야기의 경험 분기:** `gate-after-convoy`를 보지 않은 경우 길목 발광을 먼저 알았다고 말하지 않는다. 첫 방문·본선 도입·첫 결과의 각 한 beat를 실제 길목 경험에 따라 치환한다. 주음·이야기 검사도 갱신한다.
+- **03B:** 03A 결과 + 장터 `market-after-m4` 후일담을 처음 시작 선수로 추가한다. 기착수 03B는 잠금을 소급 적용하지 않는다. 본선 05/M8 완료는 불필요하다.
+- **04A:** 본선 04 완료 + `hasRainPassed`가 필수다. 큰비 이전 04A 옆방과 여정 목록을 가린다. 1장 중 일반 학술탑 연구를 한 기록은 '큰비를 이미 겪은 옛 저장'으로 보지 않는다. 04A 진행 및 1장 후 자유 의뢰 등 실제 큰비 이후 구형 저장은 회수·초기화하지 않는다.
+- **공통 기준:** [스토리·여정 해금·분기 계약 §16](STORY-JOURNEY-SYSTEM-v0.1.md), [게임 전체 구조](GAME-CONTENT-FRAMEWORK-v0.1.md), [학술탑 도입](ACADEMIC-TOWER-OPENING-STORY-v0.1.md), [03B](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md), [큰비 도입](CHAPTER2-RAIN-OPENING-DESIGN-v0.1.md).
+- **테스트:** `tests/tower-unlock-conditions.test.cjs`, `tests/smoke_tower_unlock_conditions.py`, 기존 04A·03B·여관·여정·백업·주음 검사. 코드 반영과 Pages/실제 iPhone Safari G6는 서로 별도 검증한다.
+
 ## 2026-10-31 · 월드맵 1장/2장 표지 자동 전환
 
 - 월드맵 상단 표지를 고정된 '1장 · 세 갈래 길'에서 실제 완료 상태 기준으로 전환한다: 1장 진행 중=1장, 1장 결말 후 큰비 전=2장 · 새로운 이야기, 큰비 완료 또는 기존 저장의 04A/후속 의뢰 진행=2장 · 비가 그친 뒤.

@@ -57,6 +57,23 @@
       }
     }
   };
+  // The Academy Tower is available after Workshop W7, even when Gate G7
+  // remains unfinished. Refer to the other glowing road sign only if the
+  // boy has actually seen it. Replace just the Gate-specific beats.
+  const towerBeforeGate = Object.freeze({
+    'academic-tower-arrival': Object.freeze({ index: 5, beat: Object.freeze({
+      speaker: 'boy', zh: '可是舊調節器的銘牌亮了一下。',
+      ko: '하지만 오래된 조절기의 명판이 잠깐 빛났어요.'
+    }) }),
+    'academic-tower-turn-intro': Object.freeze({ index: 3, beat: Object.freeze({
+      speaker: 'boy', zh: '舊調節器的銘牌上有這個記號。它亮了一下。',
+      ko: '오래된 조절기 명판에 이 표식이 있었어요. 잠깐 빛났고요.'
+    }) }),
+    'academic-tower-turn-result': Object.freeze({ index: 8, beat: Object.freeze({
+      speaker: 'boy', zh: '至少，它不只跟水車有關。',
+      ko: '적어도 수차에만 관계된 건 아니네요.'
+    }) })
+  });
   // 04A: the earlier 03B visit changes one greeting, while the first
   // fieldwork inquiry changes what the pair actually plans to do next.
   // These are replacements of one beat, never new Journey nodes.
@@ -90,6 +107,10 @@
     if (story?.lateIntroMilestone && progress?.completedMilestones?.includes(story.lateIntroMilestone)) {
       story={...story,beats:story.beats.map((beat,index)=>index===0 ? {...beat,ko:story.lateIntroKo} : beat)};
     }
+    if (towerBeforeGate[story?.id] &&
+        !strings(progress?.seenStories).includes('gate-after-convoy')) {
+      return replaceBeat(story, towerBeforeGate[story.id]);
+    }
     if (story?.id === 'academic-tower-er-intro') {
       const saved = progress?.sideResearchProgress?.[ER_STAGE]?.introVariantId;
       const familiar = saved === 'familiar' || (saved == null &&
@@ -105,5 +126,5 @@
     const beats = cfg.variants[outcomeKey(progress?.stageOutcomes?.[cfg.stageId])];
     return beats ? { ...story, beats } : story;
   }
-  globalThis.StoryOutcomeContent = Object.freeze({ VARIANTS, erVariants, outcomeKey, resolve });
+  globalThis.StoryOutcomeContent = Object.freeze({ VARIANTS, erVariants, towerBeforeGate, outcomeKey, resolve });
 })();

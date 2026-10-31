@@ -32,7 +32,7 @@ seed = {
                         "academic-tower-turn-02-raner",
                         "academic-tower-turn-03-expectation",
                         "academic-tower-turn-04-faner"],
-    "completedMilestones": ["chapter1-complete", "academic-tower-entered"],
+    "completedMilestones": ["chapter1-complete", "academic-tower-entered", "chapter2-rain-passed"],
     "acknowledgedNodes": [],
     "stageOutcomes": {},
     "lastLocation": {"view": "world"}

@@ -89,6 +89,9 @@ for (const [group, configs] of [
 }
 // 04A's resolved greeting and inquiry outcome each replace one beat in a
 // Journey story. Audit those authored variants as well as its base text.
+for (const [storyId, replacement] of Object.entries(context.StoryOutcomeContent.towerBeforeGate || {})) {
+  addBeats(storyId, [replacement.beat], `tower-before-gate:${storyId}`);
+}
 const erVariants = context.StoryOutcomeContent.erVariants || {};
 if (erVariants.intro?.familiar?.beat) {
   addBeats('academic-tower-er-intro', [erVariants.intro.familiar.beat], '04a-intro:familiar');

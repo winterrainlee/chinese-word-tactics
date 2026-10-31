@@ -44,15 +44,38 @@
         ...strings(quest?.revealRequires),
         ...strings(node.journeyRevealRequires)
       ]),
+      revealAfterRain: Boolean(section.revealAfterRain || quest?.revealAfterRain || node.revealAfterRain),
       hiddenFromJourney: Boolean(chapter.hiddenFromJourney || section.hiddenFromJourney ||
         quest?.hiddenFromJourney || node.hiddenFromJourney)
     };
   }));
+  // A save made before the Chapter 2 rain scene may have visited 04A or
+  // accepted a post-Chapter-1 forest request. Ordinary Academic Tower 01–05,
+  // 03A and 03B are NOT evidence of that rain: they can happen during Chapter 1.
+  function hasPostRainEvidence(value) {
+    const ids = [
+      ...strings(value?.seenStories),
+      ...strings(value?.completedStages),
+      ...strings(value?.completedMilestones),
+      ...strings(value?.acknowledgedNodes).map(id => id.replace(/^(story|stage):/, '')),
+      ...Object.keys(value?.sideResearchProgress || {}),
+      String(value?.lastLocation?.nodeId || '').replace(/^(story|stage):/, '')
+    ];
+    return ids.some(id => /^(first-free-quest-|north-forest-|quest-board-|academic-tower-er-(intro|result)$|academic-tower-turn-04a-er-family$)/.test(id));
+  }
+  function hasRainPassed(value) {
+    const milestones = strings(value?.completedMilestones);
+    if (!milestones.includes('chapter1-complete')) return false;
+    return milestones.includes('chapter2-rain-passed') ||
+      strings(value?.seenStories).includes('chapter2-rain-opening') ||
+      hasPostRainEvidence(value);
+  }
   const journeyRequirementMet = (id, progress) => {
     const required = getNode(id);
     return Boolean(required && (isComplete(required, progress) || progress.acknowledgedNodes.includes(id)));
   };
   const isJourneyVisible = (node, progress) => !node.hiddenFromJourney &&
+    (!node.revealAfterRain || hasRainPassed(progress)) &&
     (node.journeyRevealRequires || []).every(id => journeyRequirementMet(id, progress));
   const nodes = progress => allNodes().filter(node => !node.hiddenFromJourney &&
     (!progress || isJourneyVisible(node, progress)));
@@ -75,10 +98,11 @@
     return node.type === 'story' ? progress.seenStories.includes(node.id) : progress.completedStages.includes(node.id);
   }
   function isAvailable(node, progress) {
-    return isComplete(node, progress) || (node.requires || []).every(id => {
+    return isComplete(node, progress) ||
+      ((!node.requiresRainPassed || hasRainPassed(progress)) && (node.requires || []).every(id => {
       const required = getNode(id);
       return required && (isComplete(required, progress) || progress.acknowledgedNodes.includes(id));
-    });
+    }));
   }
   function nextNode(id, progress) {
     const current = getNode(id);
@@ -207,5 +231,6 @@
     });
   }
   globalThis.JourneyProgress = Object.freeze({ KEY, nodeId, allNodes, nodes, campaignNodes, getNode, normalize,
-    isComplete, isAvailable, isJourneyVisible, nextNode, recommendedNode, continueAction, resumeNode, getHeroRole, createStore });
+    isComplete, isAvailable, isJourneyVisible, hasPostRainEvidence, hasRainPassed,
+    nextNode, recommendedNode, continueAction, resumeNode, getHeroRole, createStore });
 })();

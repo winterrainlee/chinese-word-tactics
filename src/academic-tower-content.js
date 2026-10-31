@@ -718,7 +718,7 @@
     expressions:[], implemented:true, optional:true, sideGroup:'branch',
     introStoryId:'academic-tower-ran-village-intro',
     requires:['academic-tower-turn-03a-ran-family'],
-    requiresStories:['academic-tower-ran-result']
+    requiresStories:['academic-tower-ran-result','market-after-m4']
   });
 
   const villageTask = (id, word, title, sources, extra={}) => ({
@@ -917,7 +917,7 @@
     expressions:[], implemented:true, optional:true, sideGroup:'synthesis',
     sideParentId:'academic-tower-turn-04-faner',
     introStoryId:'academic-tower-er-intro',
-    requires:['academic-tower-turn-04-faner']
+    requires:['academic-tower-turn-04-faner'], requiresRainPassed:true
   });
   STAGES.push({
     id:'academic-tower-turn-04a-er-family', title:'비가 그친 물길',

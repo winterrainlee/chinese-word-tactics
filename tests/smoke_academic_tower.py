@@ -63,7 +63,7 @@ try:
         page.on("response", lambda response: missing.append(response.url)
                 if response.status >= 400 and "favicon" not in response.url else None)
         seeded_progress = {
-            "seenStories": ["chapter1-room-finale"],
+            "seenStories": ["chapter1-room-finale", "workshop-finale"],
             "completedStages": ["stage-5"],
             "completedMilestones": ["chapter1-complete"],
             "acknowledgedNodes": ["story:chapter1-room-finale"],

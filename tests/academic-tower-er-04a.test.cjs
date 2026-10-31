@@ -57,9 +57,19 @@ test('04A remains one optional study and does not require 03A/03B/05',()=>{
   assert.equal(stages.filter(s=>s===id).length,1);
   const story=c.JourneyProgress.getNode('story:academic-tower-er-intro');
   assert.deepEqual(plain(story.requires),['stage:academic-tower-turn-04-faner']);
+  assert.equal(room.requiresRainPassed,true);
+  assert.equal(story.requiresRainPassed,true);
+  assert.equal(story.revealAfterRain,true);
   const node=c.JourneyProgress.getNode('stage:'+id);
   assert.deepEqual(plain(node.requires),['story:academic-tower-er-intro']);
-  assert.equal(c.JourneyProgress.isAvailable(story,c.JourneyProgress.normalize({completedStages:['academic-tower-turn-04-faner']})),true);
+  assert.equal(c.JourneyProgress.isAvailable(story,c.JourneyProgress.normalize({completedStages:['academic-tower-turn-04-faner']})),false);
+  const withRain=c.JourneyProgress.normalize({completedStages:['academic-tower-turn-04-faner'],
+    completedMilestones:['chapter1-complete','chapter2-rain-passed']});
+  assert.equal(c.JourneyProgress.isAvailable(story,withRain),true);
+  assert.equal(c.JourneyProgress.isJourneyVisible(story,withRain),true);
+  assert.equal(c.JourneyProgress.isJourneyVisible(story,c.JourneyProgress.normalize({
+    completedStages:['academic-tower-turn-04-faner'],completedMilestones:['chapter1-complete']
+  })),false);
   assert.equal(c.JourneyProgress.isAvailable(story,c.JourneyProgress.normalize({})),false);
 });
 test('T1-T5 reveal/meaning choices and two interludes yield one completed fieldwork record',()=>{

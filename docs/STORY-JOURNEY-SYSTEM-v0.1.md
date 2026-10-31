@@ -1,7 +1,7 @@
 # 스토리 모드와 여정 시스템 v0.1
 
 작성일: 2026-09-10
-마지막 반영: 2026-09-15 — 자유 의뢰의 장소별 누적 구조
+마지막 반영: 2026-10-31 — 장·상설 연구의 독립 해금, 이야기별 선수 경험, 큰비 사건과 저장 호환 계약 추가
 
 이 문서는 `chinese-word-tactics`에서 **이야기 장면, 전술 스테이지, 월드맵, 다시 보기**를 하나의 플레이 흐름으로 연결하기 위한 공통 구조를 정의한다.
 
@@ -9,7 +9,10 @@
 
 - `WORLD-NAMING-PRINCIPLES-v0.1.md`
 - `TIER1-STORYLINE-v0.1.md`
-- `WORLD-v0.5.md`
+- `WORLD-v0.6.md`
+- `GAME-CONTENT-FRAMEWORK-v0.1.md`
+- `ACADEMIC-TOWER-OPENING-STORY-v0.1.md`
+- `CHAPTER2-RAIN-OPENING-DESIGN-v0.1.md`
 - `DEVELOPMENT-STATUS.md`
 
 핵심 원칙은 다음과 같다.
@@ -101,7 +104,7 @@
 이후 자연스러운 연결은 다음과 같다.
 
 - 길목 → 끝마을
-- 장인골 → 학술도시
+- 장인골 → 학술탑(상설 연구, W7 후일담에서 개방)
 - 장터 → 회의소
 
 세부 사건은 `TIER1-STORYLINE-v0.1.md`를 기준으로 한다.
@@ -481,3 +484,53 @@ JOURNEY = [
 > **여정에서 예전 스테이지를 다시 하고, 이야기에서 그 단어가 쓰였던 상황도 다시 본다.**
 
 이 구조가 완성되면 스테이지는 독립된 중국어 문제가 아니라 **용사의 여행에서 실제로 해결했던 사건**으로 기억되어야 한다.
+
+
+---
+
+# 16. 실제 해금과 이야기 분기 계약 (2026-10-31)
+
+> **현재 구현을 해석하는 우선 기준.** 앞의 2026-09-10 v0.1 예시들은 초기 UI 설계 이력이다. 이 절은 현재 [상위 콘텐츠 분류](GAME-CONTENT-FRAMEWORK-v0.1.md), [학술탑 첫 방문](ACADEMIC-TOWER-OPENING-STORY-v0.1.md), [03B 상세](ACADEMIC-TOWER-RAN-REVISIT-03B-DETAIL-v0.1.md), [큰비 도입](CHAPTER2-RAIN-OPENING-DESIGN-v0.1.md)과 실제 런타임의 선수 상태를 묶는다. 세부 판·대사 원고는 지역 문서를 따른다.
+
+## 16.1 장 소속, 장소 입장, 개별 연구, 공통 사건은 별개다
+
+- **본편의 장:** 1장은 길목·장인골·장터와 여관 결말, 2장은 큰비 도입 이후 회의소·끝마을을 중심으로 확장한다. 월드맵 장 표지는 이야기 시점이지 상설 연구의 완료나 장소 잠금 조건이 아니다.
+- **상설 공간의 입장:** 학술탑은 W7 후일담의 수리패·표식 단서를 받은 뒤 지속 개방된다. 이후 장 번호, 1장 결말, 2장 본편 완료와 독립적이다.
+- **개별 학습의 선수:** 본선 01~05, 03A, 03B는 각 스테이지와 이야기의 의미를 이해하는 데 실제로 필요한 기록을 조건으로 둔다. 전체 학술탑 완료·격파 milestone은 만들지 않는다.
+- **사건의 선수:** 선택 연구 04A는 특정 연구 진도와 *같은 큰비가 이미 지나갔는지*를 모두 확인한다. 아직 일어나지 않은 폭우의 흔적을 조사할 수 없다.
+- **분기 대사:** 경험이 있는 경우에만 그 경험을 언급한다. 이야기 분기는 별도 스테이지를 복제하지 않고 공통 story의 일부 beat를 바꾸며, 기본 story ID와 저장 milestone을 유지한다.
+
+## 16.2 현행 실제 조건표
+
+| 대상 | 정확한 선수 기록 | 막을 것 / 대사에만 반영할 것 | 소유 코드 |
+|---|---|---|---|
+| 학술탑 월드 입장 및 `academic-tower-arrival` | `seenStories`에 `workshop-finale` | `workshop-core`만 완료한 W7 후일담 *이전* 입장 금지. `chapter1-complete` 불필요 | `src/content.js`, `src/world-runtime.js`, `src/academic-tower-journey-content.js` |
+| 첫 방문·본선 01 도입·첫 연구 묶음 결과의 **길목 표식 언급** | `seenStories`에 `gate-after-convoy` 있으면 구체 언급, 없으면 장인골 관찰만 이야기 | G7은 학술탑 입장 필수가 아님. 다른 판에서 `gate-core`만 충족한 사실은 발광 장면 열람의 대용이 아님 | `src/story-outcome-content.js`, `src/story-pronunciation-content.js` |
+| 학술탑 본선 01~05 | 탑 첫 입장 이후 각 연구의 기존 `requires` 관계 | 큰비·장터 M8·2장 전체 완료 불필요 | `src/academic-tower-journey-content.js`, `src/academic-tower-content.js` |
+| 선택 연구 03A | 본선 02·03 단계 완료, 기존 03A 도입과 연구 | 본선 05 완료·2장 진도 불필요 | 같은 파일 |
+| 선택 연구 03B 첫 시작 | 03A 완료 + `academic-tower-ran-result` 열람 + 장터 `market-after-m4` 열람 | 도시락은 여관에서 준비하고 현재 장터 경험을 말하므로 **M4 후일담**이 필요. M8·1장 전체 결말·본선 05 불필요 | `src/academic-tower-journey-content.js`, `src/academic-tower-content.js`, `src/academic-tower-hub-runtime.js` |
+| 선택 연구 04A 첫 시작 | 본선 04 완료 + `JourneyProgress.hasRainPassed(progress)` | 03A·03B·본선 05 불필요. 큰비 이전에는 연구 방과 여정 항목을 드러내지 않음 | `src/academic-tower-journey-content.js`, `src/journey-progress.js`, `src/academic-tower-hub-runtime.js` |
+| 2장 큰비 | 1장 방 결말의 `chapter1-complete` 뒤 한 번 | 학술탑 01~05·03A·03B를 했다는 이유만으로 큰비를 본 것으로 판단하지 않음 | `src/chapter2-rain-runtime.js`, `src/journey-progress.js` |
+| 2장 회의소·끝마을 | **별도 구현 때 결정** | 학술탑 전체 이수·03A·03B·04A를 공통 필수 조건으로 두지 않는다 | [2장 초안](TIER2-CONCEPT-DRAFT-v0.1.md) |
+
+`workshop-core`는 W7 *스테이지* 완료이며, `workshop-finale`는 수리패와 학술탑 단서를 실제로 얻는 *후일담*이다. `market-stage-4` 완료로 여관은 열리지만, 03B 선수의 안정된 이야기 ID는 `market-after-m4`다. **관측 기록의 직접 근거인 story를 다른 milestone로 뭉뚱그리지 않는다.**
+
+## 16.3 코드에서 해금과 표시를 판정하는 방법
+
+- `WORLD.regions[id].requires`는 지도에서 *장소 자체의 진입*을 제한한다. 일반 milestone뿐 아니라 `story:workshop-finale`처럼 정확한 이야기 완료도 인식한다.
+- `JOURNEY.sections[].revealRequires` 및 `revealAfterRain`은 여정에서 *항목을 보여줄 시점*을 제어한다. 보인다고 즉시 시작 가능한 것은 아니다.
+- `JOURNEY.sections[].sequence[].requires`와 `requiresRainPassed`는 *지금 플레이해도 되는지* 확인한다. 학술탑 허브의 `room.requiresStories`/`room.requiresRainPassed`도 같은 조건을 사용해야 한다. 월드·허브·여정·직접 실행 간 우회가 없어야 한다.
+- `JourneyProgress.hasRainPassed`는 `chapter1-complete` 이후 정상 큰비의 `chapter2-rain-passed`/story 완료를 인식한다. **구형 저장**에서 04A 현장 연구나 큰비 이후 자유 의뢰를 이미 진행했다면 그때의 사건을 경험한 것으로 간주한다. 이때 못 본 `chapter2-rain-opening`을 `seenStories`에 허위 기록하지 않는다.
+- `JourneyProgress.hasPostRainEvidence`는 **04A 및 1장 이후 의뢰 관련 ID만** 검사한다. 일반 학술탑 연구를 1장 도중 먼저 해도 큰비가 자동으로 건너뛰지 않는다.
+- 기존 **03B가 이미 시작된 저장**은 새 M4 조건으로 이용 중인 연구를 회수하지 않는다. 이미 본 도입이나 완료 상태는 유지하고 재개할 수 있다.
+- 미완료 `story`의 읽던 위치·기완료 스테이지·첫 inquiry 결과·수리패·관찰 카드는 보존한다. 재열람/재플레이가 원래 진행을 새로 완료 처리하지 않는다. 새 노드를 `STAGES` 중간에 삽입하거나 저장 키/버전을 불필요하게 바꾸지 않는다.
+
+## 16.4 새로운 분기나 연구를 추가할 때 필수 점검
+
+1. **이야기 안의 사실마다 증거 ID를 찾는다.** "지난번", 특정 물건, 특정 사건, 과거에 본 표식·거래를 말한다면 어떤 최초 story가 그 사실을 제공하는지 적는다.
+2. **입장 / 표시 / 실행 조건을 구분한다.** 새 연구가 상설 공간 전체를 잠그지 않고, 이미 시작된 내용을 소급 차단하지 않도록 한다.
+3. **분기 대사와 주음을 함께 검증한다.** 현재 연구는 `StoryOutcomeContent.resolve`에서 실제 경험에 따라 beat를 치환하며, `tools/story-pronunciation-audit.cjs`로 기본·분기 문장을 모두 확인한다. 별도 story ID를 늘리지 않는다.
+4. **저장 이행 반례를 테스트한다.** (a) W7만, (b) W7 후일담 이후 G7 미완료, (c) 03A 후 M4 미완료, (d) 본선 04 후 비 이전, (e) 이전 04A 중단 저장, (f) 1장 중 학술탑 연구 후 1장 결말, (g) 다시 보기·다른 장소 왕복·백업 복원.
+5. **G4/G5/G6를 구분한다.** 자동검사·Pages 배포·실제 iPhone Safari 확인은 서로 별개의 완료 단계다.
+
+현행 회귀 기준: `tests/tower-unlock-conditions.test.cjs`, `tests/smoke_tower_unlock_conditions.py`, `tests/chapter2-rain.test.cjs`, `tests/smoke_chapter2_rain.py`, 기존 학술탑/여정/백업 회귀검사. 

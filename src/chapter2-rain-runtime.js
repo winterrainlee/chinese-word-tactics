@@ -3,23 +3,13 @@
   const STORY_ID = 'chapter2-rain-opening';
   const STORY_NODE = 'story:' + STORY_ID;
   const MILESTONE = 'chapter2-rain-passed';
-  const afterChapter1 = /^(?:academic-tower-|first-free-quest-|north-forest-|quest-board-)/;
   const strings = value => Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
   const progress = () => globalThis.GameFlow?.progress?.() || {};
 
   // Before this story existed, players might already have explored 04A and
   // the forest. The same great rain must not occur twice for old saves.
-  function hasLaterPlay(value) {
-    const ids = [
-      ...strings(value?.seenStories),
-      ...strings(value?.completedStages),
-      ...strings(value?.acknowledgedNodes).map(id => id.replace(/^(?:story|stage):/, '')),
-      ...strings(value?.completedMilestones)
-    ];
-    return ids.some(id => afterChapter1.test(id)) ||
-      Object.keys(value?.sideResearchProgress || {}).some(id => afterChapter1.test(id)) ||
-      afterChapter1.test((value?.lastLocation?.nodeId || '').replace(/^(?:story|stage):/, ''));
-  }
+  const hasLaterPlay = value => globalThis.JourneyProgress?.hasPostRainEvidence?.(value) === true;
+
   function statusFor(value) {
     if (!strings(value?.completedMilestones).includes('chapter1-complete')) return 'locked';
     if (strings(value?.seenStories).includes(STORY_ID) ||

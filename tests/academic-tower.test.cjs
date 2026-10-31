@@ -147,7 +147,7 @@ test('entry, story handoff, first-play save, and replay remain separate', () => 
     const before5 = P.getNode('story:academic-tower-turn-before-synthesis');
     const room5 = P.getNode('stage:academic-tower-turn-05-synthesis');
     const resultStory = P.getNode('story:academic-tower-turn-result');
-    const before = P.normalize({ seenStories: ['chapter1-room-finale'] });
+    const before = P.normalize({ seenStories: ['workshop-finale'] });
     const memory = new Map();
     const disk = { getItem: key => memory.get(key) || null, setItem: (key, value) => memory.set(key, value) };
     const store = P.createStore(disk);
@@ -471,12 +471,14 @@ test('03B follows 03A result and remains independent of 04 and 05',()=>{
   const before=progress({completedStages:['academic-tower-turn-02-raner','academic-tower-turn-03-expectation']});
   const afterStage=progress({completedStages:[...before.completedStages,'academic-tower-turn-03a-ran-family']});
   const afterResult=progress({...afterStage,seenStories:['academic-tower-ran-result']});
+  const afterMarket=progress({...afterResult,seenStories:['academic-tower-ran-result','market-after-m4']});
   const afterFive=progress({...afterResult,completedStages:[...afterResult.completedStages,'academic-tower-turn-05-synthesis'],completedMilestones:['academic-tower-turn-foundation']});
   assert.equal(P.isJourneyVisible(intro,before),false);
   assert.equal(P.isAvailable(intro,before),false);
   assert.equal(P.isAvailable(intro,afterStage),false);
-  assert.equal(P.isAvailable(intro,afterResult),true);
-  assert.equal(P.isAvailable(intro,afterFive),true);
+  assert.equal(P.isAvailable(intro,afterResult),false,'03B needs Market M4 as well as 03A');
+  assert.equal(P.isAvailable(intro,afterMarket),true);
+  assert.equal(P.isAvailable(intro,afterFive),false,'finishing Tower 05 is not a substitute for Market M4');
   assert.deepEqual(plain(stage.requires),['story:academic-tower-ran-village-intro']);
   assert.deepEqual(plain(outcome.requires),['stage:academic-tower-turn-03b-ran-village']);
   assert.deepEqual(plain(P.getNode('stage:academic-tower-turn-04-faner').requires),['story:academic-tower-turn-before-faner']);

@@ -65,8 +65,8 @@
       subtitle: '지식과 기록이 모이는 탑',
       note: '오래된 기술과 기록을 살피는 곳. 장인골에서 발견한 단서가 이곳으로 이어진다.',
       summary: '오래된 기술과 기록이 모이는 탑이야.',
-      lockHint: '물길마을의 세 갈래 여행을 마치고 방에서 다음 행선지를 정하면 학술탑으로 갈 수 있어.',
-      recommendationMilestone: 'chapter1-complete',
+      lockHint: '장인골 W7을 마치고 장인에게 수리패와 학술탑 이야기를 들으면 갈 수 있어.',
+      recommendationMilestone: 'workshop-core',
       recommendation: '장인골의 오래된 조절기에서 얻은 단서를 확인한 뒤 방문하는 흐름을 권장해.',
       map: { x: 26, y: 46, branch: 'workshop', kind: 'landmark' }
     }

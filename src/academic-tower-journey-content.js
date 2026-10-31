@@ -212,7 +212,7 @@
       sequence: [
         {
           type: 'story', id: 'academic-tower-arrival',
-          requires: ['story:chapter1-room-finale'], milestone: 'academic-tower-entered'
+          requires: ['story:workshop-finale'], milestone: 'academic-tower-entered'
         },
         { type: 'story', id: 'academic-tower-turn-intro', requires: ['story:academic-tower-arrival'] },
         { type: 'stage', id: 'academic-tower-turn-01-que', requires: ['story:academic-tower-turn-intro'] },
@@ -267,16 +267,16 @@
       plannedStageCount:1, nameKo:'옛 지도, 지금의 마을 · 선택 연구', stageLabel:'연구',
       revealRequires:['stage:academic-tower-turn-03a-ran-family','story:academic-tower-ran-result'],
       sequence:[
-        {type:'story',id:'academic-tower-ran-village-intro',requires:['story:academic-tower-ran-result']},
+        {type:'story',id:'academic-tower-ran-village-intro',requires:['story:academic-tower-ran-result','story:market-after-m4']},
         {type:'stage',id:'academic-tower-turn-03b-ran-village',requires:['story:academic-tower-ran-village-intro']},
         {type:'story',id:'academic-tower-ran-village-result',requires:['stage:academic-tower-turn-03b-ran-village'],returnToRegionHubAfter:'academic-tower'}
       ]
     }, {
       id:'academic-tower-optional-er-fieldwork',regionId:'academic-tower',
       plannedStageCount:1,nameKo:'비가 그친 물길 · 선택 연구',stageLabel:'연구',
-      revealRequires:['stage:academic-tower-turn-04-faner'],
+      revealRequires:['stage:academic-tower-turn-04-faner'],revealAfterRain:true,
       sequence:[
-        {type:'story',id:'academic-tower-er-intro',requires:['stage:academic-tower-turn-04-faner']},
+        {type:'story',id:'academic-tower-er-intro',requires:['stage:academic-tower-turn-04-faner'],requiresRainPassed:true},
         {type:'stage',id:'academic-tower-turn-04a-er-family',requires:['story:academic-tower-er-intro']},
         {type:'story',id:'academic-tower-er-result',requires:['stage:academic-tower-turn-04a-er-family'],returnToWorldAfter:true}
       ]

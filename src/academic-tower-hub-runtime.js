@@ -31,7 +31,11 @@
     const completed = new Set(progress?.completedStages || []);
     if (completed.has(room.id)) return 'complete';
     if (!(room.requires || []).every(id => completed.has(id))) return 'locked';
-    if (!(room.requiresStories || []).every(id => progress?.seenStories?.includes(id))) return 'locked';
+    const introAlreadyRead = room.introStoryId && progress?.seenStories?.includes(room.introStoryId);
+    // A previously started 03B visit remains accessible in old saves even
+    // if they predate the newly added Market M4 prerequisite.
+    if (!introAlreadyRead && !(room.requiresStories || []).every(id => progress?.seenStories?.includes(id))) return 'locked';
+    if (room.requiresRainPassed && !globalThis.JourneyProgress?.hasRainPassed?.(progress)) return 'locked';
     const journeyNode = globalThis.JourneyProgress?.getNode?.(`stage:${room.id}`);
     if (journeyNode && !globalThis.JourneyProgress.isAvailable(journeyNode, progress)) {
       const introId = room.optional && introForRoom(room);
@@ -155,7 +159,9 @@
     // Do not reveal 03B before the player has completed 03A.
     const optionalRooms = bundle.rooms.filter(room => room.optional &&
       (room.id !== 'academic-tower-turn-03b-ran-village' ||
-       progress.completedStages.includes('academic-tower-turn-03a-ran-family')));
+       progress.completedStages.includes('academic-tower-turn-03a-ran-family')) &&
+      (room.id !== 'academic-tower-turn-04a-er-family' ||
+       globalThis.JourneyProgress?.hasRainPassed?.(progress)));
     const foundation = progress.completedMilestones.includes('academic-tower-turn-foundation');
     summary.textContent = foundation
       ? '연구 완료 · 첫 관찰 메모를 보관했어.'
