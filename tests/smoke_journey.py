@@ -270,7 +270,7 @@ try:
         locked_tower.click()
         assert_view(page, 'world')
         assert page.locator('#worldPlaceLockReason').is_visible()
-        assert '세 갈래 여행' in page.locator('#worldPlaceLockReason').inner_text()
+        assert '장인골 W7' in page.locator('#worldPlaceLockReason').inner_text()
         assert page.locator('#worldPlaceGo').count() == 0
         locked_go = page.locator('#worldPlaceLockedGo')
         assert locked_go.is_disabled()
