@@ -128,6 +128,6 @@ test('browser loads the journey redesign assets with a fresh cache key', () => {
   assert.match(html, /stage-reference\.js\?v=20261006-a10a061/);
   assert.match(html, /journey\.css\?v=20261029-rain-journey1/);
   assert.match(html, /journey-runtime\.js\?v=20261029-rain-journey1/);
-  assert.match(html, /journey-progress\.js\?v=20261029-rain-journey1/);
+  assert.match(html, /journey-progress\.js\?v=20261031-tower-unlocks1/);
   assert.match(html, /flow-runtime\.js\?v=\d{8}-[a-z0-9]+/);
 });

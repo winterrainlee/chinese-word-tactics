@@ -92,7 +92,7 @@ test('watercolor map runs top to bottom and aligns markers to illustrated landma
   assert.ok(byId['gate-town'].map.y < byId['border-village'].map.y);
   assert.match(byId['border-village'].recommendation, /길목/);
   assert.match(byId['council-town'].recommendation, /장터/);
-  assert.match(byId['academic-tower'].lockHint, /세 갈래 여행/);
+  assert.match(byId['academic-tower'].lockHint, /장인골 W7.*수리패/);
   assert.equal(byId['academic-tower'].requires, 'story:workshop-finale');
 });
 
@@ -113,7 +113,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.match(html, /view\.css\?v=20261006-a042/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
-  assert.match(html, /world-runtime\.js\?v=20261031-chapter2-world1/);
+  assert.match(html, /world-runtime\.js\?v=20261031-tower-unlocks1/);
   assert.match(html, /journey\.css\?v=20261029-rain-journey1/);
   assert.match(html, /journey-runtime\.js\?v=20261029-rain-journey1/);
   assert.match(html, /name="cwt-build" content="\d{4}-\d{2}-\d{2}-[^"]+"/);

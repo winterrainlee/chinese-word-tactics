@@ -46,6 +46,7 @@ function harness(initial = {}) {
     MutationObserver,
     console
   });
+  vm.runInContext(read('src/journey-progress.js'), context, { filename: 'journey-progress.js' });
   vm.runInContext(read('src/chapter2-rain-runtime.js'), context, { filename: 'chapter2-rain-runtime.js' });
   vm.runInContext(read('src/world-runtime.js'), context, { filename: 'world-runtime.js' });
   return { context, world, kicker, heading, zh, observers, setProgress(v) { progress = v; } };
