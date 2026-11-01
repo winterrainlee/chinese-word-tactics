@@ -19,10 +19,10 @@
   document.querySelectorAll('.hotspot').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===active)));
   if(!active){$('speaker').textContent='여관 안에서';$('zh').textContent='햇빛이 식탁 위에 머물고 있어.';$('zh').lang='ko';$('ko').hidden=true;return;}
   const line=active==='keeper'?data.talk[beat]:data[active];$('speaker').textContent=line.speaker;$('zh').textContent=line.zh;$('zh').lang='zh-Hant';$('ko').textContent=line.ko;$('ko').hidden=!translated;
-  const t=button(translated?'한국어 뜻 접기':'한국어 뜻 보기',()=>{translated=!translated;render();$('actions .translate').focus({preventScroll:true});},'translate');t.setAttribute('aria-expanded',String(translated));t.setAttribute('aria-controls','ko');$('actions').append(t);
+  const t=button(translated?'한국어 뜻 접기':'한국어 뜻 보기',()=>{translated=!translated;render();document.querySelector('#actions .translate').focus({preventScroll:true});},'translate');t.setAttribute('aria-expanded',String(translated));t.setAttribute('aria-controls','ko');$('actions').append(t);
   if(active==='keeper'){
    const prev=button('이전',()=>{beat--;translated=false;render();});prev.disabled=beat===0;$('actions').append(prev);
-   $('actions').append(button(beat===data.talk.length-1?'대화 마치기':'다음',()=>{if(beat<data.talk.length-1){beat++;translated=false;render();$('actions .next').focus({preventScroll:true});}else closeTalk();},'next'));
+   $('actions').append(button(beat===data.talk.length-1?'대화 마치기':'다음',()=>{if(beat<data.talk.length-1){beat++;translated=false;render();document.querySelector('#actions .next').focus({preventScroll:true});}else closeTalk();},'next'));
   }
   if(active==='door')$('actions').append(button('문밖으로',()=>{navigate('outside');},'next'));
  }
