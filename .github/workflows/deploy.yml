@@ -32,6 +32,7 @@ jobs:
           node --check world-grid-test/app.js
           node --check inn-style-test/app.js
           node --check inn-style-test/content.js
+          for file in inn-layer-test/*.js; do node --check "$file"; done
 
       - name: Run unit tests
         run: node --test tests/*.test.cjs
@@ -95,6 +96,11 @@ jobs:
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_inn_style.py
+
+      - name: Run isolated inn layers mobile smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_inn_layers.py
 
       - name: Run world spatial grid G1 browser smoke
         env:

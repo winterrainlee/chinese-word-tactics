@@ -1,0 +1,387 @@
+{
+  "id": "inn.lobby.layer-fixture.v1",
+  "coordinateSystem": {
+    "width": 100,
+    "height": 100,
+    "aspectRatio": "4/5",
+    "meaning": "C illustration projection, not world geography"
+  },
+  "layers": {
+    "background": "배경",
+    "objects": "기물",
+    "people": "인물",
+    "foreground": "전경",
+    "traces": "비의 흔적"
+  },
+  "assets": {
+    "room": {
+      "src": "assets/background.webp",
+      "alpha": false
+    },
+    "counter": {
+      "src": "assets/counter-front.svg",
+      "alpha": true
+    },
+    "keeper": {
+      "src": "assets/keeper.webp",
+      "alpha": true
+    },
+    "board": {
+      "src": "assets/board.webp",
+      "alpha": true
+    },
+    "notice": {
+      "src": "assets/notice.webp",
+      "alpha": true
+    },
+    "teapot": {
+      "src": "assets/teapot.webp",
+      "alpha": true
+    },
+    "cup": {
+      "src": "assets/cup.webp",
+      "alpha": true
+    },
+    "ledger": {
+      "src": "assets/ledger.webp",
+      "alpha": true
+    },
+    "wet": {
+      "src": "assets/wet-belongings.webp",
+      "alpha": true
+    },
+    "water": {
+      "src": "assets/water.webp",
+      "alpha": true
+    }
+  },
+  "conditions": {
+    "always": {},
+    "board": {
+      "all": [
+        "board"
+      ]
+    },
+    "rain": {
+      "all": [
+        "rain"
+      ]
+    },
+    "newQuest": {
+      "all": [
+        "board",
+        "newQuest"
+      ]
+    }
+  },
+  "placements": {
+    "full": {
+      "x": 0,
+      "y": 0,
+      "w": 100,
+      "h": 100
+    },
+    "keeper": {
+      "x": 20.4,
+      "y": 16.1,
+      "w": 14.8,
+      "h": 17
+    },
+    "board": {
+      "x": 44,
+      "y": 8.6,
+      "w": 24,
+      "h": 12.8
+    },
+    "first": {
+      "x": 47.2,
+      "y": 12.1,
+      "w": 6.1,
+      "h": 6.3,
+      "rotate": -2
+    },
+    "new": {
+      "x": 57.1,
+      "y": 11.7,
+      "w": 6.1,
+      "h": 6.8,
+      "rotate": 3
+    },
+    "pot": {
+      "x": 34.7,
+      "y": 57.2,
+      "w": 9.7,
+      "h": 7.4
+    },
+    "cup": {
+      "x": 29.7,
+      "y": 62.3,
+      "w": 4.3,
+      "h": 3.4
+    },
+    "ledger": {
+      "x": 38.8,
+      "y": 23.1,
+      "w": 6.5,
+      "h": 3.4
+    },
+    "wet": {
+      "x": 65,
+      "y": 70,
+      "w": 14,
+      "h": 11.5
+    },
+    "water": {
+      "x": 64,
+      "y": 78,
+      "w": 27,
+      "h": 10
+    }
+  },
+  "interactions": {
+    "keeper": {
+      "label": "여관 주인과 이야기하기",
+      "kind": "talk",
+      "hit": {
+        "x": 19,
+        "y": 16,
+        "w": 18,
+        "h": 15
+      },
+      "priority": 30
+    },
+    "board": {
+      "label": "게시판 살펴보기",
+      "kind": "board",
+      "hit": {
+        "x": 43,
+        "y": 8,
+        "w": 26,
+        "h": 15
+      },
+      "priority": 20
+    },
+    "table": {
+      "label": "식탁 살펴보기",
+      "kind": "table",
+      "hit": {
+        "x": 42,
+        "y": 65,
+        "w": 14,
+        "h": 10
+      },
+      "priority": 10
+    },
+    "pot": {
+      "label": "찻주전자 살펴보기",
+      "kind": "pot",
+      "hit": {
+        "x": 37,
+        "y": 54,
+        "w": 14,
+        "h": 10
+      },
+      "priority": 30
+    },
+    "cup": {
+      "label": "찻잔 살펴보기",
+      "kind": "cup",
+      "hit": {
+        "x": 23,
+        "y": 61,
+        "w": 14,
+        "h": 10
+      },
+      "priority": 31
+    },
+    "ledger": {
+      "label": "장부 살펴보기",
+      "kind": "ledger",
+      "hit": {
+        "x": 37,
+        "y": 23,
+        "w": 14,
+        "h": 10
+      },
+      "priority": 31
+    },
+    "wet": {
+      "label": "젖은 짐 살펴보기",
+      "kind": "wet",
+      "hit": {
+        "x": 62,
+        "y": 68,
+        "w": 16,
+        "h": 11
+      },
+      "priority": 30
+    },
+    "water": {
+      "label": "현관 물기 살펴보기",
+      "kind": "water",
+      "hit": {
+        "x": 62,
+        "y": 83,
+        "w": 16,
+        "h": 12
+      },
+      "priority": 30
+    },
+    "stairs": {
+      "label": "계단으로 소년의 방에 가기",
+      "kind": "room",
+      "hit": {
+        "x": 77,
+        "y": 9,
+        "w": 18,
+        "h": 36
+      },
+      "priority": 10
+    },
+    "door": {
+      "label": "출입문으로 로비 밖에 나가기",
+      "kind": "outside",
+      "hit": {
+        "x": 82,
+        "y": 56,
+        "w": 17,
+        "h": 27
+      },
+      "priority": 10
+    }
+  },
+  "objects": [
+    {
+      "id": "inn.lobby.structure",
+      "label": "고정 구조",
+      "asset": "room",
+      "placement": "full",
+      "condition": "always",
+      "layer": "background",
+      "z": 0
+    },
+    {
+      "id": "inn.lobby.keeper",
+      "label": "여관 주인",
+      "asset": "keeper",
+      "placement": "keeper",
+      "condition": "always",
+      "layer": "people",
+      "interaction": "keeper",
+      "z": 20
+    },
+    {
+      "id": "inn.lobby.counter-front",
+      "label": "카운터 전경",
+      "asset": "counter",
+      "placement": "full",
+      "condition": "always",
+      "layer": "foreground",
+      "z": 30
+    },
+    {
+      "id": "inn.lobby.board",
+      "label": "게시판",
+      "asset": "board",
+      "placement": "board",
+      "condition": "board",
+      "layer": "objects",
+      "interaction": "board",
+      "z": 10
+    },
+    {
+      "id": "inn.lobby.notice.first",
+      "label": "첫 게시물",
+      "asset": "notice",
+      "placement": "first",
+      "condition": "board",
+      "layer": "objects",
+      "interaction": "board",
+      "z": 12
+    },
+    {
+      "id": "inn.lobby.notice.new",
+      "label": "새 의뢰 종이",
+      "asset": "notice",
+      "placement": "new",
+      "condition": "newQuest",
+      "layer": "objects",
+      "interaction": "board",
+      "z": 13
+    },
+    {
+      "id": "inn.lobby.teapot",
+      "label": "찻주전자",
+      "asset": "teapot",
+      "placement": "pot",
+      "condition": "always",
+      "layer": "objects",
+      "interaction": "pot",
+      "z": 40
+    },
+    {
+      "id": "inn.lobby.cup",
+      "label": "찻잔",
+      "asset": "cup",
+      "placement": "cup",
+      "condition": "always",
+      "layer": "objects",
+      "interaction": "cup",
+      "z": 41
+    },
+    {
+      "id": "inn.lobby.ledger",
+      "label": "장부",
+      "asset": "ledger",
+      "placement": "ledger",
+      "condition": "always",
+      "layer": "objects",
+      "interaction": "ledger",
+      "z": 40
+    },
+    {
+      "id": "inn.lobby.rain.water",
+      "label": "현관 물기",
+      "asset": "water",
+      "placement": "water",
+      "condition": "rain",
+      "layer": "traces",
+      "interaction": "water",
+      "z": 5
+    },
+    {
+      "id": "inn.lobby.rain.belongings",
+      "label": "젖은 손님 짐",
+      "asset": "wet",
+      "placement": "wet",
+      "condition": "rain",
+      "layer": "traces",
+      "interaction": "wet",
+      "z": 42
+    },
+    {
+      "id": "inn.lobby.table",
+      "label": "식탁",
+      "condition": "always",
+      "layer": "background",
+      "interaction": "table",
+      "z": 0
+    },
+    {
+      "id": "inn.lobby.stairs",
+      "label": "계단",
+      "condition": "always",
+      "layer": "background",
+      "interaction": "stairs",
+      "z": 0
+    },
+    {
+      "id": "inn.lobby.exit",
+      "label": "출입문",
+      "condition": "always",
+      "layer": "background",
+      "interaction": "door",
+      "z": 0
+    }
+  ]
+}

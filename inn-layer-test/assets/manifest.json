@@ -1,0 +1,107 @@
+[
+  {
+    "file": "background.webp",
+    "size": [
+      1122,
+      1402
+    ],
+    "alphaExtrema": null,
+    "sha256": "99078dc0d4668da0c9f670d2d0cb827ace30f7df4053e8c76582297ad8e46048"
+  },
+  {
+    "file": "board.webp",
+    "size": [
+      1536,
+      1024
+    ],
+    "alphaExtrema": [
+      0,
+      254
+    ],
+    "sha256": "568878cb94fbb18ecceb3e9838183c54e2c64f53490da575e23670d27d6621a0"
+  },
+  {
+    "file": "cup.webp",
+    "size": [
+      1312,
+      1199
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "sha256": "aa70056fc6edd245f0781d7be17b3059fa5ee3fbbe38e0e21f4b8d123cb66db7"
+  },
+  {
+    "file": "keeper.webp",
+    "size": [
+      1214,
+      1295
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "sha256": "f56c53d640e562b71f5babf010e8789e5e03c6ff0acff4a34702a1a09f516067"
+  },
+  {
+    "file": "ledger.webp",
+    "size": [
+      1536,
+      1024
+    ],
+    "alphaExtrema": [
+      0,
+      254
+    ],
+    "sha256": "02a072084e87ee9ae5422f6f1e29a061f273557206f0d8f080d46eaa0161548d"
+  },
+  {
+    "file": "notice.webp",
+    "size": [
+      1122,
+      1402
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "sha256": "139fc871c1196e08be6834433b81996dbee788eb6c6a42c4a31bae1e1840fad3"
+  },
+  {
+    "file": "teapot.webp",
+    "size": [
+      1374,
+      1145
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "sha256": "28afb383d6724c1e29e5396eccbd48634a8981f3119813a0aae79c877dbc7b4d"
+  },
+  {
+    "file": "water.webp",
+    "size": [
+      1536,
+      1024
+    ],
+    "alphaExtrema": [
+      0,
+      234
+    ],
+    "sha256": "4f67d5e25426d36991d9cb29840bcc74f9f9ec235347af76d2b0b42db4c32872"
+  },
+  {
+    "file": "wet-belongings.webp",
+    "size": [
+      1226,
+      1283
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "sha256": "eff69089c8709660b17fac4849eba880eb3b6b0ed37cfc35a7294e03e76d4a47"
+  }
+]
