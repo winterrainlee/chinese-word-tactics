@@ -1,4 +1,4 @@
-"""Isolated lobby art comparison: mobile interaction, shared fixtures, zero storage writes."""
+"""Isolated layered lobby: mobile interaction, shared fixtures, zero storage writes."""
 import http.server
 import json
 import os
@@ -29,14 +29,9 @@ try:
             page.on('pageerror',lambda e:errors.append(str(e)))
             page.add_init_script("window.__writes=[];for(const k of ['setItem','removeItem','clear']){const f=Storage.prototype[k];Storage.prototype[k]=function(...a){window.__writes.push(k);return f.apply(this,a)}}")
             page.goto(base);page.locator('#scene[data-ready="true"]').wait_for()
-            assert not page.locator('#originalImage').get_attribute('src')
-            assert not any('lobby-c.webp' in url for url in requests), requests
+            assert not any('/inn-style-test/' in url for url in requests), requests
             art_requests=[url for url in requests if '/inn-layer-test/assets/' in url]
             assert art_requests and all('/assets/mobile/' in url for url in art_requests), art_requests
-            page.locator('#dev > summary').tap();page.locator('#original').tap()
-            page.wait_for_function('document.querySelector("#originalImage").naturalWidth>0')
-            assert any('lobby-c.webp' in url for url in requests)
-            page.locator('#original').tap();page.locator('#dev > summary').tap()
             background=page.locator('[data-object-id="inn.lobby.structure"]').element_handle()
             background_src=background.get_attribute('src')
             for n in [0,1,3,7,6,2,4,5,0]:

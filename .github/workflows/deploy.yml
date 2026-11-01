@@ -30,8 +30,6 @@ jobs:
             node --check "$file"
           done
           node --check world-grid-test/app.js
-          node --check inn-style-test/app.js
-          node --check inn-style-test/content.js
           for file in inn-layer-test/*.js; do node --check "$file"; done
 
       - name: Run unit tests
@@ -91,11 +89,6 @@ jobs:
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_inn.py
-
-      - name: Run isolated inn art comparison mobile smoke
-        env:
-          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
-        run: python tests/smoke_inn_style.py
 
       - name: Run isolated inn layers mobile smoke
         env:

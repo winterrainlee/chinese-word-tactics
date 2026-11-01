@@ -54,10 +54,9 @@ for key, asset in scene['assets'].items():
 scene_path.write_text(json.dumps(scene, ensure_ascii=False, indent=2) + '\n')
 source_paths = {a['source'] for a in scene['assets'].values()}
 old_bytes = sum((TEST / p).stat().st_size for p in source_paths)
-original_c = (ROOT / 'inn-style-test/assets/lobby-c.webp').stat().st_size
 report = {'sceneCssMaximum': [400, 500], 'originalsUntouched': True,
-          'beforeLayerImageBytes': old_bytes, 'beforeIncludingEagerOriginalCBytes': old_bytes + original_c,
+          'beforeLayerImageBytes': old_bytes,
           'afterLayerImageBytes': sum(r['bytes'] for r in records),
-          'originalCDeferredBytes': original_c, 'assets': records}
+          'assets': records}
 (out / 'manifest.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps({k:v for k,v in report.items() if k != 'assets'}, indent=2))

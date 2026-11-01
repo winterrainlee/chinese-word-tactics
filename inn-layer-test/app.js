@@ -7,7 +7,7 @@
   for (const key of Object.keys(state)) state[key] = query.get(key) === '1';
   const hiddenLayers = new Set(), hiddenObjects = new Set();
   let scene, active = null, beat = 0, translated = false, lastFocus, sheetFocus;
-  let currentPlace = 'lobby', original = false;
+  let currentPlace = 'lobby';
   const images = new Map(), targets = new Map();
 
   function showView(name) {
@@ -93,7 +93,7 @@
     const ids = new Set(visible.map(o=>o.id));
     const interactions = new Set(visible.map(o=>o.interaction).filter(Boolean));
     for (const [id,img] of images) img.hidden = !ids.has(id);
-    for (const [id,el] of targets) el.hidden = original || !interactions.has(id);
+    for (const [id,el] of targets) el.hidden = !interactions.has(id);
     if (active && !interactions.has(active)) {active=null;beat=0;translated=false;}
     $('stateLabel').textContent = M.describe(state);
     $('scene').dataset.state = `${+state.board}${+state.rain}${+state.newQuest}`;
@@ -139,13 +139,6 @@
   }
   for (const key of Object.keys(state)) $('state-'+key).onchange=e=>{state[key]=e.target.checked;project();};
   $('hint').onclick=()=>{const on=$('scene').classList.toggle('show-hints');$('hint').setAttribute('aria-pressed',String(on));$('hint').textContent=on?'위치 숨기기':'위치 보기';};
-  $('original').onclick=()=>{
-    original=!original;
-    if (original && !$('originalImage').getAttribute('src')) $('originalImage').src = $('originalImage').dataset.src;
-    $('originalImage').hidden=!original;$('originalBadge').hidden=!original;
-    $('original').setAttribute('aria-pressed',String(original));$('original').textContent=original?'레이어 합성 보기':'기존 C 보기';
-    project();
-  };
   $('restoreLayers').onclick=()=>{hiddenLayers.clear();hiddenObjects.clear();document.querySelectorAll('#layerChecks input,#objectChecks input').forEach(el=>el.checked=true);project();};
   $('reset').onclick=()=>{Object.assign(state,M.defaultState());active=null;beat=0;translated=false;project();};
   // Loading an image is sufficient; hidden SVG/WebP decode promises must not gate entry.
@@ -173,7 +166,6 @@
   build();
   await Promise.all([...images.values()].map(waitForImage));
   globalThis.InnLayerBoot.ready();
-  if(query.get('original')==='1') $('original').click();
 })().catch(error => {
   console.error(error);
   globalThis.InnLayerBoot.fail(error.name === 'AbortError' ? '공간 데이터 연결이 지연되고 있어.' : error.message);

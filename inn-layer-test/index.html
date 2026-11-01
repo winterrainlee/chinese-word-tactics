@@ -1,15 +1,15 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><base href="../"><title>이야기가 남는 여관 · C 레이어 시험</title><link rel="stylesheet" href="src/world-inn.css"><link rel="stylesheet" href="src/story.css"><link rel="stylesheet" href="inn-layer-test/style.css"></head><body><div id="app">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><base href="../"><title>이야기가 남는 여관 · C 레이어 시험</title><link rel="stylesheet" href="src/world-inn.css"><link rel="stylesheet" href="src/story.css"><link rel="stylesheet" href="inn-layer-test/style.css?v=6"></head><body><div id="app">
 <main id="lobbyView" class="appView">
 <header class="heading"><div><small>따라온 단어들 · C 레이어 시험</small><h1>이야기가 남는 여관</h1></div><button id="hint" aria-pressed="false">위치 보기</button></header>
 <details id="dev"><summary>시험 상태 설정 <span>본편 기록과 별개</span></summary><div class="devbody">
 <div class="switches"><label><input id="state-board" type="checkbox">게시판 설치</label><label><input id="state-rain" type="checkbox">큰비 이후</label><label><input id="state-newQuest" type="checkbox">새 의뢰</label></div>
 <p>세 사건은 독립적이야. 게시판이 없으면 새 의뢰 종이는 나타나지 않아.</p>
-<div class="devactions"><button id="reset">첫 방문으로</button><button id="original" aria-pressed="false">기존 C 보기</button><button id="focusStory">집중형 이야기</button></div>
+<div class="devactions"><button id="reset">첫 방문으로</button><button id="focusStory">집중형 이야기</button></div>
 <details><summary>레이어·사물 표시 검사</summary><div id="layerChecks"></div><div id="objectChecks"></div><button id="restoreLayers">모두 표시</button></details>
-<p><a href="inn-layer-test/assets.html">투명 자산·구성 데이터</a> · <a href="inn-style-test/">기존 A/B/C 비교판</a></p>
+<p><a href="inn-layer-test/assets.html">투명 자산·구성 데이터</a></p>
 </div></details>
 <p id="stateLabel" class="stateLabel" aria-live="polite">첫 방문 · 평상시</p>
-<section id="scene" class="scene" aria-label="이야기에 따라 달라지는 여관 로비"><div id="layers" aria-hidden="true"></div><div id="hotspots"></div><img id="originalImage" data-src="inn-style-test/assets/lobby-c.webp" alt="레이어 분리 전의 기존 C 로비" hidden><span id="originalBadge" hidden>기존 C · 비교 중</span><div id="loading" role="status"><span id="loadingMessage">여관을 준비하는 중…</span><small id="loadingDetail" hidden></small><button id="retryLoading" hidden>다시 불러오기</button></div></section>
+<section id="scene" class="scene" aria-label="이야기에 따라 달라지는 여관 로비"><div id="layers" aria-hidden="true"></div><div id="hotspots"></div><div id="loading" role="status"><span id="loadingMessage">여관을 준비하는 중…</span><small id="loadingDetail" hidden></small><button id="retryLoading" hidden>다시 불러오기</button></div></section>
 <section class="conversation" aria-label="현장 대화"><div class="speakerline"><span id="speaker">여관 안에서</span><button id="closeTalk" aria-label="대화 닫기" hidden>×</button></div><p id="zh" lang="zh-Hant" aria-live="polite">午後的陽光照進客棧。</p><p id="ko" hidden>오후 햇빛이 여관 안으로 들어와.</p><div id="actions"></div></section>
 <footer>상태는 이 화면에서만 유지돼. 새로고침하면 초기화돼.</footer>
 </main>
@@ -46,4 +46,4 @@
   timer = setTimeout(function () { fail('초기화 대기 시간이 초과됐어.'); }, 25000);
 })();
 </script>
-<script src="inn-layer-test/model.js?v=2"></script><script src="inn-layer-test/dialogue.js?v=2"></script><script src="inn-layer-test/app.js?v=5"></script><script src="src/world-inn-runtime.js"></script><script src="src/story-runtime.js"></script></body></html>
+<script src="inn-layer-test/model.js?v=2"></script><script src="inn-layer-test/dialogue.js?v=2"></script><script src="inn-layer-test/app.js?v=6"></script><script src="src/world-inn-runtime.js"></script><script src="src/story-runtime.js"></script></body></html>

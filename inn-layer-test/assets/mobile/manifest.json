@@ -5,9 +5,7 @@
   ],
   "originalsUntouched": true,
   "beforeLayerImageBytes": 1213835,
-  "beforeIncludingEagerOriginalCBytes": 1350975,
   "afterLayerImageBytes": 104042,
-  "originalCDeferredBytes": 137140,
   "assets": [
     {
       "asset": "room",
