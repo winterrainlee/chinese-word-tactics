@@ -178,6 +178,11 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Verify isolated inn integration test
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python inn-integration-test/verify.py
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

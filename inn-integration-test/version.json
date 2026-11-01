@@ -1,0 +1,6 @@
+{
+  "version": "inn-c-integration-v1",
+  "sourceCommit": "cfb8b1cf6c1c39d0365fbb1378cb390d0d6ddffa",
+  "baseCommit": "5009fde101095fafe7d6f8aea064d134641db3d0",
+  "storagePrefix": "cwt-inn-integration-v1:"
+}

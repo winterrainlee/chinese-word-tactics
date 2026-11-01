@@ -1,0 +1,240 @@
+/* Pure progression/store helpers. No DOM or tactical-engine state is accessed here. */
+(() => {
+  const KEY = 'chinese-word-tactics-journey-v1';
+  const strings = value => Array.isArray(value) ? [...new Set(value.filter(x => typeof x === 'string'))] : [];
+  const copy = value => JSON.parse(JSON.stringify(value));
+  const cleanOutcome = value => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const result = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (typeof item === 'string' || typeof item === 'boolean' || Number.isFinite(item)) result[key] = item;
+      else if (Array.isArray(item)) result[key] = strings(item);
+    }
+    return Object.keys(result).length ? result : null;
+  };
+  const cleanOutcomes = value => {
+    const result = {};
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return result;
+    for (const [stageId, outcome] of Object.entries(value)) {
+      const clean = cleanOutcome(outcome);
+      if (clean) result[stageId] = clean;
+    }
+    return result;
+  };
+  const nodeId = node => `${node.type}:${node.id}`;
+  const containers = () => JourneyContent.JOURNEY.flatMap(chapter => chapter.sections.flatMap(section => {
+    if (Array.isArray(section.quests)) {
+      return section.quests.map(quest => ({ chapter, section, quest, sequence: quest.sequence || [] }));
+    }
+    return [{ chapter, section, quest: null, sequence: section.sequence || [] }];
+  }));
+  const allNodes = () => containers().flatMap(({ chapter, section, quest, sequence }) => sequence.map(node => {
+    const stageReference = node.type === 'stage' ? globalThis.JourneyStageReference?.get(node.id) || null : null;
+    return {
+      ...node,
+      nodeId: nodeId(node),
+      chapterId: chapter.id,
+      chapterKind: chapter.kind || 'campaign',
+      sectionId: section.id,
+      questId: quest?.id || null,
+      stageReference,
+      entryRegionId: node.entryRegionId || quest?.entryRegionId || section.entryRegionId || section.regionId || null,
+      journeyRevealRequires: strings([
+        ...strings(section.revealRequires),
+        ...strings(quest?.revealRequires),
+        ...strings(node.journeyRevealRequires)
+      ]),
+      revealAfterRain: Boolean(section.revealAfterRain || quest?.revealAfterRain || node.revealAfterRain),
+      hiddenFromJourney: Boolean(chapter.hiddenFromJourney || section.hiddenFromJourney ||
+        quest?.hiddenFromJourney || node.hiddenFromJourney)
+    };
+  }));
+  // A save made before the Chapter 2 rain scene may have visited 04A or
+  // accepted a post-Chapter-1 forest request. Ordinary Academic Tower 01–05,
+  // 03A and 03B are NOT evidence of that rain: they can happen during Chapter 1.
+  function hasPostRainEvidence(value) {
+    const ids = [
+      ...strings(value?.seenStories),
+      ...strings(value?.completedStages),
+      ...strings(value?.completedMilestones),
+      ...strings(value?.acknowledgedNodes).map(id => id.replace(/^(story|stage):/, '')),
+      ...Object.keys(value?.sideResearchProgress || {}),
+      String(value?.lastLocation?.nodeId || '').replace(/^(story|stage):/, '')
+    ];
+    return ids.some(id => /^(first-free-quest-|north-forest-|quest-board-|academic-tower-er-(intro|result)$|academic-tower-turn-04a-er-family$)/.test(id));
+  }
+  function hasRainPassed(value) {
+    const milestones = strings(value?.completedMilestones);
+    if (!milestones.includes('chapter1-complete')) return false;
+    return milestones.includes('chapter2-rain-passed') ||
+      strings(value?.seenStories).includes('chapter2-rain-opening') ||
+      hasPostRainEvidence(value);
+  }
+  const journeyRequirementMet = (id, progress) => {
+    const required = getNode(id);
+    return Boolean(required && (isComplete(required, progress) || progress.acknowledgedNodes.includes(id)));
+  };
+  const isJourneyVisible = (node, progress) => !node.hiddenFromJourney &&
+    (!node.revealAfterRain || hasRainPassed(progress)) &&
+    (node.journeyRevealRequires || []).every(id => journeyRequirementMet(id, progress));
+  const nodes = progress => allNodes().filter(node => !node.hiddenFromJourney &&
+    (!progress || isJourneyVisible(node, progress)));
+  const campaignNodes = progress => nodes(progress).filter(node => node.chapterKind !== 'quest-collection');
+  const getNode = id => allNodes().find(node => node.nodeId === id);
+  function normalize(raw) {
+    raw = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const location = raw.lastLocation;
+    const validLocation = location && (location.view === 'world' ||
+      (['story', 'tactical'].includes(location.view) && getNode(location.nodeId)?.type === (location.view === 'story' ? 'story' : 'stage')));
+    return { innVisited: typeof raw.innVisited === 'boolean' ? raw.innVisited :
+      strings(raw.seenStories).includes('chapter1-room-finale') || hasPostRainEvidence(raw),
+      seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
+      completedMilestones: strings(raw.completedMilestones),
+      acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes),
+      sideResearchProgress: globalThis.AcademicTowerEr04A?.progressMap?.(raw.sideResearchProgress) || {}, lastLocation: validLocation ? {
+        view: location.view, ...(location.view !== 'world' ? { nodeId: location.nodeId,
+          beat: Number.isInteger(location.beat) && location.beat >= 0 ? location.beat : 0 } : {})
+      } : null };
+  }
+  function isComplete(node, progress) {
+    return node.type === 'story' ? progress.seenStories.includes(node.id) : progress.completedStages.includes(node.id);
+  }
+  function isAvailable(node, progress) {
+    return isComplete(node, progress) ||
+      ((!node.requiresRainPassed || hasRainPassed(progress)) && (node.requires || []).every(id => {
+      const required = getNode(id);
+      return required && (isComplete(required, progress) || progress.acknowledgedNodes.includes(id));
+    }));
+  }
+  function nextNode(id, progress) {
+    const current = getNode(id);
+    if (!current) return null;
+    const allContainers = containers();
+    let container = allContainers.find(item => item.chapter.id === current.chapterId &&
+      item.section.id === current.sectionId && (item.quest?.id || null) === current.questId);
+    let after = id;
+    const visited = new Set();
+    // Only explicit section links advance the campaign. Parallel regions never auto-chain.
+    while (container && !visited.has(`${container.chapter.id}:${container.section.id}:${container.quest?.id || ''}`)) {
+      visited.add(`${container.chapter.id}:${container.section.id}:${container.quest?.id || ''}`);
+      const index = after ? container.sequence.findIndex(n => nodeId(n) === after) : -1;
+      const candidate = container.sequence.slice(index + 1).map(n => getNode(nodeId(n)))
+        .find(n => isAvailable(n, progress) && !isComplete(n, progress));
+      if (candidate) return candidate;
+      if (container.quest) return null;
+      const nextSectionId = container.section.nextSectionId;
+      container = nextSectionId ? allContainers.find(item => !item.quest && item.section.id === nextSectionId) : null;
+      after = null;
+    }
+    return null;
+  }
+  function recommendedNode(progress) {
+    const saved = getNode(progress.lastLocation?.nodeId);
+    if (saved && saved.chapterKind !== 'quest-collection' && isAvailable(saved, progress) && !isComplete(saved, progress)) return saved;
+    // Old tutorial graduates are invited to the new epilogue, not forced back to stage 0.
+    if (progress.completedStages.includes('stage-5')) {
+      const epilogue = getNode('story:prologue-forest-edge');
+      if (!isComplete(epilogue, progress)) return epilogue;
+      const intro = getNode('story:chapter1-roadside-merchant');
+      if (!isComplete(intro, progress)) return intro;
+    }
+    // The rain begins at the inn door or through an explicit journey entry.
+    // Ordinary Continue should not pull the player out of the new room.
+    // A partly read rain story remains resumable via the saved-node branch.
+    return campaignNodes(progress).find(node =>
+      node.id !== 'chapter2-rain-opening' && isAvailable(node, progress) &&
+      !isComplete(node, progress)) || null;
+  }
+  function continueAction(progress) {
+    const node = recommendedNode(progress);
+    if (!node) return Object.freeze({ kind: 'world', label: '월드맵으로', node });
+    if (progress.lastLocation?.nodeId === node.nodeId) {
+      return Object.freeze({ kind: 'resume', label: '이어서 여행하기', node });
+    }
+    if (node.entryRegionId) return Object.freeze({ kind: 'world', label: '월드맵으로', node });
+    return Object.freeze({ kind: 'node', label: '이어서 여행하기', node });
+  }
+  function resumeNode(progress) {
+    const saved = getNode(progress.lastLocation?.nodeId);
+    return saved && isAvailable(saved, progress) && !isComplete(saved, progress) ? saved : recommendedNode(progress);
+  }
+  function getHeroRole(completedMilestones = []) {
+    const milestones = strings(completedMilestones);
+    return JourneyContent.tier1CoreMilestones.every(id => milestones.includes(id)) ? 'hero' : 'boy';
+  }
+  function createStore(storage, onError = () => {}) {
+    const read = key => {
+      try { return JSON.parse(storage.getItem(key) || 'null'); }
+      catch { onError(); return null; }
+    };
+    let progress = normalize(read(KEY));
+    const legacy = read('chufa-tutorial-v03');
+    const legacyWorld = read('chinese-word-tactics-world-v1');
+    if (strings(legacyWorld?.visited).some(id => ['inn', 'innRoom'].includes(id))) progress.innVisited = true;
+    progress.completedStages = strings([...progress.completedStages,
+      ...strings(legacy?.completed).filter(id => /^stage-[0-5]$/.test(id))]);
+    progress.completedMilestones = strings([
+      ...progress.completedMilestones, ...strings(legacyWorld?.completedMilestones)
+    ]);
+    // G3 existed briefly before stage outcomes. Recover the chosen post from the tactical save when possible.
+    if (!progress.stageOutcomes['gate-stage-3'] && progress.completedStages.includes('gate-stage-3')) {
+      const viaIds = strings(legacy?.state?.viaIds).filter(id => ['west-post', 'east-post'].includes(id));
+      if (viaIds.length) progress.stageOutcomes['gate-stage-3'] = {
+        viaIds, routeChoices: strings(legacy?.state?.routeChoices).filter(id => ['west', 'east'].includes(id))
+      };
+    }
+    const persist = () => { try { storage.setItem(KEY, JSON.stringify(progress)); return true; } catch { onError(); return false; } };
+    persist();
+    return Object.freeze({
+      get: () => copy(progress),
+      visitInn() { progress.innVisited = true; return persist(); },
+      checkpointSide(stageId, snapshot) {
+        const er=globalThis.AcademicTowerEr04A;
+        if (!er || stageId!==er.STAGE_ID || !er.validState(snapshot) ||
+            progress.completedStages.includes(stageId)) return false;
+        const previous=copy(progress);
+        progress.sideResearchProgress[stageId]=copy(snapshot);
+        if (!persist()) {progress=previous;return false;}
+        return true;
+      },
+      completeSide(stageId, snapshot, nextInquiryId) {
+        const er=globalThis.AcademicTowerEr04A;
+        if (!er || stageId!==er.STAGE_ID || !er.isSolved(snapshot) ||
+            !['inquiry-records','inquiry-outlet'].includes(nextInquiryId) ||
+            !getNode('stage:'+stageId)) return false;
+        if (progress.completedStages.includes(stageId)) return true;
+        const previous=copy(progress);
+        progress.sideResearchProgress[stageId]=copy(snapshot);
+        progress.completedStages=strings([...progress.completedStages,stageId]);
+        progress.acknowledgedNodes=strings([...progress.acknowledgedNodes,'stage:'+stageId]);
+        progress.stageOutcomes[stageId]={nextInquiryId};
+        if (!persist()) {progress=previous;return false;}
+        return true;
+      },
+      complete(node, mode = 'first-play', outcome = null, milestone = null) {
+        if (mode !== 'first-play' || !getNode(nodeId(node))) return;
+        const field = node.type === 'story' ? 'seenStories' : 'completedStages';
+        progress[field] = strings([...progress[field], node.id]);
+        progress.acknowledgedNodes = strings([...progress.acknowledgedNodes, nodeId(node)]);
+        if (node.type === 'stage' && !progress.stageOutcomes[node.id]) {
+          const clean = cleanOutcome(outcome);
+          if (clean) progress.stageOutcomes[node.id] = clean;
+        }
+        const earnedMilestone = typeof milestone === 'string' ? milestone :
+          (typeof node.milestone === 'string' ? node.milestone : null);
+        if (earnedMilestone) {
+          progress.completedMilestones = strings([...progress.completedMilestones, earnedMilestone]);
+        }
+        persist();
+      },
+      locate(location, mode = 'first-play') {
+        if (mode !== 'first-play') return;
+        progress.lastLocation = normalize({ lastLocation: location }).lastLocation;
+        persist();
+      }
+    });
+  }
+  globalThis.JourneyProgress = Object.freeze({ KEY, nodeId, allNodes, nodes, campaignNodes, getNode, normalize,
+    isComplete, isAvailable, isJourneyVisible, hasPostRainEvidence, hasRainPassed,
+    nextNode, recommendedNode, continueAction, resumeNode, getHeroRole, createStore });
+})();

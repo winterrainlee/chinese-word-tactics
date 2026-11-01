@@ -1,0 +1,62 @@
+.market-board{display:block!important;min-height:0;padding:0;background:transparent;border:0;box-shadow:none}.market-scene{display:grid;gap:12px}.market-grid{--market-cell:min(16vw,58px);display:grid;grid-template-columns:repeat(var(--market-cols),var(--market-cell));grid-auto-rows:var(--market-cell);justify-content:center;gap:2px;padding:10px 4px;background:linear-gradient(180deg,rgba(211,183,132,.22),rgba(165,132,82,.10));border-radius:18px}.market-cell{position:relative;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:rgba(249,244,233,.82);color:inherit;overflow:hidden}.market-cell.market-floor{background:rgba(232,216,183,.45)}.market-cell.market-floor.moveable{box-shadow:inset 0 0 0 2px rgba(70,126,84,.32)}.market-cell.market-floor.hero-here{background:rgba(244,237,216,.96);box-shadow:inset 0 0 0 3px rgba(55,103,71,.56),0 2px 7px rgba(55,78,48,.10)}.market-cell.market-location{flex-direction:column;gap:1px;background:rgba(247,239,219,.96);box-shadow:inset 0 -2px 0 rgba(103,78,45,.12)}.market-cell.market-location.market-npc{background:rgba(244,235,211,.98);box-shadow:inset 0 -2px 0 rgba(103,78,48,.14)}.market-cell.market-location.market-tool{background:rgba(239,235,216,.98)}.market-cell.market-location.interactable{box-shadow:inset 0 0 0 2px rgba(58,112,142,.34)}.market-cell.market-location.focused{box-shadow:inset 0 0 0 3px rgba(176,132,34,.48)}.market-cell.market-location.inspected small{font-weight:700}.market-location-icon{font-size:22px;line-height:1}.market-npc .market-location-icon{font-size:25px;transform:translateY(1px)}.market-cell small{max-width:100%;font-size:10px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.market-cell .hero{position:absolute}.market-hero{left:50%;top:50%;transform:translate(-50%,-50%);font-size:23px;line-height:1;z-index:5}.market-panel{min-height:148px;padding:14px 15px;border-radius:18px;background:rgba(250,247,239,.96);box-shadow:0 10px 24px rgba(72,57,34,.08)}.market-panel-empty{display:grid;align-content:center;gap:10px;text-align:center}.market-panel-empty p,.market-action-hint{margin:0;color:#6f685e;font-size:13px;line-height:1.45}.market-carry{padding-bottom:10px;border-bottom:1px solid rgba(98,79,51,.12);font-size:12px;font-weight:700;color:#5c5144}.market-panel-head{display:flex;align-items:center;gap:10px;margin:11px 0}.market-panel-head>div{display:grid;gap:1px}.market-panel-head strong{font-size:18px}.market-panel-head small{font-size:12px;color:#746b60}.market-panel-icon{font-size:28px}.market-info-list{display:grid;gap:6px}.market-info-row,.market-fact-row{display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:center;padding:7px 0}.market-info-row+.market-info-row,.market-fact-row+.market-fact-row{border-top:1px solid rgba(98,79,51,.08)}.market-info-row>span{font-size:12px;color:#7a7065}.market-info-row strong{display:block;font-size:15px}.market-info-row small{display:block;margin-top:1px;font-size:11px;color:#71695f}.market-fact-row span,.market-fact-row strong{display:grid;gap:1px;font-size:12px}.market-fact-row span small,.market-fact-row strong small{font-size:10px;font-weight:400;color:#7b7368}.market-fact-row strong{text-align:right}.market-empty{padding:8px 0;color:#7b7368;font-size:12px}.market-panel-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}.market-panel-actions button{min-height:44px;border:0;border-radius:12px;padding:9px 10px;background:#f1e5c8;color:#40372e;font:inherit;font-weight:700}.market-panel-actions button:disabled{opacity:.42}.market-cell .move-arrow{position:absolute;font-size:15px;color:#3e754d;opacity:.82}@media(max-width:360px){.market-grid{--market-cell:52px}.market-panel{padding:12px}.market-panel-head strong{font-size:17px}.market-info-row{grid-template-columns:48px 1fr}.market-hero{font-size:22px}}.market-grid.market-grid-wide{--market-cell:max(44px,min(13vw,50px))}@media(max-width:360px){.market-grid.market-grid-wide{--market-cell:44px}}
+
+/* The shared tactical shell reserves a fixed feedback slot. Keep the richer
+   market panel inside that slot so facts/actions can scroll without growing
+   the document past a short phone viewport. */
+#tutorialView:has(.market-board) .contextPanel{max-height:106px;overflow-y:auto}
+@media(max-height:650px){#tutorialView:has(.market-board) .contextPanel{max-height:94px}}
+@media(max-height:700px){.market-grid{--market-cell:min(15vw,54px);padding:4px}.market-grid.market-grid-wide{--market-cell:max(44px,min(13vw,50px))}}
+@media(max-height:700px){#tutorialView:has(.market-board) .contextPanel{max-height:98px}}
+@media(max-height:650px){#tutorialView:has(.market-board) .contextPanel{max-height:94px}.market-grid{--market-cell:min(14vw,50px);padding:4px}.market-grid.market-grid-wide{--market-cell:44px}}
+
+/* Shared market decision tray: keep immediate decisions fixed, place undo and
+   contextual actions on one row, and scroll only supplementary learning aids. */
+.contextPanel .market-panel.market-decision-panel{height:100%;min-height:0;display:grid;grid-template-rows:20px 16px 44px minmax(44px,1fr);align-content:stretch;gap:4px;padding:4px 8px;overflow:hidden;text-align:left}
+.contextPanel .market-panel.market-decision-panel.market-decision-lean{grid-template-rows:20px 16px minmax(44px,1fr)}
+.market-decision-top{min-width:0;display:flex;align-items:center}
+.market-decision-target{min-width:0;display:flex;align-items:center;gap:5px}
+.market-decision-target>span:last-child{min-width:0;display:flex;align-items:baseline;gap:5px}
+.market-decision-target strong{font-size:11px;white-space:nowrap}
+.market-decision-target small{font-size:10px;color:var(--muted);white-space:nowrap}
+.market-decision-icon{flex:none;font-size:14px;line-height:1}
+.market-decision-panel .market-carry{width:100%;min-width:0;padding:0!important;border:0!important;display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:left!important;white-space:nowrap}
+.market-carry-main{min-width:0;display:flex;align-items:center;gap:5px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-inline:contain;scrollbar-width:none}
+.market-carry-main::-webkit-scrollbar{display:none}
+.market-carry-icon{flex:none;font-size:17px;line-height:1}
+.market-carry-label{flex:none;color:var(--blue);font-size:10px;font-weight:800}
+.market-held-items{min-width:0;display:flex;align-items:center;gap:8px}
+.market-held-item,.market-held-empty{flex:none;font-size:15px;line-height:1.15;color:var(--ink)}
+.market-coins{flex:none;display:flex;align-items:center;gap:3px;margin-left:4px}
+.market-coins-icon{font-size:14px;line-height:1}
+.market-coins strong{font-size:15px;line-height:1.15;color:var(--ink)}
+.market-carry-meta{flex:none;display:flex;align-items:center;gap:6px;color:#71695f;font-size:9px;font-weight:700}
+.market-decision-main{min-width:0;display:flex;align-items:center;gap:7px}
+.market-decision-main .market-decision-target{flex:none;max-width:92px;overflow:hidden}
+.market-decision-main .market-decision-target>span:last-child{overflow:hidden}
+.market-decision-main .market-decision-target strong{overflow:hidden;text-overflow:ellipsis}
+.market-decision-summary{min-width:0;display:flex;align-items:baseline;gap:5px;font-size:12px;line-height:1.2;white-space:nowrap;overflow:hidden}
+.market-decision-summary strong{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.market-decision-label{flex:none;color:var(--blue);font-size:11px;font-weight:800}
+.market-decision-reason{flex:none;margin-left:auto;color:#7a7065;font-size:10px;font-weight:700}
+.market-decision-actions{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.market-decision-undo-slot{flex:0 0 100px;width:100px;height:44px}
+.market-decision-undo-slot #undoBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100px;height:44px;min-height:44px;border-radius:10px;font-size:13px;background:transparent}
+.market-decision-action{min-width:0;max-width:136px;margin-left:auto;display:flex;justify-content:flex-end}
+.market-decision-panel .market-decision-action .market-panel-actions{display:flex;justify-content:flex-end;gap:0;margin:0}
+.market-decision-panel .market-decision-action .market-panel-actions button{width:max-content;min-width:104px;max-width:136px;height:44px;min-height:44px;padding:4px 8px;border-radius:10px;font-size:13px;white-space:nowrap;overflow:visible;text-overflow:clip}
+.market-decision-panel .market-decision-action .market-panel-actions button[data-market-action="exchange"]{width:136px}
+.market-decision-action:has(.market-actions-multiple){flex:1;max-width:224px}
+.market-decision-panel .market-decision-action .market-actions-multiple{width:100%;display:flex;gap:4px}
+.market-decision-panel .market-decision-action .market-actions-multiple button{flex:1 1 0;width:0;min-width:0;max-width:none;padding:4px;font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.market-decision-panel .market-decision-action .market-action-hint,.market-decision-panel.market-panel-empty .market-action-hint{display:block;max-width:136px;margin:0;color:#6f685e;font-size:10px;line-height:1.25;text-align:right}
+.market-supplement-rail{min-width:0;display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:0;scroll-snap-type:x mandatory;scroll-padding-inline:0;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain;scrollbar-width:none}
+.market-supplement-rail::-webkit-scrollbar{display:none}
+.market-supplement-card{flex:0 0 calc((100% - 6px)/2);min-width:0;min-height:44px;scroll-snap-align:start;display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:5px;padding:4px 7px;border-radius:8px;background:rgba(238,232,220,.38);box-shadow:none}
+.market-supplement-card strong{font-size:11px;white-space:nowrap}
+.market-supplement-card>span:last-child{min-width:0;font-size:10px;line-height:1.25;color:#6f685e;white-space:normal;overflow:hidden}
+.market-supplement-icon{font-size:16px;line-height:1}
+.status:not(:empty)+.contextPanel .market-decision-panel{grid-template-rows:20px 16px minmax(44px,1fr)}
+.status:not(:empty)+.contextPanel .market-decision-panel .market-supplement-rail{display:none}
+.market-decision-actions .completionBar.completionBarEmbedded,.market-m8-actions .completionBar.completionBarEmbedded{width:100%;height:44px;min-height:44px;padding:0 4px 0 8px;border:0;border-radius:10px}
+.market-decision-actions .completionBar.completionBarEmbedded button,.market-m8-actions .completionBar.completionBarEmbedded button{height:44px;min-height:44px}
+.controls.market-controls-embedded{display:none}

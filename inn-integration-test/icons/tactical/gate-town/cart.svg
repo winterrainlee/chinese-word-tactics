@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <g stroke="#352e27" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Gate-town cart: simplified cargo silhouette with the shared portrait palette. -->
+    <path d="M7.2 10.7H24.8L25.7 21.7H6.3Z" fill="#9b744a"/>
+    <path d="M6.8 13.2H25.1M7.3 18.1H25.5M10.4 13.5V21M15.3 13.5V21M20.2 13.5V21" stroke="#6d5136" stroke-width="0.75"/>
+    <path d="M10.1 10.6Q9 7.1 11.8 5.3 15.4 3.1 17.8 7.2L18.7 10.6Z" fill="#c0ad8b"/>
+    <path d="M12.2 5.3Q14.8 7.3 17.7 7.3" stroke="#806b52" stroke-width="0.7"/>
+    <path d="M18 7.7H23.5V10.7H18Z" fill="#667264"/>
+    <path d="M19.1 7.7V6.5H22.4V7.7" fill="#a9875d"/>
+    <path d="M24.8 18.4 30 23.5M28.6 22.1 30.5 20.5" stroke="#72563b" stroke-width="1.45"/>
+    <circle cx="9.2" cy="23.1" r="3.7" fill="#7b674f"/>
+    <circle cx="9.2" cy="23.1" r="1.25" fill="#9da09a"/>
+    <path d="M9.2 19.8V26.4M5.9 23.1H12.5" stroke="#c0ad8b" stroke-width="0.8"/>
+    <circle cx="22.1" cy="23.1" r="3.7" fill="#7b674f"/>
+    <circle cx="22.1" cy="23.1" r="1.25" fill="#9da09a"/>
+    <path d="M22.1 19.8V26.4M18.8 23.1H25.4" stroke="#c0ad8b" stroke-width="0.8"/>
+    <path d="M5.7 10.7H26.2V13.3H5.7Z" fill="#b88a55"/>
+    <path d="M8 9.3V14.3M24 9.3V14.3" stroke="#5d4d3d" stroke-width="1.2"/>
+  </g>
+</svg>

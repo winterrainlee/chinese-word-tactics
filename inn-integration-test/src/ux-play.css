@@ -1,0 +1,65 @@
+/* Shared v1.0 tactical UX layer: compact intent, target words, nearby feedback, inline completion. */
+.goalbox{position:relative;min-height:52px;padding:8px 56px 8px 11px;display:flex;align-items:center;background:rgba(255,253,247,.82);box-shadow:none;border-radius:14px}
+.goal{font-size:16px;line-height:1.42;text-align:left;width:100%}
+.goal,.status,.statusZh,.statusKo{word-break:keep-all;overflow-wrap:anywhere}
+.ruleline{display:none}
+.goalDetailBtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;border-radius:12px;background:transparent;color:var(--muted);font-size:12px;font-weight:800}
+.goalDetailBtn:active{background:#ece6da;color:var(--ink)}
+.status{min-height:48px;padding:5px 6px 5px 10px;font-size:15px;line-height:1.4;background:rgba(255,253,247,.9);border:1px solid rgba(215,208,196,.78)}
+.status.info{background:#e8eff5;border-color:#c8d5e1;color:#334f6a}
+.status.good{background:#e3efe7;border-color:#bfd3c6;color:#28563f}
+.status.bad{background:#f5e2df;border-color:#e2beb9;color:#722f2a}
+.statusZh{vertical-align:middle}
+.statusMeaningBtn{min-width:44px;min-height:44px;margin:-3px 0 -3px 6px;padding:0 8px;border:0;border-radius:10px;background:transparent;color:inherit;font-size:12px;font-weight:800;vertical-align:middle}
+.statusMeaningBtn:active{background:rgba(255,255,255,.45)}
+.statusKo{display:block;margin-top:3px;padding-top:5px;border-top:1px solid currentColor;font-size:13px;line-height:1.45;opacity:.82}
+.statusKo[hidden]{display:none!important}
+.contextPanel[hidden],.completionBar[hidden]{display:none!important}
+.contextPanel{flex:none;min-width:0}
+.contextPanel .market-panel{min-height:0;padding:9px 12px;border-radius:14px;box-shadow:none;border:1px solid rgba(98,79,51,.12)}
+.contextPanel .market-panel-empty{min-height:42px;display:flex;align-items:center;justify-content:center;padding:7px 10px}
+.contextPanel .market-panel-empty p{display:none}
+.contextPanel .market-carry{padding-bottom:0;border-bottom:0;text-align:center}
+.contextPanel .market-panel:not(.market-panel-empty) .market-carry{padding-bottom:6px;border-bottom:1px solid rgba(98,79,51,.12);text-align:left}
+.contextPanel .market-panel-head{margin:6px 0}
+.contextPanel .market-info-row{grid-template-columns:48px minmax(0,1fr);gap:1px 8px;padding:4px 0;align-items:center}
+.contextPanel .market-info-row>span{grid-column:1;grid-row:1 / span 2;align-self:center}
+.contextPanel .market-info-row>strong{grid-column:2;grid-row:1;min-width:0}
+.contextPanel .market-info-row>small{grid-column:2;grid-row:2;margin-top:0;min-width:0}
+.contextPanel .market-fact-row{padding:4px 0}
+.contextPanel .market-panel-actions{margin-top:7px}
+.contextPanel .market-action-hint{margin-top:6px}
+.grid.market-board>.market-scene{gap:0}
+.completionBar{flex:none;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;height:48px;min-height:48px;padding:1px 7px 1px 11px;border:1px solid #b9cebf;border-radius:14px;background:#e7f0e9}
+.completionBar strong{font-size:14px;color:#28563f}
+.completionBar button{min-height:44px;border:0;border-radius:11px;padding:0 14px;background:var(--accent);color:#fff;font-weight:800}
+.shell.stageComplete .controls{display:none}
+.shell.stageComplete .status{border-color:#b9cebf}
+.shell.stageComplete .status:empty{border-color:transparent}
+.contextActionChoices{display:grid;grid-template-columns:1fr;gap:8px}
+.sheetactions.contextActionChoices button{width:100%;height:auto;min-height:48px;padding:10px 12px;line-height:1.35}
+@media(max-height:650px){.goalbox{min-height:48px;padding-top:6px;padding-bottom:6px}.goal{font-size:15px}.status{min-height:44px;padding-top:3px;padding-bottom:3px}.contextPanel .market-panel{padding:8px 10px}}
+/* A fixed feedback/context allowance stops the board from drifting between turns. */
+.goalDetailBtn{font-size:20px;line-height:1}
+.status:empty{background:transparent;border-color:transparent;color:transparent}
+.shell:has(.market-board) .contextPanel{min-height:106px}
+.shell:has(.market-board) .contextPanel[hidden]{display:block!important;visibility:hidden}
+.contextPanel .market-panel.market-m8-compact{height:106px;min-height:106px;display:grid;grid-template-columns:minmax(0,1fr) 44px;grid-template-rows:44px 44px;align-items:center;gap:4px 6px;padding:7px 10px}
+.market-m8-meta{min-width:0;align-self:center;display:grid;grid-template-rows:22px 18px}.market-m8-compact .market-carry{min-width:0;padding:0;border:0;display:flex;align-items:center;justify-content:space-between;gap:5px;text-align:left;white-space:nowrap}.market-m8-compact .market-carry-main{min-width:0}.market-m8-compact .market-carry-meta{font-size:8px}
+.market-m8-summary{display:flex;align-items:center;gap:5px;min-width:0;font-size:11px;line-height:1.15}.market-m8-summary strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.market-m8-detail{width:44px;height:44px;border:0;border-radius:10px;background:transparent;font-size:12px;font-weight:800;color:var(--blue)}
+.market-m8-actions{grid-column:1 / -1;min-width:0;display:flex;align-items:center;gap:8px}.market-m8-actions .market-decision-action{flex:1;max-width:none}.market-m8-actions .market-action-hint{margin:0;text-align:right;font-size:11px;line-height:1.2}.market-m8-actions .market-panel-actions{width:100%;display:flex;justify-content:flex-end;gap:4px;margin:0}.market-m8-actions .market-panel-actions button{width:136px;max-width:136px;height:44px;min-width:0;min-height:44px;padding:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}.market-m8-actions .market-actions-multiple button{flex:1 1 0;width:0;max-width:none}
+@media(min-height:701px){.shell:not(:has(.market-board)) .status{height:64px;min-height:64px;max-height:64px;overflow-y:auto}.shell:has(.market-board) .status{height:54px;min-height:54px;max-height:54px;overflow-y:auto}.shell:has(.market-board[data-market-stage="market-stage-8"]) .mapwrap{flex:0 0 360px}}
+@media(max-height:700px){.goalbox{min-height:48px;padding-top:6px;padding-bottom:6px}.status{min-height:44px}.shell:has(.market-board){gap:3px}.shell:has(.market-board) .status{height:50px;min-height:50px;max-height:50px;overflow-y:auto}.contextPanel .market-panel{padding:7px 10px}.shell:has(.market-board) .contextPanel{min-height:96px}.contextPanel .market-panel.market-m8-compact{height:98px;min-height:98px;padding:4px 8px;gap:4px 6px}.market-grid{padding-top:6px;padding-bottom:6px}}
+@media(max-height:650px){.shell:has(.market-board) .status{height:44px;min-height:44px;max-height:44px}.shell:has(.market-board) .contextPanel{min-height:94px}.contextPanel .market-panel.market-m8-compact{height:94px;min-height:94px;padding:2px 6px;gap:2px 5px}.market-grid{padding-top:4px;padding-bottom:4px}.market-m8-summary,.market-m8-compact .market-panel-actions button{font-size:11px}.market-m8-compact .market-carry-meta{font-size:8px}}
+
+/* M1–M7 share one stable lower-area budget. Selection uses the whole tray;
+   action feedback temporarily replaces the supplementary rail. M8 keeps its
+   compact synthesis tray and opens richer detail on demand. */
+#tutorialView:has(.market-board:not([data-market-stage="market-stage-8"])) .status:empty{height:0;min-height:0;max-height:0;padding:0;border:0;overflow:hidden}
+#tutorialView:has(.market-board:not([data-market-stage="market-stage-8"])) .status:empty+.contextPanel{height:150px;min-height:150px;max-height:150px;margin-top:4px;overflow:hidden}
+#tutorialView:has(.market-board[data-market-stage="market-stage-1"]) .status:empty+.contextPanel,#tutorialView:has(.market-board[data-market-stage="market-stage-2"]) .status:empty+.contextPanel,#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:empty+.contextPanel,#tutorialView:has(.market-board[data-market-stage="market-stage-6"]) .status:empty+.contextPanel{height:100px;min-height:100px;max-height:100px;margin-bottom:50px}
+#tutorialView:has(.market-board:not([data-market-stage="market-stage-8"])) .status:not(:empty)+.contextPanel{height:100px;min-height:100px;max-height:100px;overflow:hidden}
+@media(max-height:700px){.market-board:not([data-market-stage="market-stage-8"]) .market-grid:not(.market-grid-wide){--market-cell:46px}#tutorialView:has(.market-board:not([data-market-stage="market-stage-8"])) .status:empty+.contextPanel{height:147px;min-height:147px;max-height:147px}#tutorialView:has(.market-board:not([data-market-stage="market-stage-8"])) .status:not(:empty)+.contextPanel{height:101px;min-height:101px;max-height:101px}}
+@media(max-height:700px){#tutorialView:has(.market-board[data-market-stage="market-stage-1"]) .status:empty+.contextPanel,#tutorialView:has(.market-board[data-market-stage="market-stage-2"]) .status:empty+.contextPanel,#tutorialView:has(.market-board[data-market-stage="market-stage-3"]) .status:empty+.contextPanel,#tutorialView:has(.market-board[data-market-stage="market-stage-6"]) .status:empty+.contextPanel{height:100px;min-height:100px;max-height:100px;margin-bottom:47px}}
+@media(max-height:650px){#tutorialView:has(.market-board:not([data-market-stage="market-stage-8"])) .status:not(:empty)+.contextPanel{height:107px;min-height:107px;max-height:107px}}

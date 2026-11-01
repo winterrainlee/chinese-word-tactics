@@ -1,0 +1,141 @@
+/* v0.6 world migration layer: keep stable runtime ids, change the world they represent. */
+(() => {
+  const settlement = {
+    name: '三溪鎮',
+    nameKo: '물길마을',
+    origin: '小村',
+    originKo: '작은 마을',
+    mapAssetChunks: {
+      base: './images/world/three-streams-map',
+      count: 8,
+      type: 'image/webp'
+    }
+  };
+
+  WORLD.title = settlement.nameKo;
+  WORLD.origin = settlement.origin;
+  WORLD.originNameKo = settlement.originKo;
+  WORLD.settlement = settlement;
+
+  const regionPatches = {
+    'gate-town': {
+      name: '關口', nameKo: '길목', mapNameKo: '길목',
+      subtitle: '마을 밖 길과 이어지는 관문',
+      note: '사람과 짐수레가 드나드는 물길마을의 관문 구역. 이 문을 지나면 다시 바깥길로 이어진다.',
+      summary: '마을 밖 길로 이어지는 관문이야.',
+      completionMilestone: 'gate-core',
+      map: { x: 50, y: 80, branch: 'outward', kind: 'district' }
+    },
+    'workshop-town': {
+      name: '工坊谷', nameKo: '장인골', mapNameKo: '장인골',
+      subtitle: '물길을 쓰는 공방 골짜기',
+      note: '수차와 공방이 물길을 따라 모여 있다. 물을 쓰는 장치와 상태를 살피는 일이 많다.',
+      summary: '수차와 공방이 모여 있는 골짜기야.',
+      completionMilestone: 'workshop-core',
+      map: { x: 18, y: 58, branch: 'workshop', kind: 'district' }
+    },
+    'market-town': {
+      name: '市集', nameKo: '장터', mapNameKo: '장터',
+      subtitle: '사람과 물건이 모이는 큰길',
+      note: '물길과 큰길이 만나는 생활 중심지. 필요한 것을 사고팔고 나누는 일이 이곳에 모인다.',
+      summary: '사람과 물건이 모이는 장터야.',
+      completionMilestone: 'market-core',
+      map: { x: 65, y: 60, branch: 'market', kind: 'district' }
+    },
+    'border-village': {
+      name: '邊境村', nameKo: '끝마을', mapNameKo: '끝마을 방면',
+      subtitle: '물길마을 밖으로 이어지는 다음 길',
+      note: '관문을 지나 계속 가면 닿는 다음 정착지다. 물길마을에서 익힌 길 읽기가 바깥여행으로 이어진다.',
+      summary: '물길마을 밖으로 이어지는 다음 정착지야.',
+      recommendationMilestone: 'gate-core',
+      recommendation: '길목의 일을 먼저 마치고 오는 걸 권장해. 그러면 바깥길로 이어지는 이야기가 자연스럽게 연결돼.',
+      map: { x: 50, y: 91, branch: 'outward', kind: 'outside' }
+    },
+    'council-town': {
+      name: '會議所', nameKo: '회의소', mapNameKo: '회의소',
+      subtitle: '마을 사람들이 모여 의논하는 곳',
+      note: '장터에서 해결하지 못한 공동의 규칙과 의견을 다루는 회의 공간이다.',
+      summary: '마을 사람들이 함께 의논하는 곳이야.',
+      recommendationMilestone: 'market-core',
+      recommendation: '장터의 일을 먼저 마치고 오는 걸 권장해. 물건을 나누는 문제가 왜 마을의 결정으로 이어지는지 알기 쉬워져.',
+      map: { x: 79, y: 48, branch: 'market', kind: 'landmark' }
+    },
+    'academic-tower': {
+      name: '學術塔', nameKo: '학술탑', mapNameKo: '학술탑',
+      subtitle: '지식과 기록이 모이는 탑',
+      note: '오래된 기술과 기록을 살피는 곳. 장인골에서 발견한 단서가 이곳으로 이어진다.',
+      summary: '오래된 기술과 기록이 모이는 탑이야.',
+      lockHint: '장인골 W7을 마치고 장인에게 수리패와 학술탑 이야기를 들으면 갈 수 있어.',
+      recommendationMilestone: 'workshop-core',
+      recommendation: '장인골의 오래된 조절기에서 얻은 단서를 확인한 뒤 방문하는 흐름을 권장해.',
+      map: { x: 26, y: 46, branch: 'workshop', kind: 'landmark' }
+    }
+  };
+
+  WORLD.regions.forEach(region => Object.assign(region, regionPatches[region.id] || {}));
+
+  const stories = globalThis.JourneyContent?.STORIES;
+  if (stories) {
+    const origin = stories['prologue-departure'];
+    if (origin) {
+      origin.placeZh = settlement.origin;
+      origin.placeKo = settlement.originKo;
+    }
+
+    const forestEdge = stories['prologue-forest-edge'];
+    if (forestEdge?.beats?.length) {
+      forestEdge.beats[forestEdge.beats.length - 1] = {
+        speaker: 'unknown',
+        zh: '有人嗎？可以幫我一下嗎？',
+        ko: '거기 누구 있나요? 잠깐만 도와줄래요?'
+      };
+    }
+
+    const merchant = stories['chapter1-roadside-merchant'];
+    if (merchant) {
+      merchant.placeZh = '三岔路';
+      merchant.placeKo = '물길마을 어귀';
+      merchant.beats = [
+        { speaker: 'narrator', zh: '路邊，一位中年女行商正扶著一輛小小的木製手推車。車輪陷在路旁的泥溝裡。', ko: '길가에서 중년의 행상 아주머니가 작은 목제 손수레를 붙잡고 있었다. 바퀴 하나가 길가의 진흙 홈에 빠져 있었다.' },
+        { speaker: 'merchant', zh: '小弟，不好意思，可以幫我搭把手嗎？剛才為了躲狼，我把車推得太靠路邊了。', ko: '얘야, 미안한데 잠깐 손 좀 빌려줄래? 아까 늑대를 피하다가 수레를 길가로 너무 붙여 버렸어.' },
+        { speaker: 'boy', zh: '好。我從這邊推。', ko: '네. 제가 이쪽에서 밀게요.' },
+        { speaker: 'narrator', zh: '婦人扶穩車把，少年從側邊一起用力，木輪終於回到路面。', ko: '아주머니가 손잡이를 단단히 잡고 소년이 옆에서 함께 힘을 쓰자, 나무 바퀴가 마침내 길 위로 올라왔다.' },
+        { speaker: 'merchant', zh: '呼，總算出來了。謝謝你！你是第一次來這裡吧？', ko: '휴, 겨우 빠졌네. 고맙구나! 이곳은 처음이지?' },
+        { speaker: 'merchant', zh: '對了，你從哪裡來？', ko: '그러고 보니, 넌 어디서 왔니?' },
+        { speaker: 'boy', zh: '森林那邊的一個小村。', ko: '숲 저편의 작은 마을에서 왔어요.' },
+        { speaker: 'merchant', zh: '難怪。這裡叫三溪鎮。三條溪在這附近匯在一起，所以人也慢慢多了。', ko: '그렇구나. 여기는 물길마을이야. 세 물줄기가 이 근처에서 만나서, 사람도 차츰 모이게 됐지.' },
+        { speaker: 'boy', zh: '這裡……都是同一個鎮嗎？', ko: '여기가…… 전부 한 마을이에요?' },
+        { speaker: 'merchant', zh: '對。前面的三條路都通往三溪鎮。關口那邊車馬來往多，沿著溪流能到工坊谷，走大路則會到市集。', ko: '그래. 앞의 세 길은 모두 물길마을로 이어져. 관문 쪽은 사람과 수레가 많이 오가고, 물길을 따라가면 장인골이, 큰길로 가면 장터가 나오지.' },
+        { speaker: 'merchant', zh: '三條路都走得通。想先看看哪裡，就由你決定吧。', ko: '세 길 모두 갈 수 있어. 어디부터 둘러볼지는 네가 정하렴.' },
+        { speaker: 'merchant', zh: '我要去市集交貨。你要進鎮的話，就跟我來吧。', ko: '난 장터에 물건을 넘기러 가야 해. 마을로 들어갈 거면 같이 가자.' },
+        { speaker: 'narrator', zh: '少年跟著行商阿姨和她的小木車走過橋，來到了市集附近。', ko: '소년은 행상 아주머니와 작은 목제 손수레를 따라 다리를 건너 장터 근처까지 들어갔다.' },
+        { speaker: 'merchant', zh: '好啦，我得去交貨了。你呢？', ko: '좋아, 난 이제 물건을 넘기러 가야겠다. 넌?' },
+        { speaker: 'boy', zh: '我……還沒想好。', ko: '저는……아직 모르겠어요.' },
+        { speaker: 'merchant', zh: '那就慢慢看看吧。三溪鎮可不小。', ko: '그럼 천천히 둘러봐. 물길마을은 작지 않으니까.' },
+        { speaker: 'narrator', zh: '行商阿姨拉著小木車走進市集。少年一個人站在路邊，看著來往的人。', ko: '행상 아주머니는 작은 목제 손수레를 끌고 장터 안으로 들어갔다. 소년은 길가에 혼자 서서 오가는 사람들을 바라봤다.' },
+        { speaker: 'boy', zh: '接下來……我該做什麼呢？', ko: '이제……뭘 하지?' }
+      ];
+    }
+
+    Object.values(stories).forEach(story => {
+      if (story.placeZh === '關口鎮') story.placeZh = '關口';
+      if (story.placeKo === '길목') story.placeKo = '길목';
+    });
+
+    const gateArrival = stories['gate-arrival'];
+    if (gateArrival?.beats?.[0]) {
+      gateArrival.beats[0] = {
+        speaker: 'narrator',
+        zh: '少年沿著行商指的路，來到了三溪鎮外圍的關口。',
+        ko: '소년은 행상인이 가리킨 길을 따라 물길마을 외곽의 길목에 도착했다.'
+      };
+    }
+  }
+
+  const tutorialFinale = STAGES.find(stage => stage.id === 'stage-5');
+  if (tutorialFinale) {
+    tutorialFinale.story = '少年離開了熟悉的村子。\n他第一次發現，這個世界的「話」似乎有一種奇怪的力量。\n\n「有人嗎？可以幫我一下嗎？」';
+  }
+
+  globalThis.WorldV06 = Object.freeze({ settlement, regionPatches });
+})();
