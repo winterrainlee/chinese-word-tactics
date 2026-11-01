@@ -5,7 +5,7 @@
   const basic={seenStories:[],completedStages:['stage-5'],completedMilestones:['inn-unlocked'],acknowledgedNodes:[],stageOutcomes:{},lastLocation:{view:'world'},innVisited:false};
   const chapter={...basic,innVisited:true,seenStories:['chapter1-room-finale','chapter1-inn-convergence'],completedMilestones:['inn-unlocked','market-core','gate-core','workshop-core','chapter1-complete']};
   const rain={...chapter,seenStories:[...chapter.seenStories,'chapter2-rain-opening'],completedMilestones:[...chapter.completedMilestones,'chapter2-rain-passed']};
-  const board={...rain,seenStories:[...rain.seenStories,FirstFreeQuestContent.OFFER_STORY_ID,'first-free-quest-report'],completedStages:['stage-5',FirstFreeQuestContent.STAGE_ID],completedMilestones:[...rain.completedMilestones,FirstFreeQuestContent.BOARD_MILESTONE,FirstFreeQuestContent.COMPLETE_MILESTONE]};
+  const board={...rain,seenStories:[...rain.seenStories,FirstFreeQuestContent.OFFER_STORY_ID,'first-free-quest-report','quest-board-installed'],completedStages:['stage-5',FirstFreeQuestContent.STAGE_ID],completedMilestones:[...rain.completedMilestones,FirstFreeQuestContent.BOARD_MILESTONE,FirstFreeQuestContent.COMPLETE_MILESTONE]};
   // Use actual journey nodes to create the report checkpoint, including its story prerequisites.
   const report={...rain,seenStories:[...rain.seenStories,FirstFreeQuestContent.OFFER_STORY_ID],completedStages:['stage-5',FirstFreeQuestContent.STAGE_ID]};
   const keepsakes={...board,seenStories:[...board.seenStories,'gate-after-route','gate-after-convoy','workshop-finale','academic-tower-turn-result'],stageOutcomes:{'gate-stage-3':{viaIds:['west-post','east-post']}}};

@@ -43,6 +43,7 @@
   }
 
   function preloadRoomBackground() {
+    if (globalThis.InnRoomScene) return InnRoomScene.preload();
     if (roomObjectUrl) return Promise.resolve(roomObjectUrl);
     if (roomAssetPromise) return roomAssetPromise;
     if (typeof fetch !== 'function' || typeof atob !== 'function' || typeof Blob === 'undefined' || !globalThis.URL?.createObjectURL) {
@@ -96,6 +97,7 @@
   }
 
   async function loadRoomBackground() {
+    if (globalThis.InnRoomScene) return InnRoomScene.mount();
     const image = document.getElementById('innRoomBackdrop');
     const loading = document.getElementById('innRoomLoading');
     if (!image || image.dataset.loaded === 'true') return;
@@ -144,6 +146,7 @@
   }
 
   function loadRoomHotspots() {
+    if (globalThis.InnRoomScene) return InnRoomScene.mount();
     const host = document.getElementById('innRoomHotspots');
     if (!host || host.dataset.loaded === 'true') return;
     host.innerHTML = ROOM_HOTSPOTS_SVG;
@@ -218,6 +221,6 @@
 
   globalThis.WorldInn = Object.freeze({
     MILESTONE, ROOM_KEY_MILESTONE, unlocked, hasRoomKey, preloadRoomBackground,
-    syncMarkerState, syncInnMarker, openInnSheet, openRoom, enterInn, openLobby: () => globalThis.InnLobby?.open?.()
+    showRoomWord, syncMarkerState, syncInnMarker, openInnSheet, openRoom, enterInn, openLobby: () => globalThis.InnLobby?.open?.()
   });
 })();

@@ -19,7 +19,7 @@ KEY='cwt-inn-integration-v1:chinese-word-tactics-journey-v1'
 basic={'seenStories':[],'completedStages':['stage-5'],'completedMilestones':['inn-unlocked'],'acknowledgedNodes':[],'stageOutcomes':{},'lastLocation':{'view':'world'},'innVisited':False}
 chapter={**basic,'innVisited':True,'seenStories':['chapter1-room-finale','chapter1-inn-convergence'],'completedMilestones':['inn-unlocked','chapter1-complete','market-core','gate-core','workshop-core']}
 rain={**chapter,'seenStories':chapter['seenStories']+['chapter2-rain-opening'],'completedMilestones':chapter['completedMilestones']+['chapter2-rain-passed']}
-report={**rain,'seenStories':rain['seenStories']+['first-free-quest-accepted'],'completedStages':['stage-5','north-forest-stage-1']}
+report={**rain,'seenStories':rain['seenStories']+['first-free-quest-accepted'],'completedStages':['stage-5','first-free-quest-forest']}
 board={**report,'seenStories':report['seenStories']+['first-free-quest-report','quest-board-installed'],'completedMilestones':rain['completedMilestones']+['first-free-quest-completed','quest-board-unlocked']}
 
 def seed(page,state):
@@ -45,7 +45,7 @@ try:
    for w,h in [(360,640),(375,812)]:
     ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=True,has_touch=True)
     page=ctx.new_page();page.set_default_timeout(12000)
-    errors=[];missing=[];page.on('pageerror',lambda e:errors.append(str(e)))
+    errors=[];missing=[];requests=[];page.on('request',lambda r:requests.append((r.resource_type,r.url)));page.on('pageerror',lambda e:errors.append(str(e)))
     page.on('response',lambda r:missing.append(r.url) if r.status>=400 and 'favicon' not in r.url else None)
     page.goto(url);page.wait_for_function('!!window.FirstFreeQuest')
     # Observe existing production keys without seeding/writing them, including on public URLs.
@@ -54,29 +54,29 @@ try:
     page.locator('#innRoomView').wait_for(state='visible')
     assert page.evaluate('GameFlow.progress().innVisited')
     page.locator('#hotspot-bed').click();assert page.locator('#sheet h2').inner_text()=='床';page.locator('#innRoomWordClose').click()
-    page.locator('#innRoomBack').click();page.locator('#innLobbyView').wait_for(state='visible')
-    page.locator('[data-interaction="door"]').click();page.locator('#worldView').wait_for(state='visible')
+    page.locator('#hotspot-door').click();page.locator('#innLobbyView').wait_for(state='visible')
+    page.locator('#innLobbyTargets [data-interaction="door"]').click();page.locator('#worldView').wait_for(state='visible')
     page.reload();lobby(page)
     for name in ['keeper','table','pot','cup','ledger','stairs','door']:
-     b=page.locator(f'[data-interaction="{name}"]');box=b.bounding_box();assert box['width']>=44 and box['height']>=44,(name,box)
+     b=page.locator(f'#innLobbyTargets [data-interaction="{name}"]');box=b.bounding_box();assert box['width']>=44 and box['height']>=44,(name,box)
      # Each center must be its own target, not an overlapping neighbor.
      assert b.evaluate('(b)=>{let r=b.getBoundingClientRect();return b.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}'),name
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
     page.screenshot(path=str(OUT/f'lobby-dry-{engine}-{w}x{h}.png'),full_page=True)
-    page.locator('[data-interaction="stairs"]').click();page.locator('#innRoomView').wait_for(state='visible')
+    page.locator('#innLobbyTargets [data-interaction="stairs"]').click();page.locator('#innRoomView').wait_for(state='visible')
     page.locator('#innRoomBack').click()
     page.locator('#innLobbyMenu').click();page.locator('#flowSettings').click();page.locator('#settingsBack').click();assert page.locator('#innLobbyView').is_visible()
-    seed(page,chapter);page.evaluate('WorldInn.openRoom()');page.locator('#innRoomBack').click();assert page.locator('#storyTitle').inner_text()=='큰비가 내리던 밤'
+    seed(page,chapter);page.evaluate('WorldInn.openRoom()');page.locator('#hotspot-door').click();assert page.locator('#storyTitle').inner_text()=='큰비가 내리던 밤'
     finish_story(page);page.locator('#innLobbyView').wait_for(state='visible')
     assert page.evaluate('InnLobby.stateFor().rain')
-    page.locator('[data-interaction="keeper"]').click();page.locator('#firstQuestAccept').click();finish_story(page)
+    page.locator('#innLobbyTargets [data-interaction="keeper"]').click();page.locator('#firstQuestAccept').click();finish_story(page)
     assert page.evaluate('FirstFreeQuest.accepted(GameFlow.progress())')
     # Real report -> board installation; actual stage id comes from content.
     real_report=page.evaluate('(p)=>({...p,completedStages:["stage-5",FirstFreeQuestContent.STAGE_ID]})',report)
-    seed(page,real_report);lobby(page);page.locator('[data-interaction="keeper"]').click();page.locator('#firstQuestReport').click();finish_story(page)
-    page.evaluate('WorldInn.openLobby()');page.wait_for_selector('[data-interaction="board"]')
+    seed(page,real_report);lobby(page);page.locator('#innLobbyTargets [data-interaction="keeper"]').click();page.locator('#firstQuestReport').click();finish_story(page)
+    page.evaluate('WorldInn.openLobby()');page.wait_for_selector('#innLobbyTargets [data-interaction="board"]')
     assert page.evaluate('FirstFreeQuest.boardUnlocked(GameFlow.progress())')
-    page.locator('[data-interaction="board"]').click();assert '의뢰 게시판' in page.locator('#sheet').inner_text();page.locator('#questBoardClose').click()
+    page.locator('#innLobbyTargets [data-interaction="board"]').click();assert '의뢰 게시판' in page.locator('#sheet').inner_text();page.locator('#questBoardClose').click()
     page.screenshot(path=str(OUT/f'lobby-board-{engine}-{w}x{h}.png'),full_page=True)
     # Independent projection combinations, using the real runtime's condition projector.
     assert page.evaluate('''async()=>{let s=await (await fetch('./inn-layer-test/scene.json')).json();
@@ -97,7 +97,27 @@ try:
     assert page.locator('[data-keepsake-id]').count()==5
     for b in page.locator('[data-keepsake-id]').all():
      b.click();assert page.locator('#innKeepsakeClose').is_visible();page.locator('#innKeepsakeClose').click()
+    page.wait_for_function("[...document.querySelectorAll('#innRoomScene img')].every(i=>i.complete&&i.naturalWidth>0)")
+    for b in page.locator('#innRoomHotspots button, [data-keepsake-id]').all():
+     box=b.bounding_box();assert box['width']>=44 and box['height']>=44,(b.get_attribute('aria-label'),box)
+     assert b.evaluate('(b)=>{let r=b.getBoundingClientRect();return b.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}'),b.get_attribute('aria-label')
+    for word,zh in [('bed','床'),('desk','桌子'),('chair','椅子'),('chest','箱子')]:
+     page.locator('#hotspot-'+word).click();assert page.locator('#sheet h2').inner_text()==zh;page.locator('#innRoomWordClose').click()
+    assert page.locator('#innRoomScene').bounding_box()['width']>=w-40
     page.screenshot(path=str(OUT/f'room-keepsakes-{engine}-{w}x{h}.png'),full_page=True)
+    # Story replay must leave the main progress and visitor flag unchanged.
+    saved=page.evaluate('GameFlow.progress()')
+    page.evaluate("GameFlow.playStory('chapter2-rain-opening',{mode:'replay',returnTo:'world'})")
+    finish_story(page);assert page.evaluate('GameFlow.progress()')==saved
+    # Missing room asset still leaves word inspection and door available; retry recovers.
+    page.route('**/assets/inn-room-c/mobile/bed.webp*',lambda route:route.abort())
+    page.reload();page.evaluate('WorldInn.openRoom()')
+    page.get_by_role('button',name='다시 불러오기',exact=True).wait_for(state='visible')
+    page.locator('#hotspot-bed').click();page.locator('#innRoomWordClose').click()
+    page.unroute('**/assets/inn-room-c/mobile/bed.webp*')
+    page.get_by_role('button',name='다시 불러오기',exact=True).click()
+    page.wait_for_function("document.querySelector('#innRoomLoading').hidden")
+    assert all(u.startswith(url) or u.startswith(('data:','blob:')) for typ,u in requests if typ in ['script','image','stylesheet']),[u for typ,u in requests if typ in ['script','image','stylesheet'] and not u.startswith(url)]
     after=page.evaluate("Object.fromEntries(Object.entries(localStorage).filter(([k])=>!k.startsWith('cwt-inn-')))")
     assert before==after,'production storage changed'
     assert not errors,errors
