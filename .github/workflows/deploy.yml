@@ -63,7 +63,7 @@ jobs:
       - name: Install browser test dependencies
         run: |
           python -m pip install --disable-pip-version-check playwright
-          python -m playwright install --with-deps chromium
+          python -m playwright install --with-deps chromium webkit
 
       - name: Run mobile UX browser smoke
         env:
@@ -100,7 +100,9 @@ jobs:
       - name: Run isolated inn layers mobile smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
-        run: python tests/smoke_inn_layers.py
+        run: |
+          python tests/smoke_inn_layers.py
+          BROWSER=webkit python tests/smoke_inn_layers.py
 
       - name: Run world spatial grid G1 browser smoke
         env:

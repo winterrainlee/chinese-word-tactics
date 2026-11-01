@@ -144,12 +144,33 @@
   };
   $('restoreLayers').onclick=()=>{hiddenLayers.clear();hiddenObjects.clear();document.querySelectorAll('#layerChecks input,#objectChecks input').forEach(el=>el.checked=true);project();};
   $('reset').onclick=()=>{Object.assign(state,M.defaultState());active=null;beat=0;translated=false;project();};
-  try {
-    const response=await fetch('inn-layer-test/scene.json');if(!response.ok)throw new Error('scene fetch failed');scene=await response.json();build();
-    await Promise.all([...images.values()].map(async img=>{if(img.complete&&img.naturalWidth)return;await img.decode();}));
-    $('loading').hidden=true;$('scene').dataset.ready='true';
-    if(query.get('original')==='1') $('original').click();
-  } catch(error) {
-    $('loading').textContent='일부 그림을 불러오지 못했어. 새로고침해서 다시 확인해줘.';console.error(error);
+  // Loading an image is sufficient; hidden SVG/WebP decode promises must not gate entry.
+  function waitForImage(img) {
+    return new Promise((resolve, reject) => {
+      let timer;
+      const finish = error => {
+        clearTimeout(timer); img.removeEventListener('load', loaded); img.removeEventListener('error', failed);
+        error ? reject(error) : resolve();
+      };
+      const loaded = () => finish(img.naturalWidth ? null : new Error('그림을 읽을 수 없어: ' + img.dataset.objectId));
+      const failed = () => finish(new Error('그림 연결 실패: ' + img.dataset.objectId));
+      img.addEventListener('load', loaded); img.addEventListener('error', failed);
+      timer = setTimeout(() => finish(new Error('그림 연결 지연: ' + img.dataset.objectId)), 15000);
+      if (img.complete) loaded();
+    });
   }
-})();
+  const controller = new AbortController();
+  const fetchTimer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('inn-layer-test/scene.json?v=2', {signal:controller.signal});
+    if (!response.ok) throw new Error('공간 데이터 연결 실패: ' + response.status);
+    scene = await response.json();
+  } finally { clearTimeout(fetchTimer); }
+  build();
+  await Promise.all([...images.values()].map(waitForImage));
+  globalThis.InnLayerBoot.ready();
+  if(query.get('original')==='1') $('original').click();
+})().catch(error => {
+  console.error(error);
+  globalThis.InnLayerBoot.fail(error.name === 'AbortError' ? '공간 데이터 연결이 지연되고 있어.' : error.message);
+});

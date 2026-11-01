@@ -19,7 +19,8 @@ threading.Thread(target=server.serve_forever, daemon=True).start()
 base = f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/inn-layer-test/'
 try:
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(args=['--no-sandbox'])
+        engine = os.environ.get('BROWSER', 'chromium')
+        browser = getattr(pw, engine).launch()
         for w,h in [(375,812),(360,640)]:
             ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=True,has_touch=True,device_scale_factor=1)
             page=ctx.new_page(); errors=[]
@@ -38,7 +39,7 @@ try:
                 for hit in page.locator('.hotspot:visible').all():
                     r=hit.bounding_box();assert min(r['width'],r['height'])>=44,(w,n,r)
                     assert hit.evaluate('(e)=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}'),(w,n,hit.get_attribute('data-interaction'))
-                page.screenshot(path=str(OUT/f'inn-layer-{n}-{w}x{h}.png'),full_page=True)
+                page.screenshot(path=str(OUT/f'inn-layer-{engine}-{n}-{w}x{h}.png'),full_page=True)
             page.locator('[data-interaction="keeper"]').tap();page.locator('.translate').tap()
             assert page.locator('#ko').is_visible() and page.locator('#scene').is_visible()
             page.locator('.next').tap();assert not page.locator('#ko').is_visible()
@@ -74,6 +75,25 @@ try:
             assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
             assert not errors,errors
             ctx.close()
+        # A decode promise that never settles must not block startup.
+        page=browser.new_page(viewport={'width':375,'height':812})
+        page.add_init_script("HTMLImageElement.prototype.decode=function(){return new Promise(()=>{})}")
+        page.goto(base);page.locator('#scene[data-ready="true"]').wait_for(timeout=20000)
+        page.close()
+        # A failed asset gives a recovery action; it never stays on the loading message.
+        page=browser.new_page()
+        page.route('**/assets/background.webp',lambda route:route.abort())
+        page.goto(base);page.locator('#retryLoading').wait_for(state='visible',timeout=20000)
+        assert 'inn.lobby.structure' in page.locator('#loadingDetail').inner_text()
+        page.unroute('**/assets/background.webp');page.locator('#retryLoading').click()
+        page.locator('#scene[data-ready="true"]').wait_for(timeout=20000)
+        page.close()
+        # An early missing script is caught by the inline bootstrap, before app.js starts.
+        page=browser.new_page()
+        page.route('**/model.js?*',lambda route:route.abort())
+        page.goto(base);page.locator('#retryLoading').wait_for(state='visible',timeout=20000)
+        assert page.locator('#scene').get_attribute('data-ready')=='error'
+        page.close()
         browser.close()
 finally:
     server.shutdown()
