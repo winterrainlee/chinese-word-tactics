@@ -3,6 +3,10 @@ from pathlib import Path
 import shutil, subprocess, json, hashlib
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'inn-integration-test'
+for asset in json.loads((ROOT/'assets/inn-room-c/manifest.json').read_text()):
+ for field,hash_field in [('source','sourceSHA256'),('src','sha256')]:
+  source=ROOT/'assets/inn-room-c'/asset[field]
+  assert hashlib.sha256(source.read_bytes()).hexdigest()==asset[hash_field],f'Asset hash mismatch: {source}'
 if OUT.exists(): shutil.rmtree(OUT)
 OUT.mkdir()
 for folder in ['src','images','icons','data']:
