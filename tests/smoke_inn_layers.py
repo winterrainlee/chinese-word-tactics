@@ -23,10 +23,19 @@ try:
         browser = getattr(pw, engine).launch()
         for w,h in [(375,812),(360,640)]:
             ctx=browser.new_context(viewport={'width':w,'height':h},is_mobile=True,has_touch=True,device_scale_factor=1)
-            page=ctx.new_page(); errors=[]
+            page=ctx.new_page(); errors=[]; requests=[]
+            page.on("request", lambda r: requests.append(r.url))
             page.on('pageerror',lambda e:errors.append(str(e)))
             page.add_init_script("window.__writes=[];for(const k of ['setItem','removeItem','clear']){const f=Storage.prototype[k];Storage.prototype[k]=function(...a){window.__writes.push(k);return f.apply(this,a)}}")
             page.goto(base);page.locator('#scene[data-ready="true"]').wait_for()
+            assert not page.locator('#originalImage').get_attribute('src')
+            assert not any('lobby-c.webp' in url for url in requests), requests
+            art_requests=[url for url in requests if '/inn-layer-test/assets/' in url]
+            assert art_requests and all('/assets/mobile/' in url for url in art_requests), art_requests
+            page.locator('#dev > summary').tap();page.locator('#original').tap()
+            page.wait_for_function('document.querySelector("#originalImage").naturalWidth>0')
+            assert any('lobby-c.webp' in url for url in requests)
+            page.locator('#original').tap();page.locator('#dev > summary').tap()
             background=page.locator('[data-object-id="inn.lobby.structure"]').element_handle()
             background_src=background.get_attribute('src')
             for n in [0,1,3,7,6,2,4,5,0]:
@@ -82,10 +91,10 @@ try:
         page.close()
         # A failed asset gives a recovery action; it never stays on the loading message.
         page=browser.new_page()
-        page.route('**/assets/background.webp',lambda route:route.abort())
+        page.route('**/assets/mobile/background.webp',lambda route:route.abort())
         page.goto(base);page.locator('#retryLoading').wait_for(state='visible',timeout=20000)
         assert 'inn.lobby.structure' in page.locator('#loadingDetail').inner_text()
-        page.unroute('**/assets/background.webp');page.locator('#retryLoading').click()
+        page.unroute('**/assets/mobile/background.webp');page.locator('#retryLoading').click()
         page.locator('#scene[data-ready="true"]').wait_for(timeout=20000)
         page.close()
         # An early missing script is caught by the inline bootstrap, before app.js starts.

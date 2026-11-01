@@ -115,7 +115,9 @@
       if (!object.asset) continue;
       const image = document.createElement('img'); image.className = 'layer'; image.alt = ''; image.draggable = false;
       image.dataset.objectId = object.id; image.dataset.layer = object.layer;
-      image.src = 'inn-layer-test/'+scene.assets[object.asset].src;
+      const asset = scene.assets[object.asset];
+      image.src = 'inn-layer-test/'+asset.src;
+      if (asset.clipPath) image.style.clipPath = asset.clipPath;
       image.style.zIndex = String(object.z); applyRect(image,scene.placements[object.placement]);
       images.set(object.id,image); $('layers').append(image);
     }
@@ -138,7 +140,9 @@
   for (const key of Object.keys(state)) $('state-'+key).onchange=e=>{state[key]=e.target.checked;project();};
   $('hint').onclick=()=>{const on=$('scene').classList.toggle('show-hints');$('hint').setAttribute('aria-pressed',String(on));$('hint').textContent=on?'위치 숨기기':'위치 보기';};
   $('original').onclick=()=>{
-    original=!original;$('originalImage').hidden=!original;$('originalBadge').hidden=!original;
+    original=!original;
+    if (original && !$('originalImage').getAttribute('src')) $('originalImage').src = $('originalImage').dataset.src;
+    $('originalImage').hidden=!original;$('originalBadge').hidden=!original;
     $('original').setAttribute('aria-pressed',String(original));$('original').textContent=original?'레이어 합성 보기':'기존 C 보기';
     project();
   };
@@ -162,7 +166,7 @@
   const controller = new AbortController();
   const fetchTimer = setTimeout(() => controller.abort(), 15000);
   try {
-    const response = await fetch('inn-layer-test/scene.json?v=3', {signal:controller.signal});
+    const response = await fetch('inn-layer-test/scene.json?v=4', {signal:controller.signal});
     if (!response.ok) throw new Error('공간 데이터 연결 실패: ' + response.status);
     scene = await response.json();
   } finally { clearTimeout(fetchTimer); }

@@ -15,48 +15,60 @@
   },
   "assets": {
     "room": {
-      "src": "assets/background.webp",
-      "alpha": false
+      "src": "assets/mobile/background.webp",
+      "alpha": false,
+      "source": "assets/background.webp"
     },
     "counter": {
-      "src": "assets/counter-front.svg",
-      "alpha": true
+      "src": "assets/mobile/background.webp",
+      "alpha": true,
+      "source": "assets/counter-front.svg",
+      "clipPath": "polygon(4.9% 31.2%,43.1% 31.2%,43.1% 41.92%,7.5% 42.56%)"
     },
     "keeper": {
-      "src": "assets/keeper.webp",
-      "alpha": true
+      "src": "assets/mobile/keeper.webp",
+      "alpha": true,
+      "source": "assets/keeper.webp"
     },
     "board": {
-      "src": "assets/board.webp",
-      "alpha": true
+      "src": "assets/mobile/board.webp",
+      "alpha": true,
+      "source": "assets/board.webp"
     },
     "notice": {
-      "src": "assets/notice.webp",
-      "alpha": true
+      "src": "assets/mobile/notice.webp",
+      "alpha": true,
+      "source": "assets/notice.webp"
     },
     "teapot": {
-      "src": "assets/teapot.webp",
-      "alpha": true
+      "src": "assets/mobile/teapot.webp",
+      "alpha": true,
+      "source": "assets/teapot.webp"
     },
     "cup": {
-      "src": "assets/cup.webp",
-      "alpha": true
+      "src": "assets/mobile/cup.webp",
+      "alpha": true,
+      "source": "assets/cup.webp"
     },
     "ledger": {
-      "src": "assets/ledger.webp",
-      "alpha": true
+      "src": "assets/mobile/ledger.webp",
+      "alpha": true,
+      "source": "assets/ledger.webp"
     },
     "wet": {
-      "src": "assets/wet-belongings.webp",
-      "alpha": true
+      "src": "assets/mobile/wet-belongings.webp",
+      "alpha": true,
+      "source": "assets/wet-belongings.webp"
     },
     "water": {
-      "src": "assets/water.webp",
-      "alpha": true
+      "src": "assets/mobile/water.webp",
+      "alpha": true,
+      "source": "assets/water.webp"
     },
     "noticeNew": {
-      "src": "assets/notice-new-brick.webp",
-      "alpha": true
+      "src": "assets/mobile/notice-new-brick.webp",
+      "alpha": true,
+      "source": "assets/notice-new-brick.webp"
     }
   },
   "conditions": {

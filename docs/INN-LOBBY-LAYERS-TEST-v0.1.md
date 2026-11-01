@@ -14,7 +14,7 @@
 
 9개 투명 WebP(주인, 게시판, 흰 종이, 벽돌색 종이, 주전자, 찻잔, 장부, 젖은 짐, 물기)를 독립 생성했다. 실제 알파 채널이 있으며 모서리는 투명하다. PNG에서 WebP로 형식만 인코딩했다. 전체 배경은 상태 전환 때 같은 DOM 노드와 같은 URL로 유지한다. 흰 종이와 벽돌색 종이는 각각 첫 게시물과 새 의뢰의 안정적 사물 ID로 배치한다.
 
-`counter-front.svg`는 고정 배경 WebP를 내장하여 카운터 앞면만 clipPath로 표시한다. 배경과 같은 좌표·픽셀을 재사용하므로 전경 경계에서 이중 색 차이가 생기지 않는다. 생성형 주인의 몸 아랫부분을 가리고 기물은 그 위에 놓는다. 카운터는 상태별 배경 교체가 아니다.
+원본 `counter-front.svg`는 고정 배경 WebP를 내장하여 카운터 앞면만 clipPath로 표시한다. 모바일 실행판은 같은 마스크 좌표를 CSS clip-path로 적용하고 이미 불러온 배경 파일 URL을 재사용한다. 배경과 같은 좌표·픽셀을 재사용하므로 전경 경계에서 이중 색 차이가 생기지 않는다. 생성형 주인의 몸 아랫부분을 가리고 기물은 그 위에 놓는다. 카운터는 상태별 배경 교체가 아니다.
 
 |순서|내용|
 |---|---|
@@ -93,3 +93,19 @@
 이미지 편집 도구로 기존 쪽지를 참조해 제작했다. 최종 프롬프트: “Change ONLY the paper color to muted faded brick red / terracotta, around #B96C55 with warm lighter worn patches. Keep the paper silhouette, size, placement, transparent margins, nail, folds, dark ink marks, outline and soft shadows. Storybook retro RPG watercolor texture. Actual transparent background, no board or extra objects.”
 
 배포 코드 `44ba197cec6c2e6f7624cee5573344a771a81019`. [CI 41312067887](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41312067887) 전체 성공 및 Pages 배포 완료. 공개 `inn-layer-test/?v=3&board=1&newQuest=1`에서 벽돌색 자산 로딩, 새 의뢰 OFF 시 해당 쪽지 제거와 흰색 유지, ON 시 복원을 확인했다. [공개 화면](../inn-layer-test/evidence/brick-note-live.jpg).
+
+## 모바일 자산 최적화 (2026-11-01)
+
+원본 `assets/*.webp`, `assets/counter-front.svg` 및 기존 C는 그대로 보존했다. `assets/mobile/`에 런타임 전용 WebP를 생성했다. 배경은 최대800×1000, 작은 사물은 최대 장면400×500에서 표시 크기의 3배를 기준으로 축소했다. 알파 채널을 유지하며 배경 quality82, 사물 quality86으로 인코딩한다. `scene.json`의 `source`가 원본, `src`가 실행용이다. 자산 페이지에서 둘 다 접근할 수 있다.
+
+`python tools/build-inn-mobile-assets.py`로 재생성한다(Pillow 필요). 원본 SHA-256을 먼저 검증하고 원본에는 쓰지 않는다. `assets/mobile/manifest.json`에 크기·품질·해시·바이트를 기록한다.
+
+|비교 범위|이전|최적화 후|
+|---|---:|---:|
+|첫 로딩 그림 파일 합계(중복 URL 제외)|1,354,443 bytes|105,738 bytes|
+|원본 C 비교 그림|처음부터137,140 bytes 로딩|비교 버튼을 누를 때만 로딩|
+|카운터 전경|배경을 내장한 SVG 별도 요청|모바일 배경 URL + 같은 클립 좌표 재사용|
+
+첫 로딩 그림 파일 합계는 약92.2% 감소했다. 이는 압축된 파일 크기 비교이며 통신 상태·캐시·HTTP 압축을 포함한 실측 로딩 시간은 아니다. 숨겨진 상태용 작은 기물은 미리 불러와 전환 시 그림이 늦게 나타나지 않게 한다. 기존 무한 decode 대기 방지, 오류 표시와 재시도는 유지한다.
+
+검증에 원본 해시 보존, 모바일 그림160KB 예산, 실제 브라우저의 모바일 경로 요청과 원본 C 지연 로딩을 추가했다. 배포 결과는 후속 기록에서 확정한다.

@@ -28,3 +28,22 @@ test('layer/object isolation does not mutate event state or configuration',()=>{
  assert.equal(JSON.stringify({scene,state}),before);
  assert.match(M.describe({board:false,rain:true,newQuest:true}),/게시판 없음/);
 });
+
+test('mobile art budget and preserved authored sources',()=>{
+ const crypto=require('node:crypto');
+ const originals=require('../inn-layer-test/assets/manifest.json');
+ for(const file of originals){
+  const data=fs.readFileSync('inn-layer-test/assets/'+file.file);
+  assert.equal(crypto.createHash('sha256').update(data).digest('hex'),file.sha256);
+ }
+ const derivatives=require('../inn-layer-test/assets/mobile/manifest.json');
+ for(const file of derivatives.assets){
+  const data=fs.readFileSync('inn-layer-test/'+file.src);
+  assert.equal(data.length,file.bytes);
+  assert.equal(crypto.createHash('sha256').update(data).digest('hex'),file.sha256);
+ }
+ const urls=[...new Set(Object.values(scene.assets).map(a=>a.src))];
+ assert.ok(urls.every(url=>url.startsWith('assets/mobile/')));
+ const bytes=urls.reduce((n,url)=>n+fs.statSync('inn-layer-test/'+url).size,0);
+ assert.ok(bytes<160000,`mobile image budget exceeded: ${bytes}`);
+});
