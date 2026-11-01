@@ -67,9 +67,11 @@ test('six places are projected at unchanged v0.6 icon coordinates, not used as g
   const src = read('src/world-v06-content.js');
   assert.equal(data.placeAnchors.length, 6);
   for (const anchor of data.placeAnchors) {
-    const section = src.match(new RegExp("'" + anchor.id + "':\\s*\\{([\\s\\S]*?)\\n\\s*\\},"));
-    assert.ok(section, anchor.id + ' must remain in map patches');
-    const xy = section[1].match(/map:\s*\{\s*x:\s*(\d+),\s*y:\s*(\d+)/);
+    const start = src.indexOf("'" + anchor.id + "': {");
+    assert.ok(start >= 0, anchor.id + ' must remain in map patches');
+    const next = src.indexOf("\n    '", start + 1);
+    const section = src.slice(start, next < 0 ? undefined : next);
+    const xy = section.match(/map:\s*\{\s*x:\s*(\d+),\s*y:\s*(\d+)/);
     assert.ok(xy, anchor.id + ' must have a presentation anchor');
     assert.equal(anchor.xPct, Number(xy[1]));
     assert.equal(anchor.yPct, Number(xy[2]));
