@@ -27,11 +27,11 @@
 #innRoomView .innDeskKeepsakeHole{display:none}
 #innRoomView .innDeskKeepsake.observation-card .innDeskKeepsakeMark{background:#f9f1df;border-color:#b4a38b;color:#554e42}
 #innRoomView .innDeskKeepsake.observation-card::after{display:none}
-#innRoomView .innDeskKeepsake.west-pass{left:13%;top:78%}
-#innRoomView .innDeskKeepsake.east-pass{left:27%;top:79%}
-#innRoomView .innDeskKeepsake.pass-single{left:21%;top:78%}
-#innRoomView .innDeskKeepsake.guide-plaque{left:43%;top:27%}
-#innRoomView .innDeskKeepsake.repair-plaque{left:58%;top:27%}
-#innRoomView .innDeskKeepsake.observation-card{left:80%;top:43%}
+#innRoomView .innDeskKeepsake.west-pass{left:13%;top:66%}
+#innRoomView .innDeskKeepsake.east-pass{left:27%;top:67%}
+#innRoomView .innDeskKeepsake.pass-single{left:21%;top:66%}
+#innRoomView .innDeskKeepsake.guide-plaque{left:33%;top:17%}
+#innRoomView .innDeskKeepsake.repair-plaque{left:48%;top:17%}
+#innRoomView .innDeskKeepsake.observation-card{left:80%;top:30%}
 .innRoomAssetStatus{position:absolute;bottom:8px;left:8px;right:8px;background:#fff8e9ec;z-index:300;padding:8px;font-size:13px;border-radius:6px}
 .innRoomAssetStatus button{min-height:44px;min-width:44px}

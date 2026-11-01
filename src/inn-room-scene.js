@@ -2,10 +2,10 @@
 (() => {
   const ROOT='./assets/inn-room-c/mobile/';
   const objects=Object.freeze([
-    {id:'bed',word:'床',ko:'침대',box:{x:4,y:30,w:46,h:43},hit:{x:8,y:43,w:37,h:20},z:10},
-    {id:'desk',word:'桌子',ko:'책상',box:{x:57,y:31,w:35,h:29},hit:{x:59,y:42,w:14,h:11},z:10},
-    {id:'chair',word:'椅子',ko:'의자',box:{x:66,y:48,w:21,h:27},hit:{x:67,y:56,w:18,h:17},z:20},
-    {id:'chest',word:'箱子',ko:'상자',box:{x:5,y:67,w:35,h:25},hit:{x:8,y:79,w:31,h:11},z:30}
+    {id:'bed',word:'床',ko:'침대',box:{x:4,y:16,w:46,h:43},hit:{x:8,y:29,w:37,h:20},z:10},
+    {id:'desk',word:'桌子',ko:'책상',box:{x:57,y:18,w:35,h:29},hit:{x:59,y:29,w:14,h:11},z:10},
+    {id:'chair',word:'椅子',ko:'의자',box:{x:66,y:36,w:21,h:27},hit:{x:67,y:44,w:18,h:17},z:20},
+    {id:'chest',word:'箱子',ko:'상자',box:{x:5,y:55,w:35,h:25},hit:{x:8,y:67,w:31,h:11},z:30}
   ]);
   const preloaded=new Map();
   function preload() {
