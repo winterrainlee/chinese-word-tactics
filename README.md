@@ -3,6 +3,7 @@
 게임 전체 목적과 콘텐츠별 역할은 [게임 전체 구조와 콘텐츠 설계 기준](docs/GAME-CONTENT-FRAMEWORK-v0.1.md)에서 시작한다.
 실제 구현 기믹을 다음 스테이지에 조합할 때는 [재사용 가능한 게임 규칙·기믹 도감 v0.2](docs/REUSABLE-MECHANICS-v0.2.md)를 참고한다.
 전체 화면의 공통 디자인은 [디자인 원칙 v0.3](docs/DESIGN-PRINCIPLES-v0.3.md), 확인한 문제와 개선 순서는 [전체 디자인 감사](docs/DESIGN-AUDIT-v0.1.md)에서 확인한다.
+새 배경·기물·인물의 C 화풍 제작은 [C 화풍 어셋 제작 가이드](docs/C-STYLE-ASSET-GUIDE-v0.1.md)를 따른다.
 
 번체 중국어 B1–B2 어휘를 작은 전술 스테이지와 문맥형 의뢰로 익히는 모바일 우선 웹게임.
 
