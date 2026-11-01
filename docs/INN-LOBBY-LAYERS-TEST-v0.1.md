@@ -117,3 +117,5 @@
 이전 원본 `assets/background.webp`는 보존한다. 수정 원본은 `assets/background-light-v2.webp`, 실행용은 `assets/mobile/background-light-v2.webp`다. 기존 최적화 스크립트로 800×1000 WebP를 재생성했으며 첫 로딩 그림 파일 합계는104,042 bytes다. 카운터 전경은 새 배경의 동일 클립을 재사용한다. 모든 사물 ID·좌표·표시 조건·상호작용·레이어 배열과 기물/NPC 자산은 변경하지 않았다. 본편과 A/B/C 비교판도 유지했다.
 
 [수정 전후 배경 비교](../inn-layer-test/lighting-comparison.html). 로컬360×640 합성에서 첫 방문과 큰비+새 의뢰를 확인했고 콘텐츠 검사 및 자산/상태 단위 검사를 통과했다. 공개 배포 검증 결과는 아래에 기록한다.
+
+배포 코드 `4b3342b9dbc0528da6eb05be68a278530765c220`. [CI 41319475806](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41319475806) 전체 회귀 및 Chromium/WebKit 모바일 검사 성공, Pages 배포 완료. 공개 v5 시험판에서 새 모바일 배경 로딩 완료, 여관 주인 대화와 한국어 뜻 보기를 확인했다. [공개 배경 비교](../inn-layer-test/evidence/lighting-before-after.jpg), [공개 합성·대화](../inn-layer-test/evidence/lighting-live.jpg), [375×812 로컬 상태 비교](../inn-layer-test/evidence/lighting-mobile-preview.jpg). 브라우저 시각 검수는 원격 Chromium이며 실제 iPhone Safari 최종 승인은 사용자 단계로 남긴다.
