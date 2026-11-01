@@ -9,6 +9,8 @@ for asset in json.loads((ROOT/'assets/inn-room-c/manifest.json').read_text()):
   assert hashlib.sha256(source.read_bytes()).hexdigest()==asset[hash_field],f'Asset hash mismatch: {source}'
 if OUT.exists(): shutil.rmtree(OUT)
 OUT.mkdir()
+(OUT/'qa').mkdir()
+shutil.copy2(ROOT/'tests/smoke_inn_integration.py',OUT/'qa/smoke_inn_integration.py')
 for folder in ['src','images','icons','data']:
  shutil.copytree(ROOT/folder,OUT/folder)
 (OUT/'assets/inn-room-c').mkdir(parents=True)
