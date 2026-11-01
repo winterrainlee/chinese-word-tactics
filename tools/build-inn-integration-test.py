@@ -7,6 +7,8 @@ if OUT.exists(): shutil.rmtree(OUT)
 OUT.mkdir()
 for folder in ['src','images','icons','data']:
  shutil.copytree(ROOT/folder,OUT/folder)
+(OUT/'assets/inn-room-c').mkdir(parents=True)
+shutil.copytree(ROOT/'assets/inn-room-c/mobile',OUT/'assets/inn-room-c/mobile')
 (OUT/'inn-layer-test/assets').mkdir(parents=True)
 shutil.copytree(ROOT/'inn-layer-test/assets/mobile',OUT/'inn-layer-test/assets/mobile')
 shutil.copy2(ROOT/'inn-layer-test/scene.json',OUT/'inn-layer-test/scene.json')

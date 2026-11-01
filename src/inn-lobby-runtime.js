@@ -9,10 +9,6 @@
   });
   const visible = (condition, state) => (condition.all || []).every(k => state[k]) &&
     (condition.none || []).every(k => !state[k]);
-  const rect = (el, p) => {
-    Object.assign(el.style, {left:p.x+'%', top:p.y+'%', width:p.w+'%', height:p.h+'%'});
-    if (p.rotate) el.style.transform = `rotate(${p.rotate}deg)`;
-  };
   function sheet(zh, ko, note) {
     TacticalGame.openSheet(`<h2 lang="zh-Hant">${zh}</h2><div class="meaning">${ko}</div><p>${note}</p><div class="sheetactions"><button id="innInspectClose" data-action-role="close">닫기</button></div>`);
     $('innInspectClose').onclick = () => TacticalGame.closeSheet();
@@ -74,22 +70,15 @@
       const layers=document.createDocumentFragment(), targets=document.createDocumentFragment();
       for(const o of objects) {
         if(!o.asset) continue;
-        const img=document.createElement('img'), asset=scene.assets[o.asset];
-        img.className='innSceneLayer';img.alt='';img.draggable=false;img.dataset.objectId=o.id;
-        img.src='./inn-layer-test/'+asset.src;img.style.zIndex=o.z;
-        if(asset.clipPath) img.style.clipPath=asset.clipPath;
-        rect(img,scene.placements[o.placement]);
-        img.onerror=()=>{status.replaceChildren(document.createTextNode('그림 일부를 불러오지 못했어. 위치 보기로 이동할 수 있어. '), retryButton());};
+        const asset=scene.assets[o.asset];
+        const img=InnSceneUtils.image(o.id,'./inn-layer-test/'+asset.src,scene.placements[o.placement],o.z,()=>{
+          status.replaceChildren(document.createTextNode('그림 일부를 불러오지 못했어. 위치 보기로 이동할 수 있어. '),retryButton());
+        },asset.clipPath);
         layers.append(img);
       }
       for(const [id,action] of Object.entries(scene.interactions)) {
         if(!active.has(id)) continue;
-        const target=document.createElement('button');target.type='button';
-        target.className='innSceneTarget';target.dataset.interaction=id;
-        target.setAttribute('aria-label',action.label);target.style.zIndex=100+action.priority;
-        rect(target,action.hit);
-        const label=document.createElement('span');label.textContent=action.label.replace(/살펴보기|과 이야기하기/g,'');target.append(label);
-        target.onclick=()=>interact(action.kind);targets.append(target);
+        targets.append(InnSceneUtils.target(id,action.label,action.hit,action.priority,()=>interact(action.kind)));
       }
       $('innLobbyLayers').replaceChildren(layers);$('innLobbyTargets').replaceChildren(targets);
       status.textContent='';

@@ -1,0 +1,87 @@
+[
+  {
+    "id": "inn.room.background",
+    "source": "source/background.png",
+    "sourceSHA256": "371e5e4578ee1349931a83e8923fa75d409b5d0aa2845dd229c582d5cc9874fc",
+    "sourceSize": [
+      1122,
+      1402
+    ],
+    "src": "mobile/background.webp",
+    "size": [
+      800,
+      1000
+    ],
+    "bytes": 34690,
+    "sha256": "f572e778d38bb9ad613b0f4e44840a85ef35c853b8535c5915f1b2ce6e9286ae",
+    "alpha": false
+  },
+  {
+    "id": "inn.room.bed",
+    "source": "source/bed.png",
+    "sourceSHA256": "c1bc5422c8326ecf872ba0d17df2df5dee4b3090dbec6422e48d492e8f621701",
+    "sourceSize": [
+      1149,
+      1368
+    ],
+    "src": "mobile/bed.webp",
+    "size": [
+      491,
+      585
+    ],
+    "bytes": 28482,
+    "sha256": "4136f868f9eaaefcf202b3f23f691857ccb5dcfd1704caa07825c8e058ae2c89",
+    "alpha": true
+  },
+  {
+    "id": "inn.room.desk",
+    "source": "source/desk.png",
+    "sourceSHA256": "d04da7a8be9d98371339cdbf79f3664a08a6c6bf0dc8eec321ff4d16b00907e0",
+    "sourceSize": [
+      1295,
+      1214
+    ],
+    "src": "mobile/desk.webp",
+    "size": [
+      384,
+      360
+    ],
+    "bytes": 18320,
+    "sha256": "e1a8756ee9751501d2451009968e108f7de99d18cd91dc4f3a92cdfb8385679f",
+    "alpha": true
+  },
+  {
+    "id": "inn.room.chair",
+    "source": "source/chair.png",
+    "sourceSHA256": "c3ad9d29b88ee5c024e55186e67f538fe57afde4edc6af047e771f1e9c6f6cbf",
+    "sourceSize": [
+      1070,
+      1470
+    ],
+    "src": "mobile/chair.webp",
+    "size": [
+      240,
+      330
+    ],
+    "bytes": 17854,
+    "sha256": "05708a20848261e184c661aee4dad9e76921981b3b13c0e610f595251e26e3ba",
+    "alpha": true
+  },
+  {
+    "id": "inn.room.chest",
+    "source": "source/chest.png",
+    "sourceSHA256": "b5efe6c88cb509c8333468ba60bc228c6cb30115fd6f542ec68fdaeaec78a83d",
+    "sourceSize": [
+      1350,
+      1165
+    ],
+    "src": "mobile/chest.webp",
+    "size": [
+      348,
+      300
+    ],
+    "bytes": 14358,
+    "sha256": "af166077675c740b0384c954d911e13c008d0d4b50d5fb8fa966f741133d264c",
+    "alpha": true
+  }
+]
