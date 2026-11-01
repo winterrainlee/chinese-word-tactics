@@ -2,7 +2,9 @@
 
 - 별도 `inn-layer-test/`: 고정 배경 + 실제 투명 기물/인물 + 카운터 전경 + 독립 터치 + 하단 대화.
 - 게시판/큰비/새 의뢰 8조합, 레이어·사물 숨김 검사. 본편과 기존 A/B/C 보존.
-- 로컬 콘텐츠 회귀 통과. 모바일 CI와 실제 Pages 배포 확인 진행 중.
+- 단위 검사 368개, 본편 브라우저 회귀, C 레이어 8조합 × 2 모바일 크기 검사 통과.
+- [Pages 체험](https://winterrainlee.github.io/chinese-word-tactics/inn-layer-test/) 실제 배포 및 공개 사이트 상호작용 확인 완료. [CI 41303621946](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41303621946) 성공, 배포 코드 `7b8ddd4`.
+- 투명 자산/구성 데이터와 상태별 모바일·기존 C 비교 증빙을 `inn-layer-test/`에 보존. 본편 적용 전 작은 기물 식별성·선 굵기·접지 그림자 정리 필요.
 - [설계·검증·남은 과제](INN-LOBBY-LAYERS-TEST-v0.1.md). iPhone Safari 최종 사용자 승인 대기.
 
 # 개발 상황판

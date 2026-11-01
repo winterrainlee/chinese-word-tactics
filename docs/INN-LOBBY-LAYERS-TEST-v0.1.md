@@ -49,11 +49,11 @@
 
 ## 검증
 
-- `node tools/verify-content.cjs`: 통과. 기존 단위 검사와 콘텐츠/UX/이야기 감사를 포함한다.
+- `node tools/verify-content.cjs`: 통과. 단위 검사 368개와 콘텐츠/UX/이야기 감사를 포함한다.
 - `tests/inn-layer-model.test.cjs`: 8개 조합, 안정 ID, 참조 무결성, 독립 숨김과 비변이 검사.
 - `tests/smoke_inn_layers.py`: GitHub CI에서 375×812 및 360×640 모바일/touch 컨텍스트. 모든 상태의 추가·제거, 같은 배경 노드/URL 유지, 최소44px 및 중앙점 겹침 순서, 기물 반응, 중국어/한국어, 방·이야기·문밖 왕복, 저장 API 쓰기 0을 검사한다.
 - 클라우드 Chrome의 고정 크기 iframe에서도 시각 검수. 360×640에서 식탁 중앙 터치가 찻잔에 가려지는 문제를 발견하여 식탁 오른쪽으로 영역을 분리했다.
-- 배포와 CI의 최종 결과는 아래 배포 기록에 추가한다. iPhone Safari 실제 기기 최종 승인은 별도다.
+- 배포와 CI의 최종 결과는 아래 배포 기록에 확정했다. iPhone Safari 실제 기기 최종 승인은 별도다.
 
 ## 본편 적용 전
 
@@ -65,4 +65,17 @@
 
 ## 배포 기록
 
-배포 전 검증 완료. GitHub Pages CI 및 공개 URL 검증 결과는 후속 기록에서 확정한다.
+2026-11-01 GitHub Actions [41303621946](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41303621946) 전체 성공 및 Pages 배포 성공. 배포 코드 커밋 `7b8ddd4ba43995cde0d81108c53363f8a3c8c3cd`. 기존 본편 브라우저 회귀와 A/B/C 검사, 새 레이어 모바일 검사 모두 통과. 공개 URL에서 모든 자산 로딩(data-ready=true), 3사건 전환, 중국어·한국어 대화, 기존 소년의 방 진입·복귀를 재확인했다. [공개 배포 증빙](../inn-layer-test/evidence/live-pages.jpg).
+
+최종 결과 문서와 증빙만 후속 `[skip ci]` 커밋으로 기록한다. 실행 코드/배포 자산은 위에서 검증한 배포 커밋 그대로다. 실제 iPhone Safari 사용자 최종 승인은 대기 중이다.
+
+## 비교 증빙
+
+고정 크기 Chrome iframe의 같은 화면 구성으로 촬영했다. 실제 iPhone Safari 촬영은 아니다. CI의 별도 모바일 touch 컨텍스트 스크린샷은 Actions `ux-screenshots` artifact에도 보존된다.
+
+- [첫 방문 / 게시판 / 큰비+새 의뢰](../inn-layer-test/evidence/states-375.jpg)
+- [게시판 없는 큰비 / 게시판+비 / 새 의뢰](../inn-layer-test/evidence/independent-rain-375.jpg)
+- [360×640 중국어·한국어 대화](../inn-layer-test/evidence/mobile-360-dialogue.jpg)
+- [기존 C와 레이어 합성](../inn-layer-test/evidence/original-vs-layers.jpg)
+
+구조 검증 결과: 기존 C의 공간 배치와 고정 조명을 유지하면서 사건별 사물만 독립적으로 바뀐다. 이 구성을 후속 실험의 기준으로 권장한다. 본편 적용 전에 위의 그림 정리와 실제 기기 검수를 거쳐야 한다.
