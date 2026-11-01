@@ -23,9 +23,9 @@ test('settings exposes export, validated restore preview, reset, and build infor
   for (const id of ['settingsExport', 'settingsImport', 'settingsRestorePreview', 'settingsRestoreConfirm', 'settingsReset', 'settingsBuild']) {
     assert.match(html, new RegExp(`id="${id}"`));
   }
-  assert.match(runtime, /SaveData\.createBackup\(localStorage/);
+  assert.match(runtime, /SaveData\.createBackup\(\(globalThis\.GameStorage \|\| localStorage\)/);
   assert.match(runtime, /SaveData\.validateBackup\(parsed\)/);
-  assert.match(runtime, /SaveData\.restoreBackup\(localStorage, restoreCandidate\)/);
+  assert.match(runtime, /SaveData\.restoreBackup\(\(globalThis\.GameStorage \|\| localStorage\), restoreCandidate\)/);
   assert.match(runtime, /GameFlow\.resetJourney\(\)/);
 });
 

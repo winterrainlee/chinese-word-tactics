@@ -56,6 +56,7 @@
   const map = $('worldRegions');
   if (map) {
     map.addEventListener('click', event => {
+      if (globalThis.InnLobby) return;
       const marker = event.target?.closest?.('.worldInnMarker');
       if (!marker || !isReady()) return;
       event.preventDefault();

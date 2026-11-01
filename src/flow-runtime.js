@@ -4,7 +4,7 @@
   const PENDING_COMPLETION_KEY = 'chinese-word-tactics-pending-completion-v1';
   const LEXICON_KEY = globalThis.LexiconRuntime?.KEY || 'chinese-word-tactics-lexicon-v1';
   const RESET_KEYS = [P.KEY, 'chufa-tutorial-v03', 'chinese-word-tactics-world-v1', PENDING_COMPLETION_KEY, LEXICON_KEY];
-  const store = P.createStore({ getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) }, () => {
+  const store = P.createStore({ getItem: key => (globalThis.GameStorage || localStorage).getItem(key), setItem: (key, value) => (globalThis.GameStorage || localStorage).setItem(key, value) }, () => {
     $('flowNotice').hidden = false;
     $('flowNotice').textContent = '진행 기록을 읽거나 저장하지 못했어. 이 탭에서는 계속할 수 있지만, 새로고침하면 기록을 잃을 수 있어.';
   });
@@ -73,11 +73,11 @@
   const returnTargetFor = node => node?.returnToRegionHubAfter || 'journey';
   const readPendingCompletion = () => {
     try {
-      const value = JSON.parse(localStorage.getItem(PENDING_COMPLETION_KEY) || 'null');
+      const value = JSON.parse((globalThis.GameStorage || localStorage).getItem(PENDING_COMPLETION_KEY) || 'null');
       return value && typeof value.stageId === 'string' ? value : null;
     } catch { return null; }
   };
-  const clearPendingCompletion = () => { try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {} };
+  const clearPendingCompletion = () => { try { (globalThis.GameStorage || localStorage).removeItem(PENDING_COMPLETION_KEY); } catch {} };
   const hasJourneyProgress = progress => Boolean(
     progress?.lastLocation ||
     progress?.completedStages?.length ||
@@ -345,7 +345,7 @@
     if (context.viewId === 'landingView') return showLanding({ restoreContext: context });
     if (context.viewId === 'worldView') return showWorld({ restoreContext: context, preserveActive: true });
     if (context.viewId === 'journeyView') return showJourney({ restoreContext: context, preserveActive: true });
-    const viewName = ({ tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings', innRoomView: 'innRoom', wordsView: 'words' })[context.viewId];
+    const viewName = ({ tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings', innRoomView: 'innRoom', innLobbyView: 'innLobby', wordsView: 'words' })[context.viewId];
     if (!viewName) return false;
     TacticalGame.showView(viewName);
     restoreDomContext(context);
@@ -356,7 +356,7 @@
     $('flowResetCancel').onclick = () => TacticalGame.closeSheet();
     $('flowResetConfirm').onclick = () => {
       try {
-        RESET_KEYS.forEach(key => localStorage.removeItem(key));
+        RESET_KEYS.forEach(key => (globalThis.GameStorage || localStorage).removeItem(key));
         location.reload();
       } catch {
         TacticalGame.closeSheet();
@@ -392,7 +392,7 @@
   }
   globalThis.GameFlow = Object.freeze({ showLanding, showWorld, showJourney, showRegionPractice, showRegionHub, playStory, playStage, continueFromNode, enterRegion,
     continueCampaign, resume, returnFromReplay, showMenu, showWords, showSettings, resetJourney, recordStageComplete, showStageComplete, checkpointEr04A, completeEr04A,
-    captureViewContext, restoreViewContext, progress: () => store.get() });
+    captureViewContext, restoreViewContext, visitInn: () => store.visitInn(), progress: () => store.get() });
   document.querySelectorAll('[data-flow-menu]').forEach(button => { button.onclick = showMenu; });
   $('worldBack').onclick = () => returnFromTravelRoot('world');
   $('journeyBack').onclick = () => returnFromTravelRoot('journey');

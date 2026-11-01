@@ -76,7 +76,7 @@
     view.setAttribute('aria-label', '여관 내 방');
     view.innerHTML = `
       <header class="innRoomTopbar globalNavHeader">
-        <button class="iconbtn" id="innRoomBack" type="button" aria-label="물길마을 지도로 돌아가기">←</button>
+        <button class="iconbtn" id="innRoomBack" type="button" aria-label="여관 로비로 내려가기">←</button>
         <div class="innRoomHeading"><div class="stagekicker">여관 · 客棧</div><h1>내 방 <span class="innRoomKey" aria-hidden="true">⌑</span></h1></div>
         <button id="innRoomMenu" class="iconbtn" type="button" data-flow-menu aria-label="여행 메뉴">☰</button>
       </header>
@@ -89,7 +89,7 @@
     `;
     document.getElementById('app')?.appendChild(view);
     const back = view.querySelector('#innRoomBack');
-    if (back) back.onclick = () => globalThis.GameFlow?.showWorld?.();
+    if (back) back.onclick = () => (globalThis.InnLobby?.open || globalThis.GameFlow?.showWorld)?.();
     const menu = view.querySelector('#innRoomMenu');
     if (menu) menu.onclick = () => globalThis.GameFlow?.showMenu?.();
     return view;
@@ -129,7 +129,7 @@
   function bindHotspot(group) {
     const activate = () => {
       if (group.dataset.action === 'leave-room') {
-        globalThis.GameFlow?.showWorld?.();
+        (globalThis.InnLobby?.open || globalThis.GameFlow?.showWorld)?.();
         return;
       }
       if (group.dataset.word) showRoomWord(group);
@@ -152,6 +152,7 @@
   }
 
   function openRoom() {
+    globalThis.GameFlow?.visitInn?.();
     ensureRoomView();
     globalThis.TacticalGame?.closeSheet?.();
     globalThis.TacticalGame?.showView?.('innRoom');
@@ -160,13 +161,18 @@
     window.scrollTo(0, 0);
   }
 
+  function enterInn() {
+    if (progress().innVisited) (globalThis.InnLobby?.open || globalThis.GameFlow?.showWorld)?.();
+    else openRoom();
+  }
+
   function openInnSheet() {
     preloadRoomBackground();
     globalThis.TacticalGame?.openSheet?.(`<h2>여관</h2><div class="regionSheetNameZh">客棧</div><div class="meaning worldInnPlaceSummary">소년의 방이 있는 여관이야.</div><div class="sheetactions"><button class="secondary" id="worldInnClose">닫기</button><button id="worldInnEnter">들어가기</button></div>`);
     const close = document.getElementById('worldInnClose');
     if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
     const enter = document.getElementById('worldInnEnter');
-    if (enter) enter.onclick = openRoom;
+    if (enter) enter.onclick = enterInn;
   }
 
   function createMarker() {
@@ -212,6 +218,6 @@
 
   globalThis.WorldInn = Object.freeze({
     MILESTONE, ROOM_KEY_MILESTONE, unlocked, hasRoomKey, preloadRoomBackground,
-    syncMarkerState, syncInnMarker, openInnSheet, openRoom
+    syncMarkerState, syncInnMarker, openInnSheet, openRoom, enterInn, openLobby: () => globalThis.InnLobby?.open?.()
   });
 })();

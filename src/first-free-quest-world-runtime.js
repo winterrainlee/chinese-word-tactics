@@ -165,6 +165,7 @@
   }
 
   function injectBoardEntry() {
+    if (globalThis.InnLobby) return;
     if (!boardUnlocked(progress())) return;
     const sheet = $('sheet');
     if (!sheet?.querySelector('.worldInnPlaceSummary') || sheet.querySelector('#questBoardOpen')) return;
@@ -180,6 +181,7 @@
   }
 
   function interceptInnMarker(event) {
+    if (globalThis.InnLobby) return;
     const marker = event.target?.closest?.('.worldInnMarker');
     if (!marker) return;
     const value = progress();
@@ -191,6 +193,7 @@
   }
 
   function interceptRoomLeave(event) {
+    if (globalThis.InnLobby) return;
     const target = event.target?.closest?.('#innRoomHotspots [data-action="leave-room"]');
     if (!target || !needsOffer(progress())) return;
     event.preventDefault();

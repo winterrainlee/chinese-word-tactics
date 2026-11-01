@@ -18,9 +18,9 @@ function heroName(){return window.JourneyProgress?.getHeroRole(milestoneProgress
 function setStatus(msg,type=''){statusEl.textContent=(heroName()==='소년'?msg.replaceAll('용사를','소년을').replaceAll('용사가','소년이').replaceAll('용사는','소년은').replaceAll('용사','소년'):msg);statusEl.className='status'+(type?' '+type:'')}
 function entryStatus(st){if(st.id==='stage-0')return'용사를 누르고, 화살표가 보이는 옆 칸을 눌러봐.';if(st.wolf)return'늑대는 행동할 때마다 움직여. 1턴 기다리기는 제자리에 머물며 늑대의 순찰만 진행시켜.';return''}
 function setEntryStatus(){const message=entryStatus(current());setStatus(message,message?'info':'')}
-function save(){try{if(stageSession.mode!=='replay')localStorage.setItem(SAVEKEY,JSON.stringify({stageIndex,state,history,selected,inspect,completed:[...completed]}));localStorage.setItem(WORLDKEY,JSON.stringify(worldState))}catch{setStatus('진행 상태를 저장하지 못했어. 이 탭에서는 계속 플레이할 수 있어.','bad')}}
+function save(){try{if(stageSession.mode!=='replay')(globalThis.GameStorage || localStorage).setItem(SAVEKEY,JSON.stringify({stageIndex,state,history,selected,inspect,completed:[...completed]}));(globalThis.GameStorage || localStorage).setItem(WORLDKEY,JSON.stringify(worldState))}catch{setStatus('진행 상태를 저장하지 못했어. 이 탭에서는 계속 플레이할 수 있어.','bad')}}
 function load(){
-  const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}};
+  const read=k=>{try{return JSON.parse((globalThis.GameStorage || localStorage).getItem(k)||'null')}catch{return null}};
   const x=read(SAVEKEY),w=read(WORLDKEY),ids=v=>Array.isArray(v)?v.filter(id=>typeof id==='string'):[];
   if(w)worldState={visited:ids(w.visited).map(id=>id==='research-city'?'academic-tower':id),completedMilestones:ids(w.completedMilestones)};
   if(x)completed=new Set(ids(x.completed).filter(id=>STAGES.some(st=>st.id===id)));

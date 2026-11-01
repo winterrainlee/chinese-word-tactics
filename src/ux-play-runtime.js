@@ -14,10 +14,10 @@
   });
 
   function savePendingCompletion(stageId) {
-    try { localStorage.setItem(PENDING_COMPLETION_KEY, JSON.stringify({ stageId })); } catch {}
+    try { (globalThis.GameStorage || localStorage).setItem(PENDING_COMPLETION_KEY, JSON.stringify({ stageId })); } catch {}
   }
   function clearPendingCompletion() {
-    try { localStorage.removeItem(PENDING_COMPLETION_KEY); } catch {}
+    try { (globalThis.GameStorage || localStorage).removeItem(PENDING_COMPLETION_KEY); } catch {}
   }
 
   function normalizeLearningFeedback(message) {

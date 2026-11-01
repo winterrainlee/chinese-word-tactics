@@ -86,7 +86,9 @@
     const location = raw.lastLocation;
     const validLocation = location && (location.view === 'world' ||
       (['story', 'tactical'].includes(location.view) && getNode(location.nodeId)?.type === (location.view === 'story' ? 'story' : 'stage')));
-    return { seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
+    return { innVisited: typeof raw.innVisited === 'boolean' ? raw.innVisited :
+      strings(raw.seenStories).includes('chapter1-room-finale') || hasPostRainEvidence(raw),
+      seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
       completedMilestones: strings(raw.completedMilestones),
       acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes),
       sideResearchProgress: globalThis.AcademicTowerEr04A?.progressMap?.(raw.sideResearchProgress) || {}, lastLocation: validLocation ? {
@@ -168,6 +170,7 @@
     let progress = normalize(read(KEY));
     const legacy = read('chufa-tutorial-v03');
     const legacyWorld = read('chinese-word-tactics-world-v1');
+    if (strings(legacyWorld?.visited).some(id => ['inn', 'innRoom'].includes(id))) progress.innVisited = true;
     progress.completedStages = strings([...progress.completedStages,
       ...strings(legacy?.completed).filter(id => /^stage-[0-5]$/.test(id))]);
     progress.completedMilestones = strings([
@@ -184,6 +187,7 @@
     persist();
     return Object.freeze({
       get: () => copy(progress),
+      visitInn() { progress.innVisited = true; return persist(); },
       checkpointSide(stageId, snapshot) {
         const er=globalThis.AcademicTowerEr04A;
         if (!er || stageId!==er.STAGE_ID || !er.validState(snapshot) ||

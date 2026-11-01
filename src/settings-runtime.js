@@ -8,7 +8,7 @@
 
   const viewName = id => ({
     landingView: 'landing', tutorialView: 'tutorial', worldView: 'world', storyView: 'story',
-    journeyView: 'journey', wordsView: 'words', settingsView: 'settings'
+    innRoomView: 'innRoom', innLobbyView: 'innLobby', journeyView: 'journey', wordsView: 'words', settingsView: 'settings'
   })[id] || 'landing';
   const currentViewId = () => document.querySelector('.appView:not([hidden])')?.id || 'landingView';
   const buildId = () => document.querySelector('meta[name="cwt-build"]')?.content || 'unknown';
@@ -23,7 +23,7 @@
 
   function readPreferences() {
     try {
-      const stored = JSON.parse(localStorage.getItem(PREFERENCES_KEY) || 'null');
+      const stored = JSON.parse((globalThis.GameStorage || localStorage).getItem(PREFERENCES_KEY) || 'null');
       return { showPronunciation: stored?.showPronunciation === true };
     } catch { return defaultPreferences(); }
   }
@@ -35,7 +35,7 @@
   function savePronunciationPreference() {
     const next = { showPronunciation: $('settingsPronunciation').checked };
     try {
-      localStorage.setItem(PREFERENCES_KEY, JSON.stringify(next));
+      (globalThis.GameStorage || localStorage).setItem(PREFERENCES_KEY, JSON.stringify(next));
       globalThis.StoryRuntime?.refresh?.();
       setMessage('발음 표시 설정을 저장했어.');
     } catch {
@@ -93,7 +93,7 @@
 
   function exportProgress() {
     try {
-      const backup = SaveData.createBackup(localStorage, { build: buildId() });
+      const backup = SaveData.createBackup((globalThis.GameStorage || localStorage), { build: buildId() });
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
@@ -136,7 +136,7 @@
   function restoreProgress() {
     if (!restoreCandidate) return;
     try {
-      SaveData.restoreBackup(localStorage, restoreCandidate);
+      SaveData.restoreBackup((globalThis.GameStorage || localStorage), restoreCandidate);
       setMessage('복원이 끝났어. 저장 기록을 다시 불러올게.');
       location.reload();
     } catch (error) {
