@@ -12,7 +12,7 @@
 
 원래 C를 참조하여 변하는 사물과 주인을 지운 고정 배경을 제작했다. 벽·창문·계단·카운터·식탁·문·고정 화분·햇빛을 유지한다. 분리 과정은 원본 픽셀의 완전한 추출이 아니라 재그림이므로 작은 천과 윤곽에 차이가 있다.
 
-8개 투명 WebP(주인, 게시판, 종이, 주전자, 찻잔, 장부, 젖은 짐, 물기)를 독립 생성했다. 실제 알파 채널이 있으며 모서리는 투명하다. PNG에서 WebP로 형식만 인코딩했다. 전체 배경은 상태 전환 때 같은 DOM 노드와 같은 URL로 유지한다. 종이 한 자산은 두 개의 안정적 사물 ID로 배치한다.
+9개 투명 WebP(주인, 게시판, 흰 종이, 벽돌색 종이, 주전자, 찻잔, 장부, 젖은 짐, 물기)를 독립 생성했다. 실제 알파 채널이 있으며 모서리는 투명하다. PNG에서 WebP로 형식만 인코딩했다. 전체 배경은 상태 전환 때 같은 DOM 노드와 같은 URL로 유지한다. 흰 종이와 벽돌색 종이는 각각 첫 게시물과 새 의뢰의 안정적 사물 ID로 배치한다.
 
 `counter-front.svg`는 고정 배경 WebP를 내장하여 카운터 앞면만 clipPath로 표시한다. 배경과 같은 좌표·픽셀을 재사용하므로 전경 경계에서 이중 색 차이가 생기지 않는다. 생성형 주인의 몸 아랫부분을 가리고 기물은 그 위에 놓는다. 카운터는 상태별 배경 교체가 아니다.
 
@@ -91,3 +91,5 @@
 첫 게시물은 기존 흰색 자산을 유지한다. 새 의뢰는 별도 투명 자산 `assets/notice-new-brick.webp`를 사용한다. `board && newQuest`일 때 벽돌색 쪽지가 추가되고, 새 의뢰를 끄면 그 쪽지만 사라진다. 큰비 상태와 독립이다.
 
 이미지 편집 도구로 기존 쪽지를 참조해 제작했다. 최종 프롬프트: “Change ONLY the paper color to muted faded brick red / terracotta, around #B96C55 with warm lighter worn patches. Keep the paper silhouette, size, placement, transparent margins, nail, folds, dark ink marks, outline and soft shadows. Storybook retro RPG watercolor texture. Actual transparent background, no board or extra objects.”
+
+배포 코드 `44ba197cec6c2e6f7624cee5573344a771a81019`. [CI 41312067887](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41312067887) 전체 성공 및 Pages 배포 완료. 공개 `inn-layer-test/?v=3&board=1&newQuest=1`에서 벽돌색 자산 로딩, 새 의뢰 OFF 시 해당 쪽지 제거와 흰색 유지, ON 시 복원을 확인했다. [공개 화면](../inn-layer-test/evidence/brick-note-live.jpg).
