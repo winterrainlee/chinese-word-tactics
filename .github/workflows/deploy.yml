@@ -30,6 +30,8 @@ jobs:
             node --check "$file"
           done
           node --check world-grid-test/app.js
+          node --check inn-style-test/app.js
+          node --check inn-style-test/content.js
 
       - name: Run unit tests
         run: node --test tests/*.test.cjs
@@ -88,6 +90,11 @@ jobs:
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_inn.py
+
+      - name: Run isolated inn art comparison mobile smoke
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
+        run: python tests/smoke_inn_style.py
 
       - name: Run world spatial grid G1 browser smoke
         env:
