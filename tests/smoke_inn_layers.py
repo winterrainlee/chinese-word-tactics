@@ -93,7 +93,9 @@ try:
         page=browser.new_page()
         page.route('**/assets/mobile/background.webp',lambda route:route.abort())
         page.goto(base);page.locator('#retryLoading').wait_for(state='visible',timeout=20000)
-        assert 'inn.lobby.structure' in page.locator('#loadingDetail').inner_text()
+        # Background and counter share one URL; either load error can settle first.
+        detail=page.locator('#loadingDetail').inner_text()
+        assert any(key in detail for key in ['inn.lobby.structure','inn.lobby.counter-front']),detail
         page.unroute('**/assets/mobile/background.webp');page.locator('#retryLoading').click()
         page.locator('#scene[data-ready="true"]').wait_for(timeout=20000)
         page.close()
