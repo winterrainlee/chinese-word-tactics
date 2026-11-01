@@ -121,3 +121,7 @@
 [수정 전후 배경 비교](https://github.com/winterrainlee/chinese-word-tactics/blob/5b7fe032eb70ad3845775663437a83fb7514f5f9/inn-layer-test/lighting-comparison.html). 로컬360×640 합성에서 첫 방문과 큰비+새 의뢰를 확인했고 콘텐츠 검사 및 자산/상태 단위 검사를 통과했다. 공개 배포 검증 결과는 아래에 기록한다.
 
 배포 코드 `4b3342b9dbc0528da6eb05be68a278530765c220`. [CI 41319475806](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41319475806) 전체 회귀 및 Chromium/WebKit 모바일 검사 성공, Pages 배포 완료. 공개 v5 시험판에서 새 모바일 배경 로딩 완료, 여관 주인 대화와 한국어 뜻 보기를 확인했다. [공개 배경 비교](../inn-layer-test/evidence/lighting-before-after.jpg), [공개 합성·대화](../inn-layer-test/evidence/lighting-live.jpg), [375×812 로컬 상태 비교](../inn-layer-test/evidence/lighting-mobile-preview.jpg). 브라우저 시각 검수는 원격 Chromium이며 실제 iPhone Safari 최종 승인은 사용자 단계로 남긴다.
+
+## 레이어 C 단독 유지 검증
+
+배포 코드 `9312badf73595c116f9e982592a3cebc6089ed40`, CI `41320453261` 성공. Chromium/WebKit 모바일 및 본편 회귀 검사 통과. 공개 `inn-layer-test/?v=6`에서 정상 진입, 비교 버튼·링크 제거를 확인했다. 기존 `inn-style-test/`와 A/B/C 그림, `inn-layer-test/review.html`, `inn-layer-test/lighting-comparison.html`은 HTTP404다. [공개 화면](../inn-layer-test/evidence/layer-c-only-live.jpg).
