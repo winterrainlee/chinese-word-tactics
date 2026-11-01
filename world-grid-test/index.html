@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e8e1d3">
+  <title>물길마을 · 지형 격자 시험판</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="../src/world-spatial-prototype.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="pageHead">
+      <a class="backLink" href="../">← 게임으로 돌아가기</a>
+      <p class="eyebrow">《따라온 단어들》 · 월드 데이터 G1</p>
+      <h1>물길마을 지형 격자 시험판</h1>
+      <p class="intro">현재 월드맵 원본에 격자와 지형 단서 후보를 겹쳐 비교해. 그림에서 확인한 위치와 세계관에서 확정된 지리는 아직 별개야.</p>
+    </header>
+
+    <section class="toolbar" aria-label="지도 시험판 조작">
+      <div class="field">
+        <label for="gridSize">격자 밀도</label>
+        <select id="gridSize" aria-label="격자 해상도">
+          <option value="coarse">20 × 36 · 720칸</option>
+          <option value="medium" selected>32 × 57 · 1,824칸</option>
+          <option value="fine">40 × 71 · 2,840칸</option>
+        </select>
+      </div>
+      <div class="switches">
+        <label><input id="showGrid" type="checkbox" checked> 격자선</label>
+        <label><input id="showTraces" type="checkbox" checked> 지형 단서</label>
+        <label><input id="showAnchors" type="checkbox"> 장소 표식</label>
+      </div>
+      <p class="toolbarHint" id="gridDescription">지도에서 칸을 누르면 관련 후보 요소와 근거가 표시돼.</p>
+    </section>
+
+    <div class="mainGrid">
+      <section class="mapColumn" aria-label="현재 삽화 및 격자 비교">
+        <div class="mapFrame" id="mapFrame">
+          <img id="mapArtwork" class="mapArtwork" alt="강줄기, 숲, 다리와 마을이 그려진 현재 물길마을 월드맵 삽화">
+          <svg id="mapOverlay" class="mapOverlay" viewBox="0 0 430 764" preserveAspectRatio="none" aria-hidden="true">
+            <g id="featureLayer"></g>
+            <g id="gridLayer"></g>
+            <g id="selectionLayer"></g>
+          </svg>
+          <div id="mapHit" class="mapHit" tabindex="0" role="button"
+               aria-label="격자 조사 지도. 지도를 누르거나 방향키로 칸을 고를 수 있어."></div>
+          <div id="placePins" class="placePins" aria-label="기존 월드맵 장소 표식"></div>
+          <div id="mapQuick" class="mapQuick" hidden></div>
+        </div>
+        <p id="loadStatus" class="loadStatus" role="status">원본 월드맵을 불러오는 중이야.</p>
+        <div class="legend" aria-label="후보 표시 뜻">
+          <span><i class="swatch water"></i>물길 후보</span>
+          <span><i class="swatch road"></i>도로 후보</span>
+          <span><i class="swatch bridge"></i>다리 후보</span>
+          <span><i class="swatch selected"></i>선택한 칸</span>
+        </div>
+      </section>
+
+      <aside class="inspector" id="inspector" aria-label="지형 조사 결과" aria-live="polite">
+        <p class="eyebrow">지형 조사 메모</p>
+        <h2 id="selectionTitle">지도의 한 칸을 골라봐.</h2>
+        <p id="selectionSummary" class="summary">이 지도는 읽기 전용 시험판이야. 선택한 격자의 좌표와 가까운 지형 표시 후보를 알려줘.</p>
+        <div id="selectionDetails" class="selectionDetails"></div>
+        <p class="inspectorFoot">이 결과는 삽화 육안 추적에 따른 후보야. 고도, 범람 범위, 물의 흐름 방향, 도로 연결을 확정하지 않아.</p>
+      </aside>
+    </div>
+
+    <details class="methodNote">
+      <summary>이 지도에서 무엇이 확정이고 무엇이 후보일까?</summary>
+      <p>여섯 장소의 위치는 기존 화면의 아이콘 배치 좌표야. 강·도로의 선과 다리 점은 그림에서 육안으로 표시한 <strong>검토 후보</strong>이므로 실제 세계 좌표나 연결망이 아니야. 아무것도 표시되지 않은 칸은 평지로 확정한 것이 아니라 <strong>아직 분류하지 않은 칸</strong>이야.</p>
+      <p>세계관에서 확정된 세 자연 물줄기의 존재와 그림에 그려진 강선의 개수·합류 위치는 일대일 대응시키지 않았어. 04A 샛구멍도 지도에 위치를 만들지 않았고, 끝마을 표식은 실제 마을의 좌표가 아닌 바깥 방향 안내야.</p>
+    </details>
+    <footer>G1 읽기 전용 시험 · 본편 진행/저장 데이터는 사용하거나 수정하지 않아.</footer>
+  </main>
+</body>
+</html>
