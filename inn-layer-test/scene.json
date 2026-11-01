@@ -15,12 +15,12 @@
   },
   "assets": {
     "room": {
-      "src": "assets/mobile/background.webp",
+      "src": "assets/mobile/background-light-v2.webp",
       "alpha": false,
-      "source": "assets/background.webp"
+      "source": "assets/background-light-v2.webp"
     },
     "counter": {
-      "src": "assets/mobile/background.webp",
+      "src": "assets/mobile/background-light-v2.webp",
       "alpha": true,
       "source": "assets/counter-front.svg",
       "clipPath": "polygon(4.9% 31.2%,43.1% 31.2%,43.1% 41.92%,7.5% 42.56%)"

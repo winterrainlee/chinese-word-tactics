@@ -166,7 +166,7 @@
   const controller = new AbortController();
   const fetchTimer = setTimeout(() => controller.abort(), 15000);
   try {
-    const response = await fetch('inn-layer-test/scene.json?v=4', {signal:controller.signal});
+    const response = await fetch('inn-layer-test/scene.json?v=5', {signal:controller.signal});
     if (!response.ok) throw new Error('공간 데이터 연결 실패: ' + response.status);
     scene = await response.json();
   } finally { clearTimeout(fetchTimer); }

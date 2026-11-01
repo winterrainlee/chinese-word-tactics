@@ -4,15 +4,15 @@
     500
   ],
   "originalsUntouched": true,
-  "beforeLayerImageBytes": 1217303,
-  "beforeIncludingEagerOriginalCBytes": 1354443,
-  "afterLayerImageBytes": 105738,
+  "beforeLayerImageBytes": 1213835,
+  "beforeIncludingEagerOriginalCBytes": 1350975,
+  "afterLayerImageBytes": 104042,
   "originalCDeferredBytes": 137140,
   "assets": [
     {
       "asset": "room",
-      "source": "assets/background.webp",
-      "src": "assets/mobile/background.webp",
+      "source": "assets/background-light-v2.webp",
+      "src": "assets/mobile/background-light-v2.webp",
       "sourceSize": [
         1122,
         1402
@@ -21,11 +21,11 @@
         800,
         1000
       ],
-      "sourceBytes": 125754,
-      "bytes": 61898,
+      "sourceBytes": 122286,
+      "bytes": 60202,
       "quality": 82,
       "alphaExtrema": null,
-      "sha256": "13e55b97b196d4b15007f51bf47f8871a0cbb924c10d1c00b7ef647b5f228265"
+      "sha256": "4b91a05ca2dbad68419f196ef86a030e09119af1910d48d680d6d7f31df0c316"
     },
     {
       "asset": "keeper",

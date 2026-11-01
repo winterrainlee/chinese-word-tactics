@@ -115,5 +115,14 @@
       255
     ],
     "sha256": "b73be1b6a587f8e98511ef63276e1736c6a202478bac3dbc4413e6e29662fef2"
+  },
+  {
+    "file": "background-light-v2.webp",
+    "size": [
+      1122,
+      1402
+    ],
+    "alphaExtrema": null,
+    "sha256": "417ed85279f4f8a404c60d485322b374ec889b17e6d6eee2f7462ac5dad2ac53"
   }
 ]

@@ -22,7 +22,7 @@ for key, asset in scene['assets'].items():
     asset['source'] = source
     if key == 'counter':
         # Same background pixels, clipped in the compositor; no second embedded bitmap.
-        asset['src'] = 'assets/mobile/background.webp'
+        asset['src'] = scene['assets']['room']['src']
         asset['clipPath'] = 'polygon(4.9% 31.2%,43.1% 31.2%,43.1% 41.92%,7.5% 42.56%)'
         continue
     path = TEST / source

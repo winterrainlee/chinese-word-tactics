@@ -17,6 +17,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Handler)
 threading.Thread(target=server.serve_forever, daemon=True).start()
 base = f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/inn-layer-test/'
+background_route = '**/inn-layer-test/' + json.loads((ROOT/'inn-layer-test/scene.json').read_text())['assets']['room']['src']
 try:
     with sync_playwright() as pw:
         engine = os.environ.get('BROWSER', 'chromium')
@@ -91,12 +92,12 @@ try:
         page.close()
         # A failed asset gives a recovery action; it never stays on the loading message.
         page=browser.new_page()
-        page.route('**/assets/mobile/background.webp',lambda route:route.abort())
+        page.route(background_route,lambda route:route.abort())
         page.goto(base);page.locator('#retryLoading').wait_for(state='visible',timeout=20000)
         # Background and counter share one URL; either load error can settle first.
         detail=page.locator('#loadingDetail').inner_text()
         assert any(key in detail for key in ['inn.lobby.structure','inn.lobby.counter-front']),detail
-        page.unroute('**/assets/mobile/background.webp');page.locator('#retryLoading').click()
+        page.unroute(background_route);page.locator('#retryLoading').click()
         page.locator('#scene[data-ready="true"]').wait_for(timeout=20000)
         page.close()
         # An early missing script is caught by the inline bootstrap, before app.js starts.
