@@ -10,3 +10,10 @@
 .innSceneFooter button,.innSceneStatus button{min-width:44px;min-height:44px;font-size:12px;padding:6px 10px;background:transparent;color:#554a3c;border:1px solid #bbae98}
 .innSceneStatus{max-width:400px;margin:auto;font-size:13px;color:#675239;padding:0 12px}.innSceneStatus:empty{display:none}
 #app>#innLobbyView{width:min(100%,400px)}
+/* Two route passes must remain separately touchable when both were earned. */
+#innRoomView .innDeskKeepsake{min-width:44px;min-height:44px;width:44px;height:44px;transform:translate(-50%,-50%)}
+#innRoomView .innDeskKeepsake::before{inset:0}
+#innRoomView .innDeskKeepsake.west-pass{left:12%}
+#innRoomView .innDeskKeepsake.east-pass{left:27%}
+#innRoomView .innDeskKeepsake.pass-single{left:19%}
+#innRoomView .innDeskKeepsake.repair-plaque{left:58%}
