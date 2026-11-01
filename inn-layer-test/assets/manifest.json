@@ -103,5 +103,17 @@
       255
     ],
     "sha256": "eff69089c8709660b17fac4849eba880eb3b6b0ed37cfc35a7294e03e76d4a47"
+  },
+  {
+    "file": "notice-new-brick.webp",
+    "size": [
+      1122,
+      1402
+    ],
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "sha256": "b73be1b6a587f8e98511ef63276e1736c6a202478bac3dbc4413e6e29662fef2"
   }
 ]

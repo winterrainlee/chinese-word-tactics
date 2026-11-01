@@ -53,6 +53,10 @@
     "water": {
       "src": "assets/water.webp",
       "alpha": true
+    },
+    "noticeNew": {
+      "src": "assets/notice-new-brick.webp",
+      "alpha": true
     }
   },
   "conditions": {
@@ -301,8 +305,8 @@
     },
     {
       "id": "inn.lobby.notice.new",
-      "label": "새 의뢰 종이",
-      "asset": "notice",
+      "label": "새 의뢰 · 벽돌색 쪽지",
+      "asset": "noticeNew",
       "placement": "new",
       "condition": "newQuest",
       "layer": "objects",
