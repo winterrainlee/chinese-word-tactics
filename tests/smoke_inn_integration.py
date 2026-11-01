@@ -54,29 +54,29 @@ try:
     page.locator('#innRoomView').wait_for(state='visible')
     assert page.evaluate('GameFlow.progress().innVisited')
     page.locator('#hotspot-bed').click();assert page.locator('#sheet h2').inner_text()=='床';page.locator('#innRoomWordClose').click()
-    page.locator('#innRoomBack').click();page.locator('#innLobbyView').wait_for(state='visible')
-    page.locator('[data-interaction="door"]').click();page.locator('#worldView').wait_for(state='visible')
+    page.locator('#hotspot-door').click();page.locator('#innLobbyView').wait_for(state='visible')
+    page.locator('#innLobbyTargets [data-interaction="door"]').click();page.locator('#worldView').wait_for(state='visible')
     page.reload();lobby(page)
     for name in ['keeper','table','pot','cup','ledger','stairs','door']:
-     b=page.locator(f'[data-interaction="{name}"]');box=b.bounding_box();assert box['width']>=44 and box['height']>=44,(name,box)
+     b=page.locator(f'#innLobbyTargets [data-interaction="{name}"]');box=b.bounding_box();assert box['width']>=44 and box['height']>=44,(name,box)
      # Each center must be its own target, not an overlapping neighbor.
      assert b.evaluate('(b)=>{let r=b.getBoundingClientRect();return b.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))}'),name
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
     page.screenshot(path=str(OUT/f'lobby-dry-{engine}-{w}x{h}.png'),full_page=True)
-    page.locator('[data-interaction="stairs"]').click();page.locator('#innRoomView').wait_for(state='visible')
+    page.locator('#innLobbyTargets [data-interaction="stairs"]').click();page.locator('#innRoomView').wait_for(state='visible')
     page.locator('#innRoomBack').click()
     page.locator('#innLobbyMenu').click();page.locator('#flowSettings').click();page.locator('#settingsBack').click();assert page.locator('#innLobbyView').is_visible()
-    seed(page,chapter);page.evaluate('WorldInn.openRoom()');page.locator('#innRoomBack').click();assert page.locator('#storyTitle').inner_text()=='큰비가 내리던 밤'
+    seed(page,chapter);page.evaluate('WorldInn.openRoom()');page.locator('#hotspot-door').click();assert page.locator('#storyTitle').inner_text()=='큰비가 내리던 밤'
     finish_story(page);page.locator('#innLobbyView').wait_for(state='visible')
     assert page.evaluate('InnLobby.stateFor().rain')
-    page.locator('[data-interaction="keeper"]').click();page.locator('#firstQuestAccept').click();finish_story(page)
+    page.locator('#innLobbyTargets [data-interaction="keeper"]').click();page.locator('#firstQuestAccept').click();finish_story(page)
     assert page.evaluate('FirstFreeQuest.accepted(GameFlow.progress())')
     # Real report -> board installation; actual stage id comes from content.
     real_report=page.evaluate('(p)=>({...p,completedStages:["stage-5",FirstFreeQuestContent.STAGE_ID]})',report)
-    seed(page,real_report);lobby(page);page.locator('[data-interaction="keeper"]').click();page.locator('#firstQuestReport').click();finish_story(page)
-    page.evaluate('WorldInn.openLobby()');page.wait_for_selector('[data-interaction="board"]')
+    seed(page,real_report);lobby(page);page.locator('#innLobbyTargets [data-interaction="keeper"]').click();page.locator('#firstQuestReport').click();finish_story(page)
+    page.evaluate('WorldInn.openLobby()');page.wait_for_selector('#innLobbyTargets [data-interaction="board"]')
     assert page.evaluate('FirstFreeQuest.boardUnlocked(GameFlow.progress())')
-    page.locator('[data-interaction="board"]').click();assert '의뢰 게시판' in page.locator('#sheet').inner_text();page.locator('#questBoardClose').click()
+    page.locator('#innLobbyTargets [data-interaction="board"]').click();assert '의뢰 게시판' in page.locator('#sheet').inner_text();page.locator('#questBoardClose').click()
     page.screenshot(path=str(OUT/f'lobby-board-{engine}-{w}x{h}.png'),full_page=True)
     # Independent projection combinations, using the real runtime's condition projector.
     assert page.evaluate('''async()=>{let s=await (await fetch('./inn-layer-test/scene.json')).json();

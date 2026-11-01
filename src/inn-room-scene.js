@@ -34,7 +34,7 @@
       const b=InnSceneUtils.target(o.id,o.ko+' 살펴보기',o.hit,10,()=>WorldInn.showRoomWord(b));
       b.id='hotspot-'+o.id;b.dataset.word=o.word;b.dataset.ko=o.ko;host.append(b);
     }
-    const door=InnSceneUtils.target('door','문을 열고 로비로 내려가기',{x:86,y:59,w:14,h:33},5,()=>WorldInn.openLobby());
+    const door=InnSceneUtils.target('room-door','문을 열고 로비로 내려가기',{x:86,y:59,w:14,h:33},5,()=>WorldInn.openLobby());
     door.id='hotspot-door';door.dataset.action='leave-room';host.append(door);
     const hint=document.getElementById('innRoomHint');hint.className='innSceneFooter';hint.replaceChildren(document.createTextNode('눈에 들어오는 물건을 눌러봐.'));
     const b=document.createElement('button');b.id='innRoomHints';b.textContent='위치 보기';b.setAttribute('aria-pressed','false');b.onclick=()=>{
