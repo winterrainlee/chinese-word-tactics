@@ -109,7 +109,7 @@ test('world renderer uses raster art, paper wash, and tappable POI state badges'
   assert.ok(html.indexOf('journey-content.js') < html.indexOf('world-v06-content.js'));
   assert.ok(html.indexOf('world-v06-content.js') < html.indexOf('app.js'));
   assert.ok(html.indexOf('view.css') < html.indexOf('world-map-reset.css'));
-  assert.match(html, /world\.css\?v=20261006-a042/);
+  assert.match(html, /world\.css\?v=20261102-chapter2-p1/);
   assert.match(html, /view\.css\?v=20261006-a042/);
   assert.match(html, /world-map-reset\.css\?v=20260911-townarrival1/);
   assert.match(html, /world-v06-content\.js\?v=\d{8}-[^"<]+/);
