@@ -46,14 +46,15 @@ try:
         seed = {
             'seenStories': [
                 'gate-after-convoy', 'workshop-finale', 'market-after-m8',
-                'chapter1-inn-convergence', 'chapter1-room-finale'
+                'chapter1-inn-convergence', 'chapter1-room-finale', 'chapter2-rain-opening'
             ],
             'completedStages': ['stage-5'] +
                 [f'gate-stage-{index}' for index in range(1, 8)] +
                 [f'workshop-stage-{index}' for index in range(1, 8)] +
                 [f'market-stage-{index}' for index in range(1, 9)],
             'completedMilestones': [
-                'inn-unlocked', 'gate-core', 'workshop-core', 'market-core', 'chapter1-complete'
+                'inn-unlocked', 'gate-core', 'workshop-core', 'market-core', 'chapter1-complete',
+                'chapter2-rain-passed'
             ],
             'acknowledgedNodes': [],
             'stageOutcomes': {},
@@ -86,6 +87,9 @@ try:
 
         # The request can be postponed without changing progress or installing a marker.
         page.locator('.worldInnMarker').click()
+        page.locator('#worldInnEnter').click()
+        page.locator('#innLobbyView').wait_for(state='visible')
+        page.locator('#innLobbyTargets [data-interaction="keeper"]').click()
         assert page.locator('#sheet h2').inner_text() == '여관 주인의 부탁'
         assert page.locator('#firstQuestOfferKo').is_hidden()
         page.locator('#firstQuestOfferMeaning').click()
@@ -95,8 +99,8 @@ try:
         assert page.evaluate("!GameFlow.progress().seenStories.includes('first-free-quest-accepted')")
         assert page.locator('.worldForestQuestMarker').count() == 0
 
-        # Accept the same persistent request.
-        page.locator('.worldInnMarker').click()
+        # Return to the same keeper in the lobby; postponing must not erase the request.
+        page.locator('#innLobbyTargets [data-interaction="keeper"]').click()
         page.locator('#firstQuestAccept').click()
         page.locator('#storyView').wait_for(state='visible')
         assert page.locator('#storyTitle').inner_text() == '북쪽 숲으로'
@@ -265,6 +269,9 @@ try:
         assert page.evaluate("GameFlow.progress().completedStages.includes('first-free-quest-forest')")
         assert page.locator('.worldForestQuestMarker.completed').count() == 1
         page.locator('.worldInnMarker').click()
+        page.locator('#worldInnEnter').click()
+        page.locator('#innLobbyView').wait_for(state='visible')
+        page.locator('#innLobbyTargets [data-interaction="keeper"]').click()
         assert page.locator('#firstQuestReport').is_visible()
         assert page.locator('#firstQuestReportKo').is_hidden()
         page.locator('#firstQuestReport').click()
@@ -284,16 +291,15 @@ try:
         assert 'first-free-quest-report' in saved['seenStories']
         assert 'quest-board-installed' in saved['seenStories']
 
-        # Only after the report does the inn gain a persistent quest-board entry.
+        # The board becomes a real scene object after reporting, not a button in the map sheet.
         page.locator('.worldInnMarker').click()
-        page.locator('#questBoardOpen').wait_for(state='visible')
-        inn_sheet_text = page.locator('#sheet').inner_text()
-        assert '소년의 방이 있는 여관이야.' in inn_sheet_text
-        assert '장터 일을 함께 마친 뒤' not in inn_sheet_text
-        assert '방 열쇠가 생긴 돌아올 곳' not in inn_sheet_text
-        assert '자기 물건을 둘 수 있는 자리' not in inn_sheet_text
+        page.locator('#worldInnEnter').click()
+        page.locator('#innLobbyView').wait_for(state='visible')
+        board_target = page.locator('#innLobbyTargets [data-interaction="board"]')
+        board_target.wait_for(state='visible')
+        assert page.evaluate('InnLobby.stateFor().board')
         page.screenshot(path=str(OUT / 'ux-c08-inn-summary-375x812.png'), full_page=True)
-        page.locator('#questBoardOpen').click()
+        board_target.click()
         assert page.locator('#sheet h2').inner_text() == '의뢰 게시판'
         board_text = page.locator('#sheet').inner_text()
         assert '북쪽 숲의 버섯' in board_text
@@ -329,7 +335,9 @@ try:
             ('north-forest-materials', 'north-forest-stage-4')
         ]:
             page.locator('.worldInnMarker').click()
-            page.locator('#questBoardOpen').click()
+            page.locator('#worldInnEnter').click()
+            page.locator('#innLobbyView').wait_for(state='visible')
+            page.locator('#innLobbyTargets [data-interaction="board"]').click()
             page.locator(f'[data-quest-id="{quest_id}"]').click()
             assert page.locator('#storyView').is_visible()
             finish_story(page)
