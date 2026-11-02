@@ -124,6 +124,7 @@
     const locked = isLocked(region);
     const complete = isComplete(region);
     const recommendation = recommendationNeeded(region) ? region.recommendation : '';
+    const firstLook = !locked ? globalThis.Chapter2FirstLook?.statusFor?.(region.id) : null;
     const overview = `<div class="meaning worldPlaceSummary">${region.summary || region.note}</div>`;
     const advice = recommendation ? `<div class="gamerule worldAdvice"><strong>권장</strong><br>${recommendation}</div>` : '';
     const lock = locked ? `<div class="gamerule worldLockReason" id="worldPlaceLockReason"><strong>아직 갈 수 없어</strong><br>${region.lockHint || '앞선 의뢰를 마치면 이곳으로 이어지는 길이 열려.'}</div>` : '';
@@ -136,7 +137,13 @@
         ? `<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceGo" data-action-role="primary">${actionLabel}</button>`
         : '<button id="worldPlaceClose" data-action-role="close">닫기</button><button data-action-role="primary" disabled>의뢰 준비 중</button>';
 
-    globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}<div class="sheetactions">${action}</div>`);
+    const firstLookEntry = firstLook ? `<button type="button" id="worldFirstLookEntry" class="worldFirstLookEntry" data-action-role="secondary"><span><strong>비가 그친 뒤 · ${firstLook.seen ? '다시 돌아보기' : '달라진 풍경 살펴보기'}</strong><small>${firstLook.seen ? '이미 읽은 첫 방문 이야기야.' : '1장의 진행은 유지한 채, 지금의 풍경을 확인해.'}</small></span><span aria-hidden="true">›</span></button>` : '';
+    globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}${firstLookEntry}<div class="sheetactions">${action}</div>`);
+    const look = document.getElementById('worldFirstLookEntry');
+    if (look) look.onclick = () => {
+      globalThis.TacticalGame?.closeSheet?.();
+      globalThis.Chapter2FirstLook?.open?.(region.id);
+    };
 
     const close = document.getElementById('worldPlaceClose');
     if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();

@@ -11,7 +11,10 @@
     'first-free-quest-accepted':'inn',
     'first-free-quest-report':'inn',
     'quest-board-installed':'inn',
-    'chapter2-rain-opening':'inn'
+    'chapter2-rain-opening':'inn',
+    'chapter2-gate-first-look':'gate-town',
+    'chapter2-market-first-look':'market-town',
+    'chapter2-workshop-first-look':'workshop-town'
   });
   // The northern forest is a real game place, but NOT yet registered in G2's
   // surveyed catalog; it must stay unresolved instead of inventing geometry.
