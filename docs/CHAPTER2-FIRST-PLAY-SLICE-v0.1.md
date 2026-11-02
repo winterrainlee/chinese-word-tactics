@@ -251,4 +251,4 @@
 - `src/story-pronunciation-content.js`에 새 중국어 문장의 **주음 스코프**를 추가하고 말뭉치 감사와 함께 검증했어. 한국어 뜻 보기와 스토리 화면의 기존 재열람도 유지해.
 - 검증: `tests/chapter2-p1-first-sightings.test.cjs`(선수/선택/중단/진행/보존/구형 저장), `tests/smoke_chapter2_p1.py`(Chromium·WebKit, 375×812/360×640, 세 장소 역순 방문·재열람·1장 다시 연습·기기 가로 스크롤). [P1 브랜치 자동검사](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41421577008) **통과**.
 
-**아직 남은 검수:** 정식 Pages 전체 회귀 결과, 사용자 iPhone Safari 직접 검수(G6). P2에서는 회의소·끝마을의 실제 언어 판단과 지식/출처 기록을 상세 구현하고, P1의 순수 이야기 방식이 충분한지 사용자 피드백을 확인해.
+**배포 확인(G4/G5 완료):** [GitHub Pages 전체 회귀·공개 검증 41423450876](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41423450876)에서 **48단계 성공**, 공개 Chromium·WebKit 검증까지 완료했어. 정식 게임 실행 SHA는 `b4307a2`이며 [P1 본편 통합 PR #22](https://github.com/winterrainlee/chinese-word-tactics/pull/22), [선택형 단일 이야기 UX 검사 보강 PR #23](https://github.com/winterrainlee/chinese-word-tactics/pull/23)이 반영됐어. **남은 G6는 사용자의 실제 iPhone Safari 검수**야. P2에서는 회의소·끝마을의 실제 언어 판단·정보 출처 기록을 상세 구현하고 P1 순수 이야기 방식의 체감을 확인해.
