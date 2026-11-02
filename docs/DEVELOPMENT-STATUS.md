@@ -1,4 +1,10 @@
-> C 로비 통합은 별도 기능 브랜치·독립 시험판에서 진행 중이다. 본편의 기존 구현과 구분한다. [통합 기록](INN-C-INTEGRATION-v0.1.md).
+## 2026-11-02 · C 화풍 여관 본편 통합·배포 완료
+
+사용자가 C 로비와 소년의 방 공개 시험판을 확인한 뒤 정식 통합을 승인했다. [PR #17](https://github.com/winterrainlee/chinese-word-tactics/pull/17)을 통해 로비·소년의 방 독립 레이어, 실제 의뢰·큰비·게시판 상태, 첫 방문은 방/재방문은 로비 동선, 방↔로비↔지도 이동을 본편에 적용했다. 저장 영역은 추가하지 않고 여정 데이터의 선택적 `innVisited`를 사용하며 구형 저장·백업 호환을 보존한다.
+
+기능 통합 커밋 `7bc4f0e`, 배포 코드 최종 검사 `a9e7e51`. 브랜치 회귀검사 [41379095060](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41379095060), 본편 전체 브라우저 회귀·GitHub Pages 배포·공개 여관 Chromium/WebKit 검증 [41379968082](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41379968082) 성공. 기존 [/inn-integration-test/](https://winterrainlee.github.io/chinese-word-tactics/inn-integration-test/) 시험판은 본편과 저장을 분리한 채 유지한다. 신규 그림 제작 원본은 `assets/inn-room-c/source/`, 실행용은 `assets/inn-room-c/mobile/`에 보존한다.
+
+[통합 설계·작업 이력](INN-C-INTEGRATION-v0.1.md). 사용자 승인 이후 수정은 배포용 캐시 버전과 과거 동선·버전 확인 검사에 한정했다. 이후 개별 콘텐츠 검수와 확장은 별도 과제로 다룬다.
 
 ## 2026-11-01 · C 화풍 어셋 제작 기준
 

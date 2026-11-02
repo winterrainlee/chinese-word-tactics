@@ -1,3 +1,5 @@
+> **2026-11-02 정식 본편 통합 완료.** 사용자 시험판 검수·채택 후 [PR #17](https://github.com/winterrainlee/chinese-word-tactics/pull/17)을 `main`에 병합했다. [GitHub Pages 배포·전체 검사](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41379968082) 성공. 아래 v0.1의 '시험판만 수정' 등 제한 문구는 **통합 전 작업 이력**이며 현행 본편 적용 상태가 아니다. 독립 시험판은 비교·검수용으로 유지한다.
+
 # 여관 C 통합 시험판 v0.1
 
 기준 main: `5009fde101095fafe7d6f8aea064d134641db3d0`. 기능 브랜치: `feature/inn-c-integration-20261101`.
