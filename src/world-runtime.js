@@ -201,6 +201,8 @@
       card.classList.toggle('selected', selectedRegionId === region.id);
       card.dataset.worldPresented = 'true';
       card.dataset.regionId = region.id;
+      // Additive G3 metadata only: confirmed place ID, never routing or unlock authority.
+      void globalThis.WorldSpatialContext?.annotateRegion?.(card, region.id);
       card.dataset.mapKind = region.map?.kind || 'district';
       card.style.setProperty('--map-x', `${region.map?.x ?? 50}%`);
       card.style.setProperty('--map-y', `${region.map?.y ?? 50}%`);

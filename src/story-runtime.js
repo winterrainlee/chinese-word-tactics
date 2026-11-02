@@ -55,6 +55,8 @@
     $('storyPlace').append(document.createTextNode(` · ${story.placeKo}`));
     $('storyBackdrop').src = `./icons/world/regions/${backgrounds[story.background] || 'region-origin'}.svg`;
     $('storyScene').dataset.place = story.background;
+    // Explicit story-ID binding, not a place inferred from the backdrop artwork.
+    void globalThis.WorldSpatialContext?.annotateStory?.($('storyScene'), story.id);
     const portraitEl = $('storyPortrait'), portrait = portraits[beat.speaker];
     portraitEl.hidden = !portrait;
     if (portrait) {
