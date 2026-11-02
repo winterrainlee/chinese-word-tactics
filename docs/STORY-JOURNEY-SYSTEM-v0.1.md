@@ -534,3 +534,11 @@ JOURNEY = [
 5. **G4/G5/G6를 구분한다.** 자동검사·Pages 배포·실제 iPhone Safari 확인은 서로 별개의 완료 단계다.
 
 현행 회귀 기준: `tests/tower-unlock-conditions.test.cjs`, `tests/smoke_tower_unlock_conditions.py`, `tests/chapter2-rain.test.cjs`, `tests/smoke_chapter2_rain.py`, 기존 학술탑/여정/백업 회귀검사. 
+
+## 16.5 2026-11-02 · 2장 선택형 첫 풍경(P1)의 실제 진입 계약
+
+- `chapter2-gate-first-look` / `chapter2-market-first-look` / `chapter2-workshop-first-look`는 **2장 본편의 필수 관문이 아닌 세 독립 이야기**야. `Chapter2FirstLook.statusFor`는 `JourneyProgress.hasRainPassed`·각 story 노드의 `requiresRainPassed`와 `revealAfterRain`을 확인해.
+- 정상 도입 완료든 1장 이후 자유 의뢰·04A를 진행한 **구형 저장의 실제 비 경과**든 진입할 수 있어. 과거 rain story를 읽지 않았다고 허위 완료 처리하지 않아.
+- `optionalFirstLook` 노드는 일반 `JourneyProgress.recommendedNode`에서 제외하므로 새 선택 이야기만 남았다고 일반 Continue가 그것을 강제로 시작하지 않아. 반면 저장된 **중단 중 story 위치는 다시 이어갈 수 있어**.
+- 1장 핵심 완료와 '다시 연습하기'는 유지해. P1의 완료는 각 `seenStories`만 추가하고 기존 `gate-core`·`market-core`·`workshop-core`·C08·숲·학술탑·백업을 수정하지 않아.
+- 회의소·끝마을의 자유 시작은 이번 P1 완료 여부에 의존하지 않아. **P2는 아직 구현되지 않은 콘텐츠**이므로 현재 두 장소의 '의뢰 준비 중' 상태는 그대로 둬.
