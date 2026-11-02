@@ -40,7 +40,7 @@ def progress(*, stories=(), stages=(), milestones=(), location=None):
 
 CORE_STORIES = (
     'gate-after-convoy', 'workshop-finale', 'market-after-m8',
-    'chapter1-inn-convergence', 'chapter1-room-finale',
+    'chapter1-inn-convergence', 'chapter1-room-finale', 'chapter2-rain-opening',
 )
 CORE_STAGES = (
     'stage-5',
@@ -48,7 +48,8 @@ CORE_STAGES = (
     *(f'workshop-stage-{index}' for index in range(1, 8)),
     *(f'market-stage-{index}' for index in range(1, 9)),
 )
-CORE_MILESTONES = ('inn-unlocked', 'gate-core', 'workshop-core', 'market-core', 'chapter1-complete')
+CORE_MILESTONES = ('inn-unlocked', 'gate-core', 'workshop-core', 'market-core',
+                   'chapter1-complete', 'chapter2-rain-passed')
 STARTED = progress(stages=('stage-0',), location={'view': 'world'})
 ARRIVAL = progress(stages=('stage-5',), location={'view': 'world'})
 OFFER = progress(stories=CORE_STORIES, stages=CORE_STAGES, milestones=CORE_MILESTONES, location={'view': 'world'})
@@ -185,6 +186,9 @@ try:
             reset(page, OFFER)
             page.evaluate('GameFlow.showWorld()')
             page.locator('.worldInnMarker').click()
+            page.locator('#worldInnEnter').click()
+            page.locator('#innLobbyView').wait_for(state='visible')
+            page.locator('#innLobbyTargets [data-interaction="keeper"]').click()
             assert_touch_targets(page, '#firstQuestOfferMeaning')
             capture(page, 'first-free-quest-offer', width, height)
             page.locator('#firstQuestOfferMeaning').click()
@@ -194,6 +198,9 @@ try:
             reset(page, REPORT)
             page.evaluate('GameFlow.showWorld()')
             page.locator('.worldInnMarker').click()
+            page.locator('#worldInnEnter').click()
+            page.locator('#innLobbyView').wait_for(state='visible')
+            page.locator('#innLobbyTargets [data-interaction="keeper"]').click()
             assert_touch_targets(page, '#firstQuestReportMeaning')
             page.locator('#firstQuestReportMeaning').click()
             assert page.locator('#firstQuestReportKo').is_visible()
