@@ -242,7 +242,7 @@ try:
 
         # Ordinary regions end at the world; the permanent academic hub returns to its room list instead.
         # Quest locations own quests[] and are excluded from this sequence contract.
-        flow_flags=page.evaluate('''() => Object.fromEntries(JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId && Array.isArray(s.sequence) && !s.hiddenFromJourney).map(section=>[section.id,section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter,!!n.returnToRegionHubAfter])]))''')
+        flow_flags=page.evaluate('''() => Object.fromEntries(JourneyContent.JOURNEY.flatMap(ch=>ch.sections).filter(s=>s.regionId && Array.isArray(s.sequence) && !s.hiddenFromJourney && !s.sequence.some(n=>n.optionalFirstLook)).map(section=>[section.id,section.sequence.filter(n=>n.type==='story').map(n=>[n.id,!!n.returnToWorldAfter,!!n.returnToRegionHubAfter])]))''')
         for region, stories in flow_flags.items():
             assert len(stories)>1,(region,stories)
             if region == 'academic-tower':
@@ -266,7 +266,27 @@ try:
             else:
                 assert all(not world and not hub for _,world,hub in stories[:-1]),(region,stories)
                 assert stories[-1][1] is True and stories[-1][2] is False,(region,stories)
+        # P1 uses independent single-story region sections, not the linear
+        # story -> stage -> result sequence. Keep the original multi-story
+        # contract for all ordinary regions, and assert the narrower optional contract.
+        first_look_flags=page.evaluate('''() => Object.fromEntries(
+            JourneyContent.JOURNEY.flatMap(ch=>ch.sections)
+                .filter(section=>section.regionId && Array.isArray(section.sequence) &&
+                    section.sequence.some(node=>node.optionalFirstLook))
+                .map(section=>[section.id,section.sequence.map(node=>[
+                    node.id,!!node.optionalFirstLook,!!node.returnToWorldAfter,
+                    !!node.requiresRainPassed
+                ])]))''')
+        assert set(first_look_flags)=={
+            'chapter2-gate-first-look','chapter2-market-first-look',
+            'chapter2-workshop-first-look'
+        },first_look_flags
+        for region,sequence in first_look_flags.items():
+            assert len(sequence)==1,(region,sequence)
+            assert sequence[0][0]==region,(region,sequence)
+            assert sequence[0][1:]==[True,True,True],(region,sequence)
         print('UX_REGION_FLOW',json.dumps(flow_flags,ensure_ascii=False),flush=True)
+        print('UX_OPTIONAL_FIRST_LOOK',json.dumps(first_look_flags,ensure_ascii=False),flush=True)
 
         page.evaluate('localStorage.clear(); location.reload()')
         page.wait_for_function('!!window.GameFlow && !!window.UXPlay && document.querySelector("#landingView") && !document.querySelector("#landingView").hidden')

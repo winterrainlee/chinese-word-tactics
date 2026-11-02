@@ -11,6 +11,7 @@ on:
       - 'src/journey-progress.js'
       - 'tests/chapter2-p1-first-sightings.test.cjs'
       - 'tests/smoke_chapter2_p1.py'
+      - 'tests/smoke_ux.py'
       - 'index.html'
 permissions:
   contents: read
@@ -32,3 +33,4 @@ jobs:
           python -m pip install playwright
           python -m playwright install --with-deps chromium webkit
       - run: python tests/smoke_chapter2_p1.py
+      - run: python tests/smoke_ux.py
