@@ -195,6 +195,8 @@
 
 ## 10. 2026-11-02 · 세 갈래 첫 풍경 P1 실제 구현
 
+> **검증 후속:** [GitHub Pages 전체 회귀·공개 검증 41423450876](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41423450876) **48단계 통과** 및 정식 Pages 배포 완료. [P1 코드 PR #22](https://github.com/winterrainlee/chinese-word-tactics/pull/22)와 [기존 UX 검사 적응 PR #23](https://github.com/winterrainlee/chinese-word-tactics/pull/23) 반영, 코드 SHA `b4307a2`. 실제 사용자 iPhone Safari 승인은 별도 G6로 남겨.
+
 큰비 도입 뒤의 길목·장터·장인골에 각각 `chapter2-*-first-look` 이야기 하나를 추가했어. 기존 월드 장소 정보 시트의 '다시 연습하기'와 별개로 **비가 그친 뒤 · 달라진 풍경 살펴보기**가 나타나며 이미 읽으면 **다시 돌아보기**로 바뀌어. 여정 2장에도 세 이야기가 기록돼.
 
 현재는 **선택형 짧은 이야기**야. 새로운 정답 판정·현장 지도·사물 그림·전술판을 추가하지 않았어. 완독만 `seenStories`에 기록하고 재열람은 기록을 바꾸지 않아. 큰비가 지나갔지만 과거 story 자체는 보지 못한 구형 저장에서도 선택적으로 확인할 수 있어.

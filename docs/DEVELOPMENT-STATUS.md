@@ -7,10 +7,10 @@
 | 1장·북쪽 숲 | G1~G7, W1~W7, M1~M8, 1장 결말, F1~F8·후속 의뢰 | 기존 Safari 사용자 검수 완료 기록 유지 |
 | 여관 | C 로비·방·사건 레이어, 첫 방문 방/재방문 로비, 실제 게시판·큰비·의뢰, 사물·기념품·하단 정보·짧은 대화·약한 헤일로 | **2026-11-02 사용자 검수 후 본편 통합**. [C UI 커밋](https://github.com/winterrainlee/chinese-word-tactics/commit/25efe90c866668a01a4a60ba74df877ffa940d34); 독립 [시험판](https://winterrainlee.github.io/chinese-word-tactics/inn-interaction-test/) 보존 |
 | 학술탑 | 본선 01~05, 03A·03B, 04A 현장형 T1~T5 구현·배포 | 03B G6 완료. 본선·03A·04A 별도 G6 기록은 미확인 |
-| 2장 | **구현·브랜치 검사:** 큰비 도입·2장 표지 + **길목·장터·장인골 선택형 첫 풍경 P1 3편**. **P2 미구현:** 회의소 01·끝마을 01 | P1 Chromium/WebKit·Node 자동검사 통과. 정식 Pages 전수/사용자 iPhone G6는 별도. [P1 상세](CHAPTER2-FIRST-PLAY-SLICE-v0.1.md#10-2026-11-02--p1-세-갈래-첫-풍경-구현검사-기록) |
+| 2장 | **구현·브랜치 검사:** 큰비 도입·2장 표지 + **길목·장터·장인골 선택형 첫 풍경 P1 3편**. **P2 미구현:** 회의소 01·끝마을 01 | P1 Node/Chromium/WebKit와 **정식 Pages·공개 사이트 검증 완료(G4/G5)**. 사용자 iPhone G6 별도. [P1 상세](CHAPTER2-FIRST-PLAY-SLICE-v0.1.md#10-2026-11-02--p1-세-갈래-첫-풍경-구현검사-기록) |
 | 지리 | **G1 그림 후보, G2 최소 근거 목록, G3 지도·이야기·의뢰 공통 읽기 연결 구현** | 기존 월드맵 화면·잠금·이동·저장 불변. 실제 도로/수로 edge·좌표 미확정, 사건의 게임 판정 반영은 G4 이후 설계 |
 
-**다음 개발:** [P1 선택형 첫 풍경](CHAPTER2-FIRST-PLAY-SLICE-v0.1.md#10-2026-11-02--p1-세-갈래-첫-풍경-구현검사-기록)의 공개 Pages/실기기 검증을 마친 뒤, 회의소·끝마을 **P2 두 출발점**의 의미 판정과 정보 출처를 상세 구현해. 기존 세계 G3는 읽기 전용으로 유지해.
+**다음 개발:** [P1 선택형 첫 풍경](CHAPTER2-FIRST-PLAY-SLICE-v0.1.md#10-2026-11-02--p1-세-갈래-첫-풍경-구현검사-기록)의 Pages G5 완료 및 사용자 iPhone G6를 구분하고, 다음 단계인 **P2 회의소·끝마을 두 출발점**의 의미 판정과 정보 출처를 상세 구현해. 기존 세계 G3는 읽기 전용으로 유지해.
 
 **문서 책임:** 전체 구조는 [콘텐츠 프레임워크](GAME-CONTENT-FRAMEWORK-v0.1.md), 정확한 해금은 [스토리·여정 §16](STORY-JOURNEY-SYSTEM-v0.1.md), 서사는 [2장 스토리라인](CHAPTER2-STORYLINE-v0.1.md), 공간은 [WORLD-v0.6](WORLD-v0.6.md)과 [G1/G2 공간 데이터 설계](WORLD-SPATIAL-DATA-DESIGN-v0.1.md), 지역은 최신 구현 기록을 우선해. [문서 색인](README.md)에서 현행·초안·이력을 구분한다.
 
@@ -20,7 +20,7 @@
 
 - 큰비 이후 길목·장터·장인골의 기존 장소 시트에 **선택형 첫 풍경**을 추가했어. 세 이야기 모두 **네 대사**로 구성되며, 본편/1장 연습·지도 그림·마커 좌표는 그대로야.
 - `src/chapter2-first-look-runtime.js`의 독립 진입점과 `optionalFirstLook` 노드 계약은 이미 비를 겪은 구형 저장·첫 읽기·재열람·중단 복귀를 구별해. 새 저장 키나 마일스톤을 추가하지 않아.
-- 새 중국어 대사는 정식 스토리 주음 자료와 함께 추가했어. [설계 §10](CHAPTER2-FIRST-PLAY-SLICE-v0.1.md#10-2026-11-02--p1-세-갈래-첫-풍경-구현검사-기록). [브랜치 자동검사 41421577008](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41421577008)는 통과했어. **Pages/main 실배포·실기기 G6는 아직 별도 확인**.
+- 새 중국어 대사는 정식 스토리 주음 자료와 함께 추가했어. [설계 §10](CHAPTER2-FIRST-PLAY-SLICE-v0.1.md#10-2026-11-02--p1-세-갈래-첫-풍경-구현검사-기록). [브랜치 자동검사 41421577008](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41421577008)와 [GitHub Pages 전체 회귀·공개 검증 41423450876](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41423450876) **48단계 성공**. 본편 코드 SHA `b4307a2`; **사용자 실제 iPhone Safari G6만 별도 확인**.
 
 ## 2026-11-02 · 2장 첫 플레이 G0–G2 상세 설계 초안
 
