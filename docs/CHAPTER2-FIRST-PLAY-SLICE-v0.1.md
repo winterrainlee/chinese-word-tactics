@@ -1,8 +1,10 @@
 # 2장 첫 플레이 구간 G0–G2 설계 v0.1 — 《비가 그친 마을의 첫 기록》
 
+> **2026-11-02 사용자 검수(G6) 완료 보고:** 사용자가 큰비 뒤 세 지역 P1의 검수를 마쳤다고 확인했어. 공개 Pages 검증은 [41423450876](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41423450876) 성공, 실행 코드 `b4307a2`. 기기별 상세 검수 로그는 따로 수집하지 않았어. P2 착수 기준은 [다음 세션 인수인계](CHAPTER2-P2-HANDOFF-2026-11-02.md)를 따라.
+
 > **2026-11-02 P1 실제 구현:** 이 문서의 **세 갈래 첫 풍경(P1)**을 길목·장터·장인골의 선택형 짧은 이야기 3편으로 구현·브랜치 자동검사했어. 그림·기본 스테이지·권장/잠금/이동은 그대로 두고, 큰비 뒤 장소 정보 시트에 별도 진입점만 추가했어. **회의소 01·끝마을 01(P2), 지식/출처 공통 분기(P3)는 아직 구현 전**이야. 아래 G0–G2 전체 제안·대사 예시·ID 표를 모두 확정된 구현으로 해석하지 않아.
 
-> 작성: 2026-11-02 · 상태: **실제 코드·G3 조회 계약 대조를 마친 상세 설계 초안 / 새 콘텐츠 미구현 / 사용자 세부 승인 전**.
+> 작성: 2026-11-02 · 상태: **P1 구현·배포·사용자 검수 완료 / P2·P3는 설계 초안 및 미구현**.
 > 
 > 범위: 《큰비가 내리던 밤》 직후, 세 갈래의 첫 확인과 **회의소 첫 회의 / 끝마을 첫 통행 조사**의 자유로운 시작. 후속 합동 회의·3장 출발은 이번 제작 범위가 아님.
 > 
@@ -251,4 +253,4 @@
 - `src/story-pronunciation-content.js`에 새 중국어 문장의 **주음 스코프**를 추가하고 말뭉치 감사와 함께 검증했어. 한국어 뜻 보기와 스토리 화면의 기존 재열람도 유지해.
 - 검증: `tests/chapter2-p1-first-sightings.test.cjs`(선수/선택/중단/진행/보존/구형 저장), `tests/smoke_chapter2_p1.py`(Chromium·WebKit, 375×812/360×640, 세 장소 역순 방문·재열람·1장 다시 연습·기기 가로 스크롤). [P1 브랜치 자동검사](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41421577008) **통과**.
 
-**배포 확인(G4/G5 완료):** [GitHub Pages 전체 회귀·공개 검증 41423450876](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41423450876)에서 **48단계 성공**, 공개 Chromium·WebKit 검증까지 완료했어. 정식 게임 실행 SHA는 `b4307a2`이며 [P1 본편 통합 PR #22](https://github.com/winterrainlee/chinese-word-tactics/pull/22), [선택형 단일 이야기 UX 검사 보강 PR #23](https://github.com/winterrainlee/chinese-word-tactics/pull/23)이 반영됐어. **남은 G6는 사용자의 실제 iPhone Safari 검수**야. P2에서는 회의소·끝마을의 실제 언어 판단·정보 출처 기록을 상세 구현하고 P1 순수 이야기 방식의 체감을 확인해.
+**배포 확인(G4/G5 완료):** [GitHub Pages 전체 회귀·공개 검증 41423450876](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41423450876)에서 **48단계 성공**, 공개 Chromium·WebKit 검증까지 완료했어. 정식 게임 실행 SHA는 `b4307a2`이며 [P1 본편 통합 PR #22](https://github.com/winterrainlee/chinese-word-tactics/pull/22), [선택형 단일 이야기 UX 검사 보강 PR #23](https://github.com/winterrainlee/chinese-word-tactics/pull/23)이 반영됐어. **2026-11-02 사용자 검수 완료 보고(G6 사용자 확인)**를 받았어. 세부 기기·재현 경로 로그는 별도 미수집. 다음 세션은 [P2 회의소·끝마을 인수인계](CHAPTER2-P2-HANDOFF-2026-11-02.md)를 읽고 두 독립 학습 판을 구현하면 돼.
