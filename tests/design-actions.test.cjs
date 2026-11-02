@@ -29,10 +29,11 @@ test('changed action-contract assets use the same deployment cache key', () => {
   const html = read('index.html');
   for (const asset of [
     'styles.css', 'world-runtime.js',
-    'north-forest-world-runtime.js', 'first-free-quest-world-runtime.js',
+    'north-forest-world-runtime.js',
   ]) {
     assert.match(html, new RegExp(`${asset.replace('.', '\\.') }\\?v=20261005-actioncontract1`));
   }
+  assert.match(html, /first-free-quest-world-runtime\.js\?v=20261102-innc1/);
   assert.match(html, /first-free-quest\.css\?v=20261006-a09b1/);
   assert.match(html, /landing\.css\?v=20261006-a041/);
   assert.match(html, /flow-runtime\.js\?v=\d{8}-[a-z0-9]+/);
