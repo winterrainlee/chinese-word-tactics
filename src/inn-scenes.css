@@ -1,0 +1,37 @@
+.innLayerScene{position:relative;width:min(100%,400px);aspect-ratio:4/5;margin:0 auto;overflow:hidden;background:#d2bea0;isolation:isolate}
+.innSceneLayer{position:absolute;display:block;pointer-events:none}
+.innSceneTarget{position:absolute;min-width:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:transparent;color:#322a22;box-shadow:none;touch-action:manipulation}
+.innSceneTarget:hover,.innSceneTarget:active{background:rgba(255,248,227,.12)}
+.innSceneTarget:focus-visible{outline:3px solid #315a70;outline-offset:-3px;background:#fff5}
+.innSceneTarget span{display:none;font-size:11px;background:#fff7e9eb;border-radius:5px;padding:3px;line-height:1.3}
+.show-hints .innSceneTarget{outline:1px dashed #54412f80;outline-offset:-1px}
+.show-hints .innSceneTarget span,.innSceneTarget:focus-visible span{display:block}
+.innSceneFooter{max-width:400px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:auto;padding:4px 12px 12px;color:#6e6559;font-size:12px}
+.innSceneFooter button,.innSceneStatus button{min-width:44px;min-height:44px;font-size:12px;padding:6px 10px;background:transparent;color:#554a3c;border:1px solid #bbae98}
+.innSceneStatus{max-width:400px;margin:auto;font-size:13px;color:#675239;padding:0 12px}.innSceneStatus:empty{display:none}
+#app>#innLobbyView{width:min(100%,400px)}
+/* Two route passes must remain separately touchable when both were earned. */
+#innRoomView .innDeskKeepsake{min-width:44px;min-height:44px;width:44px;height:44px;transform:translate(-50%,-50%)}
+#innRoomView .innDeskKeepsake::before{inset:0}
+#innRoomView .innDeskKeepsake.west-pass{left:12%}
+#innRoomView .innDeskKeepsake.east-pass{left:27%}
+#innRoomView .innDeskKeepsake.pass-single{left:19%}
+#innRoomView .innDeskKeepsake.repair-plaque{left:58%}
+#app>#innRoomView{width:min(100%,400px)}
+#innRoomScene[data-c-room]{aspect-ratio:4/5;width:100%;max-width:400px}
+#innRoomScene[data-c-room] .innRoomHotspots{z-index:100;pointer-events:none}
+#innRoomScene[data-c-room] .innSceneTarget{pointer-events:auto}
+#innRoomScene[data-c-room] .innDeskKeepsakes{z-index:200}
+#innRoomView .innDeskKeepsake{background:transparent;border:0;box-shadow:none;border-radius:3px}
+#innRoomView .innDeskKeepsakeMark{display:grid;place-items:center;width:28px;height:23px;background:#c99b62;border:1px solid #705234;border-radius:3px;font-size:14px;box-shadow:0 2px 2px #35200b33}
+#innRoomView .innDeskKeepsakeHole{display:none}
+#innRoomView .innDeskKeepsake.observation-card .innDeskKeepsakeMark{background:#f9f1df;border-color:#b4a38b;color:#554e42}
+#innRoomView .innDeskKeepsake.observation-card::after{display:none}
+#innRoomView .innDeskKeepsake.west-pass{left:13%;top:64%}
+#innRoomView .innDeskKeepsake.east-pass{left:27%;top:65%}
+#innRoomView .innDeskKeepsake.pass-single{left:21%;top:64%}
+#innRoomView .innDeskKeepsake.guide-plaque{left:33%;top:17%}
+#innRoomView .innDeskKeepsake.repair-plaque{left:48%;top:17%}
+#innRoomView .innDeskKeepsake.observation-card{left:80%;top:30%}
+.innRoomAssetStatus{position:absolute;bottom:8px;left:8px;right:8px;background:#fff8e9ec;z-index:300;padding:8px;font-size:13px;border-radius:6px}
+.innRoomAssetStatus button{min-height:44px;min-width:44px}

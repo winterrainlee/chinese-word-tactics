@@ -1,0 +1,35 @@
+name: Inn integration branch checks
+on:
+  push:
+    branches: [feature/inn-c-integration-20261101, feature/inn-c-main-release-20261102]
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: node tools/verify-content.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium webkit
+          python tools/build-inn-integration-test.py
+      - run: python tests/smoke_inn_integration.py
+        env:
+          TEST_OUTPUT: inn-evidence
+      - run: |
+          python tests/smoke_ux.py
+          python tests/smoke_inn.py
+          python tests/smoke_chapter2_rain.py
+          python tests/smoke_first_free_quest.py
+          python tests/smoke_settings.py
+          python tests/smoke_journey.py
+          python tests/smoke_tower_unlock_conditions.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inn-integration-evidence
+          path: inn-evidence

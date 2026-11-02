@@ -78,9 +78,13 @@ try:
         page.screenshot(path=str(OUT / 'chapter2-rain-intro-375x812.png'), full_page=True)
         page.locator('#storyNext').click()
         page.locator('#storyNext').click()
-        page.locator('#worldView').wait_for(state='visible')
+        # Rain ends in the actual inn lobby. The optional request is now from its keeper.
+        page.locator('#innLobbyView').wait_for(state='visible')
+        page.evaluate('GameFlow.showWorld()')
         page.wait_for_function("""document.querySelector('#worldView .worldHeading .stagekicker')
             ?.textContent === '2장 · 비가 그친 뒤'""")
+        page.evaluate('WorldInn.openLobby()')
+        page.locator('#innLobbyTargets [data-interaction="keeper"]').click()
         page.locator('#firstQuestLater').wait_for(state='visible')
         assert page.locator('#sheet h2').inner_text() == '여관 주인의 부탁'
         result = page.evaluate('GameFlow.progress()')
@@ -102,8 +106,10 @@ try:
         assert after_replay['completedMilestones'] == before_replay['completedMilestones']
         page.evaluate('WorldInn.openRoom()')
         page.locator('#innRoomBack').click()
-        assert page.locator('#worldView').is_visible()
+        page.locator('#innLobbyView').wait_for(state='visible')
         assert page.locator('#storyView').is_hidden()
+        page.locator('#innLobbyTargets [data-interaction="door"]').click()
+        page.locator('#worldView').wait_for(state='visible')
         assert not errors, errors
         context.close()
 
@@ -129,7 +135,9 @@ try:
             assert not page.evaluate('GameFlow.progress().seenStories.includes("chapter2-rain-opening")')
             page.evaluate('WorldInn.openRoom()')
             page.locator('#innRoomBack').click()
-            assert page.locator('#worldView').is_visible()
+            page.locator('#innLobbyView').wait_for(state='visible')
+            page.locator('#innLobbyTargets [data-interaction="door"]').click()
+            page.locator('#worldView').wait_for(state='visible')
             assert page.evaluate('Chapter2Rain.statusFor(GameFlow.progress())') == 'legacy'
             assert not errors, errors
             context.close()

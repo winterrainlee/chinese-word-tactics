@@ -62,7 +62,9 @@
         ...options,
         onFinish() {
           options.onFinish?.();
-          if (globalThis.FirstFreeQuest?.needsOffer?.(progress())) {
+          if (globalThis.InnLobby) {
+            globalThis.InnLobby.open();
+          } else if (globalThis.FirstFreeQuest?.needsOffer?.(progress())) {
             setTimeout(() => globalThis.FirstFreeQuest?.openOfferSheet?.(), 0);
           }
         }

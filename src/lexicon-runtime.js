@@ -32,7 +32,7 @@
   const emptyStore = () => ({ discovered: [], visitedStages: [], lastChapterId: null, lastRegionId: null });
   function readStore() {
     try {
-      const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+      const raw = JSON.parse((globalThis.GameStorage || localStorage).getItem(KEY) || 'null');
       if (!raw) return emptyStore();
       return {
         discovered: Array.isArray(raw.discovered) ? raw.discovered.filter(word => typeof word === 'string' && WORDS[word]) : [],
@@ -94,7 +94,7 @@
   function saveStore() {
     store.discovered = [...discovered];
     store.visitedStages = [...visitedStages];
-    try { localStorage.setItem(KEY, JSON.stringify(store)); }
+    try { (globalThis.GameStorage || localStorage).setItem(KEY, JSON.stringify(store)); }
     catch { storageWarning(); }
   }
 

@@ -42,9 +42,9 @@ try:
 
         # Warm the room only after an explicit inn interaction helper is called.
         page.evaluate('WorldInn.preloadRoomBackground()')
-        warm_room_requests = [item for item in requests if '/images/inn/room-v0.2/' in item]
-        assert len(warm_room_requests) == 3, warm_room_requests
-        assert not any('inn-room-hotspots.svg' in item for item in requests), requests
+        # C room preloads its fixed background, then mounts independent furniture layers.
+        assert page.evaluate('!!window.InnRoomScene')
+        assert not any('/images/inn/room-v0.2/' in item for item in requests), requests
 
         before_open_count = len(requests)
         page.evaluate('WorldInn.openRoom()')
@@ -52,9 +52,9 @@ try:
         page.wait_for_function('document.querySelector("#innRoomBackdrop")?.dataset.loaded === "true"')
         page.wait_for_function('document.querySelector("#innRoomHotspots")?.dataset.loaded === "true"')
 
-        # Opening a warmed room should not start any new asset request.
-        room_requests_after_open = [item for item in requests[before_open_count:] if '/images/inn/room-v0.2/' in item or 'inn-room-hotspots.svg' in item]
-        assert room_requests_after_open == [], room_requests_after_open
+        # C room adds four real furniture sprites without requesting the retired room.
+        assert page.locator('#innRoomLayers img[data-object-id]').count() == 4
+        assert not any('/images/inn/room-v0.2/' in item for item in requests[before_open_count:]), requests
         assert page.locator('#innRoomBackdrop').is_visible()
         assert page.locator('#innRoomHotspots [data-word]').count() == 4
         assert page.locator('#innRoomHotspots [data-action="leave-room"]').count() == 1
@@ -112,6 +112,11 @@ try:
         finale_page.locator('#worldContinue').wait_for(state='visible')
         assert finale_page.locator('#worldContinue').inner_text() == '여관으로 돌아가기'
         finale_page.locator('.worldInnMarker').click()
+        finale_page.locator('#worldInnEnter').click()
+        finale_page.locator('#innRoomView').wait_for(state='visible')
+        finale_page.locator('#innRoomHotspots [data-action="leave-room"]').click()
+        finale_page.locator('#innLobbyView').wait_for(state='visible')
+        finale_page.locator('#innLobbyTargets [data-interaction="keeper"]').click()
         sheet_text = finale_page.locator('#sheet').inner_text()
         assert '돌아와서 할 이야기가 생겼다' in sheet_text
         assert '여관 주인에게 아직 이야기하지 않았다' in sheet_text

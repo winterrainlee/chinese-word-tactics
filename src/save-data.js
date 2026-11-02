@@ -27,6 +27,7 @@
     if (erOutcome !== undefined &&
         (!isPlainObject(erOutcome) || Object.keys(erOutcome).length !== 1 ||
          !['inquiry-records','inquiry-outlet'].includes(erOutcome.nextInquiryId))) return false;
+    if (Object.hasOwn(value, 'innVisited') && typeof value.innVisited !== 'boolean') return false;
     const location = value.lastLocation;
     if (location === null) return true;
     if (!isPlainObject(location) || !['world', 'story', 'tactical'].includes(location.view)) return false;
