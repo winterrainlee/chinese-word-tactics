@@ -1,5 +1,7 @@
 # 2장 공통 사건 · 큰비가 지나간 물길마을 — 시간선과 세 갈래 첫 풍경 v0.1
 
+> **2026-11-02 현행 구분:** 큰비 도입 이야기와 2장 여정·월드맵 표지는 이미 구현·배포됐어. 큰비 이후 길목·장터·장인골의 신규 현장 플레이와 회의소·끝마을은 아직 구현 전이야. 서사 방향은 [2장 스토리라인](CHAPTER2-STORYLINE-v0.1.md), 정확한 해금·큰비 경과는 [스토리·여정 계약](STORY-JOURNEY-SYSTEM-v0.1.md)을 우선해.
+
 작성일: 2026-10-29 (Asia/Taipei)  
 상태: **1장 직후 큰비 도입 실제 코드 추가·CI 검증 대상**. 큰비 이후 세 장소의 새 풍경·회의소·길목 후속 플레이는 아직 구현 전이며, 배포와 iPhone Safari 승인은 별도 기록에서 검증한다.  
 상위 기준: [1장 결말](CHAPTER1-FINALE-DESIGN-v0.1.md), [2장 컨셉](TIER2-CONCEPT-DRAFT-v0.1.md), [게임 전체 구조](GAME-CONTENT-FRAMEWORK-v0.1.md), [세계 구조](WORLD-v0.6.md), [학술탑 04A 실제 구현](ACADEMIC-TOWER-ER-04A-OBSERVATION-IMPLEMENTATION-2026-10-29.md), [수계·샛구멍](THREE-STREAMS-WATERWAYS-GEOGRAPHY-DRAFT-v0.1.md).
