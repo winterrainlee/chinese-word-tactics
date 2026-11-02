@@ -64,15 +64,7 @@
   }
 
   function showKeepsake(item) {
-    globalThis.TacticalGame?.openSheet?.(`
-      <h2 lang="zh-Hant">${item.zh}</h2>
-      ${item.pronunciation ? `<div class="pinyin">${item.pronunciation}</div>` : ''}
-      <div class="meaning">${item.ko}</div>
-      <div class="gamerule">${item.note}</div>
-      <div class="sheetactions"><button id="innKeepsakeClose">닫기</button></div>
-    `);
-    const close = document.getElementById('innKeepsakeClose');
-    if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
+    InnSceneUtils.info('innRoomScene',item);
   }
 
   function createKeepsakeButton(item, singlePass = false) {

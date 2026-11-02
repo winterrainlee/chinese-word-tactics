@@ -4,8 +4,6 @@
 .innSceneTarget:hover,.innSceneTarget:active{background:rgba(255,248,227,.12)}
 .innSceneTarget:focus-visible{outline:3px solid #315a70;outline-offset:-3px;background:#fff5}
 .innSceneTarget span{display:none;font-size:11px;background:#fff7e9eb;border-radius:5px;padding:3px;line-height:1.3}
-.show-hints .innSceneTarget{outline:1px dashed #54412f80;outline-offset:-1px}
-.show-hints .innSceneTarget span,.innSceneTarget:focus-visible span{display:block}
 .innSceneFooter{max-width:400px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:auto;padding:4px 12px 12px;color:#6e6559;font-size:12px}
 .innSceneFooter button,.innSceneStatus button{min-width:44px;min-height:44px;font-size:12px;padding:6px 10px;background:transparent;color:#554a3c;border:1px solid #bbae98}
 .innSceneStatus{max-width:400px;margin:auto;font-size:13px;color:#675239;padding:0 12px}.innSceneStatus:empty{display:none}
@@ -35,3 +33,19 @@
 #innRoomView .innDeskKeepsake.observation-card{left:80%;top:30%}
 .innRoomAssetStatus{position:absolute;bottom:8px;left:8px;right:8px;background:#fff8e9ec;z-index:300;padding:8px;font-size:13px;border-radius:6px}
 .innRoomAssetStatus button{min-height:44px;min-width:44px}
+.innSceneTarget:focus-visible span{display:block}
+.innSceneFooter{box-sizing:border-box;align-items:flex-start;width:100%;height:190px;padding:12px 8px 12px 12px;gap:4px;font-size:14px;line-height:1.5}
+.innInfo{flex:1;min-width:0;height:100%;overflow:auto;overscroll-behavior:contain;color:#514739;text-align:left}
+.innInfo:focus-visible{outline:2px solid #315a70;outline-offset:2px}
+.innWord{font-size:27px;line-height:1.25;font-weight:650;color:#372e25}
+.innPronunciation{font-size:16px;margin-top:4px;color:#71614c}
+.innMeaning{font-size:16px;margin-top:6px;color:#40372d}
+.innNote{font-size:14px;margin-top:5px;color:#6a5d4d}
+.innDialogue{font-size:21px;line-height:1.55;color:#372e25}
+.innSceneFooter .innHelp{flex:0 0 44px;width:44px;height:44px;padding:0;border:0;border-radius:50%;font-size:17px;color:#78674f;box-shadow:none}
+.innSceneFooter .innTranslation{border:0;padding:6px 0;text-decoration:underline;font-size:13px;min-height:44px}
+.innSceneLayer[data-hint-for],.innDeskKeepsakeMark{transition:filter .45s ease-out}
+.innSceneLayer.innHalo,.innDeskKeepsakeMark.innHalo{filter:drop-shadow(0 0 3px #fff2ccaa) drop-shadow(0 0 7px #fff2cc99)}
+.innHintPoint{position:absolute;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;background:#fff4d5aa;box-shadow:0 0 9px 5px #fff2cc77;transition:opacity .45s ease-out}
+.innHintPoint.innHalo{opacity:1}
+@media(prefers-reduced-motion:reduce){.innSceneLayer[data-hint-for],.innDeskKeepsakeMark,.innHintPoint{transition:none}}

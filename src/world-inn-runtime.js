@@ -86,7 +86,7 @@
         <div id="innRoomHotspots" class="innRoomHotspots" aria-label="방 안 사물"></div>
         <div id="innRoomLoading" class="innRoomLoading">방 안을 살펴보는 중…</div>
       </section>
-      <p id="innRoomHint" class="innRoomHint">눈에 들어오는 물건을 눌러봐.</p>
+      <div id="innRoomHint" class="innRoomHint"></div>
     `;
     document.getElementById('app')?.appendChild(view);
     const back = view.querySelector('#innRoomBack');
@@ -123,9 +123,7 @@
       '椅子': 'ㄧˇ ㄗ˙',
       '箱子': 'ㄒㄧㄤ ㄗ˙'
     }[word] || '';
-    globalThis.TacticalGame?.openSheet?.(`<h2 lang="zh-Hant">${word}</h2><div class="pinyin">${pronunciation}</div><div class="meaning">${ko}</div><div class="sheetactions"><button id="innRoomWordClose">닫기</button></div>`);
-    const close = document.getElementById('innRoomWordClose');
-    if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
+    InnSceneUtils.info('innRoomScene',{zh:word,pronunciation,ko});
   }
 
   function bindHotspot(group) {
@@ -161,6 +159,7 @@
     globalThis.TacticalGame?.showView?.('innRoom');
     loadRoomHotspots();
     loadRoomBackground();
+    InnSceneUtils.visit(document.getElementById('innRoomScene'),['bed','desk','chest']);
     window.scrollTo(0, 0);
   }
 

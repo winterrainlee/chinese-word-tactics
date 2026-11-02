@@ -9,9 +9,9 @@
   });
   const visible = (condition, state) => (condition.all || []).every(k => state[k]) &&
     (condition.none || []).every(k => !state[k]);
-  function sheet(zh, ko, note) {
-    TacticalGame.openSheet(`<h2 lang="zh-Hant">${zh}</h2><div class="meaning">${ko}</div><p>${note}</p><div class="sheetactions"><button id="innInspectClose" data-action-role="close">닫기</button></div>`);
-    $('innInspectClose').onclick = () => TacticalGame.closeSheet();
+  function sheet(zh,ko,note) {
+    // Existing labels/descriptions; no inferred pronunciation for missing learning entries.
+    InnSceneUtils.info('innLobbyScene',{zh,ko,note,pronunciation:zh==='茶壺'?'ㄔㄚˊ ㄏㄨˊ':''});
   }
   function interact(kind) {
     if (kind === 'room') return WorldInn.openRoom();
@@ -22,7 +22,7 @@
       if (globalThis.Chapter2Rain?.needsIntro?.()) return WorldInn.openRoom();
       if (FirstFreeQuest.needsOffer(GameFlow.progress())) return FirstFreeQuest.openOfferSheet();
       if (FirstFreeQuest.needsReport(GameFlow.progress())) return FirstFreeQuest.openReportSheet();
-      return sheet('客棧主人', '여관 주인', stateFor().rain ? '돌아왔구나. 밖은 아직 젖어 있으니 조심하렴.' : '돌아왔구나. 잠깐 앉아 쉬어 가렴.');
+      return InnSceneUtils.info('innLobbyScene',{dialogue:true,zh:stateFor().rain?'回來了。外面還是濕的，小心一點。':'回來了。坐一會兒，休息一下吧。',ko:stateFor().rain?'돌아왔구나. 밖은 아직 젖어 있으니 조심하렴.':'돌아왔구나. 잠깐 앉아 쉬어 가렴.'});
     }
     const words = {
       table:['餐桌','식탁','빈자리에 앉아 잠깐 쉴 수 있겠네.'],
@@ -38,15 +38,11 @@
     if ($('innLobbyView')) return;
     const view = document.createElement('main');
     view.id='innLobbyView'; view.className='innRoomShell appView'; view.hidden=true;
-    view.innerHTML=`<header class="innRoomTopbar globalNavHeader"><button id="innLobbyBack" class="iconbtn" aria-label="물길마을 지도로 돌아가기">←</button><div class="innRoomHeading"><div class="stagekicker">여관 · 客棧</div><h1>1층 로비</h1></div><button id="innLobbyMenu" class="iconbtn" aria-label="여행 메뉴">☰</button></header><section id="innLobbyScene" class="innLayerScene" aria-label="여관 로비"><div id="innLobbyLayers"></div><div id="innLobbyTargets"></div></section><div id="innLobbyStatus" class="innSceneStatus" role="status"></div><div class="innSceneFooter"><span>물건이나 사람을 눌러봐.</span><button id="innLobbyHints" aria-pressed="false">위치 보기</button></div>`;
+    view.innerHTML=`<header class="innRoomTopbar globalNavHeader"><button id="innLobbyBack" class="iconbtn" aria-label="물길마을 지도로 돌아가기">←</button><div class="innRoomHeading"><div class="stagekicker">여관 · 客棧</div><h1>1층 로비</h1></div><button id="innLobbyMenu" class="iconbtn" aria-label="여행 메뉴">☰</button></header><section id="innLobbyScene" class="innLayerScene" aria-label="여관 로비"><div id="innLobbyLayers"></div><div id="innLobbyTargets"></div></section><div id="innLobbyStatus" class="innSceneStatus" role="status"></div><div id="innLobbyInfo"></div>`;
     $('app').append(view);
     $('innLobbyBack').onclick=()=>GameFlow.showWorld();
     $('innLobbyMenu').onclick=()=>GameFlow.showMenu();
-    $('innLobbyHints').onclick=()=>{
-      const on=$('innLobbyScene').classList.toggle('show-hints');
-      $('innLobbyHints').setAttribute('aria-pressed', String(on));
-      $('innLobbyHints').textContent=on?'위치 숨기기':'위치 보기';
-    };
+    InnSceneUtils.panel($('innLobbyScene'),$('innLobbyInfo'));
   }
   function loadScene() {
     if (!scenePromise) scenePromise=(async()=>{
@@ -72,16 +68,20 @@
         if(!o.asset) continue;
         const asset=scene.assets[o.asset];
         const img=InnSceneUtils.image(o.id,'./inn-layer-test/'+asset.src,scene.placements[o.placement],o.z,()=>{
-          status.replaceChildren(document.createTextNode('그림 일부를 불러오지 못했어. 위치 보기로 이동할 수 있어. '),retryButton());
+          status.replaceChildren(document.createTextNode('그림 일부를 불러오지 못했어. '),retryButton());
         },asset.clipPath);
+        if(o.interaction)img.dataset.hintFor=o.interaction;
         layers.append(img);
       }
       for(const [id,action] of Object.entries(scene.interactions)) {
         if(!active.has(id)) continue;
-        targets.append(InnSceneUtils.target(id,action.label,action.hit,action.priority,()=>interact(action.kind)));
+        const target=InnSceneUtils.target(id,action.label,action.hit,action.priority,()=>interact(action.kind));
+        if(!objects.some(o=>o.interaction===id&&o.asset))InnSceneUtils.point(target,50,id==='stairs'?75:50);
+        targets.append(target);
       }
       $('innLobbyLayers').replaceChildren(layers);$('innLobbyTargets').replaceChildren(targets);
       status.textContent='';
+      InnSceneUtils.visit($('innLobbyScene'),['keeper','pot','stairs']);
     } catch {
       status.replaceChildren(document.createTextNode('로비를 불러오지 못했어. '),retryButton());
       const room=document.createElement('button');room.textContent='소년의 방';room.onclick=()=>WorldInn.openRoom();status.append(room);
