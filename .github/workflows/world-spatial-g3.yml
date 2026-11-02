@@ -1,0 +1,35 @@
+name: World spatial G3 shared-context checks
+on:
+  push:
+    branches: [feature/world-spatial-g3-20261102]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/world-spatial-context.js'
+      - 'src/world-spatial-catalog.js'
+      - 'tests/world-spatial-g3.test.cjs'
+      - 'tests/smoke_world_spatial_g3.py'
+      - 'src/world-runtime.js'
+      - 'src/story-runtime.js'
+      - 'src/first-free-quest-world-runtime.js'
+      - 'index.html'
+permissions:
+  contents: read
+jobs:
+  g3:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check src/world-spatial-context.js
+      - run: node --test tests/*.test.cjs
+      - run: node tools/verify-content.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium webkit
+      - run: python tests/smoke_world_spatial_g3.py

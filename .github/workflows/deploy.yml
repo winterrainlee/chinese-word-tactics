@@ -102,6 +102,9 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python tests/smoke_world_grid.py
 
+      - name: Verify G3 shared world/story/quest context
+        run: python tests/smoke_world_spatial_g3.py
+
       - name: Run Chapter 2 rain introductory story browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots

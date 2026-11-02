@@ -117,7 +117,9 @@ test('schema rejects invented topology, wrong foreign keys, invented coordinates
 
 test('G2 is read-only infrastructure: existing map and G1 remain independent',()=>{
   assert.doesNotMatch(read('src/world-spatial-catalog.js'),/localStorage|GameStorage|showView\(|setItem\(/);
-  assert.doesNotMatch(read('index.html'),/src\/world-spatial-catalog\.js/);
+  // G3 connects the G2 catalog read-only; G1 illustration data remains independent.
+  assert.match(read('index.html'),/src\/world-spatial-catalog\.js/);
+  assert.match(read('index.html'),/src\/world-spatial-context\.js/);
   assert.match(read('world-grid-test/index.html'),/src\/world-spatial-prototype\.js/);
   assert.doesNotMatch(read('world-grid-test/index.html'),/world-spatial-catalog/);
   assert.deepEqual(g1.grids.map(x=>x.cols+'x'+x.rows),['20x36','32x57','40x71']);

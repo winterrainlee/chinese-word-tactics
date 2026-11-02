@@ -137,6 +137,8 @@
       marker = createForestMarker();
       map.appendChild(marker);
     }
+    // The quest starts at the inn; its forest is not yet a surveyed G2 place.
+    void globalThis.WorldSpatialContext?.annotateQuest?.(marker, 'north-forest-mushrooms');
     const done = forestDone(value);
     marker.classList.toggle('completed', done);
     const expandedActive = questActive(value) || !!globalThis.NorthForestWorld?.hasActiveForest?.(value);
