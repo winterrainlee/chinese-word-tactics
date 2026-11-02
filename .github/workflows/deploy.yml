@@ -277,3 +277,8 @@ jobs:
           path: ${{ runner.temp }}/inn-interaction-public-evidence
           if-no-files-found: ignore
           retention-days: 30
+
+      - name: Verify approved exploration UI on public main
+        env:
+          BASE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python tests/smoke_inn_public.py

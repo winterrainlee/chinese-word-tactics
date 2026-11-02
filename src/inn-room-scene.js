@@ -21,7 +21,7 @@
     const status=document.getElementById('innRoomLoading');status.className='innRoomAssetStatus';
     let failed=false;
     function failure(){failed=true;status.hidden=false;status.replaceChildren(document.createTextNode('그림을 불러오지 못했어. '));
-      const b=document.createElement('button');b.textContent='다시 불러오기';b.onclick=retry;status.append(b);scene.classList.add('show-hints');}
+      const b=document.createElement('button');b.textContent='다시 불러오기';b.onclick=retry;status.append(b);}
     function retry(){failed=false;status.hidden=false;status.textContent='방 안을 살펴보는 중…';
       for(const img of scene.querySelectorAll('img[data-object-id]'))img.src=img.src.split('?')[0]+'?retry='+Date.now();}
     function loaded(){if(failed)return;const all=[...scene.querySelectorAll('img[data-object-id]')];
@@ -30,15 +30,14 @@
     const layers=document.createElement('div');layers.id='innRoomLayers';scene.insertBefore(layers,document.getElementById('innRoomHotspots'));
     const host=document.getElementById('innRoomHotspots');host.replaceChildren();host.dataset.loaded='true';
     for(const o of objects){
-      const img=InnSceneUtils.image('inn.room.'+o.id,ROOT+o.id+'.webp',o.box,o.z,failure);img.onload=loaded;layers.append(img);
+      const img=InnSceneUtils.image('inn.room.'+o.id,ROOT+o.id+'.webp',o.box,o.z,failure);img.onload=loaded;img.dataset.hintFor=o.id;layers.append(img);
       const b=InnSceneUtils.target(o.id,o.ko+' 살펴보기',o.hit,10,()=>WorldInn.showRoomWord(b));
       b.id='hotspot-'+o.id;b.dataset.word=o.word;b.dataset.ko=o.ko;host.append(b);
     }
     const door=InnSceneUtils.target('room-door','문을 열고 로비로 내려가기',{x:86,y:59,w:14,h:33},5,()=>WorldInn.openLobby());
     door.id='hotspot-door';door.dataset.action='leave-room';host.append(door);
-    const hint=document.getElementById('innRoomHint');hint.className='innSceneFooter';hint.replaceChildren(document.createTextNode('눈에 들어오는 물건을 눌러봐.'));
-    const b=document.createElement('button');b.id='innRoomHints';b.textContent='위치 보기';b.setAttribute('aria-pressed','false');b.onclick=()=>{
-      const on=scene.classList.toggle('show-hints');b.setAttribute('aria-pressed',String(on));b.textContent=on?'위치 숨기기':'위치 보기';};hint.append(b);
+    InnSceneUtils.point(door,45,30);
+    InnSceneUtils.panel(scene,document.getElementById('innRoomHint'));
     loaded();
   }
   globalThis.InnRoomScene=Object.freeze({objects,mount,preload});

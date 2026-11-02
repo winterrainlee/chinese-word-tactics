@@ -77,11 +77,11 @@ try:
         assert scene['width'] <= 375 and scene['height'] > 400, scene
 
         page.locator('#hotspot-bed').click()
-        assert page.locator('#sheet').is_visible()
-        assert page.locator('#sheet h2').inner_text() == '床'
-        assert '침대' in page.locator('#sheet').inner_text()
+        assert not page.locator('#sheet').is_visible()
+        assert page.locator('#innRoomView .innWord').inner_text() == '床'
+        assert '침대' in page.locator('#innRoomView .innInfo').inner_text()
         assert '여관 방에서 발견한 생활 단어' not in page.locator('#sheet').inner_text()
-        page.locator('#innRoomWordClose').click()
+
 
         page.screenshot(path=str(OUT / 'ux-inn-room-375x812.png'), full_page=True)
         assert not errors, errors
@@ -163,9 +163,9 @@ try:
         card.wait_for(state='visible')
         assert card.get_attribute('aria-label') == '觀察卡, 관찰 카드'
         card.click()
-        sheet_text = tower_page.locator('#sheet').inner_text()
+        sheet_text = tower_page.locator('#innRoomView .innInfo').inner_text()
         assert '觀察卡' in sheet_text and '관찰 카드' in sheet_text and 'ㄍㄨㄢ ㄔㄚˊ ㄎㄚˇ' in sheet_text
-        tower_page.locator('#innKeepsakeClose').click()
+
         tower_page.screenshot(path=str(OUT / 'ux-inn-observation-card-375x812.png'), full_page=True)
         assert not tower_errors, tower_errors
         tower_context.close()
