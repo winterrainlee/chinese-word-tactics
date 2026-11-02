@@ -1,0 +1,136 @@
+/* Persistent keepsakes placed in the inn room after they are actually received in story. */
+(() => {
+  const ROUTE_STORY_ID = 'gate-after-route';
+  const ROUTE_STAGE_ID = 'gate-stage-3';
+  const GUIDE_STORY_ID = 'gate-after-convoy';
+  const WORKSHOP_STORY_ID = 'workshop-finale';
+  const ACADEMIC_OBSERVATION_STORY_ID = 'academic-tower-turn-result';
+
+  const progress = () => globalThis.GameFlow?.progress?.() || {};
+  const strings = value => Array.isArray(value) ? [...new Set(value.filter(item => typeof item === 'string'))] : [];
+  const hasSeenStory = (storyId, value = progress()) => strings(value.seenStories).includes(storyId);
+  const isPass = item => item?.id === 'west-pass' || item?.id === 'east-pass';
+
+  const KEEPERS = Object.freeze({
+    'west-pass': Object.freeze({
+      id: 'west-pass',
+      mark: '西',
+      zh: '西哨通行牌',
+      ko: '서쪽 초소 통행패',
+      note: '서쪽 초소를 지나갈 수 있다는 뜻으로 받은 실용적인 통행패야.'
+    }),
+    'east-pass': Object.freeze({
+      id: 'east-pass',
+      mark: '東',
+      zh: '東哨通行牌',
+      ko: '동쪽 초소 통행패',
+      note: '동쪽 초소를 지나갈 수 있다는 뜻으로 받은 실용적인 통행패야.'
+    }),
+    'guide-plaque': Object.freeze({
+      id: 'guide-plaque',
+      mark: '引',
+      zh: '貨車引路牌',
+      ko: '짐수레 길잡이패',
+      note: '길목 일을 마친 뒤, 앞으로 짐수레를 이끌고 북쪽 길을 갈 때 보여주라며 받은 길잡이패야.'
+    }),
+    'repair-plaque': Object.freeze({
+      id: 'repair-plaque',
+      mark: '修',
+      zh: '修繕牌',
+      ko: '공방 수리패',
+      note: '장인골 사람들이 간단한 수리 일을 맡겨도 된다는 뜻으로 건넨 작은 신뢰의 표식이야.'
+    }),
+    'observation-card': Object.freeze({
+      id: 'observation-card',
+      mark: '觀',
+      zh: '觀察卡',
+      ko: '관찰 카드',
+      pronunciation: 'ㄍㄨㄢ ㄔㄚˊ ㄎㄚˇ',
+      note: '학술탑 연구원이 건넨 작은 기록 카드야. 같은 표식이나 읽히지 않는 기록을 만나면 결론부터 내리지 말고, 먼저 본 것을 적어 두라고 했다.'
+    })
+  });
+
+  function keepsakes(value = progress()) {
+    const result = [];
+    if (hasSeenStory(ROUTE_STORY_ID, value)) {
+      const viaIds = strings(value.stageOutcomes?.[ROUTE_STAGE_ID]?.viaIds);
+      if (viaIds.includes('west-post')) result.push(KEEPERS['west-pass']);
+      if (viaIds.includes('east-post')) result.push(KEEPERS['east-pass']);
+    }
+    if (hasSeenStory(GUIDE_STORY_ID, value)) result.push(KEEPERS['guide-plaque']);
+    if (hasSeenStory(WORKSHOP_STORY_ID, value)) result.push(KEEPERS['repair-plaque']);
+    if (hasSeenStory(ACADEMIC_OBSERVATION_STORY_ID, value)) result.push(KEEPERS['observation-card']);
+    return result;
+  }
+
+  function showKeepsake(item) {
+    InnSceneUtils.info('innRoomScene',item);
+  }
+
+  function createKeepsakeButton(item, singlePass = false) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `innDeskKeepsake ${item.id}${singlePass && isPass(item) ? ' pass-single' : ''}`;
+    button.dataset.keepsakeId = item.id;
+    button.setAttribute('aria-label', `${item.zh}, ${item.ko}`);
+    button.innerHTML = `<span class="innDeskKeepsakeHole" aria-hidden="true"></span><span class="innDeskKeepsakeMark" lang="zh-Hant">${item.mark}</span>`;
+    button.onclick = () => showKeepsake(item);
+    return button;
+  }
+
+  function ensureLayer() {
+    const scene = document.getElementById('innRoomScene');
+    if (!scene) return null;
+    let layer = scene.querySelector('.innDeskKeepsakes');
+    if (layer) return layer;
+    layer = document.createElement('div');
+    layer.className = 'innDeskKeepsakes';
+    layer.setAttribute('role', 'group');
+    layer.setAttribute('aria-label', '방 안 여행의 흔적');
+    scene.appendChild(layer);
+    return layer;
+  }
+
+  function renderDeskKeepsakes(value = progress()) {
+    const layer = ensureLayer();
+    if (!layer) return [];
+    const items = keepsakes(value);
+    const passCount = items.filter(isPass).length;
+    layer.replaceChildren(...items.map(item => createKeepsakeButton(item, passCount === 1)));
+    layer.hidden = items.length === 0;
+    return items;
+  }
+
+  function syncVisibleRoom() {
+    const room = document.getElementById('innRoomView');
+    if (!room || room.hidden) return;
+    renderDeskKeepsakes();
+  }
+
+  function mutationOpensOrCreatesRoom(record) {
+    if (record.type === 'attributes') return record.target?.id === 'innRoomView';
+    if (record.type !== 'childList') return false;
+    return Array.from(record.addedNodes || []).some(node =>
+      node?.id === 'innRoomView' || node?.querySelector?.('#innRoomView')
+    );
+  }
+
+  const app = document.getElementById('app');
+  if (app) {
+    new MutationObserver(records => {
+      if (records.some(mutationOpensOrCreatesRoom)) syncVisibleRoom();
+    }).observe(app, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['hidden']
+    });
+  }
+  window.addEventListener('pageshow', syncVisibleRoom);
+  setTimeout(syncVisibleRoom, 0);
+
+  globalThis.InnKeepsakes = Object.freeze({
+    ROUTE_STORY_ID, ROUTE_STAGE_ID, GUIDE_STORY_ID, WORKSHOP_STORY_ID, ACADEMIC_OBSERVATION_STORY_ID, KEEPERS,
+    hasSeenStory, isPass, keepsakes, renderDeskKeepsakes, syncVisibleRoom, mutationOpensOrCreatesRoom
+  });
+})();

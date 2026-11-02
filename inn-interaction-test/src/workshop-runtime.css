@@ -1,0 +1,105 @@
+.grid.workshop-board{display:block;width:min(100%,390px);min-height:330px;padding:14px;background:#e9e1d2;border-color:#cfc6b8;border-radius:20px;overflow:visible}
+.workshop-scene{position:relative;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;user-select:none}
+.workshop-headwater{height:34px;border-radius:16px 16px 10px 10px;background:linear-gradient(180deg,#b8d7df,#94c1cf);position:relative;overflow:hidden}
+.workshop-headwater:after{content:"";position:absolute;inset:auto 0 4px;height:7px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.55) 0 24px,rgba(255,255,255,0) 24px 48px);opacity:.65}
+.workshop-gates{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.workshop-device{min-width:0;text-align:center;position:relative}
+.workshop-device-label{display:flex;flex-direction:column;align-items:center;gap:1px;margin-bottom:6px;font-weight:800}
+.workshop-device-label small{font-size:11px;color:var(--muted);font-weight:650}
+.workshop-gate-visual,.workshop-fire-visual,.workshop-bellows-visual{height:112px;border-radius:14px 14px 10px 10px;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(79,65,48,.18)}
+.workshop-gate-visual{background:#c8b79e}
+.workshop-gate-door{position:absolute;left:18%;right:18%;top:10px;height:58px;border-radius:7px 7px 4px 4px;background:#876e50;box-shadow:inset 0 0 0 2px rgba(69,49,31,.28);transition:transform .2s ease}
+.workshop-gate-visual[data-level="0"] .workshop-gate-door{transform:translateY(30px)}
+.workshop-gate-visual[data-level="1"] .workshop-gate-door{transform:translateY(15px)}
+.workshop-gate-visual[data-level="2"] .workshop-gate-door{transform:translateY(0)}
+.workshop-gate-water{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#acd2dc,#82b6c5);transition:height .2s ease}
+.workshop-gate-visual[data-level="0"] .workshop-gate-water{height:20%}
+.workshop-gate-visual[data-level="1"] .workshop-gate-water{height:42%}
+.workshop-gate-visual[data-level="2"] .workshop-gate-water{height:66%}
+.workshop-level-dots{position:absolute;right:6px;top:8px;display:grid;gap:4px;z-index:4}
+.workshop-level-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,253,247,.48);box-shadow:0 0 0 1px rgba(52,76,84,.16)}
+.workshop-level-dots i.active{background:#fffdf7;box-shadow:0 0 0 2px rgba(45,98,72,.34)}
+.workshop-device-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.workshop-device-controls button{min-width:44px;height:44px;border:1px solid #c8bca9;border-radius:12px;background:var(--paper);font-size:22px;font-weight:800}
+.workshop-device-controls button:disabled{opacity:.32}
+.workshop-device-controls button:active:not(:disabled){background:#e4ece6}
+.workshop-channel{height:20px;margin:0 28px;border-radius:10px;background:linear-gradient(180deg,#a9d0da,#84b8c7);position:relative;overflow:hidden}
+.workshop-channel:after{content:"";position:absolute;inset:5px 0 auto;height:4px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.48) 0 16px,rgba(255,255,255,0) 16px 30px);animation:workshop-water 1.4s linear infinite}
+.workshop-wheel-area{display:flex;align-items:center;justify-content:center;gap:16px;min-height:92px}
+.workshop-wheel{width:82px;height:82px;border-radius:50%;border:8px solid #806949;position:relative;display:grid;place-items:center;background:#d8c7a8;box-shadow:inset 0 0 0 2px rgba(71,53,31,.18)}
+.workshop-wheel:before,.workshop-wheel:after{content:"";position:absolute;width:8px;height:64px;border-radius:5px;background:#806949}
+.workshop-wheel:after{transform:rotate(90deg)}
+.workshop-wheel span{width:18px;height:18px;border-radius:50%;background:#665034;z-index:2}
+.workshop-wheel.running{animation:workshop-wheel-spin 1.6s linear infinite}
+.workshop-wheel-state{font-size:13px;line-height:1.35;color:#5a5349;max-width:110px}
+.workshop-wheel-state strong{display:block;font-size:15px;color:var(--ink)}
+.workshop-board-note{font-size:12px;color:var(--muted);text-align:center;line-height:1.35}
+.workshop-forge-header{height:34px;border-radius:16px 16px 10px 10px;background:linear-gradient(180deg,#b9aa96,#9d8b74);position:relative;overflow:hidden}
+.workshop-forge-header:before{content:"";position:absolute;left:12%;right:12%;bottom:0;height:8px;background:#735e47;border-radius:6px 6px 0 0}
+.workshop-forge-header span,.workshop-forge-header i{position:absolute;bottom:7px;width:7px;height:7px;border-radius:50%;background:#d6c09a;opacity:.7}
+.workshop-forge-header span{left:28%}.workshop-forge-header i:nth-child(2){left:50%}.workshop-forge-header i:nth-child(3){left:70%}
+.workshop-fire-visual{background:#56483d}
+.workshop-furnace-mouth{position:absolute;left:14%;right:14%;bottom:12px;height:76px;border-radius:28px 28px 10px 10px;background:#2f2925;border:6px solid #75614d;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.workshop-flame{display:block;width:46px;border-radius:52% 48% 42% 58% / 64% 58% 42% 36%;background:linear-gradient(180deg,#f4db89 0 30%,#d98b4d 55%,#a95337 100%);transform-origin:50% 100%;transition:height .2s ease,transform .2s ease;box-shadow:0 0 18px rgba(217,139,77,.58)}
+.workshop-fire-visual[data-level="0"] .workshop-flame{height:26px;transform:scaleX(.72)}
+.workshop-fire-visual[data-level="1"] .workshop-flame{height:48px;transform:scaleX(.88)}
+.workshop-fire-visual[data-level="2"] .workshop-flame{height:70px;transform:scaleX(1)}
+.workshop-bellows-visual{background:#c7b89e}
+.workshop-bellows-body{position:absolute;left:12%;right:25%;top:30px;height:54px;transition:transform .2s ease}
+.workshop-bellows-body:before,.workshop-bellows-body:after{content:"";position:absolute;left:0;right:0;height:15px;border-radius:10px;background:#80684d}
+.workshop-bellows-body:before{top:0;transform:rotate(-4deg)}
+.workshop-bellows-body:after{bottom:0;transform:rotate(4deg)}
+.workshop-bellows-body span{position:absolute;left:10%;right:10%;top:14px;bottom:14px;background:repeating-linear-gradient(90deg,#b8956a 0 12px,#9e7d5a 12px 18px);clip-path:polygon(0 0,100% 18%,100% 82%,0 100%)}
+.workshop-bellows-visual[data-level="0"] .workshop-bellows-body{transform:scaleX(.72);transform-origin:left center}
+.workshop-bellows-visual[data-level="1"] .workshop-bellows-body{transform:scaleX(.9);transform-origin:left center}
+.workshop-bellows-visual[data-level="2"] .workshop-bellows-body{transform:scaleX(1.08);transform-origin:left center}
+.workshop-wind-lines{position:absolute;right:5px;top:43px;width:32px;height:42px;display:grid;gap:4px;align-content:center}
+.workshop-wind-lines i{display:block;height:3px;border-radius:4px;background:#d9edf0;transform-origin:left center;opacity:.25;transition:opacity .2s ease,transform .2s ease}
+.workshop-bellows-visual[data-level="1"] .workshop-wind-lines i{opacity:.62;transform:scaleX(.8)}
+.workshop-bellows-visual[data-level="2"] .workshop-wind-lines i{opacity:1;transform:scaleX(1.08)}
+.workshop-forge-result{min-height:72px;border-radius:14px;background:#d7ccbc;display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 14px;color:#5d554b;font-size:13px;line-height:1.35;transition:background .2s ease}
+.workshop-forge-result.balanced{background:#dce8de}
+.workshop-forge-result strong{display:block;color:var(--ink);font-size:15px}
+.workshop-metal-bar{width:88px;height:16px;border-radius:5px;background:linear-gradient(90deg,#69645f,#b36d4b,#69645f);box-shadow:0 3px 0 rgba(79,61,48,.22)}
+.workshop-forge-result.balanced .workshop-metal-bar{background:linear-gradient(90deg,#69645f,#cf8758,#69645f)}
+.workshop-coupling-scene{gap:8px}
+.workshop-mainshaft{height:66px;border-radius:15px;background:#c8baa5;display:grid;grid-template-columns:58px 1fr 118px;align-items:center;gap:8px;padding:7px 10px;position:relative;overflow:hidden}
+.workshop-mainshaft b{display:block;height:12px;border-radius:7px;position:relative;overflow:hidden;background:linear-gradient(180deg,#846f53 0%,#5f4b36 45%,#7a654b 100%);box-shadow:inset 0 0 0 2px rgba(55,43,31,.18)}
+.workshop-mainshaft b:before{content:"";position:absolute;inset:-12px 0;background:repeating-linear-gradient(0deg,rgba(255,239,206,0) 0 6px,rgba(255,239,206,.32) 6px 8px,rgba(255,239,206,0) 8px 14px);background-size:100% 14px;animation:workshop-shaft-roll .7s linear infinite}
+.workshop-coupling-scene.overloaded .workshop-mainshaft b:before{animation-duration:1.6s}
+.workshop-mainshaft div{font-size:11px;line-height:1.25;color:#5d554b}
+.workshop-mainshaft div strong{display:block;font-size:14px;color:var(--ink)}
+.workshop-mainshaft-wheel{width:48px;height:48px;border-radius:50%;border:7px solid #806949;position:relative;display:grid;place-items:center;background:#d8c7a8;animation:workshop-wheel-spin 1.4s linear infinite}
+.workshop-mainshaft-wheel:before,.workshop-mainshaft-wheel:after{content:"";position:absolute;width:6px;height:34px;border-radius:4px;background:#806949}.workshop-mainshaft-wheel:after{transform:rotate(90deg)}
+.workshop-mainshaft-wheel i{width:11px;height:11px;border-radius:50%;background:#665034;z-index:2}
+.workshop-mainshaft-wheel.slow{animation-duration:3.2s}
+.workshop-coupling-branches{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;align-items:start}
+.workshop-coupling-device{min-width:0;text-align:center;padding:6px 4px 7px;border-radius:14px;background:rgba(255,253,247,.42);box-shadow:inset 0 0 0 1px rgba(95,78,57,.1)}
+.workshop-coupling-device .workshop-device-label{min-height:38px;margin-bottom:1px;font-size:13px}.workshop-coupling-device .workshop-device-label small{font-size:10px}
+.workshop-branch-belt{height:34px;position:relative;margin:0 auto;width:18px}
+.workshop-branch-belt:before,.workshop-branch-belt:after{content:"";position:absolute;left:7px;width:4px;border-radius:3px;background:#9b8d79}
+.workshop-branch-belt:before{top:0;height:11px}.workshop-branch-belt:after{bottom:0;height:11px}
+.workshop-branch-belt i{position:absolute;left:7px;top:9px;width:4px;height:16px;border-radius:3px;background:#9b8d79;opacity:0;transition:opacity .18s ease}
+.workshop-branch-belt.connected i{opacity:1}
+.workshop-coupler{width:48px;height:48px;border-radius:50%;border:1px solid #b8a991;background:#f9f5ec;position:relative;padding:0;margin:-4px auto 3px;display:grid;place-items:center;box-shadow:0 2px 6px rgba(70,55,38,.08)}
+.workshop-coupler:before,.workshop-coupler:after{content:"";position:absolute;width:13px;height:24px;border-radius:5px;background:#9a8262;transition:transform .18s ease}
+.workshop-coupler:before{left:7px;transform:translateX(-2px)}.workshop-coupler:after{right:7px;transform:translateX(2px)}
+.workshop-coupler.connected:before{transform:translateX(5px)}.workshop-coupler.connected:after{transform:translateX(-5px)}
+.workshop-coupler span{width:8px;height:8px;border-radius:50%;background:#665034;z-index:2}
+.workshop-coupler:active{background:#e4ece6}
+.workshop-machine-wheel{width:58px;height:58px;margin:0 auto;border-radius:50%;border:7px solid #8a7456;background:#d8c7a8;position:relative;display:grid;place-items:center;opacity:.76}
+.workshop-machine-wheel:before,.workshop-machine-wheel:after{content:"";position:absolute;width:6px;height:40px;border-radius:4px;background:#8a7456}.workshop-machine-wheel:after{transform:rotate(90deg)}
+.workshop-machine-wheel span{width:12px;height:12px;border-radius:50%;background:#665034;z-index:2}
+.workshop-machine-wheel.running{opacity:1;animation:workshop-wheel-spin 1.7s linear infinite}
+.workshop-coupling-scene.overloaded .workshop-machine-wheel.running{animation-duration:3.4s}
+.workshop-link-state{margin-top:4px;font-size:10px;line-height:1.22;color:#6a6258;min-height:38px}.workshop-link-state strong{display:block;font-size:12px;color:var(--ink)}
+@keyframes workshop-wheel-spin{to{transform:rotate(360deg)}}
+@keyframes workshop-shaft-roll{to{background-position:0 14px}}
+@keyframes workshop-water{to{transform:translateX(30px)}}
+@media(prefers-reduced-motion:reduce){.workshop-wheel.running,.workshop-channel:after,.workshop-mainshaft-wheel,.workshop-mainshaft b:before,.workshop-machine-wheel.running{animation:none}.workshop-gate-door,.workshop-gate-water,.workshop-flame,.workshop-bellows-body,.workshop-wind-lines i,.workshop-forge-result,.workshop-branch-belt i,.workshop-coupler:before,.workshop-coupler:after{transition:none}}
+@media(max-height:650px){.grid.workshop-board{min-height:286px;padding:10px}.workshop-scene{min-height:266px;gap:8px}.workshop-headwater,.workshop-forge-header{height:28px}.workshop-gate-visual,.workshop-fire-visual,.workshop-bellows-visual{height:92px}.workshop-furnace-mouth{height:61px;bottom:9px}.workshop-fire-visual[data-level="2"] .workshop-flame{height:56px}.workshop-wheel-area{min-height:72px}.workshop-wheel{width:66px;height:66px;border-width:7px}.workshop-wheel:before,.workshop-wheel:after{height:50px}.workshop-forge-result{min-height:58px}.workshop-mainshaft{height:54px;grid-template-columns:48px 1fr 104px;padding:5px 8px}.workshop-mainshaft-wheel{width:40px;height:40px;border-width:6px}.workshop-coupling-device{padding-top:3px}.workshop-branch-belt{height:25px}.workshop-coupler{width:44px;height:44px}.workshop-machine-wheel{width:48px;height:48px;border-width:6px}.workshop-link-state{min-height:30px}}
+/* Forge W2 keeps the two visible state machines but spends no height repeating their rule. */
+.workshop-forge-scene .workshop-board-note{display:none}
+@media(max-height:700px){.grid.workshop-board{min-height:278px;padding:9px}.workshop-scene{min-height:258px;gap:7px}.workshop-forge-header{height:26px}.workshop-fire-visual,.workshop-bellows-visual{height:88px}.workshop-furnace-mouth{height:59px;bottom:8px}.workshop-fire-visual[data-level="2"] .workshop-flame{height:54px}.workshop-forge-result{min-height:54px;padding:7px 10px}.workshop-device-label{margin-bottom:3px}.workshop-device-controls{margin-top:5px}}
+@media(max-height:700px){.workshop-scene .workshop-board-note{display:none}}
+@media(max-height:650px){.grid.workshop-board{min-height:256px;padding:8px}.workshop-scene{min-height:240px;gap:5px}.workshop-forge-header{height:22px}.workshop-fire-visual,.workshop-bellows-visual{height:76px}.workshop-furnace-mouth{height:52px;bottom:6px}.workshop-fire-visual[data-level="2"] .workshop-flame{height:46px}.workshop-forge-result{min-height:48px;padding:5px 8px;font-size:12px}.workshop-metal-bar{width:66px;height:13px}.workshop-device-label small{display:none}.workshop-coupling-scene .workshop-link-state{min-height:39px}}

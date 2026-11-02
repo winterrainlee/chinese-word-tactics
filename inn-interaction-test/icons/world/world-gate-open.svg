@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+<g stroke="#352e27" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
+
+<!-- Open centre is genuinely transparent, not a glowing portal. -->
+<path d="M8.1 29.1V15.3Q8.1 10.8 10.6 8.8L11.1 28.8Z" fill="#967145"/>
+<path d="M23.9 29.1V15.3Q23.9 10.8 21.4 8.8L20.9 28.8Z" fill="#967145"/>
+<path d="M10.2 13.1 10.6 27.6M21.8 13.1 21.4 27.6" stroke="#c3995d" stroke-width="0.65"/>
+<path d="M8.5 18 10.8 18.4M8.5 25 11 25.4M23.5 18 21.2 18.4M23.5 25 21 25.4" stroke="#514b3e" stroke-width="1"/>
+
+<g data-part="frame">
+<path fill-rule="evenodd" d="M3.5 29.3V15.4C3.5 7.1 8.6 2.4 16 2.4S28.5 7.1 28.5 15.4V29.3H23.3V15.5C23.3 10.3 20.9 7.7 16 7.7S8.7 10.3 8.7 15.5V29.3Z" fill="#b8ad95"/>
+<path d="M3.8 15H8.5M23.5 15H28.2M3.8 21.1H8.4M23.6 21.1H28.2M3.8 26.4H8.4M23.6 26.4H28.2M6 8.6 10.2 11M10.4 4.2 12.5 8.4M16 2.7V7.4M21.6 4.2 19.5 8.4M26 8.6 21.8 11" stroke="#736957" stroke-width="0.8"/>
+<path d="M4.7 16.6V19.8M4.7 22.6V25.2M24.5 16.6V19.8M24.5 22.6V25.2" stroke="#e4d8bb" stroke-width="0.7"/>
+<path d="M2.8 29H9.2V30.7H2.8ZM22.8 29H29.2V30.7H22.8Z" fill="#988e79" stroke-width="0.7"/>
+</g>
+
+</g>
+</svg>

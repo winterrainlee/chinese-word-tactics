@@ -1,0 +1,820 @@
+/* Academic Tower hub and claim-revision workbench. */
+.academicTranslation summary,.academicArchive summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:12px;color:#31516e}
+.academicArchive{margin-top:8px;padding:0 9px;border:1px solid #c9bcaa;border-radius:10px;background:#fffdf7}.academicArchive p{font-size:14px;line-height:1.5}
+.academicConnectorChoices.academicDecisionChoices{grid-template-columns:1fr}.academicDecisionChoices button{font-size:14px;line-height:1.45;text-align:left}
+.shell.academicTowerStage{height:calc(100svh - max(10px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));min-height:0;overflow:hidden}
+.shell.academicTowerStage .mapwrap{flex:1 1 0;min-height:0;overflow:hidden}
+.shell.academicTowerStage>.topbar,.shell.academicTowerStage>.goalbox,.shell.academicTowerStage>.words,.shell.academicTowerStage>.status,.shell.academicTowerStage>.controls{flex-shrink:0}
+.shell.academicTowerStage .academicTowerWorkbench{height:100%;min-height:0;overflow-y:auto}
+.academicHubNote{margin:0;padding:9px;font-size:12px;line-height:1.5;color:var(--muted)}
+.academicTowerShell{width:min(100%,430px);height:calc(100svh - max(10px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));min-height:360px;display:flex;flex-direction:column;gap:10px}
+.academicTowerHeader{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;min-height:48px}
+.academicTowerHeading{text-align:center;min-width:0}.academicTowerHeading h1{margin:0;font-size:23px;line-height:1.1}.academicTowerHeading small{display:block;margin-top:2px;color:var(--muted);font-size:12px}
+.academicTowerIntro{padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,253,247,.82)}
+.academicTowerIntro h2{margin:0 0 3px;font-size:17px}.academicTowerIntro p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+.academicTowerRooms{flex:1;min-height:0;overflow:auto;display:grid;align-content:start;gap:7px;padding:2px}
+.academicTowerRoom{width:100%;min-height:72px;display:grid;grid-template-columns:42px minmax(0,1fr) 64px;align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line);border-radius:15px;background:var(--paper);text-align:left}
+.academicTowerRoom:focus-visible,.academicTowerBack:focus-visible,.academicTowerJourney:focus-visible{outline:3px solid var(--blue);outline-offset:1px}
+.academicTowerRoomNumber{font-size:19px;font-weight:850;color:var(--accent);text-align:center}.academicTowerRoomNames{display:grid;min-width:0;gap:1px}.academicTowerRoomNames strong{font-size:15px}.academicTowerRoomNames small{color:var(--muted);font-size:12px;white-space:normal;overflow-wrap:anywhere}.academicTowerRoomTerms{margin-top:2px;color:#31516e;font-size:13px;font-weight:800}
+.academicTowerRoomState{font-size:11px;font-weight:800;text-align:center;color:var(--muted)}
+.academicTowerRoom[data-state="complete"]{border-color:#a9c1ae;background:#edf4ef}.academicTowerRoom[data-state="complete"] .academicTowerRoomState{color:#28563f}
+.academicTowerRoom[data-state="available"]{border-color:#9eb7cb}.academicTowerRoom[data-state="available"] .academicTowerRoomState{color:#31516e}
+.academicTowerRoom[data-state="planned"]{border-style:dashed;background:#f5f1e8}.academicTowerRoom[data-state="locked"]{opacity:.58}
+.academicTowerRoom:disabled{color:inherit}.academicTowerFooter{display:grid;grid-template-columns:1fr 1fr;gap:8px}.academicTowerBack,.academicTowerJourney{min-height:48px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font-weight:800}.academicTowerJourney{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.academicTowerStage .mapwrap{align-items:stretch;min-height:0}.academicTowerWorkbench{display:block;width:100%;max-height:100%;min-height:0;overflow:auto;padding:10px;border-radius:16px;background:#e9e2d5;box-shadow:none;touch-action:manipulation}
+.academicCaseProgress{margin-bottom:5px;color:#31516e;font-size:11px;font-weight:850;letter-spacing:.04em}.academicQuestion{margin:0 0 8px;font-size:16px;line-height:1.35}
+.academicSources{display:grid;gap:5px}.academicSources.sentence{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:stretch}.academicSources.records{grid-template-columns:1fr}
+.academicSourceCard{display:grid;align-content:center;gap:4px;min-width:0;padding:9px 10px;border:1px solid #c9bcaa;border-radius:12px;background:#fffdf7}.academicSourceCard p{margin:0;font-size:17px;font-weight:750;line-height:1.42;overflow-wrap:anywhere}.academicSourceCard small{color:var(--muted);font-size:11px;line-height:1.3}
+.academicConnector{padding:0 2px;border-radius:4px;background:#f3df9e;color:#543f00}.academicSourceRelation{display:grid;place-content:center;gap:1px;text-align:center;color:var(--muted)}.academicSourceRelation span{color:#6d4e00;font-size:14px;font-weight:900}.academicSourceRelation small{font-size:10px}.academicSources.records .academicSourceRelation{grid-template-columns:auto 1fr;align-items:center;justify-content:start;place-content:initial;text-align:left;padding:0 5px}.academicSources.records .academicSourceRelation small{margin-left:6px}
+.academicDraft{margin:7px 0 0;padding:8px 10px;border-left:3px solid #927254;background:rgba(255,253,247,.7);font-size:12px;line-height:1.4}
+.academicStep{margin-top:8px}.academicStep h2{margin:0 0 6px;color:#5e574f;font-size:12px;line-height:1.3}.academicMemoChoices{display:grid;gap:6px}
+.academicMemoChoice,.academicConfirm{width:100%;min-height:48px;border:1px solid #c9c0b2;border-radius:12px;background:var(--paper);padding:8px 10px;font-weight:750;line-height:1.3;text-align:left}
+.academicMemoChoice.selected{border-color:#52769a;background:#e7eff6;box-shadow:inset 0 0 0 1px #52769a}.academicConfirm{margin-top:8px;background:var(--accent);border-color:var(--accent);color:#fff;text-align:center}.academicConfirm:disabled{opacity:.4}
+.academicReview{display:grid;gap:5px;margin-top:9px;padding:10px;border:1px solid #a9c1ae;border-radius:12px;background:#edf4ef}.academicReviewLabel{color:#28563f;font-size:11px;font-weight:850}.academicReview p{margin:0;line-height:1.35}.academicReviewBefore{color:var(--muted);font-size:12px;text-decoration:line-through}.academicReviewAfter{font-size:14px;font-weight:800}.academicReviewArrow{text-align:center;color:#527b63;font-weight:900}.academicEvidenceMap{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:7px;margin-top:2px;padding-top:7px;border-top:1px solid #c6d8cb;font-size:11px;line-height:1.35}.academicEvidenceMap strong{padding:2px 5px;border-radius:6px;background:#f3df9e;color:#543f00;font-size:13px}.academicTowerStage .words{flex-wrap:wrap}
+.academicExpectationPair{display:grid;gap:4px}.academicExpectationCard{display:grid;gap:3px;padding:8px 10px;border:1px solid #c9bcaa;border-radius:12px;background:#fffdf7}.academicExpectationCard>div{color:#31516e;font-size:11px;font-weight:850}.academicExpectationCard p{margin:0;font-size:16px;font-weight:750;line-height:1.38;overflow-wrap:anywhere}.academicExpectationCard small{color:var(--muted);font-size:11px;line-height:1.3}.academicExpectationCard.result{border-color:#b7aa93}.academicExpectationArrow{text-align:center;color:#6d4e00;font-size:13px;font-weight:900}.academicRelationRails{display:grid;grid-template-columns:1fr 1fr;gap:6px}.academicRelationRail{display:grid;place-content:center;gap:2px;min-height:66px;border:1px solid #c9c0b2;border-radius:12px;background:var(--paper);padding:7px;text-align:center}.academicRelationRail strong{font-size:14px}.academicRelationRail span{color:#31516e;font-size:16px;font-weight:850}.academicRelationRail small{color:var(--muted);font-size:10px;line-height:1.2}.academicRelationRail.selected{border-color:#52769a;background:#e7eff6;box-shadow:inset 0 0 0 1px #52769a}.academicExpectationReview{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:5px 8px;margin-top:8px;padding:9px;border:1px solid #a9c1ae;border-radius:12px;background:#edf4ef}.academicExpectationStamp{grid-row:2 / span 2;display:grid;place-items:center;min-width:62px;padding:6px;border-radius:10px;background:#fffdf7}.academicExpectationStamp strong{color:#543f00;font-size:18px}.academicExpectationStamp span{font-size:10px;font-weight:800}.academicExpectationReview p{margin:0;font-size:14px;font-weight:800;line-height:1.35}.academicExpectationReview small{color:#28563f;font-size:11px;line-height:1.3}
+.academicReplacementRecords{display:grid;grid-template-columns:1fr 1fr;gap:6px}.academicReplacementRecords article{padding:8px 9px;border:1px solid #c9bcaa;border-radius:12px;background:#fffdf7}.academicReplacementRecords article>div{color:#31516e;font-size:11px;font-weight:850}.academicReplacementRecords p{margin:3px 0 0;font-size:14px;font-weight:750;line-height:1.4}.academicReplacementSlots{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:5px;margin-top:7px}.academicReplacementSlots>div{display:grid;place-items:center;gap:2px;min-height:54px;padding:6px;border:1px dashed #aa9b87;border-radius:10px;background:rgba(255,253,247,.62);text-align:center}.academicReplacementSlots>div.filled{border-style:solid;border-color:#8ca994;background:#edf4ef}.academicReplacementSlots small{color:var(--muted);font-size:10px}.academicReplacementSlots strong{font-size:14px}.academicResultChoices,.academicConnectorChoices{display:grid;grid-template-columns:1fr 1fr;gap:6px}.academicResultChoice,.academicConnectorChoice{min-height:46px;border:1px solid #c9c0b2;border-radius:12px;background:var(--paper);padding:7px;font-size:16px;font-weight:800;text-align:center}.academicResultChoice.selected,.academicConnectorChoice.selected{border-color:#52769a;background:#e7eff6;box-shadow:inset 0 0 0 1px #52769a}.academicReplacementReview,.academicClozeReview{display:grid;gap:6px;margin-top:8px;padding:9px;border:1px solid #a9c1ae;border-radius:12px;background:#edf4ef}.academicReplacementReview p,.academicClozeReview p{margin:0;font-size:15px;font-weight:800;line-height:1.45}.academicReplacementReview small,.academicClozeReview small{color:#28563f;font-size:11px;line-height:1.35}
+.academicClozeRecord{padding:9px;border:1px solid #c9bcaa;border-radius:12px;background:#fffdf7}.academicClozeContext{margin:0 0 7px;padding-bottom:7px;border-bottom:1px solid #e1d8ca;color:#5e574f;font-size:13px;line-height:1.45}.academicClozeSentence{margin:2px 0 4px;font-size:17px;font-weight:800;line-height:1.55}.academicClozeBlank{display:inline-block;min-width:50px;margin:0 3px;border-bottom:3px solid #927254;vertical-align:baseline}.academicClozeRecord .academicStep{margin-top:9px}
+@media(max-height:650px){.academicTowerShell{gap:6px}.academicTowerStage{height:min(620px,calc(100svh - max(8px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom))));min-height:0}.academicTowerIntro{padding:8px 11px}.academicTowerRoom{min-height:64px}.academicTowerWorkbench{padding:7px}.academicQuestion{font-size:15px}.academicSourceCard{padding:7px 8px}.academicSourceCard p{font-size:15px}.academicDraft{padding:6px 8px}.academicStep{margin-top:6px}.academicMemoChoice,.academicConfirm{min-height:44px;padding:6px 8px}.academicReview{padding:8px}}
+@media(max-width:360px){.academicSources.sentence,.academicReplacementRecords{grid-template-columns:1fr}.academicSources.sentence .academicSourceRelation{grid-template-columns:auto 1fr;align-items:center;justify-content:start;place-content:initial;text-align:left;padding:0 5px}.academicSources.sentence .academicSourceRelation small{margin-left:6px}}
+
+/* 01/04 MVP: the record itself is the work surface. */
+.academicTowerMvp>.goalbox,.academicTowerMvp>.words,.academicTowerMvp>.status{display:none!important}
+.academicTowerMvp .academicTowerWorkbench{background:#f6f1e7;padding:14px;user-select:text}
+.academicTowerMvp .controls .academicConfirm{margin:0;height:auto;min-height:48px}
+.academicMvpSource,.academicMvpMemo{margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid #cfc6b8}
+.academicMvpSource h2,.academicMvpMemo h2{margin:6px 0;font-size:13px;color:#625c53;font-weight:600}
+.academicMvpSource p,.academicMvpPreview{margin:8px 0;font-size:19px;line-height:1.8;overflow-wrap:anywhere}
+.academicMvpMemo{padding-left:0}
+.academicMvpChoice{min-height:44px;padding:8px;border:1px solid #c9bcaa;border-radius:8px;background:#fffdf7;text-align:left;line-height:1.6;cursor:pointer}
+.academicMvpMemo>.academicMvpChoice,.academicMvpMemo details>.academicMvpChoice{display:block;width:100%;margin:6px 0}
+.academicMvpChoice.selected{background:#e7eff6;border-color:#52769a;box-shadow:inset 0 0 0 1px #52769a}
+.academicMvpSource .academicMvpChoice{font-size:19px;display:inline;box-decoration-break:clone}
+.academicMvpWord{min-width:44px;min-height:44px;padding:0 5px;border:0;border-bottom:2px dotted #927254;border-radius:4px;background:#f3df9e;font-size:inherit;line-height:1.5}
+.academicMvpMemo h2 .academicMvpWord{font-size:18px;margin-left:6px}
+.academicTowerMvp summary{min-height:44px;display:flex;align-items:center;color:#31516e;cursor:pointer;font-size:14px}
+.academicTowerMvp details p{font-size:15px;line-height:1.6}
+.academicMvpSlots{display:grid;gap:10px}.academicMvpSlots>div{padding:8px;border:1px dashed #aa9b87;border-radius:8px}
+.academicMvpSlots small{font-size:13px;color:#625c53}.academicMvpSlots p{margin:4px 0;font-size:19px;line-height:1.5}
+.academicMvpHint,.academicMvpFeedback{font-size:15px;line-height:1.6}.academicMvpFeedback:empty{display:none}.academicMvpFeedback{padding:10px;background:#e8eff5;border-radius:8px}
+.academicMvpLinks{display:grid;grid-template-columns:1fr 1fr;gap:6px}.academicMvpLinks button{text-align:center;font-size:19px}
+.academicTowerMvp button:focus-visible,.academicTowerMvp summary:focus-visible{outline:3px solid #52769a;outline-offset:2px}
+.academicTowerMvp summary::after{content:'＋';margin-left:auto;padding-left:8px}
+.academicTowerMvp details[open]>summary::after{content:'−'}
+
+.academicMvpMemo{word-break:keep-all;overflow-wrap:anywhere}
+.academicMvpSlots{grid-template-columns:1fr 1fr}
+.academicMvpSlots>button,.academicMvpSlots>div{display:grid;gap:6px;align-content:start;min-width:0;padding:8px}
+.academicMvpSlots span{display:block;font-size:18px;line-height:1.5}
+.academicMvpSlots button.selected{border:2px solid #52769a}
+[data-mvp-links] h3{font-size:15px;font-weight:600;color:#31516e}
+.academicTowerMvp .academicExpectationReview{display:block;padding:0 0 14px;background:transparent;border:0;border-radius:0}
+.academicTowerMvp .academicExpectationReview .academicMvpPreview{margin:8px 0;font-size:19px;font-weight:400;line-height:1.8}
+.academicTowerMvp .academicMvpFeedback{font-size:15px;font-weight:400;line-height:1.6}
+.academicTowerMvp .academicExpectationCard,.academicTowerMvp .academicSourceCard{display:block;background:transparent;border:0;border-bottom:1px solid #cfc6b8;border-radius:0;padding:0 0 14px}
+.academicTowerMvp .academicExpectationCard p,.academicTowerMvp .academicSourceCard p{font-size:19px;line-height:1.8;font-weight:400}
+.academicTowerMvp .academicMvpLinks small{display:block;font-size:13px}
+.academicMvpDecisions{display:grid;gap:8px}.academicMvpDecisions button{font-size:17px}
+.academicRanCharacters{display:flex;gap:8px;margin:12px 0}.academicRanCharacters button{min-width:56px;font-size:23px;text-align:center}
+.academicRanWorkbench h2,.academicRanWorkbench h3,.academicClozeRecord h3{font-size:16px;line-height:1.5}
+.academicRanWorkbench .academicMvpMemo>button{display:block;width:100%;margin:7px 0}
+.academicTowerMvp .academicArchive{padding:8px}.academicTowerMvp .academicArchive h3{font-size:14px}
+.academicReportDraft>.academicMvpChoice{font-size:18px;line-height:1.7;text-align:left}
+.academicDraftBefore{font-size:14px;line-height:1.6;color:#625c53}
+.academicVerdictTitle{display:block;margin-bottom:4px;font-size:16px}
+.academicTowerMvp [data-verdict="correct"]{background:#e6f2e9;border-color:#397b50;color:#204f32}
+.academicTowerMvp [data-verdict="incorrect"]{background:#fff0e8;border-color:#af452c;color:#7e2d1c}
+.academicTowerMvp [data-verdict-label]{border:2px solid;padding:8px;border-radius:8px}
+.academicTowerMvp [data-verdict-label]::after{content:attr(data-verdict-label);display:block;margin-top:5px;font:600 13px/1.4 sans-serif}
+.academicTowerMvp .academicMvpChoice[data-verdict]{box-shadow:none}
+.academicTowerMvp .academicRanCharacters [data-verdict-label]::after{font-size:11px}
+.academicRegionLabel{font-size:22px;font-weight:700;line-height:1.5;color:#332f29;margin-bottom:16px;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
+.academicOriginal{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #cfc6b8}
+.academicOriginal .academicMvpSource:last-child,.academicOriginal .academicExpectationCard:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.academicOriginal p,.academicRanWorkbench>p{font-size:19px;line-height:1.8;overflow-wrap:anywhere}
+.academicTowerMvp .academicTaskTitle{font-size:18px;font-weight:650;line-height:1.6;color:#332f29;margin:0 0 12px;word-break:keep-all;overflow-wrap:anywhere}
+.academicTowerMvp .academicClozeRecord{padding:0;border:0;border-radius:0;background:transparent}
+.academicTowerMvp .academicOriginal .academicClozeContext{margin:0;padding:0;border:0;font-size:19px;color:inherit;line-height:1.8}
+.academicTowerMvp .academicRanWorkbench{border:0;margin:0;padding:0}
+.academicTowerMvp [data-mvp-detail="edit-memo"]>summary{font-size:17px;font-weight:650;color:#332f29;margin:8px 0}
+.academicTowerMvp .academicClozeBlank{border-bottom:0}
+.academicHubGroup{display:grid;gap:7px;min-width:0;margin-bottom:12px}
+.academicHubGroup h3{margin:8px 6px 0;font-size:16px;color:#332f29}
+.academicHubGroup .academicHubNote{padding:0 6px 3px}
+.academicTowerFooter{grid-template-columns:1fr 1.4fr}
+.academicTowerFooter button{font-size:14px;padding:10px 6px;word-break:keep-all}
+.academicTowerHeader,.academicTowerIntro,.academicTowerFooter{flex-shrink:0}
+
+
+/* 2026-10-05 Academic Tower reading-booth spatial layer.
+   The major boundary is source vs. user work; sentence-level dividers stay subordinate. */
+.academicTowerShell,
+.shell.academicTowerStage{
+  --tower-wall:#363a3d;
+  --tower-wall-hole:#17191a;
+  --tower-rail-hi:#d3d0c7;
+  --tower-rail-mid:#a6a6a0;
+  --tower-rail-low:#6f7375;
+  --tower-desk:#ece7dc;
+  --tower-paper:#fffdf7;
+  --tower-work:#edf0ea;
+  --tower-restore:#f1ede3;
+  --tower-decision:#edf0f2;
+  background:linear-gradient(180deg,#eee9df 0%,var(--tower-desk) 100%);
+  border:1px solid #d5cec1;
+  border-radius:18px;
+  box-shadow:0 10px 28px rgba(48,43,35,.08);
+  overflow:hidden;
+  padding:0 8px 8px;
+}
+.academicTowerHeader,
+.shell.academicTowerStage>.topbar{
+  position:relative;
+  margin:0 -8px 4px;
+  padding:8px 8px 12px;
+  background-color:var(--tower-wall);
+  background-image:
+    radial-gradient(circle at 7px 7px,var(--tower-wall-hole) 0 1.8px,rgba(255,255,255,.07) 2px 2.7px,transparent 2.9px);
+  background-size:22px 22px;
+  box-shadow:
+    inset 0 -1px 0 rgba(255,255,255,.12),
+    0 4px 0 var(--tower-rail-hi),
+    0 6px 0 var(--tower-rail-mid),
+    0 7px 0 var(--tower-rail-low);
+}
+.academicTowerHeader{min-height:58px}
+
+/* Tower crown: five merlons, with the first and last flush against the outer walls.
+   Clipping the shell itself lets the exterior sky show through the four notches. */
+.academicTowerShell{
+  border-radius:0 0 18px 18px;
+  clip-path:polygon(
+    0 0,
+    13% 0,13% 12px,21% 12px,21% 0,
+    34% 0,34% 12px,42% 12px,42% 0,
+    58% 0,58% 12px,66% 12px,66% 0,
+    79% 0,79% 12px,87% 12px,87% 0,
+    100% 0,
+    100% 100%,0 100%
+  );
+}
+.academicTowerShell .academicTowerHeader{
+  min-height:68px;
+  padding-top:18px;
+}
+
+.academicTowerHeader .academicTowerHeading h1,
+.shell.academicTowerStage>.topbar .stagetitle{color:#faf7ef;text-shadow:0 1px 1px rgba(0,0,0,.24)}
+.academicTowerHeader .academicTowerHeading small,
+.shell.academicTowerStage>.topbar .stagekicker{color:#d7d7d2}
+.academicTowerHeader .academicTowerBack{
+  color:#2f3436;
+  background:#f7f3eb;
+  border-color:#d7d2c8;
+  box-shadow:0 1px 3px rgba(0,0,0,.20);
+}
+.shell.academicTowerStage>.topbar .iconbtn{color:#faf7ef}
+.academicTowerHeader .academicTowerBack:active{
+  background:#e8e2d7;
+}
+.shell.academicTowerStage>.topbar .iconbtn:active{background:rgba(255,255,255,.10)}
+
+.academicTowerShell .academicTowerIntro{
+  margin-top:7px;
+  border-color:#d5cdc0;
+  border-radius:5px;
+  background:rgba(255,253,247,.94);
+  box-shadow:0 3px 10px rgba(55,45,30,.05);
+}
+.academicTowerShell .academicTowerRooms{padding:3px 2px 5px}
+.academicTowerShell .academicTowerRoom{
+  border-radius:5px;
+  box-shadow:0 2px 7px rgba(55,45,30,.045);
+}
+.academicTowerShell .academicTowerFooter{padding-top:2px}
+.academicTowerShell .academicTowerFooter button{border-radius:10px}
+
+.academicTowerMvp .academicTowerWorkbench{
+  background:transparent;
+  padding:18px 8px 22px;
+  border-radius:0;
+}
+.academicTowerMvp [data-academic-zone]{
+  position:relative;
+  scroll-margin-top:16px;
+}
+.academicTowerMvp .academicOriginal,
+.academicTowerMvp [data-academic-zone="work"]{
+  margin:0;
+  padding:18px 16px 20px;
+  border:1px solid rgba(124,115,101,.30);
+  border-bottom:1px solid rgba(124,115,101,.30);
+  border-radius:5px;
+  box-shadow:0 5px 16px rgba(52,45,35,.08);
+}
+.academicTowerMvp .academicOriginal{
+  margin-bottom:24px;
+  background:var(--tower-paper);
+}
+.academicTowerMvp [data-academic-zone="work"]{
+  background:var(--tower-work);
+  border-color:rgba(90,111,99,.28);
+}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="restore"]{
+  background:var(--tower-restore);
+  border-color:rgba(135,118,88,.28);
+}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="decision"]{
+  background:var(--tower-decision);
+  border-color:rgba(83,104,123,.28);
+}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="observe"]{
+  background:#eef0ea;
+  border-color:rgba(90,111,99,.25);
+}
+
+/* Zone ownership is the first visual hierarchy. */
+.academicTowerMvp .academicRegionLabel{
+  margin:0 0 16px;
+  font-size:22px;
+  font-weight:750;
+  line-height:1.35;
+  text-align:center;
+  color:#332f29;
+}
+.academicTowerMvp [data-academic-zone="work"]>.academicRegionLabel{color:#334a40}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="restore"]>.academicRegionLabel{color:#5a4d38}
+.academicTowerMvp [data-academic-zone="work"][data-academic-work-kind="decision"]>.academicRegionLabel{color:#3b5062}
+.academicTowerMvp .academicTaskTitle{
+  margin:0 0 12px;
+  font-size:18px;
+  font-weight:650;
+  line-height:1.55;
+  text-align:left;
+}
+
+/* Sentence and record blocks sit inside one source sheet.
+   Do not let their old separators compete with the source/work boundary. */
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource,
+.academicTowerMvp [data-academic-zone="original"] .academicSourceCard,
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard{
+  margin:0;
+  padding:0;
+  border:0;
+  border-bottom:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource + .academicMvpSource,
+.academicTowerMvp [data-academic-zone="original"] .academicSourceCard + .academicSourceCard{margin-top:18px}
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationPair{gap:18px}
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard + .academicExpectationCard{margin-top:0}
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource>h2,
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard>div{
+  margin:0 0 4px;
+  color:#777064;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.35;
+}
+.academicTowerMvp [data-academic-zone="original"] .academicMvpSource p,
+.academicTowerMvp [data-academic-zone="original"] .academicExpectationCard p{
+  margin:0;
+  font-size:19px;
+  font-weight:400;
+  line-height:1.8;
+}
+.academicTowerMvp [data-academic-zone="original"] details{margin-top:5px}
+
+/* The work surface owns its controls. Internal controls may still have borders;
+   the section itself no longer ends with the old sentence divider. */
+.academicTowerMvp [data-academic-zone="work"].academicMvpMemo{
+  border-bottom:1px solid rgba(90,111,99,.28);
+}
+.academicTowerMvp [data-academic-zone="work"]>.academicMvpFeedback:empty{display:none}
+.academicTowerMvp [data-academic-zone="work"]>.academicMvpFeedback{
+  margin:0 0 10px;
+  border-radius:6px;
+}
+.academicTowerMvp [data-academic-zone="work"] .academicMvpPreview{
+  font-size:19px;
+  line-height:1.8;
+}
+
+/* The controls below the desk should feel attached to the same workspace. */
+.shell.academicTowerStage>.controls{padding:0 2px}
+.shell.academicTowerStage>.controls .control,
+.shell.academicTowerStage>.controls .academicConfirm{border-radius:10px}
+
+@media(max-height:650px){
+  .academicTowerHeader,
+  .shell.academicTowerStage>.topbar{padding-top:6px;padding-bottom:10px}
+  .academicTowerShell .academicTowerHeader{min-height:64px;padding-top:15px}
+  .academicTowerMvp .academicTowerWorkbench{padding:14px 6px 18px}
+  .academicTowerMvp .academicOriginal,
+  .academicTowerMvp [data-academic-zone="work"]{padding:14px 12px 16px}
+  .academicTowerMvp .academicOriginal{margin-bottom:18px}
+  .academicTowerMvp .academicRegionLabel{margin-bottom:12px;font-size:20px}
+}
+
+
+/* Keep the established tall workbench viewport contract after adding the booth shell. */
+.shell.academicTowerStage{
+  padding:0;
+  border:0;
+}
+.shell.academicTowerStage>.topbar{
+  margin:0 0 4px;
+  padding:4px 8px 8px;
+}
+@media(max-height:650px){
+  .shell.academicTowerStage>.topbar{padding-top:4px;padding-bottom:7px}
+}
+
+
+/* 03A comparison review: one compact answer + one explanation, no stacked verdict cards. */
+.academicTowerMvp .academicRanAnswer{
+  margin:8px 0 6px;
+  color:#28563f;
+  font-size:17px;
+  font-weight:800;
+  line-height:1.45;
+}
+.academicTowerMvp .academicRanExplanation{
+  margin:0;
+  color:#514b43;
+  font-size:15px;
+  line-height:1.6;
+}
+
+
+/* 03A answer comparison to earlier tower vocabulary. */
+.academicTowerMvp .academicRanCompare{
+  margin:10px 0 0;
+  padding-top:9px;
+  border-top:1px solid rgba(90,111,99,.20);
+  color:#514b43;
+  font-size:14px;
+  line-height:1.55;
+}
+.academicTowerMvp .academicRanCompare strong{
+  display:block;
+  margin-bottom:2px;
+  color:#31516e;
+  font-size:12px;
+  font-weight:800;
+}
+.academicTowerMvp .academicRanCompare span{display:block}
+
+/* Academic Tower hub: perforated floor beams.
+   The header material returns as horizontal structure so the whole list reads as one tower,
+   while cards remain the primary interactive objects. */
+.academicTowerShell .academicTowerRooms{
+  gap:0;
+  padding:5px 2px 8px;
+}
+.academicTowerShell .academicHubGroup{
+  position:relative;
+  display:grid;
+  gap:8px;
+  min-width:0;
+  margin:0;
+  padding:0 6px 18px;
+}
+.academicTowerShell .academicHubGroup h3{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 -6px 5px;
+  padding:0 14px;
+  border-top:1px solid rgba(255,255,255,.10);
+  border-bottom:1px solid #242729;
+  border-radius:2px;
+  background-color:var(--tower-wall);
+  background-image:
+    radial-gradient(circle at 7px 7px,var(--tower-wall-hole) 0 1.8px,rgba(255,255,255,.07) 2px 2.7px,transparent 2.9px);
+  background-size:22px 22px;
+  box-shadow:
+    0 2px 0 var(--tower-rail-hi),
+    0 4px 0 var(--tower-rail-mid),
+    0 5px 0 var(--tower-rail-low);
+  color:#f7f3eb;
+  font-size:16px;
+  font-weight:850;
+  line-height:1.2;
+  text-align:center;
+  text-shadow:0 1px 1px rgba(0,0,0,.28);
+}
+.academicTowerShell .academicHubGroup .academicHubNote{
+  margin:1px 0 0;
+  padding:5px 10px 1px;
+  text-align:center;
+}
+.academicTowerShell .academicTowerRoom{
+  margin:0 4px;
+  width:calc(100% - 8px);
+}
+.academicTowerShell .academicHubGroup[data-group="branch"] .academicTowerRoom{
+  position:relative;
+}
+.academicTowerShell .academicHubGroup[data-group="branch"] .academicTowerRoom:first-of-type::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-9px;
+  width:1px;
+  height:9px;
+  background:#a5a097;
+  pointer-events:none;
+}
+/* Optional research belongs to the floor that produced it.
+   It is rendered as a smaller side room instead of a separate bottom floor. */
+.academicTowerShell .academicHubSideRoom{
+  position:relative;
+  width:76%;
+  min-width:0;
+  justify-self:end;
+  display:grid;
+  gap:7px;
+  margin:5px -6px 1px 0;
+  padding:10px 8px 5px 10px;
+  border-top:2px solid var(--tower-rail-mid);
+  border-left:2px solid var(--tower-rail-mid);
+  border-radius:10px 0 0 0;
+  background:rgba(255,253,247,.28);
+}
+.academicTowerShell .academicHubSideRoom h4{
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:-10px -8px 1px -10px;
+  padding:0 10px;
+  border-bottom:1px solid #2a2d2f;
+  border-radius:8px 0 0 0;
+  background-color:#464a4c;
+  background-image:
+    radial-gradient(circle at 7px 7px,var(--tower-wall-hole) 0 1.8px,rgba(255,255,255,.07) 2px 2.7px,transparent 2.9px);
+  background-size:22px 22px;
+  color:#eeeae2;
+  font-size:15px;
+  font-weight:850;
+  line-height:1.2;
+  text-align:center;
+  text-shadow:0 1px 1px rgba(0,0,0,.24);
+}
+.academicTowerShell .academicHubSideRoom .academicTowerRoom{
+  width:100%;
+  margin:0;
+}
+.academicTowerShell .academicTowerSideRoomButton{
+  min-height:52px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.3;
+  text-align:left;
+}
+.academicTowerShell .academicTowerSideRoomTitle{
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.academicTowerShell .academicTowerSideRoomCheck{
+  color:#28563f;
+  font-size:18px;
+  font-weight:900;
+  line-height:1;
+}
+@media(max-width:360px){
+  .academicTowerShell .academicHubGroup{padding-left:4px;padding-right:4px}
+  .academicTowerShell .academicHubGroup h3{margin-left:-4px;margin-right:-4px}
+  .academicTowerShell .academicHubSideRoom{width:80%;margin-right:-4px}
+  .academicTowerShell .academicTowerRoom{margin-left:2px;margin-right:2px;width:calc(100% - 4px)}
+  .academicTowerShell .academicHubSideRoom .academicTowerRoom{margin:0;width:100%}
+}
+
+/* Academic Tower exterior sky.
+   The clouds belong to the viewport behind the tower, never to the warm interior shell. */
+body:has(> #app > #academicTowerView:not([hidden])){
+  --tower-sky-top:#dfeaf4;
+  --tower-sky-mid:#e7eef5;
+  --tower-sky-low:#eef0ed;
+  background-color:var(--tower-sky-low);
+  background-image:linear-gradient(180deg,var(--tower-sky-top) 0%,var(--tower-sky-mid) 46%,#ebeff1 68%,var(--tower-sky-low) 100%);
+  background-repeat:no-repeat;
+}
+body:has(> #app > #academicTowerView:not([hidden]))::before,
+body:has(> #app > #academicTowerView:not([hidden]))::after{
+  content:"";
+  position:fixed;
+  z-index:0;
+  pointer-events:none;
+}
+body:has(> #app > #academicTowerView:not([hidden]))::before{
+  inset:0;
+  background:
+    radial-gradient(ellipse 48% 17% at -5% 10%,rgba(255,255,255,.52) 0 34%,rgba(251,253,254,.22) 55%,transparent 74%),
+    radial-gradient(ellipse 56% 20% at 106% 14%,rgba(255,255,255,.48) 0 36%,rgba(251,253,254,.20) 57%,transparent 75%);
+}
+body:has(> #app > #academicTowerView:not([hidden]))::after{
+  left:-18vw;
+  right:-18vw;
+  top:22svh;
+  height:16svh;
+  background:
+    radial-gradient(ellipse 45% 60% at 26% 45%,rgba(255,255,255,.24) 0 40%,rgba(251,253,254,.10) 60%,transparent 78%),
+    radial-gradient(ellipse 52% 66% at 72% 54%,rgba(255,255,255,.20) 0 38%,rgba(251,253,254,.08) 60%,transparent 79%);
+}
+body:has(> #app > #academicTowerView:not([hidden])) #app{
+  position:relative;
+  z-index:1;
+}
+body:has(> #app > #academicTowerView:not([hidden])) .academicTowerShell{
+  box-shadow:0 1px 0 rgba(255,255,255,.46),0 10px 24px rgba(55,64,69,.12);
+}
+
+/* Fixed reading roles use layout; only semantic choices are controls. */
+.academicMeaningPath { padding: 8px 0; border-bottom: 2px solid #657567; }
+.academicMeaningPath.plain { border:0; padding:4px 0; }
+.academicMeaningPath.expected { border-bottom-style: dashed; }
+.academicMeaningPath.possible { border: 2px dashed #7b725a; padding: 8px; }
+.academicMeaningPath .academicMvpChoice { width: 100%; }
+.academicMeaningPath small, .academicMeaningPath span { display: block; }
+.academicMeaningJoin { display:block; text-align:center; color:#586458; }
+.academicMeaningRelation { text-align:center; font-weight:600; }
+.academicOriginal .academicMvpChoice { min-width:44px; min-height:44px; text-align:left; }
+.academicMeaningPaths { overflow-wrap:anywhere; }
+
+.academicMeaningPaths[data-relation="surprising"] .actual { margin-left:18px; }
+.academicMeaningPaths[data-relation="matched"] .actual { margin-left:0; }
+
+
+/* 03B: village archive sources are one sheet; only decisions belong to the work surface. */
+.academicTowerMvp .academicVillageOriginal .academicMvpSource { display:block; min-width:0; }
+.academicTowerMvp .academicVillageSource { margin:0 0 15px; min-width:0; }
+.academicTowerMvp .academicVillageSource + .academicVillageSource {
+  padding-top:12px; border-top:1px solid rgba(101,104,91,.20);
+}
+.academicTowerMvp .academicVillageSource small,
+.academicTowerMvp .academicVillageDraft small,
+.academicTowerMvp .academicVillageDialogue small {
+  display:block; margin-bottom:4px; color:#645c50; font-size:12px;
+  font-weight:700; line-height:1.5;
+}
+.academicTowerMvp .academicVillageSource p,
+.academicTowerMvp .academicVillageDialogue span,
+.academicTowerMvp .academicVillageDraft p {
+  display:block; margin:0; font-size:18px; line-height:1.75;
+  overflow-wrap:anywhere; word-break:normal; min-width:0;
+}
+.academicTowerMvp .academicVillageDialogue { margin:12px 0 0; }
+.academicTowerMvp .academicVillageDialogue + .academicVillageDialogue {
+  padding-top:8px; border-top:1px solid rgba(101,104,91,.14);
+}
+.academicTowerMvp .academicVillageChoices { display:grid; gap:8px; min-width:0; }
+.academicTowerMvp .academicVillageChoices .academicMvpChoice {
+  display:block; width:100%; min-height:48px; padding:11px 12px;
+  white-space:normal; overflow-wrap:anywhere; word-break:normal; line-height:1.6;
+  text-align:left; font-size:17px;
+}
+.academicTowerMvp .academicVillageChoices .academicMvpChoice span {display:block;}
+.academicTowerMvp .academicVillageDraft {
+  margin:0 0 14px; padding:9px 0 12px;
+  border-bottom:1px solid rgba(75,93,83,.22);
+}
+.academicTowerMvp .academicVillageDraft del {color:#94706a; text-decoration-thickness:2px;}
+.academicTowerMvp .academicVillageReaction {
+  margin:12px 0 0; padding-top:11px;
+  border-top:1px solid rgba(72,92,75,.20); color:#344f42;
+  font-size:16px; line-height:1.7; overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillagePreview { overflow-wrap:anywhere; }
+@media(max-height:650px) {
+  .academicTowerMvp .academicVillageSource p,
+  .academicTowerMvp .academicVillageDialogue span {font-size:17px;line-height:1.65}
+  .academicTowerMvp .academicVillageChoices .academicMvpChoice {padding:10px}
+}
+
+
+/* 03B authorship: the work area belongs to a story character or an
+   attributed source, not automatically to an unnamed "me". */
+.academicTowerMvp .academicVillageWorkContext {
+  margin:0 0 11px;
+  color:#5b615b;
+  font-size:14px;
+  font-weight:450;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageWork .academicVillageSentence {
+  margin:3px 0 13px;
+}
+
+
+/* 03B T6: one shared record, five inline blanks, three evidence scopes.
+   Keep the archive/workbench boundary and large touch targets on narrow phones. */
+.academicTowerMvp .academicVillageClozeWork .academicTaskTitle{
+  margin:4px 0 6px;
+}
+.academicTowerMvp .academicVillageClozeInstruction{
+  margin:0 0 16px;
+  color:#58665c;
+  font-size:13px;
+  line-height:1.55;
+}
+.academicTowerMvp .academicVillageClozeLines{
+  display:grid;
+  gap:15px;
+  min-width:0;
+}
+.academicTowerMvp .academicVillageClozeLine{
+  min-width:0;
+}
+.academicTowerMvp .academicVillageClozeSection{
+  margin:1px 0 8px;
+  font-size:13px;
+  font-weight:750;
+  line-height:1.45;
+  color:#52645a;
+}
+.academicTowerMvp .academicVillageClozeSentence{
+  margin:0;
+  font-size:18px;
+  line-height:2.05;
+  font-weight:450;
+  word-break:normal;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeBlank,
+.academicTowerMvp .academicVillageClozeFilled{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  vertical-align:middle;
+  box-sizing:border-box;
+  min-height:44px;
+  min-width:68px;
+  max-width:100%;
+  padding:4px 9px;
+  margin:1px 4px;
+  border:1px solid rgba(73,91,83,.5);
+  border-radius:8px;
+  font:inherit;
+  font-weight:700;
+  line-height:1.4;
+  white-space:normal;
+  text-align:center;
+  color:#30453a;
+  background:#fffdf6;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeBlank.selected{
+  border-color:#2e6b50;
+  box-shadow:0 0 0 2px rgba(52,105,75,.20);
+  background:#e9f1e9;
+}
+.academicTowerMvp .academicVillageClozeFilled{
+  background:#edf0e7;
+  border-color:rgba(73,91,83,.35);
+}
+.academicTowerMvp .academicVillageClozeBlank:focus-visible,
+.academicTowerMvp .academicVillageClozeOption:focus-visible,
+.academicTowerMvp .academicVillageClozeClose:focus-visible,
+.academicTowerMvp .academicVillageClozeReset:focus-visible{
+  outline:3px solid #365d4b;
+  outline-offset:2px;
+}
+.academicTowerMvp .academicVillageClozeHint{
+  margin:4px 0 0;
+  font-size:13px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeHint[data-verdict="correct"]{color:#286246}
+.academicTowerMvp .academicVillageClozeHint[data-verdict="incorrect"]{color:#91503e}
+
+/* The blank is the dropdown trigger. Options expand immediately below its
+   sentence in document flow, avoiding popover clipping in the phone scrollport. */
+.academicTowerMvp .academicVillageClozeChevron{
+  margin-left:6px;
+  font-size:15px;
+  line-height:1;
+  opacity:.65;
+}
+.academicTowerMvp .academicVillageClozeDropdown{
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+  margin:7px 0 11px;
+  padding:10px;
+  background:#f5f4ed;
+  border:1px solid rgba(73,91,83,.36);
+  border-radius:10px;
+  box-shadow:0 3px 10px rgba(52,45,35,.08);
+}
+.academicTowerMvp .academicVillageClozeDropdownHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+  color:#42564b;
+  font-size:13px;
+  line-height:1.4;
+}
+.academicTowerMvp .academicVillageClozeDropdownHeader strong{
+  font-weight:750;
+}
+.academicTowerMvp .academicVillageClozeDropdownOptions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.academicTowerMvp .academicVillageClozeOption{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:2px;
+  min-height:48px;
+  min-width:0;
+  box-sizing:border-box;
+  padding:7px 5px;
+  border:1px solid rgba(73,91,83,.37);
+  border-radius:8px;
+  background:#fffdf7;
+  color:#30453a;
+  font-size:18px;
+  font-weight:680;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+.academicTowerMvp .academicVillageClozeOption[data-used="true"]{
+  background:#e9ede6;
+}
+.academicTowerMvp .academicVillageClozeOption[aria-pressed="true"]{
+  background:#e2ebdd;
+  border-color:#3f7455;
+}
+.academicTowerMvp .academicVillageClozeOption small{
+  color:#647368;
+  font-size:10px;
+  font-weight:520;
+  line-height:1.25;
+  text-align:center;
+}
+.academicTowerMvp .academicVillageClozeClose{
+  min-height:44px;
+  padding:6px 12px;
+  border:1px solid rgba(73,91,83,.26);
+  border-radius:7px;
+  background:#fffdf7;
+  color:#48584d;
+  font-size:13px;
+  font-weight:650;
+}
+.academicTowerMvp .academicVillageClozeTools{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-top:19px;
+  padding-top:12px;
+  border-top:1px solid rgba(73,91,83,.24);
+}
+.academicTowerMvp .academicVillageClozeTools small{
+  color:#59645e;
+  font-size:13px;
+  line-height:1.5;
+}
+.academicTowerMvp .academicVillageClozeReset{
+  min-height:44px;
+  padding:8px 12px;
+  border:1px solid rgba(73,91,83,.4);
+  border-radius:8px;
+  background:#f2efe8;
+  color:#3b4940;
+  font-size:14px;
+  font-weight:650;
+}
+.academicTowerMvp .academicVillageClozeReset:disabled{opacity:.45}
+.academicTowerMvp .academicVillageClozeComplete{
+  margin:14px 0 0;
+  color:#2c5b43;
+  line-height:1.65;
+  font-weight:650;
+}
+@media(max-width:390px){
+  .academicTowerMvp .academicVillageClozeSentence{font-size:17px;line-height:1.95}
+  .academicTowerMvp .academicVillageClozeOption{font-size:17px}
+}

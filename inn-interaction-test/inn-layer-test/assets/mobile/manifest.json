@@ -1,0 +1,218 @@
+{
+  "sceneCssMaximum": [
+    400,
+    500
+  ],
+  "originalsUntouched": true,
+  "beforeLayerImageBytes": 1213835,
+  "afterLayerImageBytes": 104042,
+  "assets": [
+    {
+      "asset": "room",
+      "source": "assets/background-light-v2.webp",
+      "src": "assets/mobile/background-light-v2.webp",
+      "sourceSize": [
+        1122,
+        1402
+      ],
+      "size": [
+        800,
+        1000
+      ],
+      "sourceBytes": 122286,
+      "bytes": 60202,
+      "quality": 82,
+      "alphaExtrema": null,
+      "sha256": "4b91a05ca2dbad68419f196ef86a030e09119af1910d48d680d6d7f31df0c316"
+    },
+    {
+      "asset": "keeper",
+      "source": "assets/keeper.webp",
+      "src": "assets/mobile/keeper.webp",
+      "sourceSize": [
+        1214,
+        1295
+      ],
+      "size": [
+        178,
+        190
+      ],
+      "sourceBytes": 116348,
+      "bytes": 9212,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "70efb32ff823b7251fecc17d2bda882c147fcbc37b0d17512b063bd00d6f3668"
+    },
+    {
+      "asset": "board",
+      "source": "assets/board.webp",
+      "src": "assets/mobile/board.webp",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "size": [
+        288,
+        192
+      ],
+      "sourceBytes": 88798,
+      "bytes": 8970,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "3bc57bea2f3162ddb4ee0d059eb37cb618833434cc3007aa0e44da3eaa7353f9"
+    },
+    {
+      "asset": "notice",
+      "source": "assets/notice.webp",
+      "src": "assets/mobile/notice.webp",
+      "sourceSize": [
+        1122,
+        1402
+      ],
+      "size": [
+        74,
+        92
+      ],
+      "sourceBytes": 93848,
+      "bytes": 2870,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "12176c1e7edc941f1e1e289eb8909af963944d8c68617d7a2ac67c4dfeb1846f"
+    },
+    {
+      "asset": "teapot",
+      "source": "assets/teapot.webp",
+      "src": "assets/mobile/teapot.webp",
+      "sourceSize": [
+        1374,
+        1145
+      ],
+      "size": [
+        117,
+        98
+      ],
+      "sourceBytes": 117234,
+      "bytes": 3858,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "14727107a4593791ef3618f3faedbcb3dbc54fdbb31963e561cd8eee2c934ecc"
+    },
+    {
+      "asset": "cup",
+      "source": "assets/cup.webp",
+      "src": "assets/mobile/cup.webp",
+      "sourceSize": [
+        1312,
+        1199
+      ],
+      "size": [
+        64,
+        58
+      ],
+      "sourceBytes": 98264,
+      "bytes": 1736,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "00b1f9e1aa02346da9acba6bd5eac9d36a024f65133250cb81f66e935ce63c4f"
+    },
+    {
+      "asset": "ledger",
+      "source": "assets/ledger.webp",
+      "src": "assets/mobile/ledger.webp",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "size": [
+        78,
+        52
+      ],
+      "sourceBytes": 94930,
+      "bytes": 1698,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "d8bc6f385c5e13d8eb2de964453e6cbd7fa3289f45f89fb8223a86b7b0ef6694"
+    },
+    {
+      "asset": "wet",
+      "source": "assets/wet-belongings.webp",
+      "src": "assets/mobile/wet-belongings.webp",
+      "sourceSize": [
+        1226,
+        1283
+      ],
+      "size": [
+        165,
+        173
+      ],
+      "sourceBytes": 129130,
+      "bytes": 7554,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "22fe7242d64f90e146ecea6a161b94a006964d1c975add7d912c669dda9ce138"
+    },
+    {
+      "asset": "water",
+      "source": "assets/water.webp",
+      "src": "assets/mobile/water.webp",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "size": [
+        225,
+        150
+      ],
+      "sourceBytes": 59346,
+      "bytes": 4936,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        245
+      ],
+      "sha256": "036f59de416a53efdf7b06aaa1d51a0de3010006289a2825e2b68cab5859c144"
+    },
+    {
+      "asset": "noticeNew",
+      "source": "assets/notice-new-brick.webp",
+      "src": "assets/mobile/notice-new-brick.webp",
+      "sourceSize": [
+        1122,
+        1402
+      ],
+      "size": [
+        74,
+        92
+      ],
+      "sourceBytes": 125650,
+      "bytes": 3006,
+      "quality": 86,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "sha256": "4bd2d1ca1880801925c948f78a5a9f7b079c3eab6732812d16b18402f8e59bfd"
+    }
+  ]
+}

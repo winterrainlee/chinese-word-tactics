@@ -1,0 +1,239 @@
+(() => {
+  const regionByChineseName = new Map(WORLD.regions.map(region => [region.name, region]));
+  const regionIconPath = region => `./icons/world/regions/${region.icon}.svg`;
+  const chineseNameFromLabel = text => text.replace(/^✓\s*/, '').trim();
+  let selectedRegionId = null;
+  let mapObjectUrl = null;
+
+  const milestones = () => {
+    const values = globalThis.GameFlow?.progress?.()?.completedMilestones;
+    return Array.isArray(values) ? values : [];
+  };
+  // World access accepts a completed story as well as a chapter milestone.
+  // A workshop-core stage alone is not enough: the repair token and tower
+  // invitation are received in the subsequent workshop-finale story.
+  const worldRequirementMet = (requires, value = globalThis.GameFlow?.progress?.() || {}) => {
+    if (!requires) return true;
+    if (typeof requires === 'string' && requires.startsWith('story:')) {
+      return (value.seenStories || []).includes(requires.slice('story:'.length));
+    }
+    return (value.completedMilestones || []).includes(requires);
+  };
+  const isLocked = region => region.status === 'locked' && !worldRequirementMet(region.requires);
+  const isComplete = region => !!region.completionMilestone && milestones().includes(region.completionMilestone);
+  const recommendationNeeded = region => !!region.recommendation && (!region.recommendationMilestone || !milestones().includes(region.recommendationMilestone));
+  const regionSection = regionId => globalThis.JourneyContent?.JOURNEY?.flatMap(chapter => chapter.sections || []).find(section => section.regionId === regionId) || null;
+  const hasJourneyContent = region => (regionSection(region.id)?.sequence?.length || 0) > 0;
+
+  // World-map chapter follows the main story, not the region being revisited.
+  function worldChapterKicker(value = globalThis.GameFlow?.progress?.() || {}) {
+    const milestones = Array.isArray(value.completedMilestones) ? value.completedMilestones : [];
+    if (!milestones.includes('chapter1-complete')) return '1장 · 세 갈래 길';
+    const rainStatus = globalThis.Chapter2Rain?.statusFor?.(value);
+    return rainStatus === 'complete' || rainStatus === 'legacy'
+      ? '2장 · 비가 그친 뒤'
+      : '2장 · 새로운 이야기';
+  }
+
+  function enhanceWorldHeader() {
+    const view = document.getElementById('worldView');
+    if (!view) return;
+
+    const kicker = view.querySelector('.worldHeading .stagekicker');
+    const heading = view.querySelector('.worldHeading h1');
+    const compass = view.querySelector('.worldCompass');
+    const chapterLabel = worldChapterKicker();
+    if (kicker) kicker.textContent = chapterLabel;
+    view.dataset.worldChapterLabel = chapterLabel;
+    if (heading) {
+      heading.textContent = '물길마을';
+      let zh = view.querySelector('.worldHeadingZh');
+      if (!zh) {
+        zh = document.createElement('small');
+        zh.className = 'worldHeadingZh';
+        heading.insertAdjacentElement('afterend', zh);
+      }
+      zh.textContent = '三溪鎮';
+    }
+    if (compass) compass.textContent = '≋';
+
+    const origin = view.querySelector('.worldOrigin');
+    if (origin) {
+      origin.setAttribute('aria-label', '현재 지역 물길마을, 三溪鎮');
+      origin.classList.add('worldSettlement');
+    }
+  }
+
+  async function loadChunkedMap(image) {
+    const config = WORLD.settlement?.mapAssetChunks;
+    if (!config?.base || !Number.isInteger(config.count) || config.count < 1) return;
+    image.classList.add('loading');
+    try {
+      const urls = Array.from({ length: config.count }, (_, index) => `${config.base}/${String(index).padStart(2, '0')}.txt`);
+      const responses = await Promise.all(urls.map(url => fetch(url)));
+      if (responses.some(response => !response.ok)) throw new Error('map chunk request failed');
+      const parts = await Promise.all(responses.map(response => response.text()));
+      const encoded = parts.join('').replace(/\s+/g, '');
+      const binary = atob(encoded);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: config.type || 'image/webp' });
+      if (mapObjectUrl) URL.revokeObjectURL(mapObjectUrl);
+      mapObjectUrl = URL.createObjectURL(blob);
+      image.onload = () => image.classList.replace('loading', 'loaded');
+      image.src = mapObjectUrl;
+    } catch (error) {
+      image.classList.remove('loading');
+      image.classList.add('failed');
+      console.warn('물길마을 배경 지도를 불러오지 못했어.', error);
+    }
+  }
+
+  function ensureMapBackground() {
+    const map = document.getElementById('worldRegions');
+    if (!map) return;
+    map.classList.add('villageMap');
+    map.setAttribute('aria-label', '물길마을 三溪鎮 지도');
+    if (map.querySelector('.villageMapDecor')) return;
+
+    const decor = document.createElement('div');
+    decor.className = 'villageMapDecor';
+    decor.setAttribute('aria-hidden', 'true');
+
+    const image = document.createElement('img');
+    image.className = 'villageMapImage';
+    image.alt = '';
+    image.decoding = 'async';
+
+    const wash = document.createElement('div');
+    wash.className = 'villageMapWash';
+    decor.append(image, wash);
+    map.prepend(decor);
+    loadChunkedMap(image);
+  }
+
+  function selectMarker(regionId) {
+    selectedRegionId = regionId;
+    document.querySelectorAll('#worldRegions .regionCard').forEach(card => {
+      card.classList.toggle('selected', card.dataset.regionId === regionId);
+    });
+  }
+
+  function showRegionInfo(region) {
+    selectMarker(region.id);
+    const locked = isLocked(region);
+    const complete = isComplete(region);
+    const recommendation = recommendationNeeded(region) ? region.recommendation : '';
+    const overview = `<div class="meaning worldPlaceSummary">${region.summary || region.note}</div>`;
+    const advice = recommendation ? `<div class="gamerule worldAdvice"><strong>권장</strong><br>${recommendation}</div>` : '';
+    const lock = locked ? `<div class="gamerule worldLockReason" id="worldPlaceLockReason"><strong>아직 갈 수 없어</strong><br>${region.lockHint || '앞선 의뢰를 마치면 이곳으로 이어지는 길이 열려.'}</div>` : '';
+    const actionLabel = region.id === 'academic-tower'
+      ? (milestones().includes('academic-tower-turn-foundation') ? '탑으로 돌아가기' : '탑으로 들어가기')
+      : (complete ? '다시 연습하기' : '이곳으로 가기');
+    const action = locked
+      ? '<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceLockedGo" data-action-role="primary" aria-describedby="worldPlaceLockReason" disabled>조건 미충족</button>'
+      : hasJourneyContent(region)
+        ? `<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceGo" data-action-role="primary">${actionLabel}</button>`
+        : '<button id="worldPlaceClose" data-action-role="close">닫기</button><button data-action-role="primary" disabled>의뢰 준비 중</button>';
+
+    globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}<div class="sheetactions">${action}</div>`);
+
+    const close = document.getElementById('worldPlaceClose');
+    if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
+    const go = document.getElementById('worldPlaceGo');
+    if (go) go.onclick = () => {
+      globalThis.TacticalGame?.closeSheet?.();
+      if (complete) {
+        globalThis.GameFlow?.showRegionPractice?.(region.id);
+        return;
+      }
+      if (!globalThis.GameFlow?.enterRegion?.(region.id)) {
+        globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div><p class="flowNote">지금 이어서 할 새 의뢰는 아직 준비 중이야.</p><div class="sheetactions"><button id="worldNoQuestClose">확인</button></div>`);
+        const noQuestClose = document.getElementById('worldNoQuestClose');
+        if (noQuestClose) noQuestClose.onclick = () => globalThis.TacticalGame?.closeSheet?.();
+      }
+    };
+  }
+
+  function enhanceRegionCards() {
+    document.querySelectorAll('#worldRegions .regionCard:not([data-world-presented])').forEach(card => {
+      const title = card.querySelector('strong');
+      if (!title) return;
+
+      const region = regionByChineseName.get(chineseNameFromLabel(title.textContent));
+      if (!region) return;
+
+      const locked = isLocked(region);
+      const complete = isComplete(region);
+      const mapName = region.mapNameKo || region.nameKo || region.name;
+
+      const icon = document.createElement('img');
+      icon.className = 'regionIcon';
+      icon.src = regionIconPath(region);
+      icon.alt = '';
+      icon.setAttribute('aria-hidden', 'true');
+
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'regionIconWrap';
+      iconWrap.append(icon);
+      if (complete || locked) {
+        const badge = document.createElement('span');
+        badge.className = `regionBadge ${complete ? 'complete' : 'locked'}`;
+        badge.textContent = complete ? '✓' : '🔒';
+        badge.setAttribute('aria-hidden', 'true');
+        iconWrap.append(badge);
+      }
+
+      const koName = document.createElement('strong');
+      koName.textContent = mapName;
+      const chineseName = document.createElement('small');
+      chineseName.className = 'regionNameZh';
+      chineseName.textContent = region.name;
+      const names = document.createElement('span');
+      names.className = 'regionNames';
+      names.append(koName, chineseName);
+
+      card.replaceChildren(iconWrap, names);
+      card.disabled = false;
+      card.classList.remove('recommended');
+      card.classList.toggle('locked', locked);
+      card.classList.toggle('completed', complete);
+      card.classList.toggle('selected', selectedRegionId === region.id);
+      card.dataset.worldPresented = 'true';
+      card.dataset.regionId = region.id;
+      card.dataset.mapKind = region.map?.kind || 'district';
+      card.style.setProperty('--map-x', `${region.map?.x ?? 50}%`);
+      card.style.setProperty('--map-y', `${region.map?.y ?? 50}%`);
+      card.removeAttribute('aria-disabled');
+      card.setAttribute('aria-label', `${mapName}, ${region.name}. ${locked ? '잠긴 장소. 눌러서 조건 확인.' : complete ? '핵심 의뢰 완료.' : '눌러서 살펴보기.'}`);
+      card.onclick = event => {
+        event.preventDefault();
+        showRegionInfo(region);
+      };
+    });
+  }
+
+  function syncWorldPresentation() {
+    enhanceWorldHeader();
+    ensureMapBackground();
+    enhanceRegionCards();
+  }
+
+  const map = document.getElementById('worldRegions');
+  const sheet = document.getElementById('sheet');
+  const observer = new MutationObserver(syncWorldPresentation);
+  if (map) observer.observe(map, { childList: true });
+  if (sheet) observer.observe(sheet, { childList: true, subtree: false });
+  // A completed story returns to the map without rebuilding its region nodes.
+  // Observing view visibility also refreshes the heading after Chapter2Rain
+  // is registered (world-runtime loads earlier in index.html).
+  const worldView = document.getElementById('worldView');
+  if (worldView) observer.observe(worldView, { attributes: true, attributeFilter: ['hidden'] });
+  window.addEventListener('pageshow', enhanceWorldHeader);
+
+  globalThis.WorldChapterHeader = Object.freeze({
+    labelFor: worldChapterKicker,
+    refresh: enhanceWorldHeader
+  });
+  syncWorldPresentation();
+})();

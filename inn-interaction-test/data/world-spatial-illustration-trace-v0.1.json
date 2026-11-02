@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "id": "three-streams-illustration-trace-v0.1",
+  "status": "review-only",
+  "authority": "illustration-reference-not-world-geography",
+  "source": {
+    "assetBase": "../images/world/three-streams-map",
+    "chunkCount": 8,
+    "mime": "image/webp",
+    "referenceSize": {
+      "width": 430,
+      "height": 764
+    },
+    "basis": "현재 GitHub Pages 월드맵 수채화 원본"
+  },
+  "grids": [
+    {
+      "id": "coarse",
+      "cols": 20,
+      "rows": 36,
+      "label": "20 × 36"
+    },
+    {
+      "id": "medium",
+      "cols": 32,
+      "rows": 57,
+      "label": "32 × 57"
+    },
+    {
+      "id": "fine",
+      "cols": 40,
+      "rows": 71,
+      "label": "40 × 71"
+    }
+  ],
+  "placeAnchors": [
+    {
+      "id": "gate-town",
+      "label": "길목",
+      "xPct": 50,
+      "yPct": 80,
+      "role": "district"
+    },
+    {
+      "id": "workshop-town",
+      "label": "장인골",
+      "xPct": 18,
+      "yPct": 58,
+      "role": "district"
+    },
+    {
+      "id": "market-town",
+      "label": "장터",
+      "xPct": 65,
+      "yPct": 60,
+      "role": "district"
+    },
+    {
+      "id": "border-village",
+      "label": "끝마을 방면",
+      "xPct": 50,
+      "yPct": 91,
+      "role": "outside-direction"
+    },
+    {
+      "id": "council-town",
+      "label": "회의소",
+      "xPct": 79,
+      "yPct": 48,
+      "role": "landmark"
+    },
+    {
+      "id": "academic-tower",
+      "label": "학술탑",
+      "xPct": 26,
+      "yPct": 46,
+      "role": "landmark"
+    }
+  ],
+  "features": [
+    {
+      "id": "trace:water-upper-left",
+      "type": "water",
+      "label": "상단 왼쪽 물길 후보",
+      "points": [
+        [
+          9,
+          169
+        ],
+        [
+          38,
+          209
+        ],
+        [
+          79,
+          232
+        ],
+        [
+          131,
+          245
+        ],
+        [
+          172,
+          253
+        ],
+        [
+          215,
+          270
+        ]
+      ],
+      "radiusPx": 13
+    },
+    {
+      "id": "trace:water-upper-right",
+      "type": "water",
+      "label": "상단 오른쪽 물길 후보",
+      "points": [
+        [
+          428,
+          176
+        ],
+        [
+          391,
+          200
+        ],
+        [
+          351,
+          224
+        ],
+        [
+          309,
+          244
+        ],
+        [
+          272,
+          264
+        ],
+        [
+          231,
+          306
+        ]
+      ],
+      "radiusPx": 14
+    },
+    {
+      "id": "trace:water-left",
+      "type": "water",
+      "label": "왼쪽에서 합류하는 물길 후보",
+      "points": [
+        [
+          2,
+          273
+        ],
+        [
+          58,
+          291
+        ],
+        [
+          103,
+          308
+        ],
+        [
+          154,
+          329
+        ],
+        [
+          195,
+          349
+        ],
+        [
+          209,
+          397
+        ],
+        [
+          201,
+          462
+        ]
+      ],
+      "radiusPx": 16
+    },
+    {
+      "id": "trace:water-center-west",
+      "type": "water",
+      "label": "마을 왼쪽 강변 물길 후보",
+      "points": [
+        [
+          204,
+          452
+        ],
+        [
+          187,
+          476
+        ],
+        [
+          151,
+          496
+        ],
+        [
+          100,
+          513
+        ],
+        [
+          52,
+          509
+        ],
+        [
+          0,
+          490
+        ]
+      ],
+      "radiusPx": 18
+    },
+    {
+      "id": "trace:water-center-east",
+      "type": "water",
+      "label": "마을 오른쪽 강변 물길 후보",
+      "points": [
+        [
+          202,
+          464
+        ],
+        [
+          208,
+          510
+        ],
+        [
+          251,
+          543
+        ],
+        [
+          307,
+          567
+        ],
+        [
+          367,
+          556
+        ],
+        [
+          428,
+          528
+        ]
+      ],
+      "radiusPx": 16
+    },
+    {
+      "id": "trace:road-north",
+      "type": "road",
+      "label": "숲에서 상단 다리로 이어지는 길 후보",
+      "points": [
+        [
+          206,
+          144
+        ],
+        [
+          209,
+          181
+        ],
+        [
+          211,
+          216
+        ],
+        [
+          211,
+          263
+        ]
+      ],
+      "radiusPx": 9
+    },
+    {
+      "id": "trace:road-south",
+      "type": "road",
+      "label": "관문에서 마을로 이어지는 길 후보",
+      "points": [
+        [
+          211,
+          763
+        ],
+        [
+          210,
+          716
+        ],
+        [
+          214,
+          664
+        ],
+        [
+          220,
+          620
+        ],
+        [
+          243,
+          576
+        ]
+      ],
+      "radiusPx": 10
+    },
+    {
+      "id": "trace:bridge-upper",
+      "type": "bridge",
+      "label": "그림 상단 다리 후보",
+      "point": [
+        211,
+        237
+      ],
+      "radiusPx": 14
+    },
+    {
+      "id": "trace:bridge-central",
+      "type": "bridge",
+      "label": "그림 중앙 왼쪽 다리 후보",
+      "point": [
+        192,
+        480
+      ],
+      "radiusPx": 15
+    },
+    {
+      "id": "trace:bridge-lower",
+      "type": "bridge",
+      "label": "그림 하단 진입 다리 후보",
+      "point": [
+        237,
+        579
+      ],
+      "radiusPx": 14
+    },
+    {
+      "id": "trace:bridge-right",
+      "type": "bridge",
+      "label": "그림 오른쪽 다리 후보",
+      "point": [
+        410,
+        523
+      ],
+      "radiusPx": 14
+    }
+  ],
+  "cautions": [
+    "그림에서 육안으로 따라간 후보 선·점이다. 실제 세계 좌표, 고도, 유향 수계, 도로 연결, 침수 위험을 뜻하지 않는다.",
+    "강과 길의 근접·교차만으로 연결 관계를 만들지 않는다.",
+    "끝마을 마커는 외부 방향 표식이지 현재 그림 속 실제 끝마을의 지리적 위치가 아니다.",
+    "04A의 D 샛구멍과 C+D 후속 가설은 이 삽화에 좌표나 연결선을 생성하지 않는다."
+  ]
+}

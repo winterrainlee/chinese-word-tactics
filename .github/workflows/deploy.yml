@@ -183,6 +183,11 @@ jobs:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
         run: python inn-integration-test/verify.py
 
+      - name: Verify isolated inn interaction test
+        env:
+          TEST_OUTPUT: ${{ runner.temp }}/inn-interaction-evidence
+        run: python inn-interaction-test/verify.py
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -231,5 +236,44 @@ jobs:
         with:
           name: inn-public-evidence
           path: ${{ runner.temp }}/inn-public-evidence
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Verify published inn interaction version and assets
+        env:
+          BASE_URL: ${{ steps.deployment.outputs.page_url }}inn-interaction-test/
+        run: |
+          python - <<'PYCODE'
+          import os,json,hashlib,time,urllib.request,concurrent.futures
+          from pathlib import Path
+          base=os.environ['BASE_URL']
+          expected=json.loads(Path('inn-interaction-test/manifest.json').read_text())
+          def read(path):
+              with urllib.request.urlopen(base+path,timeout=30) as r:return r.read()
+          for attempt in range(12):
+              live=json.loads(read('version.json'))
+              if live['sourceCommit']==expected['sourceCommit']:break
+              time.sleep(5)
+          assert live['sourceCommit']==expected['sourceCommit'],live
+          def verify(item):
+              path,digest=item
+              assert hashlib.sha256(read(path)).hexdigest()==digest,path
+          with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+              list(pool.map(verify,expected['files'].items()))
+          print('PASS: published source',live['sourceCommit'],'and',len(expected['files']),'file hashes')
+          PYCODE
+
+      - name: Verify public inn interaction on Chromium and WebKit
+        env:
+          BASE_URL: ${{ steps.deployment.outputs.page_url }}inn-interaction-test/
+          TEST_OUTPUT: ${{ runner.temp }}/inn-interaction-public-evidence
+        run: python inn-interaction-test/verify.py
+
+      - name: Upload public inn interaction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inn-interaction-public-evidence
+          path: ${{ runner.temp }}/inn-interaction-public-evidence
           if-no-files-found: ignore
           retention-days: 30

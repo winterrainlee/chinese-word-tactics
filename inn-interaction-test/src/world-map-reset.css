@@ -1,0 +1,26 @@
+/* Raster village map owns its own full-map coordinate space.
+   These rules intentionally load after legacy view.css so old 3-column world-map
+   grid placement and connector lines cannot affect POI positions. */
+.worldRegions.villageMap{
+  display:block!important;
+  grid-template-columns:none!important;
+  grid-template-rows:none!important;
+  gap:0!important;
+  padding:0!important;
+}
+.worldRegions.villageMap::before,
+.worldRegions.villageMap::after{
+  content:none!important;
+  display:none!important;
+}
+.worldRegions.villageMap>.regionCard{
+  grid-column:auto!important;
+  grid-row:auto!important;
+  position:absolute!important;
+  left:var(--map-x)!important;
+  top:var(--map-y)!important;
+}
+.worldRegions.villageMap>.regionCard::before{
+  content:none!important;
+  display:none!important;
+}
