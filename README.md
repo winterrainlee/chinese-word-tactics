@@ -31,7 +31,7 @@
 
 학술탑 03B는 완료했고, 而 04A 《비가 그친 물길》도 현장 관찰형 T1~T5로 구현했다. 이전 「여백에 남은 길」 일곱 단계는 [구 설계 이력](docs/ACADEMIC-TOWER-ER-SIDE-STAGES-v0.1.md)이고, 현재 04A는 [현장 관찰형 구현 기록](docs/ACADEMIC-TOWER-ER-04A-OBSERVATION-IMPLEMENTATION-2026-10-29.md)을 따른다.
 
-2장은 [최신 이야기 큰 흐름](docs/CHAPTER2-STORYLINE-v0.1.md)의 큰비 도입까지만 구현됐다. 다음은 [월드 G2 최소 지리 데이터](docs/WORLD-SPATIAL-DATA-DESIGN-v0.1.md)와 비 이후 세 갈래·회의소·끝마을 상세 설계다. 정확한 지형·학습 목표·스테이지 수는 미확정으로 남긴다.
+2장은 [확정된 이야기 흐름](docs/CHAPTER2-STORYLINE-v0.1.md)의 큰비 도입까지만 구현됐어. 세 갈래 첫 풍경과 회의소·끝마을의 독립 시작은 [첫 플레이 G0–G2 상세 설계 초안](docs/CHAPTER2-FIRST-PLAY-SLICE-v0.1.md)에 정리했어. **새 스테이지·대사·학습어·통행 판정은 아직 세부 승인/구현 전**이고, 실제 도로·수로의 정확한 지리 연결은 미확정이야.
 
 ## 핵심 원칙
 
