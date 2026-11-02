@@ -1,0 +1,25 @@
+name: World spatial G2 internal-data checks
+on:
+  push:
+    branches: [feature/world-spatial-g2-20261102]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'data/world-spatial-catalog-v0.1.json'
+      - 'src/world-spatial-catalog.js'
+      - 'tests/world-spatial-catalog.test.cjs'
+      - 'docs/WORLD-SPATIAL-DATA-DESIGN-v0.1.md'
+permissions:
+  contents: read
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check src/world-spatial-catalog.js
+      - run: node --test tests/world-spatial-catalog.test.cjs tests/world-grid-prototype.test.cjs
+      - run: node --test tests/*.test.cjs
+      - run: node tools/verify-content.cjs

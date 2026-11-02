@@ -23,6 +23,10 @@
 진행 상황은 [`docs/DEVELOPMENT-STATUS.md`](./docs/DEVELOPMENT-STATUS.md)에서 관리한다.
 1장 결말의 최신 이야기 기준은 [`docs/CHAPTER1-FINALE-DESIGN-v0.1.md`](./docs/CHAPTER1-FINALE-DESIGN-v0.1.md), 자유 의뢰와 게시판의 최신 기준은 [`docs/QUEST-BOARD-DESIGN-v0.2.md`](./docs/QUEST-BOARD-DESIGN-v0.2.md)다.
 
+## 월드 공간 정보 G2 (내부 로직만)
+
+기존 그림지도는 유지하면서 `data/world-spatial-catalog-v0.1.json`과 `src/world-spatial-catalog.js`에 **확정 장소·서사적 관계·04A 관찰·미확정 사실·2장 승인된 미래 통행 조건**을 분리해 뒀어. 실제 길·물길의 좌표와 지리 연결은 여전히 확정하지 않아. [공간 데이터 설계 §11](docs/WORLD-SPATIAL-DATA-DESIGN-v0.1.md)에서 경계와 근거를 확인할 수 있어.
+
 ## 상설 연구와 2장의 다음 작업
 
 학술탑 03B는 완료했고, 而 04A 《비가 그친 물길》도 현장 관찰형 T1~T5로 구현했다. 이전 「여백에 남은 길」 일곱 단계는 [구 설계 이력](docs/ACADEMIC-TOWER-ER-SIDE-STAGES-v0.1.md)이고, 현재 04A는 [현장 관찰형 구현 기록](docs/ACADEMIC-TOWER-ER-04A-OBSERVATION-IMPLEMENTATION-2026-10-29.md)을 따른다.
