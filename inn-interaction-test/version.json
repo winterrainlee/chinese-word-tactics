@@ -1,6 +1,6 @@
 {
   "version": "inn-interaction-c-v1",
-  "sourceCommit": "5ec7f1fbaa50cbcb71f1412b56e7ca4a373fb902",
+  "sourceCommit": "a3a0c3bc5f48101f425155157460ed998ae56075",
   "baseCommit": "d440c2b3a9026bf4180044cf2858a65593d7b477",
   "storagePrefix": "cwt-inn-interaction-v1:"
 }

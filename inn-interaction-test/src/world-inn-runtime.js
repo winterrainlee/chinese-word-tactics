@@ -123,7 +123,11 @@
       '椅子': 'ㄧˇ ㄗ˙',
       '箱子': 'ㄒㄧㄤ ㄗ˙'
     }[word] || '';
-    InnSceneUtils.info('innRoomScene',{zh:word,pronunciation,ko});
+    if (globalThis.InnSceneUtils) return InnSceneUtils.info('innRoomScene',{zh:word,pronunciation,ko});
+    // The preserved standalone layer fixture deliberately does not mount the C exploration UI.
+    globalThis.TacticalGame?.openSheet?.(`<h2 lang="zh-Hant">${word}</h2><div class="pinyin">${pronunciation}</div><div class="meaning">${ko}</div><div class="sheetactions"><button id="innRoomWordClose">닫기</button></div>`);
+    const close = document.getElementById('innRoomWordClose');
+    if (close) close.onclick = () => globalThis.TacticalGame?.closeSheet?.();
   }
 
   function bindHotspot(group) {
@@ -159,7 +163,7 @@
     globalThis.TacticalGame?.showView?.('innRoom');
     loadRoomHotspots();
     loadRoomBackground();
-    InnSceneUtils.visit(document.getElementById('innRoomScene'),['bed','desk','chest']);
+    globalThis.InnSceneUtils?.visit(document.getElementById('innRoomScene'),['bed','desk','chest']);
     window.scrollTo(0, 0);
   }
 

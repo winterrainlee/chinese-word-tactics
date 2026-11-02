@@ -1,10 +1,10 @@
 {
-  "sourceCommit": "5ec7f1fbaa50cbcb71f1412b56e7ca4a373fb902",
+  "sourceCommit": "a3a0c3bc5f48101f425155157460ed998ae56075",
   "files": {
     "verify.py": "9b7c703eefc21bb50bd797c8380113d320811025033dc25ea50741591fc68b3b",
     "controls.js": "57b390d68861d54b5d34453c91e63b5db11fa6a031a55dd8c11154b2edb1a165",
-    "version.json": "ae7806936360136051007299cbf27273c340058aa1eaa9fab697277e1e5169db",
-    "index.html": "fb3df8e6f395f396310257f0f13082fa0c4b6fdd968991bb0ce98791d456f2c4",
+    "version.json": "af02d848010660edc79d6af43821a7bc1c04be19f6d2b4de6e5519bf39f32faa",
+    "index.html": "e97afebc433aae036d10a82d3933d3fbf4182c011bad688eb71b6139f668a57c",
     "bootstrap.js": "d12c0c872c0a41d1f4f2ebb3a3fe7a6b8329b00b8f7ea07c2346d6bd466b49fe",
     "controls.css": "ba16360aa8671e5b79aea16fe2c9eed1360938a936903d30570aa1a53e2c6ef4",
     "images/title-departure.svg": "c323f7ec83025b3c87c158dcbd597c52ab3c969526c15a8f403782870a1ff327",
@@ -96,7 +96,7 @@
     "src/world-inn.css": "b5aa8653d8fe7e8f33db4da788f9049f3d903d205593006b68738aa2c3dc32ec",
     "src/journey-progress.js": "f739018317a346496b6a8019df6a82c5fe7dd5045fbe09ed60de53391f98a7f3",
     "src/icons-runtime.js": "eb978eddc3e46e4d869c50058f6c1ef7ab147866cf4c3fec551124881b8a51fa",
-    "src/world-inn-runtime.js": "4efdef7b46f5cd5a29d972fb6828235a549dd356ddc33f69fd504dce35e7b146",
+    "src/world-inn-runtime.js": "39fef9683a18fdd9f98ef3a0b40ce0fbdfc80be844e37ed7b125e516b7ec6b1a",
     "src/workshop-late-runtime.css": "3bb9ca6380815b4d1ed98be9644beb0df422c40a7badfe40c57f954c1f328109",
     "src/market-content.js": "3f1c86dc64207ba3ef2d8579c12f87a7895986f764f12593c5b218126583f3ef",
     "src/workshop-content.js": "ca93b28aff81adb07fee39e0426fd94cf897360bb54be543edb33808bba41c3d",
