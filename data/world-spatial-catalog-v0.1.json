@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "id": "three-streams-world-g2-confirmed-subset-v0.1",
+  "status": "partial-confirmed",
+  "scope": "internal-data-only",
+  "mapGeometry": "undetermined",
+  "note": "삽화의 격자와 픽셀 좌표는 권위 있는 지리 좌표가 아니다. G2는 확정 서사와 구현된 관찰의 최소 부분집합이다.",
+  "places": [
+    {
+      "id": "three-streams-town",
+      "kind": "settlement",
+      "nameKo": "물길마을",
+      "nameZh": "三溪鎮",
+      "parentId": null,
+      "geometry": null,
+      "mapAnchorRole": null,
+      "sources": [
+        "docs/WORLD-v0.6.md"
+      ]
+    },
+    {
+      "id": "gate-town",
+      "kind": "district",
+      "nameKo": "길목",
+      "parentId": "three-streams-town",
+      "geometry": null,
+      "mapAnchorRole": "district",
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "src/world-v06-content.js"
+      ]
+    },
+    {
+      "id": "workshop-town",
+      "kind": "district",
+      "nameKo": "장인골",
+      "parentId": "three-streams-town",
+      "geometry": null,
+      "mapAnchorRole": "district",
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "src/world-v06-content.js"
+      ]
+    },
+    {
+      "id": "market-town",
+      "kind": "district",
+      "nameKo": "장터",
+      "parentId": "three-streams-town",
+      "geometry": null,
+      "mapAnchorRole": "district",
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "src/world-v06-content.js"
+      ]
+    },
+    {
+      "id": "council-town",
+      "kind": "landmark",
+      "nameKo": "회의소",
+      "parentId": "three-streams-town",
+      "geometry": null,
+      "mapAnchorRole": "landmark",
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "src/world-v06-content.js"
+      ]
+    },
+    {
+      "id": "academic-tower",
+      "kind": "landmark",
+      "nameKo": "학술탑",
+      "parentId": "three-streams-town",
+      "geometry": null,
+      "mapAnchorRole": "landmark",
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "src/world-v06-content.js"
+      ]
+    },
+    {
+      "id": "inn",
+      "kind": "building",
+      "nameKo": "여관",
+      "parentId": "three-streams-town",
+      "geometry": null,
+      "mapAnchorRole": null,
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "docs/INN-C-INTEGRATION-v0.1.md"
+      ]
+    },
+    {
+      "id": "border-village",
+      "kind": "outside-settlement",
+      "nameKo": "끝마을",
+      "parentId": null,
+      "geometry": null,
+      "mapAnchorRole": "outside-direction",
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "docs/CHAPTER2-STORYLINE-v0.1.md"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "relation:gate-to-border",
+      "kind": "narrative-route-direction",
+      "from": "gate-town",
+      "to": "border-village",
+      "geometry": null,
+      "physicalEdgeId": null,
+      "sources": [
+        "docs/WORLD-v0.6.md",
+        "docs/CHAPTER2-STORYLINE-v0.1.md"
+      ]
+    },
+    {
+      "id": "relation:workshop-to-tower",
+      "kind": "upstream-relative",
+      "from": "workshop-town",
+      "to": "academic-tower",
+      "geometry": null,
+      "physicalEdgeId": null,
+      "sources": [
+        "docs/WORLD-v0.6.md"
+      ]
+    },
+    {
+      "id": "relation:market-to-council",
+      "kind": "narrative-continuation",
+      "from": "market-town",
+      "to": "council-town",
+      "geometry": null,
+      "physicalEdgeId": null,
+      "sources": [
+        "docs/WORLD-v0.6.md"
+      ]
+    },
+    {
+      "id": "relation:market-to-inn",
+      "kind": "nearby-not-a-route",
+      "from": "market-town",
+      "to": "inn",
+      "geometry": null,
+      "physicalEdgeId": null,
+      "sources": [
+        "docs/WORLD-v0.6.md"
+      ]
+    }
+  ],
+  "networks": {
+    "road": {
+      "status": "topology-unconfirmed",
+      "edges": []
+    },
+    "water": {
+      "status": "topology-unconfirmed",
+      "edges": []
+    }
+  },
+  "observations": [
+    {
+      "id": "observation:04a-side-outlet",
+      "kind": "artificial-lateral-opening",
+      "context": "academic-tower-04a",
+      "geometry": null,
+      "relativeLocation": {
+        "kind": "between-observation-points",
+        "first": "B",
+        "second": "C",
+        "on": "workshop-service-channel"
+      },
+      "observedFacts": [
+        "outflow-to-vegetation",
+        "worked-stone-opening",
+        "not-shown-on-original-plan"
+      ],
+      "unknownFields": [
+        "destination",
+        "maker",
+        "purpose",
+        "permission",
+        "impact-on-overall-flow"
+      ],
+      "revealBy": {
+        "stageId": "academic-tower-turn-04a-er-family",
+        "partialFlag": "openingFound"
+      },
+      "sources": [
+        "src/academic-tower-er-04a-runtime.js",
+        "docs/ACADEMIC-TOWER-ER-04A-OBSERVATION-IMPLEMENTATION-2026-10-29.md"
+      ]
+    }
+  ],
+  "futureRules": [
+    {
+      "id": "scenario:post-rain-border-travel",
+      "implementation": "approved-story-not-active-game-rule",
+      "applicableAfter": "chapter2-rain",
+      "nearPlaceId": "border-village",
+      "affectedEdgeId": null,
+      "preciseSection": null,
+      "modes": {
+        "walking": "possible",
+        "lightHandcart": "conditional",
+        "heavyCart": "temporarily-restricted-both-directions"
+      },
+      "sources": [
+        "docs/CHAPTER2-STORYLINE-v0.1.md"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "id": "unknown:water-confluences",
+      "subject": "three-streams-town",
+      "type": "water-network",
+      "question": "세 자연 물줄기의 정확한 이름·합류 순서·연결",
+      "sources": [
+        "docs/WORLD-v0.6.md"
+      ]
+    },
+    {
+      "id": "unknown:bridge-links",
+      "subject": "three-streams-town",
+      "type": "road-water-crossing",
+      "question": "삽화의 다리와 실제 길·물길 연결 관계",
+      "sources": [
+        "docs/WORLD-SPATIAL-DATA-DESIGN-v0.1.md"
+      ]
+    },
+    {
+      "id": "unknown:04a-outlet-destination",
+      "subject": "observation:04a-side-outlet",
+      "type": "water-destination",
+      "question": "측벽 통로의 종착지·목적·제작자",
+      "sources": [
+        "docs/CHAPTER2-STORYLINE-v0.1.md"
+      ]
+    },
+    {
+      "id": "unknown:border-restriction-segment",
+      "subject": "scenario:post-rain-border-travel",
+      "type": "road-segment",
+      "question": "끝마을 너머 제한 구간의 정확한 위치·원인·수치",
+      "sources": [
+        "docs/CHAPTER2-STORYLINE-v0.1.md"
+      ]
+    }
+  ]
+}
