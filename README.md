@@ -23,9 +23,9 @@
 진행 상황은 [`docs/DEVELOPMENT-STATUS.md`](./docs/DEVELOPMENT-STATUS.md)에서 관리한다.
 1장 결말의 최신 이야기 기준은 [`docs/CHAPTER1-FINALE-DESIGN-v0.1.md`](./docs/CHAPTER1-FINALE-DESIGN-v0.1.md), 자유 의뢰와 게시판의 최신 기준은 [`docs/QUEST-BOARD-DESIGN-v0.2.md`](./docs/QUEST-BOARD-DESIGN-v0.2.md)다.
 
-## 월드 공간 정보 G2 (내부 로직만)
+## 월드 공간 정보 G2/G3 (내부 조회만)
 
-기존 그림지도는 유지하면서 `data/world-spatial-catalog-v0.1.json`과 `src/world-spatial-catalog.js`에 **확정 장소·서사적 관계·04A 관찰·미확정 사실·2장 승인된 미래 통행 조건**을 분리해 뒀어. 실제 길·물길의 좌표와 지리 연결은 여전히 확정하지 않아. [공간 데이터 설계 §11](docs/WORLD-SPATIAL-DATA-DESIGN-v0.1.md)에서 경계와 근거를 확인할 수 있어.
+기존 그림지도는 유지하면서 G2 `data/world-spatial-catalog-v0.1.json`에 **확정된 장소·상대 관계·04A 관찰·미확정 정보·2장 향후 사건 조건**을 분리해 뒀어. G3 `src/world-spatial-context.js`를 통해 지도·이야기·첫 자유 의뢰가 같은 정보를 조회할 수 있게 됐어. **표시·해금·이동·저장은 변경하지 않았고**, 실제 도로·물길의 좌표와 연결은 미확정으로 남겼어. [공간 설계 §11~12](docs/WORLD-SPATIAL-DATA-DESIGN-v0.1.md) 참고.
 
 ## 상설 연구와 2장의 다음 작업
 
