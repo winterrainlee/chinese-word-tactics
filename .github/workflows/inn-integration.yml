@@ -1,7 +1,7 @@
 name: Inn integration branch checks
 on:
   push:
-    branches: [feature/inn-c-integration-20261101]
+    branches: [feature/inn-c-integration-20261101, feature/inn-c-main-release-20261102]
 permissions:
   contents: read
 jobs:
@@ -22,6 +22,9 @@ jobs:
           TEST_OUTPUT: inn-evidence
       - run: |
           python tests/smoke_ux.py
+          python tests/smoke_inn.py
+          python tests/smoke_chapter2_rain.py
+          python tests/smoke_first_free_quest.py
           python tests/smoke_settings.py
           python tests/smoke_journey.py
           python tests/smoke_tower_unlock_conditions.py
