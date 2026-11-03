@@ -290,3 +290,8 @@ jobs:
         env:
           BASE_URL: ${{ steps.deployment.outputs.page_url }}
         run: python tests/smoke_inn_public.py
+
+      - name: Play published Chapter 2 field notebooks on Chromium and WebKit
+        env:
+          BASE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python tests/smoke_chapter2_p2.py

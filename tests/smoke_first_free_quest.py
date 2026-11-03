@@ -390,7 +390,7 @@ try:
             'academic-tower': '오래된 기술과 기록이 모이는 탑이야.'
         }
         completed_region_ids = {'gate-town', 'workshop-town', 'market-town'}
-        enterable_region_ids = {'academic-tower'}
+        enterable_region_ids = {'academic-tower', 'council-town', 'border-village'}
         for region_id, summary in place_summaries.items():
             page.locator(f'.regionCard[data-region-id="{region_id}"]').click()
             page.locator('#worldPlaceClose').wait_for(state='visible')

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotDate": "2026-10-29",
+  "snapshotDate": "2026-11-03",
   "canonicalWordList": "src/lexicon-content.js",
   "stageSources": [
     "src/content.js",
@@ -10,7 +10,8 @@
     "src/market-content.js",
     "src/market-late-content.js",
     "src/north-forest-content.js",
-    "src/academic-tower-content.js"
+    "src/academic-tower-content.js",
+    "src/chapter2-field-content.js"
   ],
   "reusePolicy": {
     "oneOffThreshold": 1,
@@ -678,6 +679,41 @@
       ],
       "reuseScope": "region",
       "note": "04A 현장 조사에서 의미 행동을 학습한다. 한 연구 안의 단계별 공개/재사용이며 공식 등급은 별도 확인."
+    },
+    "該": {
+      "regionId": "council-town",
+      "targetStageIds": [
+        "council-stage-01-minutes"
+      ],
+      "reuseScope": "chapter"
+    },
+    "本": {
+      "regionId": "council-town",
+      "targetStageIds": [
+        "council-stage-01-minutes"
+      ],
+      "reuseScope": "chapter"
+    },
+    "目前": {
+      "regionId": "border-village",
+      "targetStageIds": [
+        "border-stage-01-notice"
+      ],
+      "reuseScope": "chapter"
+    },
+    "暫時": {
+      "regionId": "border-village",
+      "targetStageIds": [
+        "border-stage-01-notice"
+      ],
+      "reuseScope": "chapter"
+    },
+    "限制": {
+      "regionId": "border-village",
+      "targetStageIds": [
+        "border-stage-01-notice"
+      ],
+      "reuseScope": "chapter"
     }
   }
 }

@@ -125,9 +125,9 @@ test('journey reset is separated from the primary continue action', () => {
 });
 
 test('browser loads the journey redesign assets with a fresh cache key', () => {
-  assert.match(html, /stage-reference\.js\?v=20261006-a10a061/);
+  assert.match(html, /stage-reference\.js\?v=20261103-p2/);
   assert.match(html, /journey\.css\?v=20261029-rain-journey1/);
   assert.match(html, /journey-runtime\.js\?v=20261029-rain-journey1/);
-  assert.match(html, /journey-progress\.js\?v=20261102-chapter2-p1/);
+  assert.match(html, /journey-progress\.js\?v=20261103-p2/);
   assert.match(html, /flow-runtime\.js\?v=\d{8}-[a-z0-9]+/);
 });

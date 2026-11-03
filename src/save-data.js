@@ -23,6 +23,9 @@
     // Validate 04A even when lastLocation is null/world (early-return branches below).
     if (Object.hasOwn(value,'sideResearchProgress') &&
         !globalThis.AcademicTowerEr04A?.validProgressMap?.(value.sideResearchProgress)) return false;
+    if (value.fieldDrafts !== undefined && (!isPlainObject(value.fieldDrafts) ||
+        !Object.entries(value.fieldDrafts).every(([id,draft]) =>
+          globalThis.Chapter2Fields?.validDraft(globalThis.Chapter2Fields.byStage(id),draft)))) return false;
     const erOutcome=value.stageOutcomes['academic-tower-turn-04a-er-family'];
     if (erOutcome !== undefined &&
         (!isPlainObject(erOutcome) || Object.keys(erOutcome).length !== 1 ||

@@ -28,6 +28,7 @@ for (const file of [
   'src/academic-tower-content.js',
   'src/academic-tower-journey-content.js',
   'src/world-v06-content.js',
+  'src/chapter2-field-content.js',
   'src/market-inference-runtime.js',
   'src/story-outcome-content.js',
   'src/market-story-outcome-content.js',
@@ -60,6 +61,9 @@ for (const id of storyIds) {
   addBeats(id, story.beats, `story:${id}`);
 }
 
+for (const field of context.Chapter2Fields.entries) {
+  addBeats(field.prefix+'-intro',[context.Chapter2Fields.beat(field.prior)],'field-prior');
+}
 // 03B keeps two story-screen interludes inside one stage, without adding
 // Journey nodes. Audit their exact speaker/place/beat pronunciation too.
 const villageConfig = vm.runInContext(

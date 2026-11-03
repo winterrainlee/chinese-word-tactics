@@ -163,7 +163,16 @@
       store.checkpointSide(er.STAGE_ID, initial);
       progress = store.get();
     }
-    const story = globalThis.StoryOutcomeContent?.resolve(baseStory, progress) || baseStory;
+    const field = globalThis.Chapter2Fields?.byIntro(id);
+    if (field && node && P.isAvailable(node,progress) && !progress.fieldDrafts?.[field.id] &&
+        options.mode !== 'replay' && !P.isComplete(node,progress)) {
+      const other = Chapter2Fields.entries.find(item => item !== field);
+      store.checkpointField(field,{prior:progress.completedStages.includes(other.id),links:field.rows.map(()=>null)});
+      progress = store.get();
+    }
+    const story = field && progress.fieldDrafts?.[field.id]?.prior
+      ? {...baseStory, beats:[...baseStory.beats,Chapter2Fields.beat(field.prior)]}
+      : globalThis.StoryOutcomeContent?.resolve(baseStory, progress) || baseStory;
     if (!story || !node || !P.isAvailable(node, progress)) return false;
     const normalized = validOptions(options), returnContext = returnContextFor(options, normalized);
     const context = { ...normalized, ...(returnContext ? { returnContext } : {}), nodeId: node.nodeId, type: 'story' };
@@ -192,6 +201,27 @@
     if (!node || !P.isAvailable(node, store.get())) return false;
     const normalized = validOptions(options), returnContext = returnContextFor(options, normalized);
     const context = { ...normalized, ...(returnContext ? { returnContext } : {}), nodeId: node.nodeId, type: 'stage' };
+    const field = globalThis.Chapter2Fields?.byStage(id);
+    if (field) {
+      const saved = store.get().fieldDrafts?.[id], replay = P.isComplete(node,store.get()) || context.mode === 'replay';
+      if (replay) context.mode = 'replay';
+      const draft = saved && !replay ? saved : {prior:saved?.prior || false,links:field.rows.map(()=>null)};
+      active=context; StoryRuntime.stop();
+      if (!replay) recordWordEncounter(id);
+      store.locate({view:'tactical',nodeId:node.nodeId},context.mode);
+      Chapter2FieldRuntime.start(field,draft,{
+        save: value => !replay && store.checkpointField(field,value),
+        leave: () => replay ? returnFromReplay(context) : showWorld(),
+        finish(value) {
+          if (replay) return returnFromReplay(context);
+          const outcome = {prior:value.prior, sourceIds:Object.keys(field.sources),
+            links:field.rows.map(([key],i)=>key+'='+value.links[i])};
+          store.complete(node,context.mode,outcome);
+          continueFromNode(node.nodeId);
+        }
+      });
+      return true;
+    }
     const introStory=STAGES.find(stage=>stage.id===id)?.academicTower?.introStory;
     if (introStory && !options.skipStageIntro &&
         !(id === globalThis.AcademicTowerEr04A?.STAGE_ID && store.get().seenStories.includes(introStory)))
@@ -287,6 +317,7 @@
     if (nodeRegionId(node) && location?.nodeId !== node.nodeId) return showWorld();
     if (node.type === 'story') return playStory(node.id, { beat: location?.nodeId === node.nodeId ? location.beat : 0 });
     const context = { mode: 'first-play', returnTo: returnTargetFor(node), nodeId: node.nodeId, type: 'stage' };
+    if (globalThis.Chapter2Fields?.byStage(node.id)) return playStage(node.id);
     if (TacticalGame.resumeStage(node.id, context)) {
       recordWordEncounter(node.id);
       active = context; store.locate({ view: 'tactical', nodeId: node.nodeId }); return true;

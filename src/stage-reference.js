@@ -37,6 +37,10 @@
     ['north-forest-stage-7', '07'], ['north-forest-stage-8', '08']
   ]);
 
+  for (const field of globalThis.Chapter2Fields?.entries || []) {
+    addGroup(field.region,field.placeKo,[[field.id,'01']]);
+  }
+
   // The research-room data remains the single source for 01–05 and optional 03A.
   const towerRooms = globalThis.AcademicTowerContent?.bundle?.rooms || [];
   addGroup('academic-tower-turning-directions', '방향이 바뀌는 문장', towerRooms.map(room => [
