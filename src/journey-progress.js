@@ -144,7 +144,7 @@
     // Ordinary Continue should not pull the player out of the new room.
     // A partly read rain story remains resumable via the saved-node branch.
     return campaignNodes(progress).find(node =>
-      node.id !== 'chapter2-rain-opening' && !node.optionalFirstLook && isAvailable(node, progress) &&
+      node.id !== 'chapter2-rain-opening' && !node.optionalFirstLook && !node.chooseOnMap && isAvailable(node, progress) &&
       !isComplete(node, progress)) || null;
   }
   function continueAction(progress) {

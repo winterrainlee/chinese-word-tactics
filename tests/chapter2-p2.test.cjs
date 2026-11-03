@@ -24,6 +24,19 @@ test('both field sections open independently after rain, including old saves and
     }
   }
 });
+test('an unvisited field never displaces an active free quest, and interrupted field play still resumes',()=>{
+  const nodes=P.allNodes().filter(n=>!n.chooseOnMap && !n.optionalFirstLook);
+  const progress=P.normalize({
+    completedStages:nodes.filter(n=>n.type==='stage').map(n=>n.id),
+    seenStories:nodes.filter(n=>n.type==='story').map(n=>n.id),
+    completedMilestones:['chapter1-complete','chapter2-rain-passed'],lastLocation:{view:'world'}
+  });
+  assert.equal(P.recommendedNode(progress),null);
+  const entry=ctx.Chapter2Fields.entries[0];
+  progress.seenStories.push(entry.prefix+'-intro');
+  progress.lastLocation={view:'tactical',nodeId:'stage:'+entry.id};
+  assert.equal(P.recommendedNode(progress).id,entry.id);
+});
 test('every field source has one Zhuyin syllable per Han character and all saved links have a real destination',()=>{
   for (const entry of ctx.Chapter2Fields.entries) {
     for (const [id,[,source]] of Object.entries(entry.sources)) {

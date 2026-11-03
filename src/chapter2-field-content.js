@@ -83,7 +83,7 @@
       {type:'story',id:intro,requiresRainPassed:true},
       {type:'stage',id:entry.id,requiresRainPassed:true,requires:['story:'+intro]},
       {type:'story',id:result,requiresRainPassed:true,requires:['stage:'+entry.id],returnToWorldAfter:true}
-    ]});
+    ].map(node => ({...node, chooseOnMap:true}))});
   }
   Object.assign(WORDS,{
     '該':{p:'ㄍㄞ',k:'앞서 말한 그, 해당하는',ex:'先確認該批貨的運送情況。',rule:'앞에서 특정한 물자를 찾아 회의록에 연결해.'},
