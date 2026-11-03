@@ -254,3 +254,13 @@
 - 검증: `tests/chapter2-p1-first-sightings.test.cjs`(선수/선택/중단/진행/보존/구형 저장), `tests/smoke_chapter2_p1.py`(Chromium·WebKit, 375×812/360×640, 세 장소 역순 방문·재열람·1장 다시 연습·기기 가로 스크롤). [P1 브랜치 자동검사](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41421577008) **통과**.
 
 **배포 확인(G4/G5 완료):** [GitHub Pages 전체 회귀·공개 검증 41423450876](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/41423450876)에서 **48단계 성공**, 공개 Chromium·WebKit 검증까지 완료했어. 정식 게임 실행 SHA는 `b4307a2`이며 [P1 본편 통합 PR #22](https://github.com/winterrainlee/chinese-word-tactics/pull/22), [선택형 단일 이야기 UX 검사 보강 PR #23](https://github.com/winterrainlee/chinese-word-tactics/pull/23)이 반영됐어. **2026-11-02 사용자 검수 완료 보고(G6 사용자 확인)**를 받았어. 세부 기기·재현 경로 로그는 별도 미수집. 다음 세션은 [P2 회의소·끝마을 인수인계](CHAPTER2-P2-HANDOFF-2026-11-02.md)를 읽고 두 독립 학습 판을 구현하면 돼.
+
+## 11. 2026-11-03 · P2 구현 사양
+
+§6의 두 장소별 후보 ID 여섯 개를 그대로 사용한다. 정상 큰비와 구형 저장의 해금 판정은 모두 `hasRainPassed`를 따른다. 두 장소는 2장에 각자 한 section으로 등록한다.
+
+회의소는 장터·장인골·물가 발언과 마을 회의록을 원본으로 삼는다. 플레이어는 발언 쪽지를 화자·증언·요청·걱정 칸에 붙이고, 마지막 두 줄에서 該批貨와 本鎮을 원래 대상에 연결한다. 끝마을은 현장 공고와 행상의 말을 따로 읽고 제한 구간·시점·세 이동 방식·출처를 조사표에 넣는다. 같은 칸을 다시 누르면 쪽지를 떼며, 기록 목록에서 이미 작성한 줄을 고쳐도 된다. 대조에 실패하면 해당 원문으로 돌아간다. 목표어를 누르면 주음·뜻이 바로 열린다.
+
+기존 journey 저장 안의 선택 필드 `fieldDrafts[stageId]`에 도입 당시 상대 장소 원문을 본 적이 있는지와 현재 줄·임시 연결을 보존한다. 최초 결과는 `stageOutcomes[stageId]`에 발언/공고 출처 키와 줄별 확정 연결을 남긴다. 재플레이는 별도 메모리에서 시작한다. 각 원문의 출처·귀속은 `src/chapter2-field-content.js`가 소유하며 세계 도로 상태를 변경하지 않는다.
+
+다섯 목표어를 지역 단어장과 생애주기 목록에 등록했다. TBCL은 2025-04 공식 표제 수준이며 개별 문법 용법 등급은 추정하지 않는다. 本은 1, 目前은 4, 暫時와 限制/限은 4*, 該는 5다. 출처는 [國教院 공식 목록](https://coct.naer.edu.tw/file/files/14452%E8%A9%9E%E8%AA%9E%E8%A1%A8202504.pdf)이다.

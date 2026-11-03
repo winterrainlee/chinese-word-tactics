@@ -14,7 +14,7 @@
     collector: './icons/characters/character-collector.svg',
     resident: './icons/characters/character-resident.svg'
   });
-  const backgrounds = { origin: 'region-origin', forest: 'region-origin', roadside: 'region-gate-town', gate: 'region-gate-town', workshop: 'region-workshop-town', market: 'region-market-town', inn: 'subplace-inn', 'academic-tower': 'region-research-city' };
+  const backgrounds = { 'council-town':'region-council-town', 'border-village':'region-border-village', origin: 'region-origin', forest: 'region-origin', roadside: 'region-gate-town', gate: 'region-gate-town', workshop: 'region-workshop-town', market: 'region-market-town', inn: 'subplace-inn', 'academic-tower': 'region-research-city' };
   const isHan = character => /\p{Script=Han}/u.test(character);
   let session = null;
   function pronunciationEnabled() { return globalThis.SettingsRuntime?.showPronunciation?.() === true; }

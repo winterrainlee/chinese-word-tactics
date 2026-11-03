@@ -69,6 +69,7 @@ for (const [label, script] of [
 if (args.has('--browser')) {
   const python = process.env.PYTHON || 'python3';
   const browserTests = [
+    'tests/smoke_chapter2_p2.py',
     'tests/smoke_design_actions.py',
     'tests/smoke_design_boundaries.py',
     'tests/smoke_ux.py',

@@ -40,6 +40,7 @@
 <link rel="stylesheet" href="./src/ux-play.css?v=20260922-infohierarchy1">
 <link rel="stylesheet" href="./src/navigation.css?v=20261006-a043">
 <link rel="stylesheet" href="./src/inn-scenes.css?v=20261102-innc1&revision=interaction1">
+<link rel="stylesheet" href="./src/chapter2-field.css?v=p2">
 </head>
 <body>
 <div id="flowNotice" class="flowNotice" role="status" hidden></div>
@@ -91,6 +92,7 @@
   </main>
   <main id="storyView" class="storyShell appView" hidden aria-label="이야기"><header class="storyTopbar"><span id="storyCount" class="storyCount"></span><h1 id="storyTitle"></h1><button id="storyMenu" class="iconbtn" type="button" data-flow-menu aria-label="여행 메뉴">☰</button></header><div id="storyScene" class="storyScene"><img id="storyBackdrop" class="storyBackdrop" alt="" aria-hidden="true"><span id="storyPlace" class="storyPlace"></span></div><section id="storyReading" class="storyReading" aria-label="현재 대사" tabindex="0"><div class="storySpeakerRow"><img id="storyPortrait" class="storyPortrait" src="./icons/world/world-hero.svg" alt="" aria-hidden="true"><span id="storySpeaker" class="storySpeaker" lang="zh-Hant"></span></div><p id="storyZh" class="storyZh" lang="zh-Hant" aria-live="polite"></p><button id="storyTranslate" class="storyTranslate" aria-controls="storyKo" aria-expanded="false">한국어 뜻 보기</button><p id="storyKo" class="storyKo" lang="ko" hidden></p></section><div class="storyActions"><button id="storyPrev">이전</button><button id="storyNext">다음</button></div><button id="storySkip" class="storySkip" hidden>장면 건너뛰기</button></main>
   <main id="journeyView" class="journeyShell appView" hidden><header class="journeyTopbar globalNavHeader"><button id="journeyBack" class="iconbtn travelBack" type="button" aria-label="이전 화면">←</button><div class="journeyTopHeading"><div class="stagekicker">걸어온 길, 앞으로의 이야기</div><h1>여정</h1></div><button id="journeyMenu" class="iconbtn" type="button" data-flow-menu aria-label="여행 메뉴">☰</button></header><div class="journeyHeader"><p id="journeySummary"></p></div><button id="journeyContinue" class="journeyContinue">이어서 여행하기</button><p id="journeyGuidance" class="flowNote"></p><div class="journeyFilters" role="group" aria-label="여정 필터"><button data-journey-filter="all" aria-pressed="true">전체</button><button data-journey-filter="story" aria-pressed="false">이야기</button><button data-journey-filter="stage" aria-pressed="false">스테이지</button></div><p id="journeyReplayGuidance" class="flowNote journeyReplayGuidance" hidden>완료한 스테이지를 다시 플레이해도 본편 위치는 바뀌지 않아.</p><div id="journeyList"></div></main>
+  <main id="fieldView" class="appView" aria-label="소년의 조사 기록" hidden></main>
   <main id="wordsView" class="lexiconShell appView" hidden aria-label="단어장">
     <header class="lexiconTopbar globalNavHeader"><div class="lexiconTopStart"><button class="iconbtn" id="wordsBackBtn" aria-label="이전 화면">←</button></div><div class="lexiconTopHeading"><div class="stagekicker" id="wordsKicker">게임에서 만난 말을 다시 연결하기</div><h1 id="wordsTitle">단어장</h1></div><div class="lexiconTopActions"><button class="iconbtn" id="wordsSearchBtn" aria-label="단어 검색">⌕</button><button id="wordsMenu" class="iconbtn" type="button" data-flow-menu aria-label="여행 메뉴">☰</button></div></header>
     <section id="wordsChapterBar" class="lexiconChapterBar"><label for="wordsChapterSelect">여행 구간</label><select id="wordsChapterSelect" aria-label="단어장 여행 구간"></select></section>
@@ -142,7 +144,7 @@
 <script src="./src/g7-content.js?v=20260922-regionlayout1"></script>
 <script src="./src/market-content.js?v=20260922-infohierarchy1"></script>
 <script src="./src/market-late-content.js?v=20260922-infohierarchy1"></script>
-<script src="./src/lexicon-content.js?v=20261029-04a1"></script>
+<script src="./src/lexicon-content.js?v=20261103-p2"></script>
 <script src="./src/journey-content.js?v=20260912-marketcount8"></script>
 <script src="./src/g7-journey-content.js?v=20260911-gatestory2"></script>
 <script src="./src/workshop-journey-content.js?v=20260911-workshopw3r1"></script>
@@ -158,17 +160,19 @@
 <script src="./src/academic-tower-journey-content.js?v=20261031-tower-unlocks1"></script>
 <script src="./src/academic-tower-er-04a-runtime.js?v=20261029-04a-v6"></script>
 <script src="./src/world-v06-content.js?v=20261031-tower-unlocks1"></script>
-<script src="./src/stage-reference.js?v=20261006-a10a061"></script>
-<script src="./src/journey-progress.js?v=20261102-chapter2-p1"></script>
-<script src="./src/save-data.js?v=20261102-innc1"></script>
+<script src="./src/chapter2-field-content.js?v=p2"></script>
+<script src="./src/chapter2-field-runtime.js?v=p2"></script>
+<script src="./src/stage-reference.js?v=20261103-p2"></script>
+<script src="./src/journey-progress.js?v=20261103-p2"></script>
+<script src="./src/save-data.js?v=20261103-p2"></script>
 <script src="./src/story-outcome-content.js?v=20261031-tower-unlocks1"></script>
 <script src="./src/market-story-outcome-content.js?v=20261025-ranstory"></script>
 <script src="./src/g7-story-outcome-content.js?v=20261025-ranstory"></script>
 <script src="./src/gate-reward-story-content.js?v=20260911-gatereward1"></script>
-<script src="./src/story-pronunciation-content.js?v=20261102-chapter2-p1"></script>
+<script src="./src/story-pronunciation-content.js?v=20261103-p2"></script>
 <script src="./src/world-spatial-catalog.js?v=20261102-g3"></script>
-<script src="./src/world-spatial-context.js?v=20261102-chapter2-p1"></script>
-<script src="./src/story-runtime.js?v=20261005-ruby1"></script>
+<script src="./src/world-spatial-context.js?v=20261103-p2"></script>
+<script src="./src/story-runtime.js?v=20261103-p2"></script>
 <script src="./src/journey-runtime.js?v=20261029-rain-journey1"></script>
 <script src="./src/word-context.js?v=20260914-c08a2"></script>
 <script src="./src/app.js?v=20261102-innc1"></script>
@@ -191,12 +195,12 @@
 <script src="./src/market-inference-runtime.js?v=20260922-infohierarchy1"></script>
 <script src="./src/academic-tower-runtime.js?v=20261029-04a-observation5"></script>
 <script src="./src/academic-tower-hub-runtime.js?v=20261031-tower-unlocks1"></script>
-<script src="./src/flow-runtime.js?v=20261102-innc1"></script>
+<script src="./src/flow-runtime.js?v=20261103-p2"></script>
 <script src="./src/chapter2-first-look-runtime.js?v=20261102-chapter2-p1"></script>
 <script src="./src/settings-runtime.js?v=20261102-innc1"></script>
 <script src="./src/ux-play-runtime.js?v=20261102-innc1"></script>
 <script src="./src/icons-runtime.js?v=20260913-gatetacticalsvg1"></script>
-<script src="./src/world-runtime.js?v=20261102-chapter2-p1"></script>
+<script src="./src/world-runtime.js?v=20261103-p2"></script>
 <script src="./src/inn-scene-utils.js?v=20261102-innc1&revision=interaction1"></script>
 <script src="./src/inn-room-scene.js?v=20261102-innc1&revision=interaction1"></script>
 <script src="./src/inn-lobby-runtime.js?v=20261102-innc1&revision=interaction1"></script>

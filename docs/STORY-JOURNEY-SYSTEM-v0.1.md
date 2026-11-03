@@ -511,7 +511,7 @@ JOURNEY = [
 | 선택 연구 03B 첫 시작 | 03A 완료 + `academic-tower-ran-result` 열람 + 장터 `market-after-m4` 열람 | 도시락은 여관에서 준비하고 현재 장터 경험을 말하므로 **M4 후일담**이 필요. M8·1장 전체 결말·본선 05 불필요 | `src/academic-tower-journey-content.js`, `src/academic-tower-content.js`, `src/academic-tower-hub-runtime.js` |
 | 선택 연구 04A 첫 시작 | 본선 04 완료 + `JourneyProgress.hasRainPassed(progress)` | 03A·03B·본선 05 불필요. 큰비 이전에는 연구 방과 여정 항목을 드러내지 않음 | `src/academic-tower-journey-content.js`, `src/journey-progress.js`, `src/academic-tower-hub-runtime.js` |
 | 2장 큰비 | 1장 방 결말의 `chapter1-complete` 뒤 한 번 | 학술탑 01~05·03A·03B를 했다는 이유만으로 큰비를 본 것으로 판단하지 않음 | `src/chapter2-rain-runtime.js`, `src/journey-progress.js` |
-| 2장 회의소·끝마을 | **별도 구현 때 결정** | 학술탑 전체 이수·03A·03B·04A를 공통 필수 조건으로 두지 않는다 | [2장 초안](TIER2-CONCEPT-DRAFT-v0.1.md) |
+| 2장 회의소·끝마을 | 2026-11-03 P2부터 두 곳 모두 `hasRainPassed`만으로 도입 가능. 각 판은 자기 도입, 결과는 자기 판 완료를 요구한다. | 학술탑 전체 이수·03A·03B·04A를 공통 필수 조건으로 두지 않는다 | [2장 초안](TIER2-CONCEPT-DRAFT-v0.1.md) |
 
 `workshop-core`는 W7 *스테이지* 완료이며, `workshop-finale`는 수리패와 학술탑 단서를 실제로 얻는 *후일담*이다. `market-stage-4` 완료로 여관은 열리지만, 03B 선수의 안정된 이야기 ID는 `market-after-m4`다. **관측 기록의 직접 근거인 story를 다른 milestone로 뭉뚱그리지 않는다.**
 

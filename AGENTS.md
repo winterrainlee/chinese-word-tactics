@@ -31,7 +31,7 @@
 - 이미 본편에 구현된 2장 첫 풍경은 `chapter2-gate-first-look`, `chapter2-market-first-look`, `chapter2-workshop-first-look`야. **각각 선택형 네 장면 이야기**이고 회의소/끝마을 해금 선행 조건이 아니야.
 - `Chapter2FirstLook`는 기존 월드 장소 정보 시트에만 별도 버튼을 제공해. 1장의 '다시 연습하기', 기존 그림·마커·C08·학술탑·저장을 바꾸지 않아.
 - `optionalFirstLook`를 일반 Continue 추천 대상에서 제외해. 첫 열람을 중단한 경우에만 기존 이야기 재개를 허용하고, 다시 보기는 영구 완료를 덮어쓰지 않아.
-- 신규 중국어 이야기는 `src/story-pronunciation-content.js`의 범위별 주음과 함께 유지해. P2의 실제 의미 판정은 아직 구현 전이므로 P1 읽기를 새로운 정답형 퍼즐로 오해하지 않아.
+- 신규 중국어 이야기는 `src/story-pronunciation-content.js`의 범위별 주음과 함께 유지해. P2의 회의록·통행 조사표는 별도 플레이야. 실제 계약은 첫 플레이 설계 §11을 본다.
 
 ## 제품 목표
 

@@ -5,6 +5,8 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'src/chapter2-field*'
+      - 'tests/smoke_chapter2_p2.py'
       - 'src/chapter2-rain-content.js'
       - 'src/chapter2-first-look-runtime.js'
       - 'src/world-runtime.js'
@@ -33,4 +35,5 @@ jobs:
           python -m pip install playwright
           python -m playwright install --with-deps chromium webkit
       - run: python tests/smoke_chapter2_p1.py
+      - run: python tests/smoke_chapter2_p2.py
       - run: python tests/smoke_ux.py

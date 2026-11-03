@@ -122,7 +122,10 @@
   function showRegionInfo(region) {
     selectMarker(region.id);
     const locked = isLocked(region);
-    const complete = isComplete(region);
+    const field = globalThis.Chapter2Fields?.entries.find(item => item.region === region.id);
+    const progress = globalThis.GameFlow?.progress?.() || {};
+    const beforeRain = field && !globalThis.JourneyProgress.hasRainPassed(progress);
+    const complete = isComplete(region) || !!field && (progress.seenStories || []).includes(field.prefix+'-result');
     const recommendation = recommendationNeeded(region) ? region.recommendation : '';
     const firstLook = !locked ? globalThis.Chapter2FirstLook?.statusFor?.(region.id) : null;
     const overview = `<div class="meaning worldPlaceSummary">${region.summary || region.note}</div>`;
@@ -131,7 +134,9 @@
     const actionLabel = region.id === 'academic-tower'
       ? (milestones().includes('academic-tower-turn-foundation') ? '탑으로 돌아가기' : '탑으로 들어가기')
       : (complete ? '다시 연습하기' : '이곳으로 가기');
-    const action = locked
+    const action = beforeRain
+      ? '<button id="worldPlaceClose">닫기</button><button disabled>큰비가 지난 뒤</button>'
+      : locked
       ? '<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceLockedGo" data-action-role="primary" aria-describedby="worldPlaceLockReason" disabled>조건 미충족</button>'
       : hasJourneyContent(region)
         ? `<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceGo" data-action-role="primary">${actionLabel}</button>`

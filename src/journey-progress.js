@@ -91,6 +91,8 @@
       seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
       completedMilestones: strings(raw.completedMilestones),
       acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes),
+      ...(raw.fieldDrafts ? {fieldDrafts:Object.fromEntries(Object.entries(raw.fieldDrafts).filter(([id,draft]) =>
+        globalThis.Chapter2Fields?.validDraft(globalThis.Chapter2Fields.byStage(id),draft)))} : {}),
       sideResearchProgress: globalThis.AcademicTowerEr04A?.progressMap?.(raw.sideResearchProgress) || {}, lastLocation: validLocation ? {
         view: location.view, ...(location.view !== 'world' ? { nodeId: location.nodeId,
           beat: Number.isInteger(location.beat) && location.beat >= 0 ? location.beat : 0 } : {})
@@ -188,6 +190,11 @@
     return Object.freeze({
       get: () => copy(progress),
       visitInn() { progress.innVisited = true; return persist(); },
+      checkpointField(entry,draft) {
+        if (!globalThis.Chapter2Fields?.validDraft(entry,draft) || progress.completedStages.includes(entry.id)) return false;
+        (progress.fieldDrafts ||= {})[entry.id] = copy(draft);
+        return persist();
+      },
       checkpointSide(stageId, snapshot) {
         const er=globalThis.AcademicTowerEr04A;
         if (!er || stageId!==er.STAGE_ID || !er.validState(snapshot) ||

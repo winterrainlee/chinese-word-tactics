@@ -148,9 +148,9 @@ try:
 
         # Only control rules that cannot be inferred from the board occupy the entry status slot.
         stage_ids = page.evaluate('STAGES.map(stage => stage.id)')
-        assert len(stage_ids) == 44, stage_ids  # 04A is appended after the existing 43
+        assert len(stage_ids) == 46 and stage_ids[-2:] == ['council-stage-01-minutes', 'border-stage-01-notice'], stage_ids
         instructional_entry_ids = {'stage-0', 'stage-2', 'stage-5'}
-        for stage_id in stage_ids:
+        for stage_id in stage_ids[:-2]:  # Field notebooks have a separate entry/view covered by smoke_chapter2_p2.
             page.evaluate('id => TacticalGame.playStage(id,{mode:"replay",returnTo:"journey"})', stage_id)
             status_text = page.locator('#status').inner_text().strip()
             if stage_id in instructional_entry_ids:

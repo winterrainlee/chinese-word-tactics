@@ -24,10 +24,13 @@
       titleKo: '학술탑 · 계속되는 연구',
       subtitleKo: '긴 문장을 나누고 정보의 방향을 다시 연결한다.',
       regions: ['academic-tower']
-    }
+    },
+    {"id": "chapter-2-after-rain", "titleKo": "2장 · 비가 그친 뒤", "subtitleKo": "주민의 발언과 현장의 공고를 다시 읽는다.", "regions": ["council-town", "border-village"]}
   ];
 
   const REGIONS = [
+    {"id": "council-town", "chapterId": "chapter-2-after-rain", "nameKo": "회의소", "nameZh": "會議所", "axisKo": "회의록 초안", "descriptionKo": "누가 무엇을 말했을까", "stagePrefixes": ["council-stage-"]},
+    {"id": "border-village", "chapterId": "chapter-2-after-rain", "nameKo": "끝마을", "nameZh": "邊境村", "axisKo": "통행 조사표", "descriptionKo": "막힌 것은 어느 길일까", "stagePrefixes": ["border-stage-"]},
     {
       id: 'forest-road', chapterId: 'journey-start', nameKo: '숲길', nameZh: '森林路',
       axisKo: '거리 · 길 · 도착', descriptionKo: '마을을 떠나 처음 길을 읽으며 만난 말.',
@@ -61,6 +64,8 @@
   ];
 
   const GROUPS = [
+    {"id": "chapter2-council-first", "chapterId": "chapter-2-after-rain", "regionId": "council-town", "titleKo": "회의록 초안", "type": "related", "displayZh": "該 · 本", "words": ["該", "本"], "noteKo": "앞서 나온 대상과 기록을 작성하는 곳을 구분한다.", "gameNoteKo": "누가 무엇을 말했을까"},
+    {"id": "chapter2-border-first", "chapterId": "chapter-2-after-rain", "regionId": "border-village", "titleKo": "통행 조사표", "type": "related", "displayZh": "目前 · 暫時 · 限制", "words": ["目前", "暫時", "限制"], "noteKo": "현재 시점과 임시 조치의 적용 범위를 구분한다.", "gameNoteKo": "막힌 것은 어느 길일까"},
     {
       id: 'forest-distance', chapterId: 'journey-start', regionId: 'forest-road',
       titleKo: '가까워지고 멀어지기', type: 'contrast', displayZh: '接近 ↔ 遠離',
