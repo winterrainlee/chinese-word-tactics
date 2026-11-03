@@ -97,6 +97,7 @@
     byIntro: id => entries.find(item => item.prefix+'-intro' === id),
     validDraft(entry,draft) {
       return !!entry && draft && typeof draft.prior === 'boolean' && Array.isArray(draft.links) &&
+        (draft.cursor === undefined || Number.isInteger(draft.cursor) && draft.cursor >= 0 && draft.cursor < entry.rows.length) &&
         draft.links.length === entry.rows.length && draft.links.every((link,i) =>
           link === null || typeof link === 'string' && Object.hasOwn(entry.sets[entry.rows[i][3]],link));
     }

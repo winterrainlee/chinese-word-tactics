@@ -4,8 +4,9 @@
   function start(entry, draft, callbacks) {
     TacticalGame.showView('field');
     const root = $('fieldView');
-    let current = draft.links.findIndex(value => value === null);
+    let current = draft.cursor ?? draft.links.findIndex(value => value === null);
     if (current < 0) current = 0;
+    draft.cursor = current; callbacks.save(draft);
     let feedback = '', help = false, word = null;
     function render() {
       const row = entry.rows[current], source = entry.sources[row[1]], choices = entry.sets[row[3]];
@@ -42,7 +43,8 @@
         render();
       });
       function select(index,message='') {
-        current=index; feedback=message; help=false; word=null; render(); window.scrollTo(0,0);
+        current=index; draft.cursor=index; callbacks.save(draft);
+        feedback=message; help=false; word=null; render(); window.scrollTo(0,0);
       }
       root.querySelectorAll('[data-row]').forEach(button => button.onclick = () => select(Number(button.dataset.row)));
       $('fieldNext').onclick = () => {

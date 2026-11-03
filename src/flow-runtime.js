@@ -167,7 +167,10 @@
     if (field && node && P.isAvailable(node,progress) && !progress.fieldDrafts?.[field.id] &&
         options.mode !== 'replay' && !P.isComplete(node,progress)) {
       const other = Chapter2Fields.entries.find(item => item !== field);
-      store.checkpointField(field,{prior:progress.completedStages.includes(other.id),links:field.rows.map(()=>null)});
+      // The notice is shown on entry to the border notebook. The market speaker is
+      // likewise heard on entry to the minutes, even if that work is interrupted.
+      const prior = progress.completedStages.includes(other.id) || progress.fieldDrafts?.[other.id]?.cursor != null;
+      store.checkpointField(field,{prior,links:field.rows.map(()=>null)});
       progress = store.get();
     }
     const story = field && progress.fieldDrafts?.[field.id]?.prior
@@ -264,6 +267,9 @@
   function enterRegion(regionId) {
     const progress = store.get();
     if (globalThis.AcademicTowerRuntime?.enter?.(regionId, progress)) return true;
+    const saved = P.getNode(progress.lastLocation?.nodeId);
+    if (saved?.entryRegionId === regionId && !P.isComplete(saved,progress) &&
+        globalThis.Chapter2Fields?.entries.some(field => field.region === regionId)) return resume();
     const candidates = P.allNodes().filter(item => item.entryRegionId === regionId &&
       P.isAvailable(item, progress) && !P.isComplete(item, progress));
     const activeQuestIds = new Set(candidates.filter(item => item.questId).map(item => item.questId));

@@ -24,6 +24,16 @@ def exercise(browser, url, height, order, legacy):
     page.on('pageerror', lambda err: errors.append(str(err)))
     page.goto(url)
     page.wait_for_function('!!window.GameFlow && !!window.Chapter2Fields')
+    page.evaluate("""key=>localStorage.setItem(key,JSON.stringify({completedStages:['stage-5'],
+        completedMilestones:['chapter1-complete'],lastLocation:{view:'world'}}))""", KEY)
+    page.reload()
+    page.evaluate('GameFlow.showWorld()')
+    for region,prefix,stage,_ in order:
+        page.locator(f'.regionCard[data-region-id="{region}"]').tap()
+        assert page.get_by_role('button',name='큰비가 지난 뒤').is_disabled()
+        assert not page.evaluate('id=>GameFlow.playStory(id)',prefix+'-intro')
+        assert not page.evaluate('id=>GameFlow.playStage(id)',stage)
+        page.locator('#worldPlaceClose').tap()
     page.evaluate("""([key,legacy]) => localStorage.setItem(key, JSON.stringify({
       completedStages:['stage-5'],seenStories:legacy?['first-free-quest-accepted']:[],
       completedMilestones:['chapter1-complete',...(legacy?[]:['chapter2-rain-passed'])],
@@ -46,15 +56,17 @@ def exercise(browser, url, height, order, legacy):
             else:
                 page.locator(f'[data-link="{answer}"]').tap()
             if i == 1:
-                assert page.evaluate('SaveData.validateBackup(SaveData.createBackup(localStorage)).ok')
+                assert page.evaluate('''() => {
+                    const backup=SaveData.createBackup(localStorage);
+                    if (!SaveData.validateBackup(backup).ok) return false;
+                    localStorage.clear(); SaveData.restoreBackup(localStorage,backup); return true;
+                }''')
                 page.reload()
                 page.locator('#landingPrimary').tap()
                 assert view.is_visible()
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
             assert all(btn.bounding_box()['height'] >= 44 for btn in view.locator('button:visible').all())
-            # Resume automatically opens the next unwritten record.
-            if i != 1:
-                page.locator('#fieldNext').tap()
+            page.locator('#fieldNext').tap()
         assert '다시 확인' in view.locator('[role=status]').inner_text()
         page.locator(f'[data-link="{answers[0]}"]').tap()
         page.locator('#fieldNext').tap()
