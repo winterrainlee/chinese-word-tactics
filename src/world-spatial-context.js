@@ -16,6 +16,7 @@
     'chapter2-market-first-look':'market-town',
     'chapter2-workshop-first-look':'workshop-town',
     'chapter2-council-first-intro':'council-town',
+    'chapter2-council-inn-request':'inn',
     'chapter2-council-first-result':'council-town',
     'chapter2-border-first-intro':'border-village',
     'chapter2-border-first-result':'border-village'

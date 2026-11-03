@@ -3,15 +3,28 @@
   const council = {
     id: 'council-stage-01-minutes', words: ['該','本'],
     region: 'council-town', prefix: 'chapter2-council-first', placeZh: '會議所', placeKo: '회의소',
-    title: '누가 무엇을 말했을까', book: '회의록 초안',
+    title: '누가 무엇을 말했을까', book: '소년의 회의 메모',
     intro: [
-      ['narrator','會議所裡，幾位居民正在等人發言。','회의소에 모인 주민들이 발언을 기다리고 있었다.'],
-      ['marketkeeper','你來得正好。幫我們把大家的話記下來，好嗎？','마침 잘 왔구나. 사람들이 하는 말을 좀 적어 줄래?']
+      ["innkeeper", "今天大家要去會議所開會。我得留下來顧客棧。", "오늘 회의소에 사람들이 모인대. 난 여관을 지켜야겠어.", "inn"],
+      ["innkeeper", "你願意去聽聽嗎？回來再告訴我大家談了些什麼。", "가서 들어 보고 올래? 돌아오면 다들 무슨 얘길 했는지 들려줘.", "inn"],
+      ["boy", "好啊。市集管理人說，他想談談那批還沒到的貨。", "그럴게요. 장터지기 아저씨도 아직 안 온 짐 얘기를 하신댔어요.", "inn"],
+      ["narrator", "少年走到會議所門口，遇見一位從河邊來的居民。", "회의소 문 앞에서 소년은 물가에서 온 주민 한 사람을 만났다."],
+      ["boy", "您也是為了市集的貨來的嗎？", "장터에 올 짐 때문에 오셨어요?"],
+      ["resident", "貨？我是想問，下次再下大雨，住在低處的人怎麼辦。", "짐? 난 다음에 또 큰비가 오면 낮은 데 사는 사람들은 어떡해야 하나 물어보러 왔어."],
+      ["narrator", "居民進了門。少年留在門口。桌旁的人放下筆，朝他招了招手。", "주민은 안으로 들어갔다. 소년이 문가에 머물자 책상 옆 사람이 펜을 내려놓고 손짓했다."],
+      ["clerk", "你也想聽嗎？坐這裡吧。", "너도 듣고 싶니? 여기 앉으렴."],
+      ["marketkeeper", "上次的貨已經分好了。新一批貨還沒到。", "지난번 물자는 다 나눴습니다. 새로 올 짐은 아직 안 왔어요."],
+      ["artisan", "送貨的人說路上有問題嗎？", "운반하는 분이 길에 문제가 있다고 하던가요?"],
+      ["marketkeeper", "還沒收到消息。我想先問問送貨的人。", "아직 소식이 없어요. 운반하는 분께 먼저 물어보고 싶습니다."],
+      ["artisan", "那就先問清楚。工坊的水車還在轉，我們想再檢查水道。", "그럼 먼저 물어보죠. 공방 수차는 돌아가지만 수로는 다시 살펴보고 싶어요."],
+      ["resident", "去看的時候，也能到河邊看看嗎？我擔心下次再下大雨。", "살피러 갈 때 물가에도 들러 줄 수 있나요? 다음에 또 큰비가 올까 걱정이에요."],
+      ["clerk", "我記下來了。我念一遍，大家聽聽有沒有漏掉什麼。", "적어 뒀습니다. 제가 한번 읽을 테니 빠진 말이 있는지 들어 보세요."],
+      ["boy", "我也理一理，回去才好說給客棧主人聽。", "나도 들은 말을 정리해 두자. 그래야 여관주인께 들려드릴 수 있겠어."]
     ],
     prior: ['boy','我看過村口的公告。大家說的話，我會另外記。','마을 어귀에서 공고를 봤어요. 여기서 들은 말은 따로 적을게요.'],
     result: [
       ['narrator','大家看過記錄，決定先請人去現場確認。','주민들은 회의록을 돌려 보고 우선 현장을 살펴봐 달라고 부탁하기로 했다.'],
-      ['boy','先把要查的事交給大家。先修哪裡，還沒決定。','확인할 일을 먼저 전하자. 어디부터 고칠지는 아직 정해지지 않았어.']
+      ['boy','我可以回去告訴客棧主人了。先修哪裡，還沒決定。','이제 돌아가서 여관주인께 말씀드릴 수 있겠어. 어디부터 고칠지는 아직 정해지지 않았어.']
     ],
     sources: {
       market: ['장터 대표','上次的貨已經分好了。新一批貨還沒到，我們想先問問送貨的人。','지난 물자는 이미 나눴어요. 새 물자가 아직 안 와서 운반하는 분에게 먼저 물어보고 싶어요.'],
@@ -71,7 +84,7 @@
   };
   const entries = [council,border];
   const chapter = JourneyContent.JOURNEY.find(item => item.id === 'chapter-2-after-rain');
-  function beat([speaker,zh,ko]) { return {speaker,zh,ko}; }
+  function beat([speaker,zh,ko,scene]) { return {speaker,zh,ko,...(scene ? {scene} : {})}; }
   for (const entry of entries) {
     const intro = entry.prefix+'-intro', result = entry.prefix+'-result';
     STAGES.push({id:entry.id, title:entry.placeKo+' 01', subtitle:entry.title, words:entry.words, grid:['S']});
@@ -80,7 +93,7 @@
         background:entry.region,beats:beats.map(beat)};
     }
     chapter.sections.push({id:entry.prefix,regionId:entry.region,revealAfterRain:true,sequence:[
-      {type:'story',id:intro,requiresRainPassed:true},
+      {type:'story',id:intro,requiresRainPassed:true,requiresCouncilNotice:entry===council},
       {type:'stage',id:entry.id,requiresRainPassed:true,requires:['story:'+intro]},
       {type:'story',id:result,requiresRainPassed:true,requires:['stage:'+entry.id],returnToWorldAfter:true}
     ].map(node => ({...node, chooseOnMap:true}))});

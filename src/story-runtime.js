@@ -1,6 +1,6 @@
 (() => {
   const $ = id => document.getElementById(id);
-  const speakers = { narrator: ['旁白', '이야기'], boy: ['少年', '소년'], merchant: ['行商阿姨', '행상 아주머니'], marketkeeper: ['市集管理人', '장터지기'], innkeeper: ['客棧主人', '여관 주인'], gatekeeper: ['守門人', '길지기'], towerGatekeeper: ['學術塔守門人', '학술탑 문지기'], towerResearcher: ['水道記錄研究員', '수로 기록 연구원'], driver: ['車夫', '수레꾼'], artisan: ['工匠', '장인'], collector: ['採集人', '채집인'], resident: ['居民', '주민'], unknown: ['遠處的聲音', '멀리서 들리는 목소리'] };
+  const speakers = { clerk:['書記','서기'], narrator: ['旁白', '이야기'], boy: ['少年', '소년'], merchant: ['行商阿姨', '행상 아주머니'], marketkeeper: ['市集管理人', '장터지기'], innkeeper: ['客棧主人', '여관 주인'], gatekeeper: ['守門人', '길지기'], towerGatekeeper: ['學術塔守門人', '학술탑 문지기'], towerResearcher: ['水道記錄研究員', '수로 기록 연구원'], driver: ['車夫', '수레꾼'], artisan: ['工匠', '장인'], collector: ['採集人', '채집인'], resident: ['居民', '주민'], unknown: ['遠處的聲音', '멀리서 들리는 목소리'] };
   const portraits = Object.freeze({
     boy: './icons/world/world-hero.svg',
     merchant: './icons/characters/character-merchant.svg',
@@ -51,12 +51,15 @@
     if (!session) return;
     const { story, index, options } = session, beat = story.beats[index];
     $('storyTitle').textContent = story.titleKo;
-    renderChinese($('storyPlace'), story.placeZh, story.id, `${story.placeZh} · ${story.placeKo}`);
-    $('storyPlace').append(document.createTextNode(` · ${story.placeKo}`));
-    $('storyBackdrop').src = `./icons/world/regions/${backgrounds[story.background] || 'region-origin'}.svg`;
-    $('storyScene').dataset.place = story.background;
+    const inInn = beat.scene === 'inn';
+    const placeZh = inInn ? '客棧' : story.placeZh, placeKo = inInn ? '여관' : story.placeKo;
+    const background = inInn ? 'inn' : story.background;
+    renderChinese($('storyPlace'), placeZh, story.id, `${placeZh} · ${placeKo}`);
+    $('storyPlace').append(document.createTextNode(` · ${placeKo}`));
+    $('storyBackdrop').src = `./icons/world/regions/${backgrounds[background] || 'region-origin'}.svg`;
+    $('storyScene').dataset.place = background;
     // Explicit story-ID binding, not a place inferred from the backdrop artwork.
-    void globalThis.WorldSpatialContext?.annotateStory?.($('storyScene'), story.id);
+    void globalThis.WorldSpatialContext?.annotateStory?.($('storyScene'), inInn ? 'chapter2-council-inn-request' : story.id);
     const portraitEl = $('storyPortrait'), portrait = portraits[beat.speaker];
     portraitEl.hidden = !portrait;
     if (portrait) {

@@ -117,6 +117,10 @@
     ]
   }
 };
+  const marketNotice = {"speaker": "marketkeeper", "zh": "過幾天大家要在會議所開會。我也想談談這批還沒到的貨。", "ko": "조만간 회의소에서 다들 모이기로 했어. 나도 아직 안 온 이 짐 얘기를 꺼내려고 해."};
+  const pastNotice = {"speaker": "marketkeeper", "zh": "這就是我在會議上說的那批貨。", "ko": "이게 회의에서 말했던 바로 그 짐이야."};
+  firstSights['market-town'].beats.push({...marketNotice,councilNotice:true});
+  globalThis.CouncilNoticePast = pastNotice;
   const chapter2 = journey.find(chapter => chapter.id === 'chapter-2-after-rain');
   if (chapter2) {
     for (const [regionId, scene] of Object.entries(firstSights)) {

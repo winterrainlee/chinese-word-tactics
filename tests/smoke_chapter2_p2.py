@@ -35,16 +35,28 @@ def exercise(browser, url, height, order, legacy):
         assert not page.evaluate('id=>GameFlow.playStage(id)',stage)
         page.locator('#worldPlaceClose').tap()
     page.evaluate("""([key,legacy]) => localStorage.setItem(key, JSON.stringify({
-      completedStages:['stage-5'],seenStories:legacy?['first-free-quest-accepted']:[],
+      completedStages:['stage-5'],seenStories:legacy?['first-free-quest-accepted','chapter2-market-first-look']:[],
       completedMilestones:['chapter1-complete',...(legacy?[]:['chapter2-rain-passed'])],
       lastLocation:{view:'world'}
     }))""", [KEY,legacy])
     page.reload()
     page.evaluate('GameFlow.showWorld()')
     for index,(region,prefix,stage,answers) in enumerate(order):
+        if region=='council-town':
+            page.locator('.regionCard[data-region-id="council-town"]').tap()
+            assert page.get_by_role('button',name='장터에서 회의 소식 듣기').is_disabled()
+            page.locator('#worldPlaceClose').tap()
+            page.locator('.regionCard[data-region-id="market-town"]').tap()
+            page.locator('#worldFirstLookEntry').tap()
+            for _ in range(0 if legacy else 4): page.locator('#storyNext').tap()
+            assert page.evaluate('GameFlow.progress().heardCouncilNotice')
+            page.locator('#storyNext').tap()
         enter(page,region)
-        assert page.locator('#storyCount').inner_text() == ('1 / 3' if index else '1 / 2')
-        for _ in range(3 if index else 2):
+        beats=(15 if region=='council-town' else 2)+index
+        assert page.locator('#storyCount').inner_text() == f'1 / {beats}'
+        if region=='council-town': assert '여관' in page.locator('#storyPlace').inner_text()
+        for i in range(beats):
+            if region=='council-town' and i==3: assert '회의소' in page.locator('#storyPlace').inner_text()
             page.locator('#storyNext').tap()
         view = page.locator('#fieldView')
         assert view.is_visible()

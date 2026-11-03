@@ -136,18 +136,25 @@
       : (complete ? '다시 연습하기' : '이곳으로 가기');
     const action = beforeRain
       ? '<button id="worldPlaceClose">닫기</button><button disabled>큰비가 지난 뒤</button>'
+      : field && !JourneyProgress.isAvailable(JourneyProgress.getNode('story:'+field.prefix+'-intro'),progress)
+      ? '<button id="worldPlaceClose" data-action-role="close">닫기</button><button disabled>장터에서 회의 소식 듣기</button>'
       : locked
       ? '<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceLockedGo" data-action-role="primary" aria-describedby="worldPlaceLockReason" disabled>조건 미충족</button>'
       : hasJourneyContent(region)
         ? `<button id="worldPlaceClose" data-action-role="close">닫기</button><button id="worldPlaceGo" data-action-role="primary">${actionLabel}</button>`
         : '<button id="worldPlaceClose" data-action-role="close">닫기</button><button data-action-role="primary" disabled>의뢰 준비 중</button>';
 
-    const firstLookEntry = firstLook ? `<button type="button" id="worldFirstLookEntry" class="worldFirstLookEntry" data-action-role="secondary"><span><strong>비가 그친 뒤 · ${firstLook.seen ? '다시 돌아보기' : '달라진 풍경 살펴보기'}</strong><small>${firstLook.seen ? '이미 읽은 첫 방문 이야기야.' : '1장의 진행은 유지한 채, 지금의 풍경을 확인해.'}</small></span><span aria-hidden="true">›</span></button>` : '';
+    const missedNotice = firstLook?.seen && region.id==='market-town' && !progress.heardCouncilNotice &&
+      !JourneyProgress.isAvailable(JourneyProgress.getNode('story:chapter2-council-first-intro'),progress);
+    const firstLookEntry = firstLook ? `<button type="button" id="worldFirstLookEntry" class="worldFirstLookEntry" data-action-role="secondary"><span><strong>비가 그친 뒤 · ${missedNotice ? '장터지기의 회의 소식 듣기' : firstLook.seen ? '다시 돌아보기' : '달라진 풍경 살펴보기'}</strong><small>${missedNotice ? '새로 전해진 장터지기의 말을 들어 봐.' : firstLook.seen ? '이미 읽은 첫 방문 이야기야.' : '1장의 진행은 유지한 채, 지금의 풍경을 확인해.'}</small></span><span aria-hidden="true">›</span></button>` : '';
     globalThis.TacticalGame?.openSheet?.(`<h2>${region.nameKo || region.name}</h2><div class="regionSheetNameZh">${region.name}</div>${overview}${advice}${lock}${firstLookEntry}<div class="sheetactions">${action}</div>`);
     const look = document.getElementById('worldFirstLookEntry');
     if (look) look.onclick = () => {
       globalThis.TacticalGame?.closeSheet?.();
-      globalThis.Chapter2FirstLook?.open?.(region.id);
+      if (missedNotice) {
+        const beat = JourneyContent.STORIES[firstLook.storyId].beats.findIndex(line => line.councilNotice);
+        GameFlow.playStory(firstLook.storyId,{mode:'replay',returnTo:'world',beat});
+      } else globalThis.Chapter2FirstLook?.open?.(region.id);
     };
 
     const close = document.getElementById('worldPlaceClose');

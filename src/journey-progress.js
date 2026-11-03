@@ -88,6 +88,7 @@
       (['story', 'tactical'].includes(location.view) && getNode(location.nodeId)?.type === (location.view === 'story' ? 'story' : 'stage')));
     return { innVisited: typeof raw.innVisited === 'boolean' ? raw.innVisited :
       strings(raw.seenStories).includes('chapter1-room-finale') || hasPostRainEvidence(raw),
+      ...(raw.heardCouncilNotice === true ? {heardCouncilNotice:true} : {}),
       seenStories: strings(raw.seenStories), completedStages: strings(raw.completedStages),
       completedMilestones: strings(raw.completedMilestones),
       acknowledgedNodes: strings(raw.acknowledgedNodes), stageOutcomes: cleanOutcomes(raw.stageOutcomes),
@@ -102,6 +103,9 @@
     return node.type === 'story' ? progress.seenStories.includes(node.id) : progress.completedStages.includes(node.id);
   }
   function isAvailable(node, progress) {
+    if (node.requiresCouncilNotice && !progress.heardCouncilNotice &&
+        !progress.fieldDrafts?.['council-stage-01-minutes'] && progress.lastLocation?.nodeId !== node.nodeId &&
+        !isComplete(node,progress) && !progress.completedStages.includes('council-stage-01-minutes')) return false;
     return isComplete(node, progress) ||
       ((!node.requiresRainPassed || hasRainPassed(progress)) && (node.requires || []).every(id => {
       const required = getNode(id);
@@ -190,6 +194,9 @@
     return Object.freeze({
       get: () => copy(progress),
       visitInn() { progress.innVisited = true; return persist(); },
+      hearCouncilNotice() {
+        if (!progress.heardCouncilNotice) { progress.heardCouncilNotice=true; persist(); }
+      },
       checkpointField(entry,draft) {
         if (!globalThis.Chapter2Fields?.validDraft(entry,draft) || progress.completedStages.includes(entry.id)) return false;
         (progress.fieldDrafts ||= {})[entry.id] = copy(draft);

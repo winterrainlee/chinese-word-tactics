@@ -173,7 +173,10 @@
       store.checkpointField(field,{prior,links:field.rows.map(()=>null)});
       progress = store.get();
     }
-    const story = field && progress.fieldDrafts?.[field.id]?.prior
+    const pastMeeting = id==='chapter2-market-first-look' && (progress.seenStories.includes('chapter2-council-first-intro') ||
+      progress.completedStages.includes('council-stage-01-minutes'));
+    const story = pastMeeting ? {...baseStory,beats:baseStory.beats.map(b=>b.councilNotice ? globalThis.CouncilNoticePast : b)}
+      : field && progress.fieldDrafts?.[field.id]?.prior
       ? {...baseStory, beats:[...baseStory.beats,Chapter2Fields.beat(field.prior)]}
       : globalThis.StoryOutcomeContent?.resolve(baseStory, progress) || baseStory;
     if (!story || !node || !P.isAvailable(node, progress)) return false;
@@ -187,7 +190,7 @@
       : node.returnToRegionHubAfter ? '연구실로' : node.returnToWorldAfter ? '월드맵으로'
         : next?.type === 'stage' ? '스테이지 시작' : next?.type === 'story' ? '이야기 계속' : '월드맵으로';
     StoryRuntime.play(story, { ...context, seen: progress.seenStories.includes(id), beat: options.beat || 0, endLabel,
-      onPosition(beat) { store.locate({ view: 'story', nodeId: node.nodeId, beat }, context.mode); },
+      onPosition(beat) { if (story.beats[beat]?.councilNotice) store.hearCouncilNotice(); store.locate({ view: 'story', nodeId: node.nodeId, beat }, context.mode); },
       onFinish() {
         if (active !== context) return;
         store.complete(node, context.mode);

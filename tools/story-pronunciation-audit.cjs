@@ -39,7 +39,7 @@ for (const file of [
 const stories = context.JourneyContent.STORIES;
 const storyIds = Object.keys(stories);
 const speakers = Object.freeze({
-  narrator: '旁白', boy: '少年', merchant: '行商阿姨', marketkeeper: '市集管理人',
+  clerk: '書記', narrator: '旁白', boy: '少年', merchant: '行商阿姨', marketkeeper: '市集管理人',
   innkeeper: '客棧主人', gatekeeper: '守門人', driver: '車夫', artisan: '工匠',
   collector: '採集人', resident: '居民', unknown: '遠處的聲音',
   towerGatekeeper: '學術塔守門人', towerResearcher: '水道記錄研究員'
@@ -64,7 +64,9 @@ for (const id of storyIds) {
 for (const field of context.Chapter2Fields.entries) {
   addBeats(field.prefix+'-intro',[context.Chapter2Fields.beat(field.prior)],'field-prior');
 }
-// 03B keeps two story-screen interludes inside one stage, without adding
+add('chapter2-council-first-intro','客棧','inn scene');
+add('chapter2-market-first-look',context.CouncilNoticePast.zh,'past meeting');
+ // 03B keeps two story-screen interludes inside one stage, without adding
 // Journey nodes. Audit their exact speaker/place/beat pronunciation too.
 const villageConfig = vm.runInContext(
   "STAGES.find(stage => stage.id === 'academic-tower-turn-03b-ran-village')?.academicTower", context);

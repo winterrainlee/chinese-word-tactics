@@ -390,7 +390,7 @@ try:
             'academic-tower': '오래된 기술과 기록이 모이는 탑이야.'
         }
         completed_region_ids = {'gate-town', 'workshop-town', 'market-town'}
-        enterable_region_ids = {'academic-tower', 'council-town', 'border-village'}
+        enterable_region_ids = {'academic-tower', 'border-village'}
         for region_id, summary in place_summaries.items():
             page.locator(f'.regionCard[data-region-id="{region_id}"]').click()
             page.locator('#worldPlaceClose').wait_for(state='visible')
@@ -406,7 +406,7 @@ try:
                 assert page.locator('#worldPlaceGo').inner_text() == expected_action, region_id
             else:
                 assert page.locator('#worldPlaceGo').count() == 0, region_id
-                assert page.locator('#sheet .sheetactions button:disabled').inner_text() == '의뢰 준비 중', region_id
+                assert page.locator('#sheet .sheetactions button:disabled').inner_text() == '장터에서 회의 소식 듣기', region_id
             sheet_height = page.locator('#sheet').evaluate('(el)=>el.getBoundingClientRect().height')
             assert sheet_height < 400, (region_id, sheet_height)
             page.screenshot(path=str(OUT / f'ux-place-{region_id}-summary-375x812.png'), full_page=True)

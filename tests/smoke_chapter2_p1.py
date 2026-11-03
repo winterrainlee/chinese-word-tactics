@@ -84,7 +84,8 @@ try:
                     before=page.evaluate('GameFlow.progress()')
                     button.click()
                     page.locator('#storyView').wait_for(state='visible')
-                    assert page.locator('#storyCount').inner_text()=='1 / 4'
+                    beats=5 if region=='market-town' else 4
+                    assert page.locator('#storyCount').inner_text()==f'1 / {beats}'
                     assert page.locator('#storyZh').inner_text().strip()
                     assert page.locator('#storyKo').is_hidden()
                     assert page.locator('#storyScene').get_attribute('data-spatial-story-place-id')==region
@@ -93,7 +94,7 @@ try:
                         page.screenshot(path=str(OUT/f'chapter2-p1-story-{engine.name}-{viewport["width"]}x{viewport["height"]}.png'),full_page=True)
                     page.locator('#storyTranslate').click()
                     assert page.locator('#storyKo').is_visible()
-                    for _ in range(4): page.locator('#storyNext').click()
+                    for _ in range(beats): page.locator('#storyNext').click()
                     page.locator('#worldView').wait_for(state='visible')
                     progress=page.evaluate('GameFlow.progress()')
                     assert storyId in progress['seenStories']

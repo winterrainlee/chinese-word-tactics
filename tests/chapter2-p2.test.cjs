@@ -16,7 +16,10 @@ test('both field sections open independently after rain, including old saves and
         seenStories:[...seenStories,...({forest:['first-free-quest-accepted'],'04A':['academic-tower-er-intro']}[signal]||[])]});
       for (const entry of ctx.Chapter2Fields.entries) {
         const intro=P.getNode('story:'+entry.prefix+'-intro'),stage=P.getNode('stage:'+entry.id);
-        assert.equal(P.isAvailable(intro,p),signal!=='pre');
+        const council = entry.region === 'council-town';
+        assert.equal(P.isAvailable(intro,p),signal!=='pre' && !council);
+        assert.equal(P.isAvailable(intro,{...p,heardCouncilNotice:true}),signal!=='pre');
+        assert.equal(P.isAvailable(intro,{...p,fieldDrafts:{[entry.id]:{prior:false}}}),signal!=='pre');
         assert.equal(P.isJourneyVisible(intro,p),signal!=='pre');
         assert.equal(P.isAvailable(stage,p),false);
         assert.equal(P.isAvailable(stage,{...p,seenStories:[...p.seenStories,intro.id]}),signal!=='pre');
