@@ -89,6 +89,23 @@ def exercise(browser, url, height, order, legacy):
         outcome = page.evaluate('id => GameFlow.progress().stageOutcomes[id]', stage)
         assert outcome['prior'] == bool(index)
         assert len(outcome['links']) == len(answers)
+        page.evaluate('WorldInn.openLobby()')
+        keeper=page.locator('#innLobbyTargets [data-interaction="keeper"]')
+        keeper.tap()
+        choice=page.get_by_role('button',name='회의 이야기 전하기')
+        if region=='council-town':
+            choice.tap()
+            page.locator('#storyNext').tap()
+            page.reload()
+            page.locator('#landingPrimary').tap()
+            assert page.locator('#storyCount').inner_text()=='2 / 3'
+            page.locator('#storyNext').tap()
+            page.get_by_role('button',name='로비로',exact=True).tap()
+            assert page.locator('#innLobbyView').is_visible()
+            assert page.evaluate("GameFlow.progress().seenStories.includes('chapter2-council-inn-report')")
+            keeper.tap()
+        assert choice.count()==0
+        page.evaluate('TacticalGame.closeSheet(); GameFlow.showWorld()')
     assert page.evaluate("['該','本','目前','暫時','限制'].every(w=>LexiconRuntime.snapshot().discovered.includes(w))")
     before = page.evaluate("Object.fromEntries(SaveData.KEY_LIST.map(k=>[k,localStorage.getItem(k)]))")
     region,prefix,stage,answers = order[0]

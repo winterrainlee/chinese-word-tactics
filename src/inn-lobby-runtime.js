@@ -20,6 +20,21 @@
     if (kind === 'talk') {
       if (globalThis.Chapter1Finale?.isReady?.()) return Chapter1Finale.openFinaleInnSheet();
       if (globalThis.Chapter2Rain?.needsIntro?.()) return WorldInn.openRoom();
+      const progress = GameFlow.progress(), id = Chapter2Fields.reportId;
+      if (progress.seenStories.includes('chapter2-council-first-result') && !progress.seenStories.includes(id)) {
+        InnSceneUtils.info('innLobbyScene',{note:'여관주인이 회의 소식을 기다리고 있어.'});
+        const panel = $('innLobbyInfo').querySelector('.innInfo');
+        const choice = (label,open) => {
+          const button=document.createElement('button'); button.type='button'; button.className='innTranslation';
+          button.textContent=label; button.onclick=open; panel.append(button);
+        };
+        choice('회의 이야기 전하기',()=>GameFlow.playStory(id,{
+          beat:progress.lastLocation?.nodeId==='story:'+id ? progress.lastLocation.beat : 0
+        }));
+        if (FirstFreeQuest.needsOffer(progress)) choice('자유 의뢰 듣기',()=>FirstFreeQuest.openOfferSheet());
+        if (FirstFreeQuest.needsReport(progress)) choice('자유 의뢰 보고하기',()=>FirstFreeQuest.openReportSheet());
+        return;
+      }
       if (FirstFreeQuest.needsOffer(GameFlow.progress())) return FirstFreeQuest.openOfferSheet();
       if (FirstFreeQuest.needsReport(GameFlow.progress())) return FirstFreeQuest.openReportSheet();
       return InnSceneUtils.info('innLobbyScene',{dialogue:true,zh:stateFor().rain?'回來了。外面還是濕的，小心一點。':'回來了。坐一會兒，休息一下吧。',ko:stateFor().rain?'돌아왔구나. 밖은 아직 젖어 있으니 조심하렴.':'돌아왔구나. 잠깐 앉아 쉬어 가렴.'});

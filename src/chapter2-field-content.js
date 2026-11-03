@@ -98,6 +98,18 @@
       {type:'story',id:result,requiresRainPassed:true,requires:['stage:'+entry.id],returnToWorldAfter:true}
     ].map(node => ({...node, chooseOnMap:true}))});
   }
+  const reportId = 'chapter2-council-inn-report';
+  JourneyContent.STORIES[reportId] = {
+    id:reportId, chapterId:chapter.id, titleKo:'회의 이야기 전하기', background:'inn', placeZh:'客棧', placeKo:'여관 로비',
+    beats:[
+      ["innkeeper", "回來啦？剛才有客人問，往北送貨的路還能走嗎？會上有人提到嗎？", "왔구나. 아까 손님이 북쪽으로 짐을 보내는 길은 다닐 수 있냐고 묻더라. 회의에서 그 얘기도 나왔니?"],
+      ["boy", "市集的新貨還沒到。是不是路上出了問題，市集管理人也不清楚。他說要先問問送貨的人。", "장터에 올 새 짐이 아직 안 왔대요. 길에서 문제가 생긴 건지는 장터지기 아저씨도 모르세요. 운반하는 분한테 먼저 물어보겠다고 하셨어요."],
+      ["innkeeper", "那我知道怎麼回他了。等他下樓，我就跟他說，貨是晚了，原因還在打聽。謝謝你跑這一趟。", "그럼 뭐라고 답할지 알겠다. 그 손님이 내려오면 짐은 늦었고 까닭은 아직 알아보는 중이라고 해야겠네. 다녀와 줘서 고마워."]
+    ].map(beat)
+  };
+  chapter.sections.push({id:reportId,hiddenFromJourney:true,sequence:[
+    {id:reportId,type:'story',chooseOnMap:true,requires:['story:chapter2-council-first-result'],returnToRegionHubAfter:'inn-lobby'}
+  ]});
   Object.assign(WORDS,{
     '該':{p:'ㄍㄞ',k:'앞서 말한 그, 해당하는',ex:'先確認該批貨的運送情況。',rule:'앞에서 특정한 물자를 찾아 회의록에 연결해.'},
     '本':{p:'ㄅㄣˇ',k:'말하거나 쓰는 쪽의 이, 우리',ex:'本鎮還沒有決定修繕順序。',rule:'회의록을 작성하는 마을을 찾아.'},
@@ -105,7 +117,7 @@
     '暫時':{p:'ㄓㄢˋ ㄕˊ',k:'잠시, 임시로',ex:'部分路段暫時限制通行。',rule:'임시 조치가 언제 끝나는지는 따로 확인해야 해.'},
     '限制':{p:'ㄒㄧㄢˋ ㄓˋ',k:'범위를 정해 제한하다',ex:'部分路段限制重載貨車雙向通行。',rule:'어느 구간에서 무엇이 제한되는지 찾아.'}
   });
-  globalThis.Chapter2Fields = {entries, beat,
+  globalThis.Chapter2Fields = {entries, beat, reportId,
     byStage: id => entries.find(item => item.id === id),
     byIntro: id => entries.find(item => item.prefix+'-intro' === id),
     validDraft(entry,draft) {

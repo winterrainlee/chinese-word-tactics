@@ -127,6 +127,9 @@
     return true;
   }
   function showRegionHub(regionId) {
+    if (regionId === 'inn-lobby') {
+      store.locate({view:'world'}); InnLobby.open(); return true;
+    }
     if (regionId === globalThis.AcademicTowerRuntime?.REGION_ID) return AcademicTowerRuntime.showHub();
     return false;
   }
@@ -187,7 +190,7 @@
     const stageAfterStory = STAGES.find(stage=>stage.id===options.stageAfterStory && stage.academicTower?.introStory===id);
     const endLabel = stageAfterStory ? '연구 시작' : context.mode === 'replay'
       ? (context.returnTo === 'world' ? '월드맵으로' : context.returnTo === globalThis.AcademicTowerRuntime?.REGION_ID ? '연구실로' : '여정으로')
-      : node.returnToRegionHubAfter ? '연구실로' : node.returnToWorldAfter ? '월드맵으로'
+      : node.returnToRegionHubAfter === 'inn-lobby' ? '로비로' : node.returnToRegionHubAfter ? '연구실로' : node.returnToWorldAfter ? '월드맵으로'
         : next?.type === 'stage' ? '스테이지 시작' : next?.type === 'story' ? '이야기 계속' : '월드맵으로';
     StoryRuntime.play(story, { ...context, seen: progress.seenStories.includes(id), beat: options.beat || 0, endLabel,
       onPosition(beat) { if (story.beats[beat]?.councilNotice) store.hearCouncilNotice(); store.locate({ view: 'story', nodeId: node.nodeId, beat }, context.mode); },
