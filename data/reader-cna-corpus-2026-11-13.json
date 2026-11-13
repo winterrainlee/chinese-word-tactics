@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "datasetRole": "reader-forward-cues-evaluation-source-manifest",
+  "createdAt": "2026-11-13",
+  "source": {
+    "publisher": "中央通訊社 CNA",
+    "digestTitle": "早安世界》黃仁勳辭輝達執行長　財務長克瑞斯任臨時CEO",
+    "digestUrl": "https://www.cna.com.tw/news/ahel/202611135001.aspx",
+    "digestPublishedLocal": "2026-11-13 07:36 Asia/Taipei",
+    "language": "zh-Hant"
+  },
+  "policy": {
+    "layers": [
+      "digest-summary",
+      "linked-article-body"
+    ],
+    "scope": "digest order 1..10 and each corresponding article; no related-news sidebar",
+    "titlesAndUrlsOnly": true,
+    "noArticleBodyInRepository": true,
+    "fetchAndAnnotateDuringAnalysis": true,
+    "linkAndReviewTimeRequired": true,
+    "focusIsHypothesisNotObservedOccurrence": true
+  },
+  "articles": [
+    {
+      "id": "cna-20261113-01",
+      "digestOrder": 1,
+      "title": "黃仁勳辭輝達執行長　財務長克瑞斯任臨時CEO",
+      "url": "https://www.cna.com.tw/news/afe/202611120368.aspx",
+      "section": "business",
+      "testFocusHypothesesKo": [
+        "조건/사건순서",
+        "의무의 得와 정도보어 구분"
+      ]
+    },
+    {
+      "id": "cna-20261113-02",
+      "digestOrder": 2,
+      "title": "全球領袖齊聚亞洲對話　AI、貿易與核裁軍成焦點",
+      "url": "https://www.cna.com.tw/news/aopl/202611120164.aspx",
+      "section": "international",
+      "testFocusHypothesesKo": [
+        "시간 순서",
+        "대조/양보",
+        "화제 이동"
+      ]
+    },
+    {
+      "id": "cna-20261113-03",
+      "digestOrder": 3,
+      "title": "AI需求點火　經部：今年外商對台採購估達3258億美元創高",
+      "url": "https://www.cna.com.tw/news/afe/202611120308.aspx",
+      "section": "business",
+      "testFocusHypothesesKo": [
+        "원인/배경",
+        "정보 추가",
+        "항목 전환"
+      ]
+    },
+    {
+      "id": "cna-20261113-04",
+      "digestOrder": 4,
+      "title": "金管會：2026亞洲公司治理評鑑　台灣與新加坡並列第3",
+      "url": "https://www.cna.com.tw/news/afe/202611120328.aspx",
+      "section": "business",
+      "testFocusHypothesesKo": [
+        "화제/초점 설정",
+        "근거-결과",
+        "열거"
+      ]
+    },
+    {
+      "id": "cna-20261113-05",
+      "digestOrder": 5,
+      "title": "馬來西亞首相盼恢復台馬經合會議　駐處強調須正視投資互信",
+      "url": "https://www.cna.com.tw/news/aipl/202611120210.aspx",
+      "section": "politics",
+      "testFocusHypothesesKo": [
+        "발화 주체/입장 전환",
+        "목적",
+        "대조"
+      ]
+    },
+    {
+      "id": "cna-20261113-06",
+      "digestOrder": 6,
+      "title": "AI資安攻擊升溫　金管會資安長會議緊盯4大面向",
+      "url": "https://www.cna.com.tw/news/afe/202611120331.aspx",
+      "section": "business",
+      "testFocusHypothesesKo": [
+        "조건/절차",
+        "화제 설정",
+        "정보 추가"
+      ]
+    },
+    {
+      "id": "cna-20261113-07",
+      "digestOrder": 7,
+      "title": "直轄市長競選11/13起跑　18日零時起不得發布選舉民調",
+      "url": "https://www.cna.com.tw/news/aipl/202611120161.aspx",
+      "section": "politics",
+      "testFocusHypothesesKo": [
+        "시간 조건",
+        "목적",
+        "금지/의무의 得 오인"
+      ]
+    },
+    {
+      "id": "cna-20261113-08",
+      "digestOrder": 8,
+      "title": "藍白提空污法修法　經部：影響580億度發電、備用容量率轉負",
+      "url": "https://www.cna.com.tw/news/afe/202611120184.aspx",
+      "section": "business",
+      "testFocusHypothesesKo": [
+        "조건/귀결",
+        "강화",
+        "예외"
+      ]
+    },
+    {
+      "id": "cna-20261113-09",
+      "digestOrder": 9,
+      "title": "盧比歐王毅通話討論川習互訪　同意領袖對話攸關推動和平",
+      "url": "https://www.cna.com.tw/news/aopl/202611120040.aspx",
+      "section": "international",
+      "testFocusHypothesesKo": [
+        "사건 순서",
+        "화제 전환",
+        "행위자 교대"
+      ]
+    },
+    {
+      "id": "cna-20261113-10",
+      "digestOrder": 10,
+      "title": "寶林茶室負責人、廚師等4人判刑　法院：制度管理到製餐各有過失",
+      "url": "https://www.cna.com.tw/news/asoc/202611120221.aspx",
+      "section": "society",
+      "testFocusHypothesesKo": [
+        "대조/지속",
+        "법률 문장",
+        "得易科罰金의 得 오탐"
+      ]
+    }
+  ]
+}
