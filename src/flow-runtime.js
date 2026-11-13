@@ -388,7 +388,7 @@
     if (context.viewId === 'landingView') return showLanding({ restoreContext: context });
     if (context.viewId === 'worldView') return showWorld({ restoreContext: context, preserveActive: true });
     if (context.viewId === 'journeyView') return showJourney({ restoreContext: context, preserveActive: true });
-    const viewName = ({ tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings', innRoomView: 'innRoom', innLobbyView: 'innLobby', wordsView: 'words' })[context.viewId];
+    const viewName = ({ readerView: 'reader', fieldView: 'field', tutorialView: 'tutorial', storyView: 'story', academicTowerView: 'academicTower', settingsView: 'settings', innRoomView: 'innRoom', innLobbyView: 'innLobby', wordsView: 'words' })[context.viewId];
     if (!viewName) return false;
     TacticalGame.showView(viewName);
     restoreDomContext(context);
@@ -412,7 +412,7 @@
   function showMenu() {
     const origin = captureViewContext(), progress = store.get(), started = hasJourneyProgress(progress);
     const hasWords = Boolean(globalThis.LexiconRuntime?.snapshot?.()?.discovered?.length);
-    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu flowTravelMenu"><button id="flowResume"></button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">첫 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
+    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu flowTravelMenu"><button id="flowResume"></button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowReader">내 글 읽기</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">첫 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
     $('flowResume').textContent = started ? '본편 이어가기' : '여행 시작';
     $('flowResume').onclick = () => started ? resume() : playStory('prologue-departure');
     $('flowWorld').disabled = !canVisitWorld();
@@ -426,9 +426,11 @@
     $('flowJourney').onclick = () => origin?.viewId === 'journeyView'
       ? restoreViewContext(origin) : showJourney({ returnContext: origin, preserveActive: true });
     $('flowWords').onclick = () => showWords({ returnContext: origin });
+    $('flowReader').disabled = !globalThis.ReaderRuntime;
+    $('flowReader').onclick = () => globalThis.ReaderRuntime?.open({ returnContext: origin });
     $('flowSettings').onclick = () => showSettings({ returnContext: origin });
     $('flowTitle').onclick = showLanding;
-    const currentId = ({ landingView: 'flowTitle', worldView: 'flowWorld', journeyView: 'flowJourney', wordsView: 'flowWords', settingsView: 'flowSettings' })[origin?.viewId];
+    const currentId = ({ readerView: 'flowReader', landingView: 'flowTitle', worldView: 'flowWorld', journeyView: 'flowJourney', wordsView: 'flowWords', settingsView: 'flowSettings' })[origin?.viewId];
     if (currentId) $(currentId)?.setAttribute('aria-current', 'page');
     $('flowMenuClose').onclick = () => { TacticalGame.closeSheet(); if (origin) restoreDomContext(origin); };
     requestAnimationFrame(() => $('flowResume')?.focus());

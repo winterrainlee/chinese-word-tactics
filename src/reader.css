@@ -1,0 +1,18 @@
+#readerView{min-height:100dvh;background:#fff;color:#24364a;padding:env(safe-area-inset-top) max(18px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));box-sizing:border-box}
+#readerView [hidden]{display:none!important}
+.readerShell{max-width:720px;margin:auto;padding-top:12px}
+.readerTop{display:flex;align-items:center;gap:8px;margin-bottom:22px}
+.readerTop h1{font-size:18px;flex:1;margin:0;overflow-wrap:anywhere}
+#readerView button{min-width:44px;min-height:44px;border:1px solid #dce2e6;border-radius:10px;background:#fff;color:#24364a;padding:8px 12px;font-size:15px}
+#readerView button:disabled{opacity:.45}
+#readerView button:focus-visible,#readerView input:focus-visible,#readerView textarea:focus-visible{outline:2px solid #526f88;outline-offset:2px}
+#readerView label{display:block;margin:14px 0 8px;font-size:15px}
+#readerTitle,#readerText{box-sizing:border-box;width:100%;border:1px solid #bdc9d0;border-radius:8px;background:#fff;color:#24364a;padding:12px;font:inherit}
+#readerText{min-height:280px;resize:vertical;line-height:1.8;font-size:19px}
+#readerView .readerNote{font-size:13px;line-height:1.65;color:#5c6a75;overflow-wrap:anywhere}
+#readerView .readerSwitch{min-height:44px;display:flex;align-items:center;gap:12px;margin:0 0 20px;cursor:pointer}
+.readerSwitch input{width:24px;height:24px;accent-color:#6c9979}
+#readerBody{font-size:22px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;padding-bottom:24px}
+#readerBody mark{color:inherit;background:transparent;font:inherit;padding:0;border:0}
+#readerBody.readerMarked mark{background:#e5f2e4}
+#readerDeleteConfirm{margin-top:16px;padding:12px;border:1px solid #dce2e6;border-radius:10px}

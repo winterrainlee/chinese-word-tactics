@@ -1,0 +1,523 @@
+{
+  "schemaVersion": 1,
+  "lexiconVersion": "0.1.0",
+  "entries": [
+    {
+      "id": "cue-01",
+      "forms": [
+        "然而"
+      ],
+      "enabled": true,
+      "readingAction": "전환",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-02",
+      "forms": [
+        "卻"
+      ],
+      "enabled": true,
+      "readingAction": "전환",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-03",
+      "forms": [
+        "反而"
+      ],
+      "enabled": true,
+      "readingAction": "전환",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-04",
+      "forms": [
+        "因此"
+      ],
+      "enabled": true,
+      "readingAction": "귀결",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-05",
+      "forms": [
+        "所以"
+      ],
+      "enabled": true,
+      "readingAction": "귀결",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-06",
+      "forms": [
+        "因而"
+      ],
+      "enabled": true,
+      "readingAction": "귀결",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-07",
+      "forms": [
+        "但是"
+      ],
+      "enabled": true,
+      "readingAction": "전환",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-08",
+      "forms": [
+        "而且"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-09",
+      "forms": [
+        "並且"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-10",
+      "forms": [
+        "仍然"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-11",
+      "forms": [
+        "另外"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-12",
+      "forms": [
+        "雖然"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-13",
+      "forms": [
+        "即使"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-14",
+      "forms": [
+        "如果"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-15",
+      "forms": [
+        "只要"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-16",
+      "forms": [
+        "除非"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-17",
+      "forms": [
+        "否則"
+      ],
+      "enabled": true,
+      "readingAction": "귀결",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-18",
+      "forms": [
+        "既然"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-19",
+      "forms": [
+        "例如"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-20",
+      "forms": [
+        "換句話說"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-21",
+      "forms": [
+        "總之"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-22",
+      "forms": [
+        "總而言之"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/MY-TEXT-READER-PLAN-v0.1.md#5"
+      ],
+      "note": "초기 후보 유지; 미출현 항목도 포함"
+    },
+    {
+      "id": "cue-23",
+      "forms": [
+        "至於"
+      ],
+      "enabled": true,
+      "readingAction": "화제",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-24",
+      "forms": [
+        "其中"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-25",
+      "forms": [
+        "此外"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-26",
+      "forms": [
+        "接著"
+      ],
+      "enabled": true,
+      "readingAction": "순서",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-27",
+      "forms": [
+        "隨後"
+      ],
+      "enabled": true,
+      "readingAction": "순서",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-28",
+      "forms": [
+        "另一方面"
+      ],
+      "enabled": true,
+      "readingAction": "화제",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-29",
+      "forms": [
+        "儘管"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-30",
+      "forms": [
+        "由於"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-31",
+      "forms": [
+        "為了"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-32",
+      "forms": [
+        "因應"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-33",
+      "forms": [
+        "受惠於"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-34",
+      "forms": [
+        "首先"
+      ],
+      "enabled": true,
+      "readingAction": "순서",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 추가 채택 권고"
+    },
+    {
+      "id": "cue-35",
+      "forms": [
+        "針對"
+      ],
+      "enabled": true,
+      "readingAction": "화제",
+      "matchMode": "clause-start",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 권고; 화제 표현은 절 첫머리에 제한"
+    },
+    {
+      "id": "cue-36",
+      "forms": [
+        "對於"
+      ],
+      "enabled": true,
+      "readingAction": "화제",
+      "matchMode": "clause-start",
+      "sourceRefs": [
+        "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
+      ],
+      "note": "A1 권고; 화제 표현은 절 첫머리에 제한"
+    }
+  ],
+  "exclusions": [
+    {
+      "text": "廢除非核",
+      "marker": "除非"
+    },
+    {
+      "text": "立即使用",
+      "marker": "即使"
+    }
+  ],
+  "contextRules": [
+    {
+      "id": "clause-dan",
+      "readingAction": "전환",
+      "note": "절 첫머리 但; 但是·但凡·但願 제외"
+    },
+    {
+      "id": "restricted-ze",
+      "readingAction": "전환",
+      "note": "A2 후행 어휘 한정; 原規準法守細通否 앞글자 제외"
+    },
+    {
+      "id": "conditional-ruo",
+      "readingAction": "보류",
+      "note": "절 첫머리 若 + 쉼표 뒤 應/將/預計; 若干 제외"
+    }
+  ],
+  "held": [
+    "得",
+    "先…再",
+    "只有…才",
+    "當…時",
+    "除…外",
+    "繼…後",
+    "待…後",
+    "不過",
+    "結果",
+    "只是",
+    "包括",
+    "同時",
+    "並",
+    "也",
+    "後",
+    "再",
+    "就",
+    "才",
+    "仍"
+  ],
+  "note": "A1/A2에서 선별한 제품 규칙. 실험 A2와 동일하지 않으며 그 성능 수치를 승계하지 않는다."
+}

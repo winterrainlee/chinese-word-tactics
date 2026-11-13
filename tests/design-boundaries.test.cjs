@@ -54,7 +54,7 @@ test('A09b keeps each quest as a paper surface and opens its nested action', () 
 test('A04 replaces the document-end navigation with one global travel menu entry point', () => {
   assert.doesNotMatch(html, /class="flowNav"/);
   assert.doesNotMatch(journey, /\.flowNav/);
-  assert.equal((html.match(/data-flow-menu/g) || []).length, 8);
+  assert.equal((html.match(/data-flow-menu/g) || []).length, 9);
   assert.match(read('src/world-inn-runtime.js'), /id="innRoomMenu"[^>]*data-flow-menu[^>]*aria-label="여행 메뉴"/);
   assert.match(navigation, /\[data-flow-menu\]:focus-visible\{outline:3px solid var\(--blue\)/);
   assert.match(navigation, /\.travelBack:focus-visible\{outline:3px solid var\(--blue\)/);
