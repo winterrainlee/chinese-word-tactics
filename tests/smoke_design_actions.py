@@ -124,7 +124,7 @@ def assert_global_menu(page, view_id, current_id, screenshot_name, width, height
     assert 0 <= menu_box['y'] and menu_box['bottom'] <= height, menu_box
     menu.focus()
     menu.click()
-    ids = ['flowResume', 'flowWorld', 'flowJourney', 'flowWords', 'flowSettings', 'flowTitle']
+    ids = ['flowResume', 'flowWorld', 'flowJourney', 'flowWords', 'flowReader', 'flowSettings', 'flowTitle']
     assert [button.get_attribute('id') for button in page.locator('.flowTravelMenu button').all()] == ids
     assert_touch_targets(page, '.flowTravelMenu button, #flowMenuClose')
     current = page.locator('.flowTravelMenu [aria-current="page"]')

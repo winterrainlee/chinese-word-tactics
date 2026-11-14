@@ -83,7 +83,7 @@ try:
             tower_menu.focus()
             tower_menu.click()
             assert page.locator('#sheet h2').inner_text() == '여행 메뉴'
-            assert page.locator('.flowTravelMenu button').count() == 6
+            assert page.locator('.flowTravelMenu button').count() == 7
             page.locator('#flowMenuClose').click()
             page.wait_for_function("document.activeElement?.id === 'academicTowerMenu'")
             sky = page.evaluate("""() => {
