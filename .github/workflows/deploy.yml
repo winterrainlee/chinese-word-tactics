@@ -211,6 +211,11 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Verify published reader on Chromium and WebKit
+        env:
+          BASE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python tests/smoke_reader.py
+
       - name: Verify published inn version and assets
         env:
           BASE_URL: ${{ steps.deployment.outputs.page_url }}inn-integration-test/

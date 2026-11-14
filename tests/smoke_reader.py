@@ -18,7 +18,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 KEY='chinese-word-tactics-reader-draft-v1'
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler)
 threading.Thread(target=server.serve_forever,daemon=True).start()
-url=f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/'
+url=os.environ.get('BASE_URL',f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/')
 text='😀𠮷此外，若明天下雨，將取消。\n\n<img src=x onerror="window.readerInjected=true">\n廢除非核政策，立即使用。說得很清楚。'
 with sync_playwright() as p:
  for name in os.environ.get('BROWSERS','chromium,webkit').split(','):
