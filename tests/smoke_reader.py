@@ -69,7 +69,10 @@ with sync_playwright() as p:
   page.click('#readerBack');page.evaluate('GameFlow.playStory("prologue-departure")')
   for view in ['story','tutorial','field','academicTower','words','journey','settings','innRoom','innLobby']:
    # Existing view DOM is deliberately retained: return must not reinitialize it.
-   page.evaluate('(v)=>TacticalGame.showView(v)',view)
+   if view=='innRoom': page.evaluate('WorldInn.openRoom()')
+   elif view=='innLobby': page.evaluate('InnLobby.open()')
+   else: page.evaluate('(v)=>TacticalGame.showView(v)',view)
+   assert page.locator(f'#{view}View').is_visible(),view
    snapshot=page.evaluate('JSON.stringify(GameFlow.progress())')
    page.evaluate('GameFlow.showMenu()');page.click('#flowReader');page.click('#readerBack')
    assert page.locator(f'#{view}View').is_visible(),view
