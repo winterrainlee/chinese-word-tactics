@@ -102,3 +102,5 @@ python tests/smoke_reader.py
 임시 글의 선택 필드 `showPunctuation`으로 설정을 보관한다. 기존 schemaVersion 1 저장에서 이 필드가 없으면 false로 읽으므로 글을 잃지 않는다. 수정·화면 왕복·새로고침에서는 선택을 유지하고, 임시 글 삭제 후 새 글에서는 꺼진 상태로 시작한다. 문장부호만 있는 글은 표지어 미검출 안내를 바꾸지 않는다.
 
 브라우저 검사에 두 옵션의 네 가지 조합, 실제 배경색, 대상/제외 부호, 원문·본문 노드·크기 유지, 수정/새로고침 보관, 삭제 후 기본값, 이전 저장 형식 호환을 추가했다. 기존 상단 빈 공간 회귀 검사와 함께 Chromium·WebKit에서 배포 전·후 실행한다.
+
+검증 완료: 코드 `fefff0e6f88e0d5c62b60d236ac206512f77ffff`, [배포 실행 43543605358](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/43543605358). 콘텐츠 게이트와 배포 전·후 Chromium/WebKit 읽기 검사가 통과했다. 실제 iPhone Safari 사용자 검수와 읽기 효용 평가는 별도다.
