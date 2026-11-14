@@ -37,10 +37,13 @@ with sync_playwright() as p:
   assert page.locator('#readerBody img').count()==0
   assert page.evaluate('!window.readerInjected')
   page.evaluate('window.readerNode=document.querySelector("#readerBody").firstChild')
-  box=page.locator('#readerBody').bounding_box()
+  # Playwright may scroll a control into view; compare document coordinates.
+  geometry='el => { const r=el.getBoundingClientRect(); return [r.x+scrollX,r.y+scrollY,r.width,r.height]; }'
+  box=page.locator('#readerBody').evaluate(geometry)
   page.check('#readerToggle')
   assert page.evaluate('readerNode===document.querySelector("#readerBody").firstChild')
-  assert page.locator('#readerBody').bounding_box()==box
+  after=page.locator('#readerBody').evaluate(geometry)
+  assert after==box,(box,after)
   assert page.locator('#readerBody').text_content()==text
   assert page.locator('#readerBody mark').all_text_contents()==['此外','若'] # 將 is context only
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
