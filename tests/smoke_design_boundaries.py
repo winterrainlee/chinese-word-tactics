@@ -106,7 +106,7 @@ def capture(page, name, width, height):
 
 def assert_travel_menu(page):
     rows = style_rows(page, '.flowTravelMenu button')
-    assert len(rows) == 6, rows
+    assert len(rows) == 7, rows
     for index, row in enumerate(rows):
         assert row['background'] == 'rgba(0, 0, 0, 0)', row
         assert row['radius'] == '0px', row
