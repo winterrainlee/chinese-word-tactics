@@ -83,7 +83,7 @@ with sync_playwright() as p:
   page.reload()
   page.evaluate('GameFlow.showMenu()');page.click('#flowReader')
   assert '불러오지' in page.locator('#readerStorageStatus').text_content()
-  page.evaluate('Storage.prototype.setItem=function(){throw Error("denied")}')
+  page.evaluate('() => { Storage.prototype.setItem=function(){throw Error("denied")}; }')
   page.fill('#readerText','此外，讀茶。');page.click('#readerRead')
   assert '하지 못' in page.locator('#readerStorageStatus').text_content()
   page.screenshot(path=f'/tmp/reader-{name}.png',full_page=True)
