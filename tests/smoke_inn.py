@@ -66,9 +66,9 @@ try:
         room_menu.focus()
         room_menu.click()
         assert page.locator('#sheet h2').inner_text() == '여행 메뉴'
-        assert page.locator('.flowTravelMenu button').all_inner_texts()[:6] == [
+        assert page.locator('.flowTravelMenu button').all_inner_texts() == [
             '여행 시작', '월드맵 · 숲을 빠져나오면 열려', '여정 · 여행을 시작하면 열려',
-            '단어장 · 단어를 만나면 열려', '설정 · 저장과 복원', '첫 화면'
+            '단어장 · 단어를 만나면 열려', '내 글 읽기', '설정 · 저장과 복원', '첫 화면'
         ]
         page.locator('#flowMenuClose').click()
         page.wait_for_function("document.activeElement?.id === 'innRoomMenu'")
