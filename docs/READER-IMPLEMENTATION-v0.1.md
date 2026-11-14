@@ -1,6 +1,8 @@
 # 내 글 읽기 v0.1 구현과 후속 검토
 
 작성: 2026-11-14 (Asia/Taipei). 기준 HEAD: `29b170bcf477438ec86298a4a06392abbe2e2b7d`.
+> 2026-11-14 후속: 사용자가 본편 반영을 승인했다. Pages 배포 전 Chromium/WebKit 읽기 검사를 배포 게이트에 추가했다. 아래 배포 제외·브라우저 미검증 설명은 첫 구현 당시 기록이다.
+
 사용자의 A1/A2 기준 구현 요청을 반영했다. [기획](MY-TEXT-READER-PLAN-v0.1.md)과 [분석 결과](READER-CNA-ANALYSIS-RESULT-2026-11-13.md)를 따른다. 이번 커밋은 `[skip ci]`로 본편 Pages 배포를 실행하지 않는다. 실제 Safari 검수는 미완료다.
 
 ## 구현 범위

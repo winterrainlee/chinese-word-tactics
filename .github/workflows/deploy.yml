@@ -63,6 +63,9 @@ jobs:
           python -m pip install --disable-pip-version-check playwright
           python -m playwright install --with-deps chromium webkit
 
+      - name: Run reader browser smoke
+        run: python tests/smoke_reader.py
+
       - name: Run mobile UX browser smoke
         env:
           TEST_OUTPUT: ${{ runner.temp }}/ux-screenshots
