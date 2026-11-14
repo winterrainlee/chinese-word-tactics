@@ -53,14 +53,14 @@
     $('readerToggle').checked = draft.showMarkers;
     body.classList.toggle('readerPunctuated',draft.showPunctuation);
     $('readerPunctuationToggle').checked = draft.showPunctuation;
-    $('readerHeading').textContent = draft.title || '내 글 읽기';
+    $('readerHeading').textContent = draft.title || '읽기 연습';
   }
   function mode(next) {
     reading = next;
     $('readerInput').hidden = next; $('readerOutput').hidden = !next;
     $('readerNew').hidden = !next;
     if (next) renderText();
-    else $('readerHeading').textContent = '내 글 읽기';
+    else $('readerHeading').textContent = '읽기 연습';
   }
   function open(options = {}) {
     if (options.returnContext?.viewId === 'readerView') { TacticalGame.closeSheet(); return true; }

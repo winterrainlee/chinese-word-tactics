@@ -19,7 +19,7 @@ test('title view is the initial visible app surface', () => {
   assert.match(html, /name="apple-mobile-web-app-title" content="따라온 단어들"/);
   assert.match(html, /property="og:title" content="따라온 단어들"/);
   assert.match(html, /id="tutorialView" class="shell appView" hidden/);
-  assert.match(html, /landing\.css\?v=20261006-a041/);
+  assert.match(html, /landing\.css\?v=20261114-reader/);
   assert.match(html, /title-departure\.svg\?v=20260913-landing1/);
 });
 
@@ -36,8 +36,10 @@ test('first visit starts the prologue while returning visits resume', () => {
   assert.match(flow, /showLanding\(\);\s*\n\}\)\(\);/);
 });
 
-test('secondary record links unlock only after they have something to show', () => {
-  assert.match(flow, /secondary\.hidden = !started/);
+test('reading is always available while record links retain their unlock conditions', () => {
+  assert.match(flow, /secondary\.hidden = false/);
+  assert.match(flow, /\$\('landingJourney'\)\.hidden = !started/);
+  assert.match(html, /id="landingReader" type="button">읽기 연습/);
   assert.match(flow, /\$\('landingWords'\)\.hidden = !hasWords/);
   assert.match(flow, /LexiconRuntime\?\.snapshot\?\.\(\)/);
 });

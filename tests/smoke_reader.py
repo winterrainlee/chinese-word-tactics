@@ -28,7 +28,10 @@ with sync_playwright() as p:
   page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(url);page.wait_for_function('!!window.ReaderRuntime && !!window.GameFlow')
   before=page.evaluate('JSON.stringify(GameFlow.progress())')
-  page.evaluate('GameFlow.showMenu()');page.click('#flowReader')
+  assert page.locator('#landingReader').is_visible()
+  assert page.locator('#landingReader').text_content()=='읽기 연습'
+  page.click('#landingReader')
+  assert page.locator('#readerHeading').text_content()=='읽기 연습'
   assert page.locator('#readerView').is_visible()
   # Check before clicking reader controls: Playwright auto-scroll can mask a blank viewport.
   for width,height in [(375,667),(390,844),(1024,768)]:

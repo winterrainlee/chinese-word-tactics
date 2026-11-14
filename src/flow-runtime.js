@@ -92,11 +92,13 @@
     const primary = $('landingPrimary'), secondary = $('landingSecondary');
     primary.textContent = started ? '이어서 여행하기' : '여행 시작';
     primary.onclick = () => started ? resume() : playStory('prologue-departure');
-    secondary.hidden = !started;
+    secondary.hidden = false;
     $('landingJourney').hidden = !started;
     $('landingWords').hidden = !hasWords;
     $('landingJourney').onclick = () => showJourney({ returnContext: captureViewContext(), preserveActive: true });
     $('landingWords').onclick = showWords;
+    $('landingReader').disabled = !globalThis.ReaderRuntime;
+    $('landingReader').onclick = () => globalThis.ReaderRuntime?.open({ returnContext: captureViewContext() });
     if (options.restoreContext) restoreDomContext(options.restoreContext);
     else window.scrollTo(0, 0);
     return true;
@@ -412,7 +414,7 @@
   function showMenu() {
     const origin = captureViewContext(), progress = store.get(), started = hasJourneyProgress(progress);
     const hasWords = Boolean(globalThis.LexiconRuntime?.snapshot?.()?.discovered?.length);
-    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu flowTravelMenu"><button id="flowResume"></button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowReader">내 글 읽기</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">첫 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
+    TacticalGame.openSheet('<h2>여행 메뉴</h2><div class="flowMenu flowTravelMenu"><button id="flowResume"></button><button id="flowWorld">월드맵</button><button id="flowJourney">여정 · 이야기와 스테이지</button><button id="flowWords">단어장</button><button id="flowReader">읽기 연습</button><button id="flowSettings">설정 · 저장과 복원</button><button id="flowTitle">첫 화면</button></div><div class="sheetactions"><button id="flowMenuClose" data-action-role="close">닫기</button></div>');
     $('flowResume').textContent = started ? '본편 이어가기' : '여행 시작';
     $('flowResume').onclick = () => started ? resume() : playStory('prologue-departure');
     $('flowWorld').disabled = !canVisitWorld();
