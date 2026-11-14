@@ -3,7 +3,7 @@
   const KEY = 'chinese-word-tactics-reader-draft-v1';
   const $ = id => document.getElementById(id);
   let draft = {schemaVersion:1,title:'',text:'',showMarkers:false,showPunctuation:false,updatedAt:0};
-  let loaded = false, origin = null, timer, reading = false, readingScroll = 0;
+  let loaded = false, origin = null, timer, reading = false, readingScroll = 0, replacing = false;
   const valid = d => d && d.schemaVersion === 1 && typeof d.title === 'string' &&
     typeof d.text === 'string' && typeof d.showMarkers === 'boolean' &&
     (d.showPunctuation === undefined || typeof d.showPunctuation === 'boolean') &&
@@ -11,7 +11,7 @@
   const message = value => { $('readerStorageStatus').textContent = value; };
   function save() {
     clearTimeout(timer);
-    if (!valid(draft)) return;
+    if (replacing || !valid(draft)) return;
     try { localStorage.setItem(KEY, JSON.stringify(draft)); message(''); }
     catch { message('임시 저장을 하지 못했어. 이 화면에서는 계속 읽을 수 있어.'); }
   }
@@ -58,7 +58,7 @@
   function mode(next) {
     reading = next;
     $('readerInput').hidden = next; $('readerOutput').hidden = !next;
-    $('readerEdit').hidden = !next;
+    $('readerNew').hidden = !next;
     if (next) renderText();
     else $('readerHeading').textContent = '내 글 읽기';
   }
@@ -86,8 +86,17 @@
   }
   $('readerText').addEventListener('input',update);
   $('readerTitle').addEventListener('input',update);
-  $('readerRead').onclick = () => { update(); if (!valid(draft)) return; save(); mode(true); window.scrollTo(0,readingScroll); $('readerHeading').focus({preventScroll:true}); };
-  $('readerEdit').onclick = () => { readingScroll = window.scrollY; mode(false); window.scrollTo(0,0); $('readerText').focus({preventScroll:true}); };
+  $('readerRead').onclick = () => { update(); if (!valid(draft)) return; replacing = false; save(); mode(true); window.scrollTo(0,readingScroll); $('readerHeading').focus({preventScroll:true}); };
+  $('readerNew').onclick = () => {
+    clearTimeout(timer);
+    // Keep the stored article until the replacement is accepted with Read.
+    replacing = true;
+    draft = {schemaVersion:1,title:'',text:'',showMarkers:false,showPunctuation:false,updatedAt:0};
+    readingScroll = 0;
+    $('readerTitle').value = ''; $('readerText').value = '';
+    $('readerDeleteConfirm').hidden = true; message(''); update(); mode(false);
+    window.scrollTo(0,0); $('readerText').focus({preventScroll:true});
+  };
   $('readerToggle').onchange = () => {
     draft.showMarkers = $('readerToggle').checked; draft.updatedAt = Date.now();
     // CSS only: preserve text nodes, selection, focus, line breaks and scroll.
@@ -112,7 +121,7 @@
     clearTimeout(timer);
     try { localStorage.removeItem(KEY); }
     catch { message('임시 글을 지우지 못했어. 브라우저 저장 권한을 확인해줘.'); return; }
-    draft = {schemaVersion:1,title:'',text:'',showMarkers:false,showPunctuation:false,updatedAt:0}; readingScroll = 0;
+    draft = {schemaVersion:1,title:'',text:'',showMarkers:false,showPunctuation:false,updatedAt:0}; readingScroll = 0; replacing = false;
     $('readerTitle').value = ''; $('readerText').value = '';
     $('readerDeleteConfirm').hidden = true; message(''); update(); mode(false); $('readerText').focus();
   };

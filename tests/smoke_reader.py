@@ -86,12 +86,25 @@ with sync_playwright() as p:
   assert page.locator('#readerBody').text_content()==text
   assert page.locator('#readerToggle').is_checked()
   assert page.locator('#readerPunctuationToggle').is_checked()
-  page.click('#readerEdit');page.click('#readerRead')
-  assert page.locator('#readerPunctuationToggle').is_checked()
-  page.click('#readerEdit');page.fill('#readerText','字'*5001)
+  assert page.locator('#readerNew').text_content()=='새로운 글'
+  page.click('#readerNew')
+  assert page.locator('#readerText').input_value()==''
+  assert page.locator('#readerTitle').input_value()==''
+  assert page.locator('#readerCount').text_content()=='0 / 5,000자'
   assert page.locator('#readerRead').is_disabled()
+  assert page.evaluate('(k)=>JSON.parse(localStorage.getItem(k)).text',KEY)==text
+  page.fill('#readerText','茶：清香。')
   page.wait_for_timeout(400)
   assert page.evaluate('(k)=>JSON.parse(localStorage.getItem(k)).text',KEY)==text
+  page.click('#readerRead')
+  assert page.locator('#readerBody').text_content()=='茶：清香。'
+  assert not page.locator('#readerToggle').is_checked()
+  assert not page.locator('#readerPunctuationToggle').is_checked()
+  assert page.evaluate('(k)=>JSON.parse(localStorage.getItem(k)).text',KEY)=='茶：清香。'
+  page.click('#readerNew');page.fill('#readerText','字'*5001)
+  assert page.locator('#readerRead').is_disabled()
+  page.wait_for_timeout(400)
+  assert page.evaluate('(k)=>JSON.parse(localStorage.getItem(k)).text',KEY)=='茶：清香。'
   page.click('#readerDelete');page.click('#readerDeleteCancel')
   assert page.locator('#readerText').input_value()=='字'*5001
   page.click('#readerDelete');page.click('#readerDeleteYes')
