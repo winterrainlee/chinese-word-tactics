@@ -147,6 +147,10 @@ with sync_playwright() as p:
   assert legacy.locator('#readerToggle').is_checked()
   assert not legacy.locator('#readerPunctuationToggle').is_checked()
   assert legacy.locator('#readerStorageStatus').text_content()==''
+  legacy.click('#readerNew')
+  legacy.fill('#readerText','因為下雨，不但路滑，而且很冷。不過，我還是出門了。可是風太大。')
+  legacy.click('#readerRead');legacy.check('#readerToggle')
+  assert legacy.locator('#readerBody mark').all_text_contents()==['因為','不但','而且','不過','可是']
   legacy.close()
   browser.close()
   print(f'PASS {name}: reader input/render/toggle/storage/return/subpath')

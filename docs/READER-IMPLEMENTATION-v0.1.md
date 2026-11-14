@@ -1,5 +1,7 @@
 # 내 글 읽기 v0.1 구현과 후속 검토
 
+> 2026-11-14 사전 확장: 현재 규칙과 재측정은 [표지어 확장 v0.2](READER-MARKER-EXPANSION-v0.2.md)를 따른다. 아래 0.1.0 사전과 不過 전체 보류는 이전 이력이다.
+
 > **현재 상태:** 2026-11-14 본편 Pages 배포 완료. 배포 코드 `423418f43de20e522f7fb11d880c639aa8d71cdb`. [배포 실행](https://github.com/winterrainlee/chinese-word-tactics/actions/runs/43539125175)에서 배포 전 전체 검사, 읽기 Chromium/WebKit, 배포 후 공개 사이트 읽기 Chromium/WebKit 검사가 통과했다. 공개 사이트의 여행 메뉴에서 내 글 읽기 진입도 직접 확인했다. iPhone 실기기 사용자 검수는 별도다. 아래 준비 과정의 미완료 표시는 당시 이력이다.
 
 작성: 2026-11-14 (Asia/Taipei). 기준 HEAD: `29b170bcf477438ec86298a4a06392abbe2e2b7d`.

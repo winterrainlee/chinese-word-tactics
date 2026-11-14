@@ -5,6 +5,20 @@
     while (at > 0 && /[ \t\r]/u.test(text[at - 1])) at--;
     return at === 0 || boundary.test(text[at - 1]);
   }
+  function allowed(text, at, form, mode) {
+    if (mode === 'literal') return true;
+    if (!clauseStart(text, at)) return false;
+    const tail = text.slice(at + form.length);
+    if (mode === 'clause-start') return true;
+    // Only spaces/tabs: never cross a paragraph to borrow its punctuation.
+    if (mode === 'clause-start-comma') return /^[ \t]*[，,]/u.test(tail);
+    if (mode === 'contrast-keshi') {
+      // Conservative omission of questions, including genuine contrast questions.
+      const sentence = tail.split(/[。.!！；;\n]/u, 1)[0];
+      return sentence.trim().length > 0 && !/[？?]/u.test(sentence);
+    }
+    return false;
+  }
   function detect(text, content = globalThis.ReaderContent) {
     if (typeof text !== 'string' || !content) return [];
     const hits = [], blocked = [];
@@ -20,7 +34,7 @@
     for (const entry of content.entries.filter(e => e.enabled)) for (const form of entry.forms) {
       let at = text.indexOf(form);
       while (at !== -1) {
-        if ((entry.matchMode !== 'clause-start' || clauseStart(text, at)) &&
+        if (allowed(text, at, form, entry.matchMode) &&
             !blocked.some(([s,e]) => at < e && at + form.length > s)) add(at, at + form.length, entry.id);
         at = text.indexOf(form, at + 1);
       }

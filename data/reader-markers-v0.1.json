@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "lexiconVersion": "0.1.0",
+  "lexiconVersion": "0.2.0",
   "entries": [
     {
       "id": "cue-01",
@@ -469,6 +469,359 @@
         "docs/READER-CNA-ANALYSIS-RESULT-2026-11-13.md#7"
       ],
       "note": "A1 권고; 화제 표현은 절 첫머리에 제한"
+    },
+    {
+      "id": "cue-37",
+      "forms": [
+        "可是"
+      ],
+      "enabled": true,
+      "readingAction": "전환",
+      "matchMode": "contrast-keshi",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-38",
+      "forms": [
+        "不過"
+      ],
+      "enabled": true,
+      "readingAction": "전환",
+      "matchMode": "clause-start-comma",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-39",
+      "forms": [
+        "因為"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-40",
+      "forms": [
+        "於是"
+      ],
+      "enabled": true,
+      "readingAction": "귀결",
+      "matchMode": "clause-start",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-41",
+      "forms": [
+        "不但"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-42",
+      "forms": [
+        "不僅"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-43",
+      "forms": [
+        "甚至"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-44",
+      "forms": [
+        "況且"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-45",
+      "forms": [
+        "何況"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-46",
+      "forms": [
+        "再者"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "clause-start",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-47",
+      "forms": [
+        "假如"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-48",
+      "forms": [
+        "假使"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-49",
+      "forms": [
+        "即便"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-50",
+      "forms": [
+        "縱使"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-51",
+      "forms": [
+        "無論"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-52",
+      "forms": [
+        "不論"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-53",
+      "forms": [
+        "一旦"
+      ],
+      "enabled": true,
+      "readingAction": "보류",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-54",
+      "forms": [
+        "以免"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-55",
+      "forms": [
+        "免得"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-56",
+      "forms": [
+        "以便"
+      ],
+      "enabled": true,
+      "readingAction": "배경",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-57",
+      "forms": [
+        "比如說",
+        "比如"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-58",
+      "forms": [
+        "譬如說",
+        "譬如"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-59",
+      "forms": [
+        "換言之"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-60",
+      "forms": [
+        "也就是說"
+      ],
+      "enabled": true,
+      "readingAction": "재진술",
+      "matchMode": "literal",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-61",
+      "forms": [
+        "除此之外"
+      ],
+      "enabled": true,
+      "readingAction": "유지",
+      "matchMode": "clause-start",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-62",
+      "forms": [
+        "反之"
+      ],
+      "enabled": true,
+      "readingAction": "전환",
+      "matchMode": "clause-start",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
+    },
+    {
+      "id": "cue-63",
+      "forms": [
+        "其次"
+      ],
+      "enabled": true,
+      "readingAction": "순서",
+      "matchMode": "clause-start",
+      "sourceRefs": [
+        "docs/READER-MARKER-EXPANSION-v0.2.md"
+      ],
+      "note": "v0.2 다글자 보강; 제한 및 미검출 사례는 확장 문서 참고"
     }
   ],
   "exclusions": [
@@ -479,6 +832,14 @@
     {
       "text": "立即使用",
       "marker": "即使"
+    },
+    {
+      "text": "基因為",
+      "marker": "因為"
+    },
+    {
+      "text": "原因為",
+      "marker": "因為"
     }
   ],
   "contextRules": [
@@ -506,7 +867,6 @@
     "除…外",
     "繼…後",
     "待…後",
-    "不過",
     "結果",
     "只是",
     "包括",
@@ -517,7 +877,8 @@
     "再",
     "就",
     "才",
-    "仍"
+    "仍",
+    "不過의 무제한 매칭"
   ],
   "note": "A1/A2에서 선별한 제품 규칙. 실험 A2와 동일하지 않으며 그 성능 수치를 승계하지 않는다."
 }
