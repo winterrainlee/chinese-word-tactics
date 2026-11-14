@@ -78,7 +78,9 @@ with sync_playwright() as p:
    assert page.locator(f'#{view}View').is_visible(),view
    assert page.evaluate('JSON.stringify(GameFlow.progress())')==snapshot,view
   # Invalid storage and denied writes are recoverable.
-  page.evaluate('(k)=>localStorage.setItem(k,"broken")',KEY);page.reload()
+  # Seed corruption after pagehide has flushed the previous valid draft.
+  page.add_init_script(f'localStorage.setItem({json.dumps(KEY)}, "broken")')
+  page.reload()
   page.evaluate('GameFlow.showMenu()');page.click('#flowReader')
   assert '불러오지' in page.locator('#readerStorageStatus').text_content()
   page.evaluate('Storage.prototype.setItem=function(){throw Error("denied")}')
