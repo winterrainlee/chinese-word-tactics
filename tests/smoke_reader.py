@@ -30,6 +30,20 @@ with sync_playwright() as p:
   before=page.evaluate('JSON.stringify(GameFlow.progress())')
   page.evaluate('GameFlow.showMenu()');page.click('#flowReader')
   assert page.locator('#readerView').is_visible()
+  # Check before clicking reader controls: Playwright auto-scroll can mask a blank viewport.
+  for width,height in [(375,667),(390,844),(1024,768)]:
+   page.set_viewport_size({'width':width,'height':height})
+   layout=page.evaluate("""() => {
+    const view=document.querySelector('#readerView');
+    const top=document.querySelector('.readerTop').getBoundingClientRect();
+    return {parent:view.parentElement.id, y:view.getBoundingClientRect().top+scrollY,
+      headerTop:top.top, headerBottom:top.bottom, scroll:scrollY,
+      overflow:document.documentElement.scrollWidth>innerWidth};
+   }""")
+   assert layout['parent']=='app' and layout['y']<=1,layout
+   assert 0<=layout['headerTop']<60 and layout['headerBottom']<height,layout
+   assert layout['scroll']==0 and not layout['overflow'],layout
+  page.set_viewport_size({'width':375,'height':667})
   assert page.locator('#readerRead').is_disabled()
   page.fill('#readerText',text);page.fill('#readerTitle','시험 글');page.click('#readerRead')
   assert page.locator('#readerBody').text_content()==text
@@ -50,6 +64,8 @@ with sync_playwright() as p:
   page.evaluate('GameFlow.showMenu()');page.click('#flowMenuClose')
   assert page.locator('#readerToggle').is_checked()
   page.click('#readerBack');assert page.locator('#landingView').is_visible()
+  assert page.locator('#readerView').evaluate('el => el.getBoundingClientRect().height')==0
+  assert page.locator('#landingView').evaluate('el => el.getBoundingClientRect().top+scrollY')<30
   assert page.evaluate('JSON.stringify(GameFlow.progress())')==before
   page.reload();page.evaluate('GameFlow.showMenu()');page.click('#flowReader')
   assert page.locator('#readerBody').text_content()==text

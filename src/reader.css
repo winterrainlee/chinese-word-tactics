@@ -1,4 +1,6 @@
-#readerView{min-height:100dvh;background:#fff;color:#24364a;padding:env(safe-area-inset-top) max(18px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));box-sizing:border-box}
+/* Keep the reader in the shared view host without a second viewport above it. */
+#app:has(> #readerView:not([hidden])){padding:0}
+#readerView{width:100%;min-width:0;min-height:100dvh;background:#fff;color:#24364a;padding:env(safe-area-inset-top) max(18px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));box-sizing:border-box}
 #readerView [hidden]{display:none!important}
 .readerShell{max-width:720px;margin:auto;padding-top:12px}
 .readerTop{display:flex;align-items:center;gap:8px;margin-bottom:22px}
