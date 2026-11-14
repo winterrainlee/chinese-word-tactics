@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="./src/navigation.css?v=20261006-a043">
 <link rel="stylesheet" href="./src/inn-scenes.css?v=20261102-innc1&revision=interaction1">
 <link rel="stylesheet" href="./src/chapter2-field.css?v=p2">
-<link rel="stylesheet" href="./src/reader.css?v=2">
+<link rel="stylesheet" href="./src/reader.css?v=3">
 </head>
 <body>
 <div id="flowNotice" class="flowNotice" role="status" hidden></div>
@@ -149,7 +149,7 @@
       <button id="readerDelete" type="button">임시 글 지우기</button>
       <div id="readerDeleteConfirm" hidden><p>이 브라우저의 임시 글을 지울까?</p><button id="readerDeleteCancel" type="button">취소</button> <button id="readerDeleteYes" type="button">지우기</button></div>
     </section>
-    <section id="readerOutput" hidden><label class="readerSwitch"><input id="readerToggle" type="checkbox" role="switch">표지어 표시</label><div id="readerBody" lang="zh-Hant"></div><p id="readerEmpty" class="readerNote" hidden>등록된 표지어를 찾지 못했어.</p></section>
+    <section id="readerOutput" hidden><div class="readerOptions"><label class="readerSwitch"><input id="readerToggle" type="checkbox" role="switch" aria-controls="readerBody">표지어 표시</label><label class="readerSwitch"><input id="readerPunctuationToggle" type="checkbox" role="switch" aria-controls="readerBody">문장부호도 표시</label></div><div id="readerBody" lang="zh-Hant"></div><p id="readerEmpty" class="readerNote" hidden>등록된 표지어를 찾지 못했어.</p></section>
     <p id="readerStorageStatus" class="readerNote" role="status"></p>
   </main>
 </div>
@@ -215,7 +215,7 @@
 <script src="./src/academic-tower-hub-runtime.js?v=20261031-tower-unlocks1"></script>
 <script src="./src/reader-content.js?v=1"></script>
 <script src="./src/reader-matcher.js?v=1"></script>
-<script src="./src/reader-runtime.js?v=1"></script>
+<script src="./src/reader-runtime.js?v=2"></script>
 <script src="./src/flow-runtime.js?v=20261103-p2&rev=council-entry1&report=1&reader=1"></script>
 <script src="./src/chapter2-first-look-runtime.js?v=20261102-chapter2-p1"></script>
 <script src="./src/settings-runtime.js?v=20261102-innc1"></script>

@@ -2,10 +2,11 @@
   if (!globalThis.ReaderMatcher || !globalThis.ReaderContent) return;
   const KEY = 'chinese-word-tactics-reader-draft-v1';
   const $ = id => document.getElementById(id);
-  let draft = {schemaVersion:1,title:'',text:'',showMarkers:false,updatedAt:0};
+  let draft = {schemaVersion:1,title:'',text:'',showMarkers:false,showPunctuation:false,updatedAt:0};
   let loaded = false, origin = null, timer, reading = false, readingScroll = 0;
   const valid = d => d && d.schemaVersion === 1 && typeof d.title === 'string' &&
     typeof d.text === 'string' && typeof d.showMarkers === 'boolean' &&
+    (d.showPunctuation === undefined || typeof d.showPunctuation === 'boolean') &&
     Number.isFinite(d.updatedAt) && [...d.title].length <= 100 && [...d.text].length <= 5000 && d.text.trim();
   const message = value => { $('readerStorageStatus').textContent = value; };
   function save() {
@@ -25,20 +26,33 @@
     $('readerRead').disabled = !valid(draft);
     clearTimeout(timer); timer = setTimeout(save, 350);
   }
+  function appendText(fragment, text) {
+    // Separate presentation spans; punctuation is not a discourse-marker match.
+    let at = 0;
+    for (const match of text.matchAll(/[，；：]/g)) {
+      fragment.append(document.createTextNode(text.slice(at, match.index)));
+      const span = document.createElement('span');
+      span.className = 'readerPunctuation'; span.textContent = match[0];
+      fragment.append(span); at = match.index + match[0].length;
+    }
+    fragment.append(document.createTextNode(text.slice(at)));
+  }
   function renderText() {
     const body = $('readerBody'), fragment = document.createDocumentFragment();
     let at = 0;
     const spans = ReaderMatcher.detect(draft.text);
     for (const span of spans) {
-      fragment.append(document.createTextNode(draft.text.slice(at,span.start)));
+      appendText(fragment, draft.text.slice(at,span.start));
       const mark = document.createElement('mark');
       mark.textContent = draft.text.slice(span.start,span.end); fragment.append(mark); at = span.end;
     }
-    fragment.append(document.createTextNode(draft.text.slice(at)));
+    appendText(fragment, draft.text.slice(at));
     body.replaceChildren(fragment);
     $('readerEmpty').hidden = spans.length > 0 || !draft.showMarkers;
     body.classList.toggle('readerMarked',draft.showMarkers);
     $('readerToggle').checked = draft.showMarkers;
+    body.classList.toggle('readerPunctuated',draft.showPunctuation);
+    $('readerPunctuationToggle').checked = draft.showPunctuation;
     $('readerHeading').textContent = draft.title || '내 글 읽기';
   }
   function mode(next) {
@@ -59,7 +73,7 @@
         if (raw) {
           const parsed = JSON.parse(raw);
           if (!valid(parsed)) throw Error('Invalid draft');
-          draft = parsed; reading = true;
+          draft = {...parsed,showPunctuation:parsed.showPunctuation ?? false}; reading = true;
         }
       } catch { message('임시 글을 불러오지 못했어. 새 글을 붙여 넣어 읽을 수 있어.'); }
       $('readerTitle').value = draft.title; $('readerText').value = draft.text;
@@ -81,6 +95,11 @@
     $('readerEmpty').hidden = !draft.showMarkers || $('readerBody').querySelector('mark') !== null;
     save();
   };
+  $('readerPunctuationToggle').onchange = () => {
+    draft.showPunctuation = $('readerPunctuationToggle').checked; draft.updatedAt = Date.now();
+    $('readerBody').classList.toggle('readerPunctuated',draft.showPunctuation);
+    save();
+  };
   $('readerBack').onclick = () => {
     if (reading) readingScroll = window.scrollY;
     save(); if (!GameFlow.restoreViewContext(origin)) GameFlow.showLanding();
@@ -93,7 +112,7 @@
     clearTimeout(timer);
     try { localStorage.removeItem(KEY); }
     catch { message('임시 글을 지우지 못했어. 브라우저 저장 권한을 확인해줘.'); return; }
-    draft = {schemaVersion:1,title:'',text:'',showMarkers:false,updatedAt:0}; readingScroll = 0;
+    draft = {schemaVersion:1,title:'',text:'',showMarkers:false,showPunctuation:false,updatedAt:0}; readingScroll = 0;
     $('readerTitle').value = ''; $('readerText').value = '';
     $('readerDeleteConfirm').hidden = true; message(''); update(); mode(false); $('readerText').focus();
   };

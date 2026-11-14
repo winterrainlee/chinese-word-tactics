@@ -19,7 +19,7 @@ KEY='chinese-word-tactics-reader-draft-v1'
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler)
 threading.Thread(target=server.serve_forever,daemon=True).start()
 url=os.environ.get('BASE_URL',f'http://127.0.0.1:{server.server_port}/chinese-word-tactics/')
-text='😀𠮷此外，若明天下雨，將取消。\n\n<img src=x onerror="window.readerInjected=true">\n廢除非核政策，立即使用。說得很清楚。'
+text='😀𠮷此外，若明天下雨，將取消。\n\n<img src=x onerror="window.readerInjected=true">\n廢除非核政策，立即使用。說得很清楚。\n茶：清香；水、杯。「好嗎？」（好！）,;:'
 with sync_playwright() as p:
  for name in os.environ.get('BROWSERS','chromium,webkit').split(','):
   browser=getattr(p,name).launch(**({'executable_path':os.environ['CHROMIUM_PATH']} if name=='chromium' and os.environ.get('CHROMIUM_PATH') else {}))
@@ -48,13 +48,27 @@ with sync_playwright() as p:
   page.fill('#readerText',text);page.fill('#readerTitle','시험 글');page.click('#readerRead')
   assert page.locator('#readerBody').text_content()==text
   assert not page.locator('#readerToggle').is_checked()
+  assert not page.locator('#readerPunctuationToggle').is_checked()
   assert page.locator('#readerBody img').count()==0
   assert page.evaluate('!window.readerInjected')
   page.evaluate('window.readerNode=document.querySelector("#readerBody").firstChild')
   # Playwright may scroll a control into view; compare document coordinates.
   geometry='el => { const r=el.getBoundingClientRect(); return [r.x+scrollX,r.y+scrollY,r.width,r.height]; }'
   box=page.locator('#readerBody').evaluate(geometry)
+  punctuation=page.locator('#readerBody .readerPunctuation')
+  assert punctuation.all_text_contents()==['，','，','，','：','；']
+  color='el => getComputedStyle(el).backgroundColor'
+  # Both options are independent; excluded punctuation and source text stay untouched.
+  assert punctuation.first.evaluate(color)=='rgba(0, 0, 0, 0)'
+  page.check('#readerPunctuationToggle')
+  assert punctuation.first.evaluate(color)=='rgb(229, 242, 228)'
+  assert page.locator('#readerBody mark').first.evaluate(color)=='rgba(0, 0, 0, 0)'
   page.check('#readerToggle')
+  assert page.locator('#readerBody mark').first.evaluate(color)=='rgb(229, 242, 228)'
+  page.uncheck('#readerPunctuationToggle')
+  assert punctuation.first.evaluate(color)=='rgba(0, 0, 0, 0)'
+  assert page.locator('#readerBody mark').first.evaluate(color)=='rgb(229, 242, 228)'
+  page.check('#readerPunctuationToggle')
   assert page.evaluate('readerNode===document.querySelector("#readerBody").firstChild')
   after=page.locator('#readerBody').evaluate(geometry)
   assert after==box,(box,after)
@@ -63,6 +77,7 @@ with sync_playwright() as p:
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   page.evaluate('GameFlow.showMenu()');page.click('#flowMenuClose')
   assert page.locator('#readerToggle').is_checked()
+  assert page.locator('#readerPunctuationToggle').is_checked()
   page.click('#readerBack');assert page.locator('#landingView').is_visible()
   assert page.locator('#readerView').evaluate('el => el.getBoundingClientRect().height')==0
   assert page.locator('#landingView').evaluate('el => el.getBoundingClientRect().top+scrollY')<30
@@ -70,6 +85,9 @@ with sync_playwright() as p:
   page.reload();page.evaluate('GameFlow.showMenu()');page.click('#flowReader')
   assert page.locator('#readerBody').text_content()==text
   assert page.locator('#readerToggle').is_checked()
+  assert page.locator('#readerPunctuationToggle').is_checked()
+  page.click('#readerEdit');page.click('#readerRead')
+  assert page.locator('#readerPunctuationToggle').is_checked()
   page.click('#readerEdit');page.fill('#readerText','字'*5001)
   assert page.locator('#readerRead').is_disabled()
   page.wait_for_timeout(400)
@@ -79,7 +97,9 @@ with sync_playwright() as p:
   page.click('#readerDelete');page.click('#readerDeleteYes')
   assert page.evaluate('(k)=>localStorage.getItem(k)',KEY) is None
   assert not page.locator('#readerToggle').is_checked() or not page.locator('#readerOutput').is_visible()
-  page.fill('#readerText','白茶很好喝。');page.click('#readerRead');page.check('#readerToggle')
+  page.fill('#readerText','白茶，清香；好喝。');page.click('#readerRead');page.check('#readerToggle')
+  assert not page.locator('#readerPunctuationToggle').is_checked()
+  page.check('#readerPunctuationToggle')
   assert page.locator('#readerEmpty').is_visible()
   # Return to still-live story and tactical state, without changing progress.
   page.click('#readerBack');page.evaluate('GameFlow.playStory("prologue-departure")')
@@ -104,6 +124,17 @@ with sync_playwright() as p:
   assert '하지 못' in page.locator('#readerStorageStatus').text_content()
   page.screenshot(path=f'/tmp/reader-{name}.png',full_page=True)
   assert not errors,errors
+  # Existing drafts without the new optional preference remain readable and default off.
+  legacy=browser.new_page(viewport={'width':375,'height':667})
+  old={'schemaVersion':1,'title':'기존 글','text':'茶：清香。','showMarkers':True,'updatedAt':1}
+  legacy.add_init_script(f'localStorage.setItem({json.dumps(KEY)}, {json.dumps(json.dumps(old))})')
+  legacy.goto(url);legacy.wait_for_function('!!window.ReaderRuntime && !!window.GameFlow')
+  legacy.evaluate('GameFlow.showMenu()');legacy.click('#flowReader')
+  assert legacy.locator('#readerBody').text_content()==old['text']
+  assert legacy.locator('#readerToggle').is_checked()
+  assert not legacy.locator('#readerPunctuationToggle').is_checked()
+  assert legacy.locator('#readerStorageStatus').text_content()==''
+  legacy.close()
   browser.close()
   print(f'PASS {name}: reader input/render/toggle/storage/return/subpath')
 server.shutdown()
