@@ -15,6 +15,12 @@ with sync_playwright() as p:
             page.on('pageerror',lambda e:errors.append(str(e)))
             page.goto(url)
             page.locator('[data-study="03A"]').click()
+            assert page.locator('.lesson').is_visible()
+            assert '既然' in page.locator('#source').inner_text()
+            page.locator('[data-action="explore"][data-id="conditional"]').click()
+            assert '如果找到圖紙' in page.locator('#source').inner_text()
+            assert page.locator('.feedback').count()==0
+            page.locator('[data-action="next"]').click()
             assert '就先把位置記下來吧' not in page.locator('#source').inner_text()
             page.locator('[data-id="condition"]').click()
             assert page.locator('.feedback.wrong').is_visible()
@@ -26,6 +32,17 @@ with sync_playwright() as p:
                 page.locator('[data-study="'+sid+'"]').click()
                 tasks=page.evaluate("(sid)=>TowerReadingModel.studies.find(x=>x.id===sid).tasks",sid)
                 for task in tasks:
+                    if task['kind']=='lesson':
+                        assert page.locator('.lesson').is_visible()
+                        for variant in task['variants']:
+                            page.locator('[data-action="explore"][data-id="'+variant['id']+'"]').click()
+                            assert page.locator('#source').inner_text()==variant['sentence']
+                            assert page.locator('.feedback').count()==0
+                            assert page.locator('[data-action="explore"][aria-pressed="true"]').get_attribute('data-id')==variant['id']
+                            assert page.locator('.learn-flow, .learn-fork, .learn-timeline, .learn-scope').count()==1
+                            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
+                        page.locator('[data-action="next"]').click()
+                        continue
                     if task['kind']=='reading':
                         assert page.locator('#source mark').count()==0
                     if 'options' in task:

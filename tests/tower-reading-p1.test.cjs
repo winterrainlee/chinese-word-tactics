@@ -7,6 +7,20 @@ for(const st of m.studies)test(st.id+' rejects incorrect/incomplete attempts and
   let s=m.fresh(st.id);
   for(const t of st.tasks){
     assert.equal(m.current(s).id,t.id);
+    if(t.kind==='lesson'){
+      const initial=s;
+      assert.ok(!s.solved&&!s.attempted&&!s.last);
+      assert.equal(m.lessonVariant(s).id,t.variants[0].id);
+      for(const v of t.variants){
+        s=m.apply(s,{type:'explore',id:v.id});
+        assert.equal(m.visible(s),v.sentence);
+        assert.equal(m.lessonVariant(s).id,v.id);
+        assert.ok(!s.solved&&!s.attempted&&!s.last);
+      }
+      assert.equal(m.apply(s,{type:'answer',id:'invalid'}).last,null);
+      assert.equal(m.apply(initial,{type:'next'}).index,initial.index+1);
+      s=m.apply(s,{type:'next'});continue;
+    }
     assert.equal(m.apply(s,{type:'next'}).index,s.index);
     if(t.tail)assert.ok(!m.visible(s).includes(t.tail));
     if(t.options){
@@ -25,3 +39,5 @@ for(const st of m.studies)test(st.id+' rejects incorrect/incomplete attempts and
   }
   assert.ok(s.done);assert.equal(m.fresh(st.id).index,0);
 });
+
+test('every room opens with observation and preserves the original 16 application tasks',()=>{assert.equal(m.studies.flatMap(s=>s.tasks).filter(t=>t.kind==='lesson').length,11);assert.equal(m.studies.flatMap(s=>s.tasks).filter(t=>t.kind!=='lesson').length,16);for(const st of m.studies){assert.equal(st.tasks[0].kind,'lesson');assert.equal(st.tasks.at(-1).kind,'reading');}});
