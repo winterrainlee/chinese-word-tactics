@@ -1,5 +1,7 @@
 # 학술탑 UI 설계 기준
 
+> **2026-11-25 상위 학습 설계:** 신규·개편 연구는 [의미 방향 중심 독해 설계 원칙](ACADEMIC-TOWER-READING-DESIGN-v0.1.md)을 먼저 따른다. 방향 잡기·의미 유지/갱신·정보 성격 파악을 상황에 맞게 조작하고, 도움을 줄여 연속 독해로 이어 간다. 이 UI 가이드의 원본/작업·최소 조작·모바일 계약과 기존 구현은 유지한다. P1은 상세 설계 및 시험 전이다.
+
 > 2026-10-25 현재 구현: 본선 01~05·03A에 문장 방향 조작을 반영했다. 세부 사양·저장 호환·검사 결과는 [재구축 구현 기록](ACADEMIC-TOWER-REBUILD-IMPLEMENTATION-v0.1.md)과 [첫 묶음 §11](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md)을 따른다. 아래 재설계 이전 조작 설명은 기준선으로 보존하며 iPhone 승인은 별도 대기한다.
 
 2026-10-05. 실제 플레이 피드백으로 확정한 작업대 원칙과 연구실·여정 설계를 통합한다. 앞으로의 학술탑 UI 변경은 이 문서를 기준으로 삼는다. 개별 구현 이력은 [MVP](ACADEMIC-TOWER-UI-MVP-v0.1.md), [확장 계획](ACADEMIC-TOWER-UI-EXPANSION-v0.1.md), 콘텐츠 구성은 [첫 연구 묶음](ACADEMIC-TOWER-FIRST-RESEARCH-BUNDLE-v0.1.md)을 참고한다.
