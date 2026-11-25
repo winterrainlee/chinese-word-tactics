@@ -12,7 +12,7 @@ const buildStudies = function buildStudies(){
     ]},
     {id:'03B',title:'변하는 것과 남는 것',zh:'改變與延續',intro:'옛 기록을 읽고 지금의 모습과 비교한다. 한 부분이 달라져도 다른 사실은 그대로 남을 수 있다.',tasks:[
       {id:'b-still',kind:'matrix',prefix:'舊記錄提到，很多人沿著那條路前往市集。少年說，那條路現在仍然有人走。',markers:['仍然'],question:'두 기록에서 확인할 수 있는 범위를 표시해 보자.',columns:[opt('same','이어짐'),opt('unknown','알 수 없음')],rows:[row('path','那條路有人走','same','과거 기록과 현재 증언 모두 길을 이용하는 사람이 있다는 뜻이야.'),row('count','每天的人數跟以前一樣','unknown','사람 수가 같다고 말하지는 않았어.')],result:'이어지는 것은 길의 이용이다. 이용자 수가 예전과 같은지는 확인할 수 없다.',help:'仍然 (ㄖㄥˊ ㄖㄢˊ): 여전히, 아직도. 특정 상태나 행동이 이어짐을 알린다.'},
-      {id:'b-despite',kind:'matrix',prefix:'雖然路旁的一間店已經換了主人，那條路依然有人走。',markers:['雖然','依然'],question:'달라진 것과 이어지는 것을 나누어 보자.',columns:[opt('changed','달라짐'),opt('same','이어짐')],rows:[row('shop','路旁店家的主人','changed','店已經換了主人은 주인이 바뀌었다는 사실이야.'),row('road','有人走那條路','same','依然 뒤에서 길의 이용이 이어진다는 걸 읽어.')],result:'가게 주인은 달라졌고 길을 이용하는 사람은 여전히 있다. 雖然 뒤의 사실도 지우지 않는다.',help:'依然 (ㄧ ㄖㄢˊ): 여전히 그러하다. 이 문맥에서는 仍然과 바꾸어 쓸 수 있어.'},
+      {id:'b-despite',kind:'matrix',prefix:'雖然路旁的一間店已經換了主人，那條路依然有人走。',markers:['雖然','依然'],question:'달라진 것과 이어지는 것을 나누어 보자.',columns:[opt('changed','달라짐'),opt('same','이어짐')],rows:[row('shop','路旁店家的主人','changed','店已經換了主人은 주인이 바뀌었다는 사실이야.'),row('road','有人走那條路','same','依然 뒤에서 길의 이용이 이어진다는 걸 읽어.')],result:'가게 주인은 달라졌고 길을 이용하는 사람은 여전히 있다. 雖然이 인정한 앞의 사실도 지우지 않는다.',help:'依然 (ㄧ ㄖㄢˊ): 여전히 그러하다. 이 문맥에서는 仍然과 바꾸어 쓸 수 있어.'},
       {id:'b-concede',kind:'route',prefix:'舊地圖固然很有參考價值，',tail:'但是不能只靠它了解現在的市集。',markers:['固然','但是'],question:'뒤에 이어질 내용을 어떻게 받을까?',options:[opt('deny','앞 내용을 전부 부정한다','固然은 앞의 타당한 점을 인정하고 다른 면을 읽게 해.'),opt('add','앞의 타당한 점을 인정하고 다른 면도 본다'),opt('order','그다음 사건을 말한다','시간 순서가 아니라 두 측면을 함께 읽는 문장이야.')],answer:'add',result:'옛 지도의 가치는 인정하면서, 지금의 장터를 이해하는 데에는 한계가 있다고 덧붙인다.',help:'固然 (ㄍㄨˋ ㄖㄢˊ): 이 양보 용법에서는 앞의 타당함을 인정하고 다른 측면도 이어 준다.'},
       {id:'b-even',kind:'route',prefix:'縱然以後那條路不再有人走，',tail:'這份記錄依然值得保存。',markers:['縱然','依然'],question:'어떤 마음으로 뒤의 결론을 기다릴까?',options:[opt('known','길을 더 이상 이용하지 않는 사실이 이미 확인됐다','縱然은 여기서 앞으로 일어날 수도 있는 상황을 양보의 대상으로 삼고 있어.'),opt('hypo','설령 그런 상황이어도 뒤의 결론은 유지된다')],answer:'hypo',result:'앞으로 길이 쓰이지 않더라도 기록은 보존할 가치가 있다는 판단이다. 길이 실제로 폐쇄되었다는 말이 아니다.',help:'縱然 (ㄗㄨㄥˋ ㄖㄢˊ): 설령 그렇더라도.'},
       {id:'b-read',kind:'reading',prefix:'雖然舊圖上的橋已經重建了，村民依然從那裡過河。舊圖固然不能告訴我們新橋的樣子，但是仍然能幫我們找到過河的地方。縱然將來那裡不再有橋，這份圖也值得保存。',markers:[],question:'이 글에 맞는 해석은?',options:[opt('all','舊記錄和現在的情況完全一樣。','다리는 다시 지어졌고 옛 지도는 새 다리의 모습을 알려 주지 못해.'),opt('value','有些情況改變了，但舊記錄還是值得保存。'),opt('discard','那裡已經沒有橋了，舊圖也沒用了。','사람들은 지금도 그곳에서 강을 건너고 있어. 앞으로의 가정은 현재 사실이 아니야.')],answer:'value',result:'달라진 사실, 이어지는 상태, 가정과 유지되는 결론을 함께 남겼어.'}
@@ -23,19 +23,68 @@ const buildStudies = function buildStudies(){
       {id:'c-confidence',kind:'evidence',prefix:'舊圖上畫著三條路。有人在圖旁寫道：「這三條路當然都還在。」',markers:['當然'],question:'옛 지도가 알려주는 것과 쪽지 작성자의 판단을 나누자.',columns:[opt('source','옛 지도에 있는 내용'),opt('claim','쪽지 작성자의 판단')],rows:[row('three','舊圖上畫著三條路','source','지도에는 세 길이 그려져 있어.'),row('all','這三條路都還在','claim','當然은 쪽지 작성자가 당연하게 여긴다는 말이야. 현재 세 길의 상태는 별도 확인해야 해.')],result:'當然은 발화자의 확신을 드러낸다. 그렇다고 그 판단이 자동으로 사실이나 오류가 되는 것은 아니다.',help:'當然 (ㄉㄤ ㄖㄢˊ): 당연히, 물론.'},
       {id:'c-scope',kind:'matrix',prefix:'「舊圖完全沒有參考價值。」少年說：「也不盡然。至少那條路現在還有人走。」',markers:['不盡然','至少'],question:'소년의 말이 어디까지 판단을 제한하는지 표시해 보자.',columns:[opt('keep','남긴다'),opt('reject','그대로 받아들이지 않는다')],rows:[row('path','那條路現在還有人走','keep','소년이 예로 든 사실은 남겨야 해.'),row('none','舊圖完全沒有參考價值','reject','不盡然은 전적으로 그렇다고 받아들이지 않는 말이야.')],result:'옛 지도에 아무 가치도 없다는 전체 판단을 제한한다. 그렇다고 옛 지도가 전부 정확하다고 단정하지 않는다.',help:'不盡然 (ㄅㄨˋ ㄐㄧㄣˋ ㄖㄢˊ): 꼭 그렇지만은 않다.'},
       {id:'c-surprise',kind:'route',prefix:'研究員原以為水車已經不能用了。它居然',tail:'還能正常運轉。',markers:['居然'],question:'이제 실제 결과를 어떤 관점에서 읽을까?',options:[opt('matched','예상과 같다고 본다','居然은 뜻밖이라는 평가를 붙여. 예상과 맞았다는 果然과 구별해.'),opt('surprise','예상과 다르다고 본다')],answer:'surprise',result:'실제로 정상 작동했다는 결과는 예상과 달랐다. 竟然도 이 문맥에서 자연스럽다. 좋은 결과인지 나쁜 결과인지는 기준이 아니다.',help:'居然 (ㄐㄩ ㄖㄢˊ): 뜻밖에도. 竟然과 의미가 가까워.'},
-      {id:'c-read',kind:'reading',prefix:'本來大家以為舊水門已經不能用了，它竟然還能開關。不過，檢查時發現門板有一道裂縫。研究員認為，如果水量突然增加，門板必然會受損。有人認為水門現在完全沒有問題，這也不盡然。',markers:[],question:'이 기록을 관리자에게 어떻게 전할까?',options:[opt('broken','門板已經壞了，水門完全不能用。','아직 수문이 작동하지 않는다는 관찰이 없어. 실제로는 여닫을 수 있어.'),opt('safe','水門能開關，所以完全沒有問題。','작동하는 사실과 금이 있다는 사실을 둘 다 남겨야 해.'),opt('report','水門還能開關，但門板有裂縫，應該先檢查風險。')],answer:'report',result:'뜻밖의 실제 결과, 확인된 균열, 조건에 따른 판단, 지나친 확신의 제한을 구분했어.'}
+      {id:'c-read',kind:'reading',prefix:'本來大家以為舊水門已經不能用了，它竟然還能開關。不過，檢查時發現門板有一道裂縫。研究員認為，如果水量突然增加，門板必然會受損。有人認為水門現在完全沒有問題，這也不盡然。',markers:[],question:'이 기록을 관리자에게 어떻게 전할까?',options:[opt('broken','門板已經壞了，水門完全不能用。','아직 수문이 작동하지 않는다는 관찰이 없어. 실제로는 여닫을 수 있어.'),opt('safe','水門能開關，所以完全沒有問題。','수문이 여닫히는 사실과 문판에 균열이 있다는 사실을 둘 다 남겨야 해.'),opt('report','水門還能開關，但門板有裂縫，應該先檢查風險。')],answer:'report',result:'뜻밖의 실제 결과, 확인된 균열, 조건에 따른 판단, 지나친 확신의 제한을 구분했어.'}
     ]}
   ];
+};
+const addLessons = function addLessons(studies){
+ const flow=(leftLabel,left,link,rightLabel,right)=>({type:'flow',leftLabel,left,link,rightLabel,right});
+ const fork=(anchor,leftLabel,rightLabel,left,right,active)=>({type:'fork',anchor,leftLabel,rightLabel,left,right,active});
+ const timeline=rows=>({type:'timeline',rows});
+ const scope=rows=>({type:'scope',rows});
+ const V=(id,label,pron,meaning,sentence,markers,visual,note)=>({id,label,pron,meaning,sentence,markers,visual,note});
+ const L=(id,title,intro,variants)=>({id,kind:'lesson',title,intro,variants});
+ const desk=()=>timeline([{label:'책상',past:'舊木桌',now:'新桌子',status:'변화',tone:'changed'},{label:'독서하는 장소와 행동',past:'在窗邊讀書',now:'在窗邊讀書',status:'지속',tone:'same'}]);
+ const send=()=>fork('把記錄送過去','지금 보내면','지금 보내지 않으면','결과는 말하지 않음','可能要等到明天','right');
+ const lessons={
+ 'a-premise':L('learn-a-premise','어디서 판단을 시작할까','앞 상황을 받아들이는 말과 조건으로 제시하는 말을 비교해 봐.',[
+ V('accepted','既然','ㄐㄧˋ ㄖㄢˊ','이미 그러한 이상','既然圖紙已經找到了，就開始核對吧。',['既然','就'],flow('받아들인 전제','圖紙已經找到了','既然 … 就 …','이어서 할 일','開始核對'),'도면을 찾았다는 상황을 받아들이고, 그 전제에서 대조를 시작하자는 판단으로 나아가.'),
+ V('conditional','如果','ㄖㄨˊ ㄍㄨㄛˇ','만약 ~라면','如果找到圖紙，就開始核對吧。',['如果','就'],flow('제시한 조건','找到圖紙','如果 … 就 …','조건이 성립하면','開始核對'),'도면을 찾는 일을 조건으로 제시해. 如果가 항상 모르는 사실만 나타내는 것은 아니야. 여기서는 아직 찾았다고 말하지 않았지.')]),
+ 'a-otherwise':L('learn-a-fork','같은 행동, 다른 방향','표지어를 바꾸면 앞 행동과 뒷구절을 잇는 방식이 달라져.',[
+ V('otherwise','不然','ㄅㄨˋ ㄖㄢˊ','그렇지 않으면','先把門關上，不然風會把紙吹散。',['不然'],fork('把門關上','문을 닫으면','문을 닫지 않으면','결과는 말하지 않음','風會把紙吹散','right'),'不然 뒤의 결과는 앞 행동을 하지 않은 경우에 붙어.'),
+ V('sequence','然後','ㄖㄢˊ ㄏㄡˋ','그런 다음','先把門關上，然後把紙攤平。',['然後'],flow('먼저','把門關上','然後','그다음','把紙攤平'),'然後 뒤는 앞 행동에 이어서 할 일이야. 하지 않은 경우로 갈라지는 게 아니지.')]),
+ 'a-transfer':L('learn-a-alternative','다른 말, 같은 갈림','이 문장에서는 두 표현을 바꾸어도 의미 관계가 유지돼.',[
+ V('short','不然','ㄅㄨˋ ㄖㄢˊ','그렇지 않으면','快把記錄送過去，不然可能要等到明天。',['不然'],send(),'보내지 않으면 내일까지 기다려야 할 가능성이 있다는 뜻이야.'),
+ V('long','要不然','ㄧㄠˋ ㄅㄨˋ ㄖㄢˊ','그렇지 않으면','快把記錄送過去，要不然可能要等到明天。',['要不然'],send(),'여기서는 不然과 같은 조건의 갈림을 만들어. 두 표현을 억지로 구별할 필요는 없어.')]),
+ 'b-still':L('learn-b-continuity','무엇이 그대로 남았을까','과거와 현재를 나란히 놓고, 두 표지어가 가리키는 상태를 살펴봐.',[
+ V('still','仍然','ㄖㄥˊ ㄖㄢˊ','여전히, 아직도','雖然木桌換成了新桌子，研究員仍然在窗邊讀書。',['雖然','仍然'],desk(),'책상은 달라졌어. 仍然이 가리키는 건 연구원이 창가에서 책을 읽는 행동이야.'),
+ V('unchanged','依然','ㄧ ㄖㄢˊ','여전히 그러하다','雖然木桌換成了新桌子，研究員依然在窗邊讀書。',['雖然','依然'],desk(),'依然으로 바꾸어도 여기서 이어지는 것은 같은 행동이야. 雖然이 인정한 앞의 변화도 함께 남아 있어.')]),
+ 'b-concede':L('learn-b-concession','두 측면을 같이 읽는다','앞 구절을 지우지 않고 뒤의 내용을 더해 보자.',[
+ V('admit','固然','ㄍㄨˋ ㄖㄢˊ','물론 ~이기는 하지만','這份記錄固然寫得很清楚，但有些細節還需要核對。',['固然','但'],flow('먼저 인정','記錄寫得很清楚','固然 … 但 …','함께 볼 다른 측면','有些細節需要核對'),'기록이 명확하다는 점을 인정해. 그 사실만으로 검토할 일이 없다고 판단하지는 않아.'),
+ V('although','雖然','ㄙㄨㄟ ㄖㄢˊ','비록 ~이지만','這份記錄雖然寫得很清楚，但有些細節還需要核對。',['雖然','但'],flow('먼저 인정','記錄寫得很清楚','雖然 … 但 …','함께 볼 다른 측면','有些細節需要核對'),'이 문장에서는 雖然도 앞의 사실을 인정하면서 다른 측면으로 이어 줘. 固然의 다른 용법까지 같다는 뜻은 아니야.')]),
+ 'b-even':L('learn-b-even','설령 그렇게 되더라도','실제로 그런 상황을 인정하는 것과 가정으로 열어 두는 것을 비교해 봐.',[
+ V('actual','雖然','ㄙㄨㄟ ㄖㄢˊ','비록 ~이지만','雖然今天下雨，我們仍然在整理資料。',['雖然','仍然'],flow('이미 일어난 상황','今天下雨','雖然 … 仍然 …','이어지는 행동','整理資料'),'이 문장에서는 오늘 비가 오는 사실과 지금 자료를 정리하는 행동을 함께 읽어.'),
+ V('hypothetical','縱然','ㄗㄨㄥˋ ㄖㄢˊ','설령 그렇더라도','縱然明天還會下雨，我們也會繼續整理資料。',['縱然','也'],flow('가정하는 상황','明天還會下雨','縱然 … 也 …','유지되는 계획','繼續整理資料'),'내일 비가 올 수도 있다는 상황을 가정해도 자료 정리 계획은 유지돼. 내일 비가 확실히 온다는 기록은 아니야.')]),
+ 'c-evidence':L('learn-c-evidence','관찰과 판단 사이','같은 관찰에서 같은 내용을 추론하더라도 말하는 방식이 달라질 수 있어.',[
+ V('apparent','顯然','ㄒㄧㄢˇ ㄖㄢˊ','명백히, 분명히','桌上的墨還沒乾。顯然，這份筆記剛寫好不久。',['顯然'],flow('직접 관찰','墨還沒乾','顯然 · 명백하다고 판단','글쓴이의 판단','筆記剛寫好不久'),'잉크가 마르지 않은 것이 관찰이야. 顯然 뒤는 글쓴이가 그 자료에서 분명하다고 여긴 판단이지.'),
+ V('possible','可能','ㄎㄜˇ ㄋㄥˊ','~일 수 있다','桌上的墨還沒乾。這份筆記可能剛寫好不久。',['可能'],flow('직접 관찰','墨還沒乾','可能 · 가능성으로 제시','글쓴이의 판단','筆記剛寫好不久'),'판단을 가능성으로 제시해. 둘 다 판단이고, 표현의 강도만으로 사실 여부가 정해지지는 않아.')]),
+ 'c-inevitable':L('learn-c-inevitable','판단은 이미 일어난 사실일까','조건은 같지만 연구원이 결과를 다르게 표현해.',[
+ V('necessity','必然','ㄅㄧˋ ㄖㄢˊ','필연적으로, 반드시','研究員認為，如果幾天都不下雨，水位必然會下降。',['如果','必然'],flow('조건','幾天都不下雨','必然 · 필연적이라고 판단','조건에 따른 결과','水位會下降'),'必然은 화자가 조건에 따른 결과를 필연적인 것으로 제시하는 말이야. 실제로 수위가 내려갔다는 관찰은 아니야.'),
+ V('possibility','可能','ㄎㄜˇ ㄋㄥˊ','~일 수 있다','研究員認為，如果幾天都不下雨，水位可能會下降。',['如果','可能'],flow('조건','幾天都不下雨','可能 · 가능성으로 제시','조건에 따른 결과','水位會下降'),'같은 결과를 일어날 수도 있는 일로 표현해. 두 문장 모두 조건의 실제 성립과 결과의 발생은 아직 확인하지 않았어.')]),
+ 'c-confidence':L('learn-c-confidence','누가 당연하다고 여길까','當然은 화자의 자연스러운 확신이나 긍정을 드러내.',[
+ V('reply','자연스러운 응답','ㄉㄤ ㄖㄢˊ','당연히, 물론','「你認得那個印記嗎？」「當然認得。我以前見過。」',['當然'],flow('질문','你認得那個印記嗎？','當然 · 물론이지','화자의 긍정','認得'),'소년은 본 적 있는 표식이라고 자연스럽게 답해. 當然이 모든 문장에서 근거를 증명하거나 틀린 주장을 뜻하지는 않아.'),
+ V('assertion','확신이 담긴 주장','ㄉㄤ ㄖㄢˊ','당연히, 물론','有人說：「這張圖當然是原本的。」',['當然'],flow('발화자','有人說','當然 · 당연하게 여김','그 사람이 한 주장','這張圖是原本的'),'원본이라는 것은 그 사람이 확신하는 내용이야. 실제로 원본인지 확인하려면 다른 자료가 필요해.')]),
+ 'c-scope':L('learn-c-scope','판단을 어디까지 받아들일까','완전히 그렇다는 말과 그 범위를 제한하는 말을 비교해 봐.',[
+ V('claim','앞의 주장','','전부에 대한 판단','有人說：「這些舊記錄全都沒用。」',['全都'],scope([{label:'화자의 주장',text:'這些舊記錄全都沒用',status:'전체 판단',tone:'claim'}]),'한 사람이 옛 기록 전부가 쓸모없다고 판단했어. 이 주장만으로 실제로 모든 기록이 쓸모없는지는 알 수 없어.'),
+ V('limit','不盡然','ㄅㄨˋ ㄐㄧㄣˋ ㄖㄢˊ','꼭 그렇지만은 않다','少年說：「也不盡然。至少其中一份記錄標明了水門的位置。」',['不盡然','至少'],scope([{label:'앞의 주장',text:'這些舊記錄全都沒用',status:'그대로 받아들이지 않음',tone:'limited'},{label:'소년이 든 근거',text:'其中一份記錄標明了水門的位置',status:'남겨 둘 내용',tone:'same'}]),'옛 기록이 전부 쓸모없다는 판단을 제한해. 반대로 모든 기록이 유용하다고 새로 단정하는 것도 아니야.')]),
+ 'c-surprise':L('learn-c-expectation','같은 결과, 다른 예상','실제 결과는 그대로 두고, 처음에 무엇을 예상했는지 바꿔 봐.',[
+ V('matched','果然','ㄍㄨㄛˇ ㄖㄢˊ','과연, 예상대로','研究員猜木盒裡有舊圖。裡面果然有一張舊圖。',['果然'],flow('처음 예상','木盒裡有舊圖','果然 · 예상과 일치','실제 결과','有一張舊圖'),'옛 지도가 있다고 예상했고 실제로도 있었어.'),
+ V('surprise','居然','ㄐㄩ ㄖㄢˊ','뜻밖에도','研究員原以為木盒是空的。裡面居然有一張舊圖。',['居然'],flow('처음 예상','木盒是空的','居然 · 예상에서 벗어남','실제 결과','有一張舊圖'),'실제 결과는 그대로인데 예상만 달라졌어. 뜻밖이라는 평가는 결과의 좋고 나쁨과 별개야.'),
+ V('surprise2','竟然','ㄐㄧㄥˋ ㄖㄢˊ','뜻밖에도','研究員原以為木盒是空的。裡面竟然有一張舊圖。',['竟然'],flow('처음 예상','木盒是空的','竟然 · 예상에서 벗어남','실제 결과','有一張舊圖'),'이 문맥에서는 竟然도 居然과 같은 예상 이탈을 나타낼 수 있어.')])
+ };
+ return studies.map(s=>({...s,tasks:s.tasks.flatMap(t=>lessons[t.id]?[lessons[t.id],t]:[t])}));
 };
 const buildModel = function buildModel(studies){
   const tasks=studies.flatMap(s=>s.tasks);
   const lookup=(sid,tid)=>studies.find(s=>s.id===sid)?.tasks.find(t=>t.id===tid);
-  function fresh(study){if(!studies.some(s=>s.id===study))throw Error('unknown study');return {study,index:0,attempted:false,solved:false,selected:{},last:null,done:false};}
+  function fresh(study){if(!studies.some(s=>s.id===study))throw Error('unknown study');return {study,index:0,attempted:false,solved:false,selected:{},variant:null,last:null,done:false};}
   function current(s){return studies.find(x=>x.id===s.study)?.tasks[s.index];}
+  function lessonVariant(s){const t=current(s);return t?.kind==='lesson'?(t.variants.find(v=>v.id===s.variant)||t.variants[0]):null;}
   function apply(state,action){
     const s={...state,selected:{...state.selected}},t=current(s);
     if(s.done||!t)return s;
-    if(action.type==='next'&&s.solved){const list=studies.find(x=>x.id===s.study).tasks;if(s.index+1===list.length)return {...s,done:true};return {...fresh(s.study),index:s.index+1};}
+    if(action.type==='next'&&(s.solved||t.kind==='lesson')){const list=studies.find(x=>x.id===s.study).tasks;if(s.index+1===list.length)return {...s,done:true};return {...fresh(s.study),index:s.index+1};}
+    if(t.kind==='lesson'){if(action.type==='explore'&&t.variants.some(v=>v.id===action.id))s.variant=action.id;return s;}
     if(s.solved)return s;
     if(action.type==='answer'&&t.options?.some(o=>o.id===action.id)){
       const o=t.options.find(o=>o.id===action.id);
@@ -50,10 +99,16 @@ const buildModel = function buildModel(studies){
     }
     return s;
   }
-  function visible(s){const t=current(s);return t?t.prefix+(t.tail?(s.attempted?t.tail:'……'):''):'';}
+  function visible(s){const t=current(s);return t?(t.kind==='lesson'?lessonVariant(s).sentence:t.prefix+(t.tail?(s.attempted?t.tail:'……'):'')):'';}
   function validate(){
     const ids=new Set();
-    for(const t of tasks){if(ids.has(t.id)||!t.prefix||!t.result)throw Error('invalid task '+t.id);ids.add(t.id);
+    for(const t of tasks){if(ids.has(t.id))throw Error('duplicate task '+t.id);ids.add(t.id);
+      if(t.kind==='lesson'){
+        if(!t.title||!t.intro||t.variants.length<2||new Set(t.variants.map(v=>v.id)).size!==t.variants.length)throw Error('invalid lesson '+t.id);
+        for(const v of t.variants){if(!v.label||!v.meaning||!v.sentence||!v.note||!v.markers.length||v.markers.some(w=>!v.sentence.includes(w))||!['flow','fork','timeline','scope'].includes(v.visual.type))throw Error('invalid lesson variant '+t.id+':'+v.id);}
+        continue;
+      }
+      if(!t.prefix||!t.result)throw Error('invalid task '+t.id);
       if(t.kind==='route'&&!t.tail)throw Error('route without tail '+t.id);
       if(t.kind==='reading'&&(t.markers.length||t.tail))throw Error('assisted reading '+t.id);
       if(t.markers.some(m=>!(t.prefix+(t.tail||'')).includes(m)))throw Error('missing marker '+t.id);
@@ -62,8 +117,8 @@ const buildModel = function buildModel(studies){
     }
     return true;
   }
-  return {studies,lookup,fresh,current,apply,visible,validate};
+  return {studies,lookup,fresh,current,lessonVariant,apply,visible,validate};
 };
-const TowerReadingModel = buildModel(buildStudies());
+const TowerReadingModel = buildModel(addLessons(buildStudies()));
 if(typeof module!=='undefined' && module.exports)module.exports=TowerReadingModel;
 else globalThis.TowerReadingModel=TowerReadingModel;
