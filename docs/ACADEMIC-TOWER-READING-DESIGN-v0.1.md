@@ -2,7 +2,7 @@
 
 작성일: 2026-11-25 (Asia/Taipei)  
 기준선: `main@25c53923b5e4331ed91afd31e48155677c33e0c8`  
-상태: **P0 상위 설계 원칙 정립. P1은 상세 설계·시험 구현 대상이며 아직 미구현.**  
+상태: **P0 상위 설계 원칙 정립. P1 독립 시험판 구현, 본편 통합·검수 전.**  
 범위: 학술탑 본선 01~05, 곁가지 03A·03B·04A, 제안 03C 및 이후 확장 연구.  
 상위 기준: [전체 디자인 원칙](DESIGN-PRINCIPLES-v0.3.md), [콘텐츠 구조](GAME-CONTENT-FRAMEWORK-v0.1.md).  
 관련 계약: [학술탑 UI](ACADEMIC-TOWER-UI-GUIDE-v0.1.md), [연구 로드맵](ACADEMIC-TOWER-SIDE-RESEARCH-ROADMAP-v0.1.md), [후보 어휘·선수](ACADEMIC-TOWER-CANDIDATE-CURRICULUM-v0.1.md), [개발 게이트](REGION-STAGE-DEVELOPMENT-STANDARD-v0.1.md), [기믹 도감](REUSABLE-MECHANICS-v0.2.md), [스토리·해금 §16](STORY-JOURNEY-SYSTEM-v0.1.md), [읽기 연습 구현](READER-IMPLEMENTATION-v0.1.md).

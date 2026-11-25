@@ -39,7 +39,8 @@ with sync_playwright() as p:
                     page.locator('[data-action="next"]').click()
                 assert page.get_by_text('연구 기록을 마쳤어.').is_visible()
                 page.locator('section.complete [data-action="home"]').click()
-            assert page.evaluate('localStorage.length')==0 if base else True
+            if base:
+                assert page.evaluate('localStorage.length')==0
             assert not errors,errors
             page.close()
         browser.close()

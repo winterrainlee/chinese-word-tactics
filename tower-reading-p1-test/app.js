@@ -13,7 +13,7 @@
     let work='';
     if(t.options){
       const options='<div class="options">'+t.options.map(o=>'<button data-action="answer" data-id="'+esc(o.id)+'" '+(state.solved?'disabled ':'')+(state.solved&&o.id===t.answer?'class="good"':'')+'>'+esc(o.text)+'</button>').join('')+'</div>';
-      work=t.kind==='route'?'<div class="route">'+(t.anchor?'<div class="anchor" lang="zh-Hant">'+esc(t.anchor)+'</div><div class="branch" aria-hidden="true">↓</div>':'')+options+'</div>':options;
+      work=t.kind==='route'?'<div class="route '+(t.anchor?'fork':'')+'">'+(t.anchor?'<div class="anchor" lang="zh-Hant">'+esc(t.anchor)+'</div><div class="branch" aria-hidden="true"></div>':'')+options+'</div>':options;
     }else{
       work='<div class="rows '+(t.kind==='evidence'?'evidence':'')+'">'+t.rows.map(r=>'<div class="row"><p lang="zh-Hant">'+esc(r.text)+'</p><div class="choices" role="group" aria-label="'+esc(r.text)+'">'+t.columns.map(c=>'<button data-action="set" data-row="'+esc(r.id)+'" data-id="'+esc(c.id)+'" aria-pressed="'+(state.selected[r.id]===c.id)+'" '+(state.solved?'disabled ':'')+(state.selected[r.id]===c.id?'class="selected"':'')+'>'+esc(c.text)+'</button>').join('')+'</div></div>').join('')+'</div>';
       if(!state.solved)work+='<button class="primary" data-action="check" '+(t.rows.every(r=>state.selected[r.id])?'':'disabled')+'>기록 확인</button>';
